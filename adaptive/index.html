@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AUTOSAR Adaptive Platform Training Guides</title>
+<meta name="description" content="A series of training guides for engineers who are new to the AUTOSAR Adaptive Platform (AP). Each guide explains one functional cluster or topic in plain language: what it does, how it works, how to configure it and how to use its C++ API. The guides are based on the official AUTOSAR specifications, release R25-11, and on reputable public sources.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/pygments.css">
+<script>(function(){try{var t=localStorage.getItem('theme');}catch(e){}
+if(t!=='light'&&t!=='dark'){t=window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}
+document.documentElement.setAttribute('data-theme',t);})();</script>
+</head>
+<body class="page-home">
+<header class="topbar">
+  <button class="icon-btn menu-btn" id="menu-btn" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+  <a class="brand" href="index.html"><span class="brand-mark">AP</span><span class="brand-text">AUTOSAR AP Guides</span></a>
+  <span class="release">R25-11</span>
+  <div class="search" role="search">
+    <span class="search-icon"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+    <input id="search-input" type="search" placeholder="Search sections…  ( / )" autocomplete="off" aria-label="Search all guides">
+    <ul id="search-results" class="search-results" role="listbox" hidden></ul>
+  </div>
+  <button class="icon-btn" id="theme-btn" aria-label="Toggle dark mode"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z" fill="currentColor"/></svg></button>
+</header>
+<div class="layout layout-home">
+<nav class="sidebar" id="sidebar" aria-label="Guides">
+  <a class="sidebar-home" class="active" href="index.html">Home</a>
+  <p class="sidebar-label">Guides</p>
+  <ol class="guide-list"><li><a href="guides/00_LearningPath.html"><span class="num">00</span><span class="title">Learning Path, Series Glossary and Running Example</span></a></li><li><a href="guides/01_PlatformOverview.html"><span class="num">01</span><span class="title">Adaptive Platform Overview and Architecture</span></a></li><li><a href="guides/02_Manifests.html"><span class="num">02</span><span class="title">Manifests and Methodology</span></a></li><li><a href="guides/03_CoreAndGeneral.html"><span class="num">03</span><span class="title"><code>ara::core</code> and General Conventions</span></a></li><li><a href="guides/04_ExecutionManagement.html"><span class="num">04</span><span class="title">Execution Management</span></a></li><li><a href="guides/05_StateManagement.html"><span class="num">05</span><span class="title">State Management</span></a></li><li><a href="guides/06_PlatformHealthManagement.html"><span class="num">06</span><span class="title">Platform Health Management</span></a></li><li><a href="guides/07_CommunicationManagement.html"><span class="num">07</span><span class="title">Communication Management Part 1: <code>ara::com</code> Concepts and API</span></a></li><li><a href="guides/08a_NetworkBindings.html"><span class="num">08a</span><span class="title">Communication Management Part 2: Network Bindings (SOME/IP, Signal-Based, DDS)</span></a></li><li><a href="guides/08b_SecureAndSafeCommunication.html"><span class="num">08b</span><span class="title">Communication Management Part 3: Secure Communication and End-to-End Protection</span></a></li><li><a href="guides/10_LogAndTrace.html"><span class="num">10</span><span class="title">Log and Trace</span></a></li><li><a href="guides/11_Persistency.html"><span class="num">11</span><span class="title">Persistency</span></a></li><li><a href="guides/12a_Diagnostics.html"><span class="num">12a</span><span class="title">Diagnostics Part 1</span></a></li><li><a href="guides/12b_Diagnostics.html"><span class="num">12b</span><span class="title">Diagnostics Part 2</span></a></li></ol>
+</nav>
+<div class="scrim" id="scrim" hidden></div>
+<main class="content" id="content">
+<section class="hero">
+  <p class="eyebrow">Release R25-11 · Training series</p>
+  <h1>AUTOSAR Adaptive Platform Training Guides</h1>
+  <p class="lead">A series of training guides for engineers who are new to the AUTOSAR Adaptive Platform (AP). Each guide explains one functional cluster or topic in plain language: what it does, how it works, how to configure it and how to use its C++ API. The guides are based on the official AUTOSAR specifications, release <strong>R25-11</strong>, and on reputable public sources.</p>
+  <div class="hero-actions">
+    <a class="btn btn-primary" href="guides/00_LearningPath.html">Start with guide 00</a>
+    <a class="btn" href="#the-guides">Browse all guides</a>
+  </div>
+</section>
+<article class="markdown">
+<blockquote>
+<p><strong>Author:</strong> Hieu Do Minh/Claude</p>
+</blockquote>
+<h2 id="who-these-guides-are-for">Who These Guides Are For<a class="anchor" href="#who-these-guides-are-for" aria-label="Link to this section">#</a></h2>
+<ul>
+<li><strong>Application developers</strong> who write software that runs on the Adaptive Platform.</li>
+<li><strong>Integrators</strong> who configure manifests, deploy software and debug ECUs.</li>
+<li><strong>Platform developers</strong> who build or extend functional clusters.</li>
+</ul>
+<p>Assumed background: modern C++, plus basic Linux/POSIX knowledge (processes, signals, sockets). No prior AUTOSAR knowledge is needed. AUTOSAR Classic experience helps but is optional.</p>
+<h2 id="the-guides">The Guides<a class="anchor" href="#the-guides" aria-label="Link to this section">#</a></h2>
+<p>Start with guide 00. It suggests shorter reading paths for specific roles, holds the glossary of the whole series and defines the running example. Otherwise, read the guides in the order of their numbers. Each guide can also be read on its own: it briefly recaps what it needs from other guides and links to them.</p>
+<ul class="cards"><li><a class="card" href="guides/00_LearningPath.html"><span class="card-num">00</span><span class="card-title">Learning Path, Series Glossary and Running Example</span><span class="badge badge-available">Available (v1.0)</span></a></li><li><a class="card" href="guides/01_PlatformOverview.html"><span class="card-num">01</span><span class="card-title">Adaptive Platform Overview and Architecture</span><span class="badge badge-review">In review</span></a></li><li><a class="card" href="guides/02_Manifests.html"><span class="card-num">02</span><span class="card-title">Manifests and Methodology</span><span class="badge badge-review">In review</span></a></li><li><a class="card" href="guides/03_CoreAndGeneral.html"><span class="card-num">03</span><span class="card-title"><code>ara::core</code> and General Conventions</span><span class="badge badge-review">In review</span></a></li><li><a class="card" href="guides/04_ExecutionManagement.html"><span class="card-num">04</span><span class="card-title">Execution Management</span><span class="badge badge-available">Available (v1.0)</span></a></li><li><a class="card" href="guides/05_StateManagement.html"><span class="card-num">05</span><span class="card-title">State Management</span><span class="badge badge-review">In review</span></a></li><li><a class="card" href="guides/06_PlatformHealthManagement.html"><span class="card-num">06</span><span class="card-title">Platform Health Management</span><span class="badge badge-review">In review</span></a></li><li><a class="card" href="guides/07_CommunicationManagement.html"><span class="card-num">07</span><span class="card-title">Communication Management Part 1: <code>ara::com</code> Concepts and API</span><span class="badge badge-review">In review</span></a></li><li><a class="card" href="guides/08a_NetworkBindings.html"><span class="card-num">08a</span><span class="card-title">Communication Management Part 2: Network Bindings (SOME/IP, Signal-Based, DDS)</span><span class="badge badge-review">In review</span></a></li><li><a class="card" href="guides/08b_SecureAndSafeCommunication.html"><span class="card-num">08b</span><span class="card-title">Communication Management Part 3: Secure Communication and End-to-End Protection</span><span class="badge badge-review">In review</span></a></li><li><div class="card card-planned" aria-disabled="true"><span class="card-num">09</span><span class="card-title">Network Management, Time Synchronization and Raw Data Stream</span><span class="badge badge-planned">Planned</span></div></li><li><a class="card" href="guides/10_LogAndTrace.html"><span class="card-num">10</span><span class="card-title">Log and Trace</span><span class="badge badge-review">In review</span></a></li><li><a class="card" href="guides/11_Persistency.html"><span class="card-num">11</span><span class="card-title">Persistency</span><span class="badge badge-review">In review</span></a></li><li><a class="card" href="guides/12a_Diagnostics.html"><span class="card-num">12a</span><span class="card-title">Diagnostics Part 1</span><span class="badge badge-review">In review</span></a></li><li><a class="card" href="guides/12b_Diagnostics.html"><span class="card-num">12b</span><span class="card-title">Diagnostics Part 2</span><span class="badge badge-review">In review</span></a></li><li><div class="card card-planned" aria-disabled="true"><span class="card-num">13</span><span class="card-title">Update and Configuration Management</span><span class="badge badge-planned">Planned</span></div></li><li><div class="card card-planned" aria-disabled="true"><span class="card-num">14</span><span class="card-title">Cryptography</span><span class="badge badge-planned">Planned</span></div></li><li><div class="card card-planned" aria-disabled="true"><span class="card-num">15</span><span class="card-title">Identity and Access Management</span><span class="badge badge-planned">Planned</span></div></li><li><div class="card card-planned" aria-disabled="true"><span class="card-num">16</span><span class="card-title">Intrusion Detection System Manager and Firewall</span><span class="badge badge-planned">Planned</span></div></li><li><div class="card card-planned" aria-disabled="true"><span class="card-num">17</span><span class="card-title">End-to-End Integration: A Day in the Life of the HPC</span><span class="badge badge-planned">Planned</span></div></li></ul>
+<p>The version in brackets is the current version of the guide. It increases when a revised guide is published.</p>
+<p>All guides share one running example: an invented high-performance ECU called <strong>HPC</strong> that runs an ADAS feature. Every guide shows its topic on this example, so the pieces fit together as you read on.</p>
+<h2 id="how-the-guides-are-built">How the Guides Are Built<a class="anchor" href="#how-the-guides-are-built" aria-label="Link to this section">#</a></h2>
+<p>Every guide follows the same structure:</p>
+<ol>
+<li><strong>About This Guide:</strong> audience, learning objectives and the running example.</li>
+<li><strong>Concept chapters:</strong> each starts with <em>Why this matters</em> and ends with <em>Key takeaways</em>.</li>
+<li><strong>Configuration:</strong> what you must configure and where, what each setting means, its allowed values, its default and its effect at run time, plus a minimal configuration checklist.</li>
+<li><strong>API chapter:</strong> the <code>ara::</code> C++ interface with usage examples.</li>
+<li><strong>Practice:</strong> an end-to-end walkthrough, best practices, pitfalls and troubleshooting.</li>
+<li><strong>Self-check quiz</strong> with answers.</li>
+<li><strong>Appendices:</strong> glossary, cheat sheet, traceability to the specification, and notable changes between releases.</li>
+</ol>
+<p>Conventions used throughout:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Convention</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>[SWS_EM_01050]</code></td>
+<td>A requirement ID in the AUTOSAR specification. Search for it in the specification to read the exact normative text.</td>
+</tr>
+<tr>
+<td><strong>Note (implementation example)</strong></td>
+<td>How a typical implementation <em>might</em> realize something. This is not mandated by AUTOSAR.</td>
+</tr>
+<tr>
+<td><strong>Pitfall</strong></td>
+<td>A common mistake seen in real projects.</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="the-autosar-specifications">The AUTOSAR Specifications<a class="anchor" href="#the-autosar-specifications" aria-label="Link to this section">#</a></h2>
+<p>The guides cite the specifications but do not include them. You can download them free of charge from <a href="https://www.autosar.org/standards" target="_blank" rel="noopener">https://www.autosar.org/standards</a> (Adaptive Platform and Foundation, release R25-11). Guide 01 also cites two documents of the Classic Platform R25-11.</p>
+<h2 id="disclaimer">Disclaimer<a class="anchor" href="#disclaimer" aria-label="Link to this section">#</a></h2>
+<p>These guides are training material, not a normative reference. Where a guide and an AUTOSAR specification differ, the specification applies.</p>
+
+</article>
+<footer class="site-footer"><p>Author: Hieu Do Minh/Claude · Based on the AUTOSAR Adaptive Platform and Foundation specifications, release R25-11.</p><p>Training material, not a normative reference. Where a guide and an AUTOSAR specification differ, the specification applies. Specifications: <a href="https://www.autosar.org/standards" target="_blank" rel="noopener">autosar.org/standards</a>.</p></footer>
+</main>
+</div>
+<script src="assets/search-index.js" defer></script>
+<script src="assets/app.js" defer></script>
+</body>
+</html>
