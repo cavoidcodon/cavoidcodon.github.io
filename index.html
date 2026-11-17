@@ -50,6 +50,12 @@ h1 { margin: 0 0 12px; font-size: clamp(30px, 5vw, 44px); line-height: 1.15; let
 .chip { font-size: 13px; font-weight: 600; padding: 2px 10px; border-radius: 999px;
   border: 1px solid var(--border); color: var(--fg-muted); background: var(--bg-soft); }
 .cta { font-weight: 650; color: var(--accent); }
+.projects { display: grid; gap: 16px; }
+.project-soon { border-style: dashed; background: var(--bg-soft); cursor: default; }
+.project-soon:hover { border-color: var(--border); box-shadow: none; transform: none; }
+.project-soon .mark { background: var(--border-soft); color: var(--fg-muted); }
+.mark-small { font-size: 16px; }
+.chip-soon { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
 footer { max-width: 920px; width: 100%; margin: 0 auto; padding: 20px 16px 32px;
   border-top: 1px solid var(--border-soft); font-size: 13px; color: var(--fg-faint); }
 @media (max-width: 560px) {
@@ -70,19 +76,32 @@ footer { max-width: 920px; width: 100%; margin: 0 auto; padding: 20px 16px 32px;
   <h1>Notes and training material</h1>
   <p class="lead">A collection of interesting topics in automotive software, from software platforms and architecture to communication and diagnostics. I write these notes to share what I have learned along the way, and I hope they serve as a practical reference for anyone who is interested in the field.</p>
 
-  <a class="project" href="adaptive/">
-    <span class="mark">AP</span>
-    <div>
-      <h2>AUTOSAR Adaptive Platform Training Guides</h2>
-      <p>A series of training guides for engineers new to the AUTOSAR Adaptive Platform. Each guide explains one functional cluster or topic: what it does, how it works, how to configure it and how to use its C++ API.</p>
-      <div class="meta">
-        <span class="chip">Release R25-11</span>
-        <span class="chip">14 guides</span>
-        <span class="chip">English</span>
+  <div class="projects">
+    <a class="project" href="adaptive/">
+      <span class="mark">AP</span>
+      <div>
+        <h2>AUTOSAR Adaptive Platform Training Guides</h2>
+        <p>A series of training guides for engineers new to the AUTOSAR Adaptive Platform. Each guide explains one functional cluster or topic: what it does, how it works, how to configure it and how to use its C++ API.</p>
+        <div class="meta">
+          <span class="chip">Release R25-11</span>
+          <span class="chip">14 guides</span>
+          <span class="chip">English</span>
+        </div>
+        <span class="cta">Open the guides →</span>
       </div>
-      <span class="cta">Open the guides →</span>
+    </a>
+    <div class="project project-soon" aria-disabled="true">
+      <span class="mark mark-small">S/IP</span>
+      <div>
+        <h2>SOME/IP and SOME/IP Service Discovery</h2>
+        <p>A guide to SOME/IP, the service-oriented middleware protocol used in many vehicle networks, and to its Service Discovery protocol (SOME/IP-SD): the message format, serialization, transport over UDP and TCP, and how services are offered, found and subscribed at run time.</p>
+        <div class="meta">
+          <span class="chip chip-soon">Coming soon</span>
+          <span class="chip">English</span>
+        </div>
+      </div>
     </div>
-  </a>
+  </div>
 </main>
 <footer>AUTOSAR is a registered trademark of the AUTOSAR development partnership. These guides are independent training material, not a normative reference.</footer>
 <script>
