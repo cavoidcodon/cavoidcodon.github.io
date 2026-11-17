@@ -1,0 +1,6 @@
+# GitHub Pages (Jekyll) settings.
+# sources/ holds the Markdown sources of the published sites; they are built
+# into HTML separately (for example sources/adaptive -> adaptive/), so Jekyll
+# must not render them a second time.
+exclude:
+  - sources

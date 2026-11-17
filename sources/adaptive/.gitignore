@@ -1,0 +1,8 @@
+# Only the guide sources are pushed to GitHub: README.md and guides/.
+# Everything else in this folder (CLAUDE.md, ROADMAP.md, tasks/, references/,
+# tools/, .claude/, specs/, work/, .venv/) is local working material.
+# The AUTOSAR specifications in specs/ are copyrighted and must never be committed.
+/*
+!/.gitignore
+!/README.md
+!/guides/
