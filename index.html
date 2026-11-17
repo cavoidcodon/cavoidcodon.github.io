@@ -27,57 +27,98 @@ html[data-theme="dark"] {
 body { margin: 0; min-height: 100vh; display: flex; flex-direction: column;
   background: var(--bg); color: var(--fg); font: 16px/1.6 var(--font); }
 a { color: var(--accent); text-decoration: none; }
-header { display: flex; align-items: center; justify-content: space-between;
+.hero { position: relative; overflow: hidden; isolation: isolate; background: #0d1117; color: var(--fg);
+  --fg: #f0f3f6; --fg-muted: #c3cad3; --accent: #7cb8ff;
+  --bg-soft: rgba(255,255,255,.08); --border-soft: rgba(255,255,255,.18); }
+.hero-bg { position: absolute; inset: 0; z-index: -2; pointer-events: none;
+  background: url("assets/centralised-ee-architecture.jpg") center / cover no-repeat;
+  filter: blur(5px) saturate(1.1); transform: scale(1.08); }
+.hero::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(90deg, rgba(13,17,23,.88) 0%, rgba(13,17,23,.62) 55%, rgba(13,17,23,.38) 100%); }
+header { display: flex; align-items: center; justify-content: flex-end;
   max-width: 920px; width: 100%; margin: 0 auto; padding: 20px 16px; }
-.handle { font-weight: 650; color: var(--fg); }
+.intro { max-width: 920px; margin: 0 auto; padding: 20px 16px 44px; }
 .theme-btn { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 8px;
   border: 1px solid var(--border-soft); background: transparent; color: var(--fg-muted); cursor: pointer; }
 .theme-btn:hover { background: var(--bg-soft); color: var(--fg); }
-main { flex: 1; max-width: 920px; width: 100%; margin: 0 auto; padding: 48px 16px 64px; }
-.eyebrow { margin: 0 0 8px; font-size: 13px; font-weight: 650; letter-spacing: .08em;
+main { flex: 1; max-width: 920px; width: 100%; margin: 0 auto; padding: 28px 16px 56px; }
+.eyebrow { margin: 0 0 6px; font-size: 12px; font-weight: 650; letter-spacing: .08em;
   text-transform: uppercase; color: var(--accent); }
-h1 { margin: 0 0 12px; font-size: clamp(30px, 5vw, 44px); line-height: 1.15; letter-spacing: -.02em; }
-.lead { margin: 0 0 40px; max-width: 640px; font-size: 18px; color: var(--fg-muted); }
-.project { display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: start;
-  padding: 24px; border: 1px solid var(--border); border-radius: 14px; background: var(--bg);
+h1 { margin: 0 0 10px; font-size: clamp(26px, 4vw, 34px); line-height: 1.2; letter-spacing: -.02em; }
+.lead { margin: 0; max-width: 640px; font-size: 16px; color: var(--fg-muted); }
+.search { position: relative; margin-bottom: 8px; }
+.search svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+  color: var(--fg-faint); pointer-events: none; }
+.search input { width: 100%; height: 42px; padding: 0 44px 0 38px; font: inherit; font-size: 15px;
+  color: var(--fg); background: var(--bg-soft); border: 1px solid var(--border); border-radius: 10px;
+  outline: none; transition: border-color .15s, box-shadow .15s, background .15s; }
+.search input::placeholder { color: var(--fg-faint); }
+.search input:focus { border-color: var(--accent); background: var(--bg);
+  box-shadow: 0 0 0 3px var(--accent-soft); }
+.search input::-webkit-search-cancel-button { cursor: pointer; }
+.search kbd { position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  font: 600 12px/1 var(--font); padding: 4px 7px; border-radius: 6px; color: var(--fg-faint);
+  border: 1px solid var(--border); background: var(--bg); pointer-events: none; }
+.search input:focus ~ kbd, .search input:not(:placeholder-shown) ~ kbd { display: none; }
+.result-count { margin: 0 0 14px; min-height: 20px; font-size: 13px; color: var(--fg-faint); }
+.projects { display: grid; gap: 12px; }
+.project { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: start;
+  padding: 18px 20px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg);
   color: var(--fg); transition: border-color .15s, box-shadow .15s, transform .15s; }
 .project:hover { border-color: var(--accent); box-shadow: var(--shadow); transform: translateY(-2px); }
-.mark { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 12px;
-  background: var(--accent); color: var(--accent-fg); font-weight: 750; font-size: 20px; }
-.project h2 { margin: 0 0 6px; font-size: 22px; line-height: 1.3; }
-.project p { margin: 0 0 14px; color: var(--fg-muted); }
-.meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-.chip { font-size: 13px; font-weight: 600; padding: 2px 10px; border-radius: 999px;
+.project[hidden] { display: none; }
+.mark { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 10px;
+  background: var(--accent); color: var(--accent-fg); font-weight: 750; font-size: 16px; }
+.mark-small { font-size: 13px; }
+.project h2 { margin: 0 0 4px; font-size: 18px; line-height: 1.35; }
+.project p { margin: 0 0 10px; font-size: 15px; line-height: 1.55; color: var(--fg-muted); }
+.meta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.chip { font-size: 12px; font-weight: 600; line-height: 1.5; padding: 1px 8px; border-radius: 999px;
   border: 1px solid var(--border); color: var(--fg-muted); background: var(--bg-soft); }
-.cta { font-weight: 650; color: var(--accent); }
-.projects { display: grid; gap: 16px; }
+.cta { font-size: 14px; font-weight: 650; color: var(--accent); }
 .project-soon { border-style: dashed; background: var(--bg-soft); cursor: default; }
 .project-soon:hover { border-color: var(--border); box-shadow: none; transform: none; }
 .project-soon .mark { background: var(--border-soft); color: var(--fg-muted); }
-.mark-small { font-size: 16px; }
 .chip-soon { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+mark.hl { background: var(--accent-soft); color: inherit; border-radius: 3px; padding: 0 1px; }
+.empty { padding: 32px 16px; text-align: center; font-size: 15px; color: var(--fg-muted);
+  border: 1px dashed var(--border); border-radius: 12px; }
+.empty[hidden] { display: none; }
 footer { max-width: 920px; width: 100%; margin: 0 auto; padding: 20px 16px 32px;
   border-top: 1px solid var(--border-soft); font-size: 13px; color: var(--fg-faint); }
 @media (max-width: 560px) {
-  .project { grid-template-columns: 1fr; gap: 14px; padding: 20px; }
-  .mark { width: 48px; height: 48px; font-size: 18px; }
+  .intro { padding: 4px 16px 32px; }
+  .project { grid-template-columns: 1fr; gap: 10px; padding: 16px; }
+  .mark { width: 40px; height: 40px; font-size: 15px; }
+  .search kbd { display: none; }
 }
 </style>
 </head>
 <body>
+<div class="hero">
+  <div class="hero-bg" aria-hidden="true"></div>
 <header>
-  <span class="handle">Hieu Do Minh</span>
   <button class="theme-btn" id="theme-btn" aria-label="Toggle dark mode">
     <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z" fill="currentColor"/></svg>
   </button>
 </header>
-<main>
+<div class="intro">
   <p class="eyebrow">Automotive software</p>
   <h1>Notes and training material</h1>
   <p class="lead">A collection of interesting topics in automotive software, from software platforms and architecture to communication and diagnostics. I write these notes to share what I have learned along the way, and I hope they serve as a practical reference for anyone who is interested in the field.</p>
+</div>
+</div>
+<main>
 
-  <div class="projects">
-    <a class="project" href="adaptive/">
+  <div class="search" role="search">
+    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    <input type="search" id="topic-search" placeholder="Search topics, e.g. diagnostics, SOME/IP, persistency" aria-label="Search topics" autocomplete="off" spellcheck="false">
+    <kbd>/</kbd>
+  </div>
+  <p class="result-count" id="result-count" aria-live="polite"></p>
+
+  <div class="projects" id="projects">
+    <a class="project" href="adaptive/" data-keywords="ara adaptive autosar platform overview manifests core execution management state management platform health management phm communication management ara::com network bindings some/ip dds secure safe communication e2e log trace dlt persistency diagnostics uds dm c++ posix linux qnx">
       <span class="mark">AP</span>
       <div>
         <h2>AUTOSAR Adaptive Platform Training Guides</h2>
@@ -90,7 +131,19 @@ footer { max-width: 920px; width: 100%; margin: 0 auto; padding: 20px 16px 32px;
         <span class="cta">Open the guides →</span>
       </div>
     </a>
-    <div class="project project-soon" aria-disabled="true">
+    <a class="project" href="posts/autosar/autosar_layered_architecture(eng).html" data-keywords="autosar classic platform cp layered architecture swc software component rte runtime environment bsw basic software mcal microcontroller abstraction ecu abstraction services complex device driver cdd vfb virtual functional bus os com io hardware">
+      <span class="mark">CP</span>
+      <div>
+        <h2>AUTOSAR Classic Platform</h2>
+        <p>An introduction to AUTOSAR Classic, the platform for resource-constrained, real-time ECUs: the layered software architecture of application software components (SWCs), the Runtime Environment (RTE) and Basic Software (BSW), and how an ECU executes AUTOSAR applications.</p>
+        <div class="meta">
+          <span class="chip">Layered architecture</span>
+          <span class="chip">English</span>
+        </div>
+        <span class="cta">Read the article →</span>
+      </div>
+    </a>
+    <div class="project project-soon" aria-disabled="true" data-keywords="someip some-ip sd service discovery middleware soa service oriented ethernet udp tcp serialization">
       <span class="mark mark-small">S/IP</span>
       <div>
         <h2>SOME/IP and SOME/IP Service Discovery</h2>
@@ -101,10 +154,109 @@ footer { max-width: 920px; width: 100%; margin: 0 auto; padding: 20px 16px 32px;
         </div>
       </div>
     </div>
+    <div class="project project-soon" aria-disabled="true" data-keywords="uds unified diagnostic services iso 14229 iso14229 14229 diagnostic diagnostics diagnosis service id sid nrc negative response code diagnostic session control ecu reset security access seed key read data by identifier write data by identifier did routine control dtc diagnostic trouble code read dtc information clear diagnostic information request download transfer data tester present p2 timing iso-tp iso 15765 can doip iso 13400 dcm dem fault memory tester flashing reprogramming bootloader">
+      <span class="mark mark-small">UDS</span>
+      <div>
+        <h2>UDS (ISO 14229)</h2>
+        <p>A guide to Unified Diagnostic Services, the protocol a tester uses to talk to an ECU: the request and response format and negative response codes, diagnostic sessions and security access, reading and writing data by identifier, routine control, reading and clearing DTCs, the ECU reprogramming sequence, and how UDS runs over CAN (ISO-TP) and Ethernet (DoIP).</p>
+        <div class="meta">
+          <span class="chip chip-soon">Coming soon</span>
+          <span class="chip">English</span>
+        </div>
+      </div>
+    </div>
+    <div class="project project-soon" aria-disabled="true" data-keywords="qnx neutrino rtos real-time operating system microkernel posix message passing ipc msgsend msgreceive pulse resource manager process thread scheduling priority adaptive partitioning aps hypervisor safety iso 26262 digital cockpit adas bsp momentics">
+      <span class="mark">QNX</span>
+      <div>
+        <h2>QNX Neutrino RTOS</h2>
+        <p>A guide to QNX, the real-time operating system behind many digital cockpits and ADAS controllers: its microkernel architecture, synchronous message passing, resource managers, processes, threads and priority scheduling, adaptive partitioning, and how it hosts platforms such as AUTOSAR Adaptive.</p>
+        <div class="meta">
+          <span class="chip chip-soon">Coming soon</span>
+          <span class="chip">English</span>
+        </div>
+      </div>
+    </div>
+    <div class="project project-soon" aria-disabled="true" data-keywords="linux system programming posix c c++ glibc system call syscall file descriptor io process fork exec thread pthread signal ipc pipe fifo shared memory message queue semaphore mutex socket epoll poll select mmap memory systemd embedded linux yocto kernel user space">
+      <span class="mark mark-small">LSP</span>
+      <div>
+        <h2>Linux System Programming</h2>
+        <p>A guide to writing user-space programs that talk directly to the Linux kernel: system calls and file I/O, processes and threads, signals, inter-process communication with pipes, shared memory and sockets, I/O multiplexing with epoll, and memory mapping, with a focus on embedded Linux ECUs.</p>
+        <div class="meta">
+          <span class="chip chip-soon">Coming soon</span>
+          <span class="chip">English</span>
+        </div>
+      </div>
+    </div>
   </div>
+  <p class="empty" id="empty" hidden>No topics match your search.</p>
 </main>
 <footer>© 2026 Hieu Do Minh, Hanoi University of Science and Technology</footer>
 <script>
+(function () {
+  var input = document.getElementById('topic-search');
+  var cards = Array.prototype.slice.call(document.querySelectorAll('#projects .project'));
+  var count = document.getElementById('result-count');
+  var empty = document.getElementById('empty');
+  var norm = function (t) { return t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(); };
+  var esc = function (t) { return t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); };
+
+  var items = cards.map(function (card) {
+    var targets = Array.prototype.slice.call(card.querySelectorAll('h2, p, .chip'));
+    return {
+      card: card,
+      targets: targets.map(function (el) { return { el: el, text: el.textContent }; }),
+      haystack: norm(card.textContent + ' ' + (card.getAttribute('data-keywords') || ''))
+    };
+  });
+
+  function highlight(target, words) {
+    var text = target.text;
+    if (!words.length) { target.el.textContent = text; return; }
+    var nt = norm(text), ranges = [];
+    words.forEach(function (w) {
+      var re = new RegExp(esc(w), 'g'), m;
+      while ((m = re.exec(nt))) ranges.push([m.index, m.index + w.length]);
+    });
+    ranges.sort(function (a, b) { return a[0] - b[0]; });
+    var frag = document.createDocumentFragment(), pos = 0;
+    ranges.forEach(function (r) {
+      if (r[0] < pos) return;
+      frag.appendChild(document.createTextNode(text.slice(pos, r[0])));
+      var mk = document.createElement('mark'); mk.className = 'hl';
+      mk.textContent = text.slice(r[0], r[1]); frag.appendChild(mk);
+      pos = r[1];
+    });
+    frag.appendChild(document.createTextNode(text.slice(pos)));
+    target.el.textContent = ''; target.el.appendChild(frag);
+  }
+
+  function run() {
+    var words = norm(input.value).split(/\s+/).filter(Boolean);
+    var shown = 0;
+    items.forEach(function (it) {
+      var match = words.every(function (w) { return it.haystack.indexOf(w) !== -1; });
+      it.card.hidden = !match;
+      if (match) shown++;
+      it.targets.forEach(function (t) { highlight(t, match ? words : []); });
+    });
+    empty.hidden = shown !== 0;
+    count.textContent = words.length
+      ? shown + ' of ' + items.length + (items.length === 1 ? ' topic' : ' topics')
+      : items.length + (items.length === 1 ? ' topic' : ' topics');
+  }
+
+  input.addEventListener('input', run);
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { input.value = ''; run(); input.blur(); }
+  });
+  document.addEventListener('keydown', function (e) {
+    var tag = (document.activeElement && document.activeElement.tagName) || '';
+    if (e.key === '/' && !/INPUT|TEXTAREA|SELECT/.test(tag) && !e.metaKey && !e.ctrlKey) {
+      e.preventDefault(); input.focus();
+    }
+  });
+  run();
+})();
 document.getElementById('theme-btn').addEventListener('click', function () {
   var d = document.documentElement, t = d.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
   d.setAttribute('data-theme', t);
