@@ -28,7 +28,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <nav class="sidebar" id="sidebar" aria-label="Guides">
   <a class="sidebar-home" href="../index.html">Home</a>
   <p class="sidebar-label">Guides</p>
-  <ol class="guide-list"><li><a href="../guides/00_LearningPath.html"><span class="num">00</span><span class="title">Learning Path, Series Glossary and Running Example</span></a></li><li><a href="../guides/01_PlatformOverview.html"><span class="num">01</span><span class="title">Adaptive Platform Overview and Architecture</span></a></li><li><a href="../guides/02_Manifests.html"><span class="num">02</span><span class="title">Manifests and Methodology</span></a></li><li><a href="../guides/03_CoreAndGeneral.html"><span class="num">03</span><span class="title"><code>ara::core</code> and General Conventions</span></a></li><li><a href="../guides/04_ExecutionManagement.html"><span class="num">04</span><span class="title">Execution Management</span></a></li><li><a href="../guides/05_StateManagement.html" class="active" aria-current="page"><span class="num">05</span><span class="title">State Management</span></a></li><li><a href="../guides/06_PlatformHealthManagement.html"><span class="num">06</span><span class="title">Platform Health Management</span></a></li><li><a href="../guides/07_CommunicationManagement.html"><span class="num">07</span><span class="title">Communication Management Part 1: <code>ara::com</code> Concepts and API</span></a></li><li><a href="../guides/08a_NetworkBindings.html"><span class="num">08a</span><span class="title">Communication Management Part 2: Network Bindings (SOME/IP, Signal-Based, DDS)</span></a></li><li><a href="../guides/08b_SecureAndSafeCommunication.html"><span class="num">08b</span><span class="title">Communication Management Part 3: Secure Communication and End-to-End Protection</span></a></li><li><a href="../guides/10_LogAndTrace.html"><span class="num">10</span><span class="title">Log and Trace</span></a></li><li><a href="../guides/11_Persistency.html"><span class="num">11</span><span class="title">Persistency</span></a></li><li><a href="../guides/12a_Diagnostics.html"><span class="num">12a</span><span class="title">Diagnostics Part 1</span></a></li><li><a href="../guides/12b_Diagnostics.html"><span class="num">12b</span><span class="title">Diagnostics Part 2</span></a></li></ol>
+  <ol class="guide-list"><li><a href="../guides/RunningExample.html"><span class="title">The Running Example</span></a></li><li><a href="../guides/Glossary.html"><span class="title">Series Glossary</span></a></li><li><a href="../guides/PlatformOverview.html"><span class="title">Adaptive Platform Overview and Architecture</span></a></li><li><a href="../guides/Manifests.html"><span class="title">Manifests and Methodology</span></a></li><li><a href="../guides/CoreAndGeneral.html"><span class="title"><code>ara::core</code> and General Conventions</span></a></li><li><a href="../guides/ExecutionManagement.html"><span class="title">Execution Management</span></a></li><li><a href="../guides/StateManagement.html" class="active" aria-current="page"><span class="title">State Management</span></a></li><li><a href="../guides/PlatformHealthManagement.html"><span class="title">Platform Health Management</span></a></li><li><a href="../guides/CommunicationManagement.html"><span class="title">Communication Management Part 1: <code>ara::com</code> Concepts and API</span></a></li><li><a href="../guides/NetworkBindings.html"><span class="title">Communication Management Part 2: Network Bindings (SOME/IP, Signal-Based, DDS)</span></a></li><li><a href="../guides/SecureAndSafeCommunication.html"><span class="title">Communication Management Part 3: Secure Communication and End-to-End Protection</span></a></li><li><a href="../guides/LogAndTrace.html"><span class="title">Log and Trace</span></a></li><li><a href="../guides/Persistency.html"><span class="title">Persistency</span></a></li><li><a href="../guides/DiagnosticsPart1.html"><span class="title">Diagnostics Part 1</span></a></li><li><a href="../guides/DiagnosticsPart2.html"><span class="title">Diagnostics Part 2</span></a></li></ol>
 </nav>
 <div class="scrim" id="scrim" hidden></div>
 <main class="content" id="content">
@@ -39,7 +39,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p><strong>Document type:</strong> training material.</p>
 <p><strong>Author:</strong> Hieu Do Minh/Claude</p>
 <p><strong>Version:</strong> 1.0 (draft, pending review)</p>
-<p><strong>Part of the series:</strong> <a href="00_LearningPath.html">AUTOSAR Adaptive Platform Training Guides</a>. Previous: <a href="04_ExecutionManagement.html">04 Execution Management</a>. Next: <a href="06_PlatformHealthManagement.html">06 Platform Health Management</a>.</p>
+<p><strong>Part of the series:</strong> <a href="../index.html">AUTOSAR Adaptive Platform Training Guides</a>. Previous: <a href="ExecutionManagement.html">Execution Management</a>. Next: <a href="PlatformHealthManagement.html">Platform Health Management</a>.</p>
 </blockquote>
 <h2 id="about-this-guide">About This Guide<a class="anchor" href="#about-this-guide" aria-label="Link to this section">#</a></h2>
 <p>State Management (SM) is the functional cluster of the AUTOSAR Adaptive Platform that <em>decides</em> which state the machine and its Function Groups should be in. Execution Management (EM) carries out these decisions: it starts and stops the processes. SM collects the inputs that matter for the decision, such as the vehicle's power mode, failures reported by Platform Health Management and EM, requests of Update and Configuration Management and the state of the networks, and it turns them into Function Group State requests. Much of this logic is specific to each project, so AUTOSAR standardizes only a frame: the interfaces of SM, and an optional, configurable <em>StateMachine approach</em> that covers the common cases. Problem reports such as &quot;the ECU never leaves <code>Startup</code>&quot;, &quot;ADAS switched to degraded mode and never came back&quot;, &quot;the update was refused&quot; or &quot;after a reset the ECU started only half of its software&quot; usually come down to SM's configuration or to the project-specific logic around it. This guide explains both: what AUTOSAR requires and what the project decides. It also covers the configuration in the manifest, the service interfaces through which applications talk to SM, and the small <code>ara::sm</code> C++ API.</p>
@@ -50,7 +50,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <li><strong>Platform developers</strong>, in particular of EM, PHM and UCM, who need to know what SM expects from them and what it answers.</li>
 <li><strong>System and safety engineers</strong> who need to know which state behavior is standardized and which is a project decision.</li>
 </ul>
-<p>Assumed background: modern C++, plus basic Linux/POSIX knowledge (processes, signals, power management). You do not need prior AUTOSAR Adaptive knowledge. Four guides of the series make this one easier: <a href="01_PlatformOverview.html">01 Adaptive Platform Overview and Architecture</a> for the big picture, <a href="02_Manifests.html">02 Manifests and Methodology</a> for how the model is written, <a href="03_CoreAndGeneral.html">03 <code>ara::core</code> and General Conventions</a> for <code>Result</code>, <code>Future</code> and error domains, and above all <a href="04_ExecutionManagement.html">04 Execution Management</a>, which explains the Function Group State transitions that SM requests.</p>
+<p>Assumed background: modern C++, plus basic Linux/POSIX knowledge (processes, signals, power management). You do not need prior AUTOSAR Adaptive knowledge. Four guides of the series make this one easier: <a href="PlatformOverview.html">Adaptive Platform Overview and Architecture</a> for the big picture, <a href="Manifests.html">Manifests and Methodology</a> for how the model is written, <a href="CoreAndGeneral.html"><code>ara::core</code> and General Conventions</a> for <code>Result</code>, <code>Future</code> and error domains, and above all <a href="ExecutionManagement.html">Execution Management</a>, which explains the Function Group State transitions that SM requests.</p>
 <h3 id="learning-objectives">Learning Objectives<a class="anchor" href="#learning-objectives" aria-label="Link to this section">#</a></h3>
 <p>After working through this guide you will be able to:</p>
 <ol>
@@ -114,15 +114,15 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tbody>
 </table></div>
 <h3 id="the-running-example">The Running Example<a class="anchor" href="#the-running-example" aria-label="Link to this section">#</a></h3>
-<p>All guides of the series use the same invented system. A high-performance ECU called <strong><code>HPC</code></strong> runs an ADAS feature. <a href="00_LearningPath.html#6-the-running-example-the-hpc-reference-system">Guide 00, Chapter 6</a> defines the complete example; this section recaps the part that SM needs.</p>
+<p>All guides of the series use the same invented system. A high-performance ECU called <strong><code>HPC</code></strong> runs an ADAS feature. The <a href="RunningExample.html">Running Example guide</a> defines the complete example; this section recaps the part that SM needs.</p>
 <ul>
-<li><strong>Two Function Groups.</strong> <code>MachineFG</code> with the Machine States <code>Off</code>, <code>Startup</code>, <code>Driving</code>, <code>Shutdown</code>, <code>Restart</code> and <code>Verify</code>, and <code>ADAS</code> with the states <code>Off</code>, <code>Normal</code>, <code>Degraded</code> and <code>Verify</code> (<a href="00_LearningPath.html#64-function-groups-and-states">guide 00, Section 6.4</a>).</li>
-<li><strong><code>StateManager</code></strong> is the SM daemon (<code>functionClusterAffiliation = STATE_MANAGEMENT</code>) of the Software Cluster <code>HpcPlatformCore</code>. It controls the two Function Groups through the R-ports <code>MachineFgPort</code> and <code>AdasFgPort</code> (<a href="04_ExecutionManagement.html#1310-state-management-access-stateclientinterface-and-functiongroupportmapping">EM guide, Section 13.10</a>).</li>
+<li><strong>Two Function Groups.</strong> <code>MachineFG</code> with the Machine States <code>Off</code>, <code>Startup</code>, <code>Driving</code>, <code>Shutdown</code>, <code>Restart</code> and <code>Verify</code>, and <code>ADAS</code> with the states <code>Off</code>, <code>Normal</code>, <code>Degraded</code> and <code>Verify</code> (the <a href="RunningExample.html#14-function-groups-and-states">Running Example guide, Section 1.4</a>).</li>
+<li><strong><code>StateManager</code></strong> is the SM daemon (<code>functionClusterAffiliation = STATE_MANAGEMENT</code>) of the Software Cluster <code>HpcPlatformCore</code>. It controls the two Function Groups through the R-ports <code>MachineFgPort</code> and <code>AdasFgPort</code> (<a href="ExecutionManagement.html#1310-state-management-access-stateclientinterface-and-functiongroupportmapping">EM guide, Section 13.10</a>).</li>
 <li><strong><code>Fusion</code></strong> runs in <code>ADAS.Normal</code>; its <code>processExecutionError</code> is 42 (<code>FusionFailed</code>). In <code>ADAS.Degraded</code>, <strong><code>FusionLite</code></strong> replaces it and uses only radar and vehicle data. <strong><code>CameraDriver</code></strong> runs in both states with one shared startup configuration.</li>
-<li><strong>PHM</strong> supervises <code>Fusion</code> and <code>CameraDriver</code> and sends its recovery notification <code>AdasRecovery</code> (timeout 6 s) to the P-port <code>PhmRecoveryPort</code> of <code>StateManager</code> (<a href="06_PlatformHealthManagement.html#12-recovery-notifying-state-management">guide 06, Chapter 12</a>).</li>
+<li><strong>PHM</strong> supervises <code>Fusion</code> and <code>CameraDriver</code> and sends its recovery notification <code>AdasRecovery</code> (timeout 6 s) to the P-port <code>PhmRecoveryPort</code> of <code>StateManager</code> (the <a href="PlatformHealthManagement.html#12-recovery-notifying-state-management">PHM guide, Chapter 12</a>).</li>
 <li><strong>The partial network <code>AdasPn</code></strong> connects <code>HPC</code>, <code>FrontRadar</code> and <code>Cockpit</code>; the signal <code>PowerMode</code> of <code>CentralGateway</code> arrives as the service <code>PowerModeService</code>.</li>
 </ul>
-<p>This guide adds the State Management design of <code>HPC</code>. It was first added to guide 00 (<a href="00_LearningPath.html#64-function-groups-and-states">Section 6.4</a> and <a href="00_LearningPath.html#65-processes">Section 6.5</a>). All values are illustrative.</p>
+<p>This guide adds the State Management design of <code>HPC</code>. It was first added to the Running Example guide (<a href="RunningExample.html#14-function-groups-and-states">Section 1.4</a> and <a href="RunningExample.html#15-processes">Section 1.5</a>). All values are illustrative.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -409,27 +409,27 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <tbody>
 <tr>
 <td>Start, stop and configure processes; perform a Function Group State transition</td>
-<td>Execution Management (<a href="04_ExecutionManagement.html#8-function-group-state-transitions-step-by-step">EM guide, Chapter 8</a>)</td>
+<td>Execution Management (<a href="ExecutionManagement.html#8-function-group-state-transitions-step-by-step">EM guide, Chapter 8</a>)</td>
 </tr>
 <tr>
 <td>Shut down or reboot the machine itself</td>
-<td>A project-specific process that runs in <code>MachineFG.Shutdown</code> or <code>Restart</code>, such as <code>PowerControl</code> (<a href="04_ExecutionManagement.html#94-shutdown-and-restart">EM guide, Section 9.4</a>)</td>
+<td>A project-specific process that runs in <code>MachineFG.Shutdown</code> or <code>Restart</code>, such as <code>PowerControl</code> (<a href="ExecutionManagement.html#94-shutdown-and-restart">EM guide, Section 9.4</a>)</td>
 </tr>
 <tr>
 <td>Supervise processes at run time</td>
-<td>Platform Health Management (<a href="06_PlatformHealthManagement.html">guide 06</a>)</td>
+<td>Platform Health Management (the <a href="PlatformHealthManagement.html">PHM guide</a>)</td>
 </tr>
 <tr>
 <td>Install, update or remove software</td>
-<td>Update and Configuration Management (guide 13, <code>13_UpdateAndConfigManagement.md</code>, planned)</td>
+<td>Update and Configuration Management (the UCM guide, <code>UpdateAndConfigManagement.md</code>, planned)</td>
 </tr>
 <tr>
 <td>Run network management protocols</td>
-<td>Network Management (guide 09, <code>09_NM_TimeSync_RawDataStream.md</code>, planned)</td>
+<td>Network Management (the NM/TSync/RDS guide, <code>NM_TimeSync_RawDataStream.md</code>, planned)</td>
 </tr>
 <tr>
 <td>Handle diagnostic requests</td>
-<td>Diagnostic Management (<a href="12a_Diagnostics.html">guide 12a</a>). The interaction with SM is not yet specified in R25-11 (<a href="#112-diagnostics-ecu-reset-and-communication-control">Section 11.2</a>).</td>
+<td>Diagnostic Management (the <a href="DiagnosticsPart1.html">Diagnostics Part 1 guide</a>). The interaction with SM is not yet specified in R25-11 (<a href="#112-diagnostics-ecu-reset-and-communication-control">Section 11.2</a>).</td>
 </tr>
 <tr>
 <td>Decide <em>project-specific</em> conditions, for example &quot;allow an update only at standstill&quot;</td>
@@ -850,7 +850,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p><strong>Why this matters:</strong> SM is connected to almost every platform cluster. When a transition does not happen, the cause can be in SM, in one of its partners, or in the access rights between them. This chapter shows the interfaces on both sides.</p>
 </blockquote>
 <h3 id="31-where-state-management-sits-in-the-platform">3.1 Where State Management Sits in the Platform<a class="anchor" href="#31-where-state-management-sits-in-the-platform" aria-label="Link to this section">#</a></h3>
-<p>SM is a platform service that runs as a daemon. It belongs to the Software Cluster of category <code>PLATFORM_CORE</code>, which contains at least EM, SM and UCM, because these are needed to install any further software (<a href="00_LearningPath.html#63-the-hpc-machine">guide 00, Section 6.3</a>).</p>
+<p>SM is a platform service that runs as a daemon. It belongs to the Software Cluster of category <code>PLATFORM_CORE</code>, which contains at least EM, SM and UCM, because these are needed to install any further software (the <a href="RunningExample.html#13-the-hpc-machine">Running Example guide, Section 1.3</a>).</p>
 <p>Three rules place SM in the lifecycle of the machine:</p>
 <ul>
 <li><strong>SM runs in every Machine State.</strong> At least one process with <code>functionClusterAffiliation = STATE_MANAGEMENT</code> must run in each <code>MachineFG</code> state except <code>Off</code>, if one runs in <code>Startup</code> ([SWS_SM_CONSTR_00001]). Otherwise no component could request the next state, and the machine would be stuck. (The constraint writes <code>functionClusterAffinity</code>; the attribute of the meta-class <code>Process</code> is called <code>functionClusterAffiliation</code>.)</li>
@@ -930,43 +930,43 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td>Execution Management</td>
 <td><code>StateClient</code>, <code>FunctionGroup</code>, <code>FunctionGroupState</code></td>
 <td>Request Function Group State transitions and learn about failures</td>
-<td><a href="04_ExecutionManagement.html#144-functiongroup-and-functiongroupstate">04, 14.4</a>, <a href="04_ExecutionManagement.html#145-stateclient">14.5</a></td>
+<td><a href="ExecutionManagement.html#144-functiongroup-and-functiongroupstate">EM, 14.4</a>, <a href="ExecutionManagement.html#145-stateclient">14.5</a></td>
 </tr>
 <tr>
 <td>Execution Management</td>
 <td><code>ExecutionClient</code></td>
 <td>Report the execution state of SM's own processes</td>
-<td><a href="04_ExecutionManagement.html#142-executionstate">04, 14.2</a></td>
+<td><a href="ExecutionManagement.html#142-executionstate">EM, 14.2</a></td>
 </tr>
 <tr>
 <td>Platform Health Management</td>
 <td><code>RecoveryAction</code></td>
 <td>Receive recovery requests (SM implements it)</td>
-<td><a href="06_PlatformHealthManagement.html#154-recoveryaction">06, 15.4</a></td>
+<td><a href="PlatformHealthManagement.html#154-recoveryaction">PHM, 15.4</a></td>
 </tr>
 <tr>
 <td>Platform Health Management</td>
 <td><code>SupervisedEntity</code></td>
 <td>Report SM's own checkpoints</td>
-<td><a href="06_PlatformHealthManagement.html#153-supervisedentity">06, 15.3</a></td>
+<td><a href="PlatformHealthManagement.html#153-supervisedentity">PHM, 15.3</a></td>
 </tr>
 <tr>
 <td>Network Management</td>
 <td><code>NetworkHandle</code> (C++ API)</td>
 <td>Read and set the state of network handles</td>
-<td>09</td>
+<td>NM/TSync/RDS</td>
 </tr>
 <tr>
 <td>Persistency</td>
 <td><code>KeyValueStorage</code></td>
 <td>Store SM's internal state, for example the update session</td>
-<td>11</td>
+<td>Persistency</td>
 </tr>
 <tr>
 <td>Log and Trace</td>
 <td><code>Logger</code></td>
 <td>Log messages</td>
-<td>10</td>
+<td>Log and Trace</td>
 </tr>
 <tr>
 <td>Operating system</td>
@@ -1018,7 +1018,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <tr>
 <td>Requesting Function Group States from EM</td>
 <td>Only the process that a <code>FunctionGroupPortMapping</code> names may control a Function Group; EM checks it</td>
-<td><a href="04_ExecutionManagement.html#126-function-group-access-control">EM guide, Section 12.6</a></td>
+<td><a href="ExecutionManagement.html#126-function-group-access-control">EM guide, Section 12.6</a></td>
 </tr>
 <tr>
 <td><code>UpdateRequest</code></td>
@@ -1037,7 +1037,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 </tbody>
 </table></div>
-<p>In <code>HPC</code>, only <code>StateManager</code> uses <code>StateClient</code>, and only <code>SmControl</code> may request transitions and set <code>UpdateAllowed</code> (<a href="00_LearningPath.html#612-security">guide 00, Section 6.12</a>). Guide 15 configures the IAM rules.</p>
+<p>In <code>HPC</code>, only <code>StateManager</code> uses <code>StateClient</code>, and only <code>SmControl</code> may request transitions and set <code>UpdateAllowed</code> (the <a href="RunningExample.html#112-security">Running Example guide, Section 1.12</a>). The IAM guide configures the IAM rules.</p>
 <blockquote>
 <p><strong>Key takeaways</strong></p>
 <ul>
@@ -1341,7 +1341,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tbody>
 </table></div>
 <h3 id="55-worked-example-smcontrol-brings-hpc-from-startup-to-driving">5.5 Worked Example: SmControl Brings HPC from Startup to Driving<a class="anchor" href="#55-worked-example-smcontrol-brings-hpc-from-startup-to-driving" aria-label="Link to this section">#</a></h3>
-<p>The vehicle is switched on. The following sequence shows how <code>HPC</code> reaches <code>MachineFG.Driving</code> and <code>ADAS.Normal</code>. It continues the startup of the <a href="04_ExecutionManagement.html#93-handing-over-control-to-state-management">EM guide, Section 9.3</a>.</p>
+<p>The vehicle is switched on. The following sequence shows how <code>HPC</code> reaches <code>MachineFG.Driving</code> and <code>ADAS.Normal</code>. It continues the startup of the <a href="ExecutionManagement.html#93-handing-over-control-to-state-management">EM guide, Section 9.3</a>.</p>
 <pre class="mermaid">sequenceDiagram
     autonumber
     participant EM as Execution Management
@@ -1405,7 +1405,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
     B --&gt; E{{&quot;implicit SYNC:&lt;br/&gt;list finished&quot;}}
 </pre>
 <h3 id="62-function-group-state-items">6.2 Function Group State Items<a class="anchor" href="#62-function-group-state-items" aria-label="Link to this section">#</a></h3>
-<p>When SM finds a Function Group State item, it requests the configured Function Group State from EM ([SWS_SM_00608]). The item names the state to request (<code>setFunctionGroupState</code>) and the R-port through which the request is sent (<code>rPortPrototype</code>). In <code>HPC</code>, that port is <code>MachineFgPort</code> or <code>AdasFgPort</code>, typed by a <code>StateClientInterface</code>, and the <code>FunctionGroupPortMapping</code> tells EM which Function Group it controls (<a href="04_ExecutionManagement.html#1310-state-management-access-stateclientinterface-and-functiongroupportmapping">EM guide, Section 13.10</a>).</p>
+<p>When SM finds a Function Group State item, it requests the configured Function Group State from EM ([SWS_SM_00608]). The item names the state to request (<code>setFunctionGroupState</code>) and the R-port through which the request is sent (<code>rPortPrototype</code>). In <code>HPC</code>, that port is <code>MachineFgPort</code> or <code>AdasFgPort</code>, typed by a <code>StateClientInterface</code>, and the <code>FunctionGroupPortMapping</code> tells EM which Function Group it controls (<a href="ExecutionManagement.html#1310-state-management-access-stateclientinterface-and-functiongroupportmapping">EM guide, Section 13.10</a>).</p>
 <p>For EM, Function Groups are independent of each other. Dependencies between them exist only in SM (SWS, Section 7.1.2), and the ActionLists are the place to express them: give the items in the needed order and put a SYNC where one transition must be finished before the next starts (SWS, Figure 7.17). Without a SYNC, the items run in parallel.</p>
 <p><strong>Example.</strong> The ActionList of <code>HpcController.Shutdown</code> is: stop <code>AdasAgent</code>, SYNC, <code>MachineFG.Shutdown</code>. The SYNC makes sure that <code>ADAS</code> is <code>Off</code> before <code>PowerControl</code> starts in <code>Shutdown</code> and powers the machine off. Without it, the ADAS processes could be cut off in the middle of their termination.</p>
 <blockquote>
@@ -1500,9 +1500,9 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <li>The limit is <code>StateManagementActionList.maxActionListDuration</code>. If a list has none, SM uses the machine-wide <code>StateManagementModuleInstantiation.maxActionListDuration</code> ([SWS_SM_00668]), which must exist ([constr_10641]).</li>
 <li>On a timeout, the StateMachine uses the list's <code>maxDurationExceededError</code> as an error code ([SWS_SM_00673]), or 1 if none is configured ([SWS_SM_00674]). The error code then goes through the ErrorRecoveryTable (<a href="#8-error-handling-and-recovery">Chapter 8</a>).</li>
 </ul>
-<p>In <code>HPC</code>, the machine-wide limit is 10 s. The list of <code>AdasAgent.Degraded</code>, which is the target of the recovery from a supervision failure, has its own limit of 6 s, equal to PHM's <code>recoveryNotificationTimeout</code>. Both cover the worst case of the EM timeouts for <code>ADAS.Normal</code> → <code>ADAS.Degraded</code>, about 5.5 s (<a href="06_PlatformHealthManagement.html#124-when-the-notification-fails">guide 06, Section 12.4</a>). All lists of <code>AdasAgent</code> report a timeout with <code>AdasStateTimeout</code> (60), which leads to <code>Off</code>.</p>
+<p>In <code>HPC</code>, the machine-wide limit is 10 s. The list of <code>AdasAgent.Degraded</code>, which is the target of the recovery from a supervision failure, has its own limit of 6 s, equal to PHM's <code>recoveryNotificationTimeout</code>. Both cover the worst case of the EM timeouts for <code>ADAS.Normal</code> → <code>ADAS.Degraded</code>, about 5.5 s (the <a href="PlatformHealthManagement.html#124-when-the-notification-fails">PHM guide, Section 12.4</a>). All lists of <code>AdasAgent</code> report a timeout with <code>AdasStateTimeout</code> (60), which leads to <code>Off</code>.</p>
 <blockquote>
-<p><strong>Pitfall:</strong> Derive the timeouts from measured durations with a margin, and check them against the EM timeouts of the processes involved (<a href="04_ExecutionManagement.html#1311-the-running-example-complete-configuration">EM guide, Section 13.11</a>) and against PHM's recovery timeout (<a href="06_PlatformHealthManagement.html#124-when-the-notification-fails">guide 06, Section 12.4</a>). A Sleep item counts towards the duration of its list.</p>
+<p><strong>Pitfall:</strong> Derive the timeouts from measured durations with a margin, and check them against the EM timeouts of the processes involved (<a href="ExecutionManagement.html#1311-the-running-example-complete-configuration">EM guide, Section 13.11</a>) and against PHM's recovery timeout (the <a href="PlatformHealthManagement.html#124-when-the-notification-fails">PHM guide, Section 12.4</a>). A Sleep item counts towards the duration of its list.</p>
 </blockquote>
 <h3 id="66-worked-example-the-actionlists-of-adasagent">6.6 Worked Example: The ActionLists of AdasAgent<a class="anchor" href="#66-worked-example-the-actionlists-of-adasagent" aria-label="Link to this section">#</a></h3>
 <p><code>AdasAgent</code> controls the Function Group <code>ADAS</code> and the network handle <code>AdasPnHandle</code>. Every list references both ([SWS_SM_CONSTR_00015], [SWS_SM_CONSTR_00032]).</p>
@@ -1865,12 +1865,12 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <h3 id="84-nested-recovery">8.4 Nested Recovery<a class="anchor" href="#84-nested-recovery" aria-label="Link to this section">#</a></h3>
 <p><strong>In plain words:</strong> a nested recovery is a second failure in the same StateMachine while SM is still recovering from the first one.</p>
 <p><strong>Formally:</strong> if a new issue must be handled by a StateMachine whose ErrorRecoveryOngoing flag is set, this is a <em>nested recovery</em> ([SWS_SM_00666]). The StateMachine reacts to the new error as to any error: it evaluates its table again and switches immediately (SWS, Figure 7.28). For PHM, SM gives the same result to all <code>RecoveryHandler</code> calls that concern the same StateMachine, based on the result when the recovery action of the <em>last</em> call has finished ([SWS_SM_00031]).</p>
-<p><strong>Example in <code>HPC</code>.</strong> <code>Fusion</code> stalls; PHM reports 42, and <code>AdasAgent</code> switches to <code>Degraded</code>. While EM is still starting <code>FusionLite</code>, the alive supervision of <code>CameraDriver</code> expires; PHM reports 1. <code>AdasAgent</code> evaluates 1, enters <code>Degraded</code> again and restarts its list. When that list has finished, SM completes both <code>RecoveryHandler</code> calls with the same result. Both calls must be answered within PHM's <code>recoveryNotificationTimeout</code>, measured from the detection of each failure (<a href="06_PlatformHealthManagement.html#124-when-the-notification-fails">guide 06, Section 12.4</a>).</p>
+<p><strong>Example in <code>HPC</code>.</strong> <code>Fusion</code> stalls; PHM reports 42, and <code>AdasAgent</code> switches to <code>Degraded</code>. While EM is still starting <code>FusionLite</code>, the alive supervision of <code>CameraDriver</code> expires; PHM reports 1. <code>AdasAgent</code> evaluates 1, enters <code>Degraded</code> again and restarts its list. When that list has finished, SM completes both <code>RecoveryHandler</code> calls with the same result. Both calls must be answered within PHM's <code>recoveryNotificationTimeout</code>, measured from the detection of each failure (the <a href="PlatformHealthManagement.html#124-when-the-notification-fails">PHM guide, Section 12.4</a>).</p>
 <blockquote>
 <p><strong>Pitfall:</strong> A StateMachine has no counter of failures. If the process that fails is also part of the recovery state, for example <code>FusionLite</code> in <code>Degraded</code>, each failure leads to <code>Degraded</code> again, possibly forever. Break such loops in the design: give the fallback process its own <code>processExecutionError</code> that maps to <code>Off</code>, or let the SMControlApplication watch <code>CurrentState</code> and act when the StateMachine is calm again.</p>
 </blockquote>
 <h3 id="85-state-managements-side-of-recoveryhandler">8.5 State Management's Side of RecoveryHandler<a class="anchor" href="#85-state-managements-side-of-recoveryhandler" aria-label="Link to this section">#</a></h3>
-<p>PHM tells SM about a failed Global Supervision by calling <code>RecoveryHandler</code> of an <code>ara::phm::RecoveryAction</code> object that SM implements (<a href="06_PlatformHealthManagement.html#122-what-state-management-receives">guide 06, Section 12.2</a>). In <code>HPC</code>, <code>StateManager</code> constructs it with the instance specifier <code>/state_manager/Root/PhmRecoveryPort</code> and calls <code>Offer()</code> at startup.</p>
+<p>PHM tells SM about a failed Global Supervision by calling <code>RecoveryHandler</code> of an <code>ara::phm::RecoveryAction</code> object that SM implements (the <a href="PlatformHealthManagement.html#122-what-state-management-receives">PHM guide, Section 12.2</a>). In <code>HPC</code>, <code>StateManager</code> constructs it with the instance specifier <code>/state_manager/Root/PhmRecoveryPort</code> and calls <code>Offer()</code> at startup.</p>
 <p>The call carries an <code>ExecutionErrorEvent</code>, with the Function Group of the Global Supervision and the <code>ExecutionError</code> of the failed process, and the kind of supervision that failed. SM handles it as follows:</p>
 <div class="table-wrap"><table>
 <thead>
@@ -1903,12 +1903,12 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 </tbody>
 </table></div>
-<p>SM answers through the <code>Future</code> that <code>RecoveryHandler</code> returns. A value means that the recovery is handled; <code>kSMCanNotHandleRecovery</code> asks PHM to fire the watchdog reaction as a last resort (SWS, Section 7.2). PHM watches the answer with a configurable timeout (<a href="06_PlatformHealthManagement.html#124-when-the-notification-fails">guide 06, Section 12.4</a>).</p>
+<p>SM answers through the <code>Future</code> that <code>RecoveryHandler</code> returns. A value means that the recovery is handled; <code>kSMCanNotHandleRecovery</code> asks PHM to fire the watchdog reaction as a last resort (SWS, Section 7.2). PHM watches the answer with a configurable timeout (the <a href="PlatformHealthManagement.html#124-when-the-notification-fails">PHM guide, Section 12.4</a>).</p>
 <blockquote>
 <p><strong>Note:</strong> Apart from nested recovery, the SWS does not say exactly <em>when</em> SM completes the <code>Future</code>, nor what it answers when it ignores a request during an update session. This series assumes that SM answers when the ActionList of the recovery state has finished. Then the recovery state's list must fit into PHM's timeout, which is why <code>AdasAgent.Degraded</code> has a list limit of 6 s (<a href="#65-actionlisttimeout">Section 6.5</a>).</p>
 </blockquote>
 <h3 id="86-failures-reported-by-execution-management">8.6 Failures Reported by Execution Management<a class="anchor" href="#86-failures-reported-by-execution-management" aria-label="Link to this section">#</a></h3>
-<p>SM requests every Function Group State, including the Machine State, through EM's <code>StateClient</code> ([SWS_SM_00400]), and it must evaluate the results ([SWS_SM_00401]). EM reports failures in two ways (<a href="04_ExecutionManagement.html#103-undefined-function-group-state">EM guide, Section 10.3</a>): during a requested transition through the result of <code>SetState</code>, and outside a transition through the <code>undefinedStateCallback</code>. In both cases SM can fetch the <code>ExecutionErrorEvent</code> with <code>GetExecutionError</code>.</p>
+<p>SM requests every Function Group State, including the Machine State, through EM's <code>StateClient</code> ([SWS_SM_00400]), and it must evaluate the results ([SWS_SM_00401]). EM reports failures in two ways (<a href="ExecutionManagement.html#103-undefined-function-group-state">EM guide, Section 10.3</a>): during a requested transition through the result of <code>SetState</code>, and outside a transition through the <code>undefinedStateCallback</code>. In both cases SM can fetch the <code>ExecutionErrorEvent</code> with <code>GetExecutionError</code>.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -1937,7 +1937,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </table></div>
 <p><code>kIntegrityOrAuthenticityCheckFailed</code> deserves attention: every later request for the same Function Group State will fail in the same way, because the trusted platform has found software that is not authentic. Fixing it, for example by an update, is outside SM's scope (SWS, Section 7.6). In <code>HPC</code>, the code 1 of such a failure leads <code>AdasAgent</code> to <code>Degraded</code>; if <code>Degraded</code> fails too, the next failure leads there again (<a href="#84-nested-recovery">Section 8.4</a>).</p>
 <h3 id="87-worked-example-fusion-fails-and-adas-goes-to-degraded">8.7 Worked Example: Fusion Fails and ADAS Goes to Degraded<a class="anchor" href="#87-worked-example-fusion-fails-and-adas-goes-to-degraded" aria-label="Link to this section">#</a></h3>
-<p>This is the State Management side of the failure that <a href="06_PlatformHealthManagement.html#126-worked-example-fusion-stalls-and-adas-goes-to-degraded">guide 06, Section 12.6</a> shows from PHM's side. <code>Fusion</code> misses its compute deadline, and <code>FusionSupervision</code> expires.</p>
+<p>This is the State Management side of the failure that the <a href="PlatformHealthManagement.html#126-worked-example-fusion-stalls-and-adas-goes-to-degraded">PHM guide, Section 12.6</a> shows from PHM's side. <code>Fusion</code> misses its compute deadline, and <code>FusionSupervision</code> expires.</p>
 <pre class="mermaid">sequenceDiagram
     autonumber
     participant PHM as Platform Health Management
@@ -1961,7 +1961,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </pre>
 <p>If <code>Fusion</code> had crashed instead, EM would have reported it through the <code>undefinedStateCallback</code> with the same <code>ExecutionError</code> 42, and <code>AdasAgent</code> would have reacted in the same way, only without a <code>Future</code> for PHM. Steps 7 and 8 show a request of <code>SmControl</code> that arrives during the recovery: it is refused, not queued.</p>
 <h3 id="88-worked-example-a-stuck-cameradriver">8.8 Worked Example: A Stuck CameraDriver<a class="anchor" href="#88-worked-example-a-stuck-cameradriver" aria-label="Link to this section">#</a></h3>
-<p>Now the alive supervision of <code>CameraDriver</code> expires because its image loop hangs, but the process does not crash (<a href="06_PlatformHealthManagement.html#127-known-limitation-successive-failures">guide 06, Section 12.7</a>).</p>
+<p>Now the alive supervision of <code>CameraDriver</code> expires because its image loop hangs, but the process does not crash (the <a href="PlatformHealthManagement.html#127-known-limitation-successive-failures">PHM guide, Section 12.7</a>).</p>
 <ol>
 <li>PHM calls <code>RecoveryHandler</code> with <code>ADAS</code> and the <code>ExecutionError</code> 1, because <code>CameraDriver</code> has no <code>processExecutionError</code>.</li>
 <li><code>AdasAgent</code> maps 1 to <code>Degraded</code> and requests <code>ADAS.Degraded</code>.</li>
@@ -1990,7 +1990,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </ul>
 <p>The SWS adds that these reactions are valid only for an individual implementation; with the StateMachine approach, a StateMachine State change is configured as error reaction. [SWS_SM_00030] and [SWS_SM_00031] apply to both approaches.</p>
 <blockquote>
-<p><strong>Note:</strong> This list of the SWS also names the error codes <code>kMetaModelError</code>, <code>kGeneralError</code> and <code>kCommunicationError</code>. The <code>ExecErrc</code> of R25-11 does not define them (<a href="04_ExecutionManagement.html#102-error-codes-execerrc">EM guide, Section 10.2</a>); read them as examples of the kind of error.</p>
+<p><strong>Note:</strong> This list of the SWS also names the error codes <code>kMetaModelError</code>, <code>kGeneralError</code> and <code>kCommunicationError</code>. The <code>ExecErrc</code> of R25-11 does not define them (<a href="ExecutionManagement.html#102-error-codes-execerrc">EM guide, Section 10.2</a>); read them as examples of the kind of error.</p>
 </blockquote>
 <blockquote>
 <p><strong>Key takeaways</strong></p>
@@ -2005,7 +2005,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <hr />
 <h2 id="9-software-updates-state-managements-side">9. Software Updates: State Management's Side<a class="anchor" href="#9-software-updates-state-managements-side" aria-label="Link to this section">#</a></h2>
 <blockquote>
-<p><strong>Why this matters:</strong> During an update, UCM changes the software under the feet of SM. SM must stop the affected functions, let UCM install, check the new software and survive resets in between, without letting normal requests or error reactions interfere. This chapter shows SM's part; guide 13 (<code>13_UpdateAndConfigManagement.md</code>, planned) tells the whole update story.</p>
+<p><strong>Why this matters:</strong> During an update, UCM changes the software under the feet of SM. SM must stop the affected functions, let UCM install, check the new software and survive resets in between, without letting normal requests or error reactions interfere. This chapter shows SM's part; the UCM guide (<code>UpdateAndConfigManagement.md</code>, planned) tells the whole update story.</p>
 </blockquote>
 <h3 id="91-the-updaterequest-interface">9.1 The UpdateRequest Interface<a class="anchor" href="#91-the-updaterequest-interface" aria-label="Link to this section">#</a></h3>
 <p>SM provides the service interface <code>UpdateRequest</code> to UCM ([SWS_SM_91017]). The system integrator must restrict its use to UCM with IAM (SWS, Section 7.3).</p>
@@ -2063,7 +2063,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 </tbody>
 </table></div>
-<p>The Function Groups are passed as a list of strings, each the fully qualified short name of a Function Group ([SWS_SM_91018], [SWS_SM_91019]). The SWS does not show an example; in the model of guide 02, the path of <code>ADAS</code> is <code>/HPC/FunctionGroupSets/AdasFunctionGroups/ADAS</code>.</p>
+<p>The Function Groups are passed as a list of strings, each the fully qualified short name of a Function Group ([SWS_SM_91018], [SWS_SM_91019]). The SWS does not show an example; in the model of the Manifests guide, the path of <code>ADAS</code> is <code>/HPC/FunctionGroupSets/AdasFunctionGroups/ADAS</code>.</p>
 <p>The following rules apply to every implementation of SM, with or without StateMachines (SWS, Section 7.3):</p>
 <ul>
 <li><strong>One session at a time.</strong> The period from an accepted <code>RequestUpdateSession</code> to the end of <code>StopUpdateSession</code> is the active update session ([SWS_SM_00210]). A further <code>RequestUpdateSession</code> during it returns <code>kNotAllowedMultipleUpdateSessions</code> ([SWS_SM_00209]).</li>
@@ -2199,7 +2199,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p>The session is finished when the call of <code>StopUpdateSession</code> ends. Everything SM does afterwards is project-specific (SWS, Section 7.3).</p>
 <p>In <code>HPC</code>, the list of <code>HpcController.AfterUpdate</code> is <code>MachineFG.Driving</code>, SYNC, start <code>AdasAgent</code> with the parameter <code>Normal</code>. The parameter matters: after a successful update, <code>AdasAgent</code> still runs in <code>VerifyUpdate</code>, and a start without parameter would be skipped (<a href="#73-starting-and-stopping-agents">Section 7.3</a>). After the session, <code>SmControl</code> requests <code>Drive</code> to bring the Controller from <code>AfterUpdate</code> back to <code>Driving</code>.</p>
 <h3 id="97-worked-example-updating-adascluster-to-110">9.7 Worked Example: Updating AdasCluster to 1.1.0<a class="anchor" href="#97-worked-example-updating-adascluster-to-110" aria-label="Link to this section">#</a></h3>
-<p>The vehicle is parked, and V-UCM starts the update of <code>AdasCluster</code> from 1.0.0 to 1.1.0 (<a href="00_LearningPath.html#611-software-updates">guide 00, Section 6.11</a>). The following sequence shows SM's part; which processes run in <code>ADAS.Verify</code> and how UCM decides about the rollback is the subject of guide 13.</p>
+<p>The vehicle is parked, and V-UCM starts the update of <code>AdasCluster</code> from 1.0.0 to 1.1.0 (the <a href="RunningExample.html#111-software-updates">Running Example guide, Section 1.11</a>). The following sequence shows SM's part; which processes run in <code>ADAS.Verify</code> and how UCM decides about the rollback is the subject of the UCM guide.</p>
 <pre class="mermaid">sequenceDiagram
     autonumber
     participant SC as SmControl
@@ -2477,7 +2477,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p>Adaptive Applications should not need to know which networks they use; on a different ECU, the networks may be configured differently. Network Management (NM) therefore provides <strong>network handles</strong>: each handle (<code>NmNetworkHandle</code>) represents a set of partial networks or VLANs that are controlled together (SWS, Sections 2 and 7.4). SM controls the handles through NM's C++ API and can react to their changes.</p>
 <ul>
 <li>With StateMachines, SM switches handles with SetNetworkHandle items (<a href="#63-network-handle-items-and-afterrun">Section 6.3</a>) and can use handle changes as triggers (<a href="#53-triggers-from-network-management">Section 5.3</a>).</li>
-<li>The <em>Manifest Specification</em> also has a mapping between network handles and Function Group States on the NM side, <code>NmHandleToFunctionGroupStateMapping</code> (TPS, Section 12.7.3). The R25-11 SM specification does not use it; the older SM requirements on network handles were removed in R24-11 (<a href="#appendix-d-notable-changes-in-recent-releases">Appendix D</a>). Guide 09 explains NM's side.</li>
+<li>The <em>Manifest Specification</em> also has a mapping between network handles and Function Group States on the NM side, <code>NmHandleToFunctionGroupStateMapping</code> (TPS, Section 12.7.3). The R25-11 SM specification does not use it; the older SM requirements on network handles were removed in R24-11 (<a href="#appendix-d-notable-changes-in-recent-releases">Appendix D</a>). The NM/TSync/RDS guide explains NM's side.</li>
 </ul>
 <p>In <code>HPC</code>, <code>AdasAgent</code> requests <code>AdasPnHandle</code> as <code>FullCom</code> in <code>Normal</code>, <code>Degraded</code> and <code>VerifyUpdate</code>, and releases it to <code>NoCom</code> 2 s after <code>ADAS</code> has reached <code>Off</code>.</p>
 <blockquote>
@@ -2486,7 +2486,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <h3 id="112-diagnostics-ecu-reset-and-communication-control">11.2 Diagnostics: ECU Reset and Communication Control<a class="anchor" href="#112-diagnostics-ecu-reset-and-communication-control" aria-label="Link to this section">#</a></h3>
 <p><strong>What the specification says.</strong> The SWS of R25-11 lists the interaction with Diagnostic Management as a known limitation that is &quot;to be clarified&quot; in an upcoming release (SWS, Section 4.1). The earlier requirements on a diagnostic reset through SM were removed in R24-11 (<a href="#appendix-d-notable-changes-in-recent-releases">Appendix D</a>). The <em>Manifest Specification</em> still defines a port interface <code>StateManagementDiagTriggerInterface</code> for diagnostic triggers to SM, but the SWS SM does not use it.</p>
 <p><strong>What Diagnostic Management does.</strong> The <em>Specification of Diagnostics</em> of R25-11 does not mention SM. For the UDS service ECUReset (<code>0x11</code>), Diagnostic Management calls <code>ara::diag::EcuResetRequest::RequestReset</code> of an application that implements this class ([SWS_DM_00235], [SWS_DM_01009]). It sends the positive response before or after the reset, depending on its configuration ([SWS_DM_00268], [SWS_DM_00360]), and calls <code>ExecuteReset</code> of the same class to perform the reset ([SWS_DM_01023], [SWS_DM_01090]). The sub-functions for rapid power shutdown call <code>EnableRapidShutdown</code> ([SWS_DM_01020], [SWS_DM_01021]). Similarly, the UDS service CommunicationControl (<code>0x28</code>) is delivered to an application through <code>ara::diag::CommunicationControl</code> ([SWS_DM_00140], [SWS_DM_00804]). Who implements these classes is a project decision.</p>
-<p><strong>What <code>HPC</code> does.</strong> <code>SmControl</code> implements <code>ara::diag::EcuResetRequest</code>. When the tester requests an ECU reset, <code>SmControl</code> requests <code>Reset</code> (3) from <code>HpcController</code>, whose <code>Restart</code> state stops <code>AdasAgent</code> and requests <code>MachineFG.Restart</code>. <a href="12a_Diagnostics.html#126-worked-example-ecu-reset-through-smcontrol">Guide 12a</a> shows the Diagnostic Management side, including the response timing. The diagnostic request that switches <code>ADAS</code> to <code>Degraded</code> (<a href="00_LearningPath.html#64-function-groups-and-states">guide 00, Section 6.4</a>) also ends in <code>SmControl</code>, which sends <code>Degrade</code> (10) to <code>AdasAgent</code>; its trigger is the routine <code>DegradeAdas</code> (<a href="12a_Diagnostics.html#127-worked-example-degradeadas">guide 12a, Section 12.7</a>). <code>HPC</code> does not use CommunicationControl through SM.</p>
+<p><strong>What <code>HPC</code> does.</strong> <code>SmControl</code> implements <code>ara::diag::EcuResetRequest</code>. When the tester requests an ECU reset, <code>SmControl</code> requests <code>Reset</code> (3) from <code>HpcController</code>, whose <code>Restart</code> state stops <code>AdasAgent</code> and requests <code>MachineFG.Restart</code>. The <a href="DiagnosticsPart1.html#126-worked-example-ecu-reset-through-smcontrol">Diagnostics Part 1 guide</a> shows the Diagnostic Management side, including the response timing. The diagnostic request that switches <code>ADAS</code> to <code>Degraded</code> (the <a href="RunningExample.html#14-function-groups-and-states">Running Example guide, Section 1.4</a>) also ends in <code>SmControl</code>, which sends <code>Degrade</code> (10) to <code>AdasAgent</code>; its trigger is the routine <code>DegradeAdas</code> (the <a href="DiagnosticsPart1.html#127-worked-example-degradeadas">Diagnostics Part 1 guide, Section 12.7</a>). <code>HPC</code> does not use CommunicationControl through SM.</p>
 <pre class="mermaid">sequenceDiagram
     autonumber
     participant DT as DiagnosticTester
@@ -2509,7 +2509,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <h3 id="113-persistency-logging-and-supervision-of-state-management">11.3 Persistency, Logging and Supervision of State Management<a class="anchor" href="#113-persistency-logging-and-supervision-of-state-management" aria-label="Link to this section">#</a></h3>
 <p><strong>Persistency.</strong> SM stores its internal state with <code>ara::per</code>, in particular the information about an active update session ([SWS_SM_00204]). At startup it restores this state before it starts any process that could interfere with UCM (SWS, Section 7.8.1).</p>
 <p><strong>Logging.</strong> SM uses Log and Trace for its messages, but defines no standardized (modelled) log messages (<a href="#14-logging-security-events-and-violations">Chapter 14</a>). An error that a StateMachine ignores during an update session is logged if logging is activated ([SWS_SM_00664]).</p>
-<p><strong>Supervision of SM.</strong> SM is the central entity of the machine; if its daemon crashes, the machine becomes unusable. SM should therefore be supervised by PHM with checkpoints, and PHM may trigger the watchdog reaction when SM misbehaves (SWS, Sections 7.2 and 7.8.5). In <code>HPC</code>, <code>StateManager</code> reports the checkpoint <code>MainLoop</code> of the Supervised Entity <code>StateManagerHeartbeat</code>, and a hang ends in a watchdog reset (<a href="06_PlatformHealthManagement.html#136-worked-example-statemanager-hangs">guide 06, Section 13.6</a>).</p>
+<p><strong>Supervision of SM.</strong> SM is the central entity of the machine; if its daemon crashes, the machine becomes unusable. SM should therefore be supervised by PHM with checkpoints, and PHM may trigger the watchdog reaction when SM misbehaves (SWS, Sections 7.2 and 7.8.5). In <code>HPC</code>, <code>StateManager</code> reports the checkpoint <code>MainLoop</code> of the Supervised Entity <code>StateManagerHeartbeat</code>, and a hang ends in a watchdog reset (the <a href="PlatformHealthManagement.html#136-worked-example-statemanager-hangs">PHM guide, Section 13.6</a>).</p>
 <blockquote>
 <p><strong>Key takeaways</strong></p>
 <ul>
@@ -2528,8 +2528,8 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <h3 id="121-minimal-configuration">12.1 Minimal Configuration<a class="anchor" href="#121-minimal-configuration" aria-label="Link to this section">#</a></h3>
 <p>The following checklist is the smallest configuration with which the StateMachine approach works for <code>HPC</code>.</p>
 <ol>
-<li><strong>SM process in every Machine State</strong> (mandatory). The process <code>StateManager</code> with <code>functionClusterAffiliation = STATE_MANAGEMENT</code> runs in every <code>MachineFG</code> state except <code>Off</code> ([SWS_SM_CONSTR_00001]). Execution Manifest; see the <a href="04_ExecutionManagement.html#133-process">EM guide, Section 13.3</a>.</li>
-<li><strong>Access to the Function Groups</strong> (mandatory). R-ports <code>MachineFgPort</code> and <code>AdasFgPort</code> typed by <code>StateClientInterface</code>s, and one <code>FunctionGroupPortMapping</code> per Function Group (<a href="04_ExecutionManagement.html#1310-state-management-access-stateclientinterface-and-functiongroupportmapping">EM guide, Section 13.10</a>).</li>
+<li><strong>SM process in every Machine State</strong> (mandatory). The process <code>StateManager</code> with <code>functionClusterAffiliation = STATE_MANAGEMENT</code> runs in every <code>MachineFG</code> state except <code>Off</code> ([SWS_SM_CONSTR_00001]). Execution Manifest; see the <a href="ExecutionManagement.html#133-process">EM guide, Section 13.3</a>.</li>
+<li><strong>Access to the Function Groups</strong> (mandatory). R-ports <code>MachineFgPort</code> and <code>AdasFgPort</code> typed by <code>StateClientInterface</code>s, and one <code>FunctionGroupPortMapping</code> per Function Group (<a href="ExecutionManagement.html#1310-state-management-access-stateclientinterface-and-functiongroupportmapping">EM guide, Section 13.10</a>).</li>
 <li><strong>One <code>ModeDeclarationGroup</code> per kind of StateMachine</strong> (mandatory), with all StateMachine States and an <code>initialMode</code>.</li>
 <li><strong>One <code>StateManagementModuleInstantiation</code></strong> in the Machine (mandatory, at most one per Machine), with <code>maxActionListDuration</code> ([constr_10489], [constr_10641]); its <code>ProcessToMachineMapping</code> connects it to the SM process.</li>
 <li><strong>One <code>StateManagementStateNotification</code> per StateMachine</strong> (mandatory), each with its <code>stateMachine</code> and its <code>notificationPort</code>; exactly one has the category <code>STATE_MANAGEMENT_CONTROLLER</code> ([SWS_SM_CONSTR_00031], [constr_10391]).</li>
@@ -3147,7 +3147,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 </tbody>
 </table></div>
-<p>Each SetNetworkHandle item needs its own <code>SmInteractsWithNmMapping</code>. <code>AdasAgent</code> has six items for <code>AdasPnHandle</code>, so <code>HPC</code> has six mappings. The <code>NmNetworkHandle</code> itself belongs to the NM configuration (<code>NmInstantiation.networkHandle</code>), which guide 09 explains.</p>
+<p>Each SetNetworkHandle item needs its own <code>SmInteractsWithNmMapping</code>. <code>AdasAgent</code> has six items for <code>AdasPnHandle</code>, so <code>HPC</code> has six mappings. The <code>NmNetworkHandle</code> itself belongs to the NM configuration (<code>NmInstantiation.networkHandle</code>), which the NM/TSync/RDS guide explains.</p>
 <h3 id="129-port-interfaces-and-ports">12.9 Port Interfaces and Ports<a class="anchor" href="#129-port-interfaces-and-ports" aria-label="Link to this section">#</a></h3>
 <p><strong>Purpose:</strong> type the ports of the SM executable and of the SMControlApplication. <strong>Lives in:</strong> application design (recommended package <code>StateManagementPortInterfaces</code> for the SM port interfaces). <strong>Configured by:</strong> platform vendor, integrator and application designer. <strong>Spec:</strong> TPS Section 4.5; SWS Sections 9.2 and 10.2.</p>
 <div class="table-wrap"><table>
@@ -3166,7 +3166,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>StateManagementNotificationInterface</code></td>
 <td><code>functionGroupType</code> (must exist)</td>
 <td>R-port through which SM switches one Function Group</td>
-<td>[TPS_MANI_01473], [constr_10616]; <a href="04_ExecutionManagement.html#1310-state-management-access-stateclientinterface-and-functiongroupportmapping">EM guide, Section 13.10</a></td>
+<td>[TPS_MANI_01473], [constr_10616]; <a href="ExecutionManagement.html#1310-state-management-access-stateclientinterface-and-functiongroupportmapping">EM guide, Section 13.10</a></td>
 </tr>
 <tr>
 <td><code>StateManagementFunctionGroupSwitchNotificationInterface</code></td>
@@ -3256,7 +3256,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>StateManagerSwc</code></td>
 <td><code>PhmRecoveryPort</code>, <code>HeartbeatPort</code></td>
 <td>P and R</td>
-<td>Recovery and supervision (<a href="06_PlatformHealthManagement.html#143-phmsupervisionrecoverynotificationinterface">guide 06, Section 14.3</a>)</td>
+<td>Recovery and supervision (the <a href="PlatformHealthManagement.html#143-phmsupervisionrecoverynotificationinterface">PHM guide, Section 14.3</a>)</td>
 </tr>
 <tr>
 <td><code>SmControlSwc</code></td>
@@ -3286,7 +3286,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>SmControlSwc</code></td>
 <td><code>EcuResetPort</code></td>
 <td>typed by <code>DiagnosticEcuResetInterface</code></td>
-<td><code>ara::diag::EcuResetRequest</code> (guide 12a)</td>
+<td><code>ara::diag::EcuResetRequest</code> (the Diagnostics Part 1 guide)</td>
 </tr>
 </tbody>
 </table></div>
@@ -3359,7 +3359,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>Process.functionClusterAffiliation = STATE_MANAGEMENT</code></td>
 <td>Execution Manifest</td>
 <td>Marks the SM process; required in every Machine State ([SWS_SM_CONSTR_00001])</td>
-<td><a href="04_ExecutionManagement.html#133-process">EM guide, Section 13.3</a></td>
+<td><a href="ExecutionManagement.html#133-process">EM guide, Section 13.3</a></td>
 </tr>
 <tr>
 <td><code>ProcessToMachineMapping.nonOsModuleInstantiation</code></td>
@@ -3371,31 +3371,31 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>StartupConfig.processExecutionError</code></td>
 <td>Execution Manifest</td>
 <td>The error code of a failed process ([SWS_SM_00670])</td>
-<td><a href="04_ExecutionManagement.html#135-startupconfig">EM guide, Section 13.5</a></td>
+<td><a href="ExecutionManagement.html#135-startupconfig">EM guide, Section 13.5</a></td>
 </tr>
 <tr>
 <td><code>FunctionGroupPortMapping</code></td>
 <td>Machine level</td>
 <td>Gives the SM process access to a Function Group</td>
-<td><a href="04_ExecutionManagement.html#1310-state-management-access-stateclientinterface-and-functiongroupportmapping">EM guide, Section 13.10</a></td>
+<td><a href="ExecutionManagement.html#1310-state-management-access-stateclientinterface-and-functiongroupportmapping">EM guide, Section 13.10</a></td>
 </tr>
 <tr>
 <td><code>Verify</code> state in every Function Group</td>
 <td>Function Group definition</td>
 <td>Target of <code>VerifyUpdate</code> ([constr_10023])</td>
-<td><a href="04_ExecutionManagement.html#72-function-groups-and-function-group-states">EM guide, Section 7.2</a></td>
+<td><a href="ExecutionManagement.html#72-function-groups-and-function-group-states">EM guide, Section 7.2</a></td>
 </tr>
 <tr>
 <td><code>RecoveryNotificationToPPortPrototypeMapping</code></td>
 <td>PHM contribution</td>
 <td>Delivers PHM's recovery notification to SM's port</td>
-<td><a href="06_PlatformHealthManagement.html#1413-recoverynotification-and-recoverynotificationtopportprototypemapping">guide 06, Section 14.13</a></td>
+<td><a href="PlatformHealthManagement.html#1413-recoverynotification-and-recoverynotificationtopportprototypemapping">PHM guide, Section 14.13</a></td>
 </tr>
 <tr>
 <td><code>NmNetworkHandle</code></td>
 <td>NM configuration</td>
 <td>The handles that SM switches</td>
-<td>guide 09</td>
+<td>NM/TSync/RDS guide</td>
 </tr>
 </tbody>
 </table></div>
@@ -3403,7 +3403,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p>The following conceptual view is the complete SM configuration of <code>HPC</code>. Element names are those of the model; the notation is simplified.</p>
 <div class="code-block" data-lang="yaml"><pre class="highlight"><code><span class="c1"># Conceptual view of the State Management configuration of HPC. NOT real ARXML syntax.</span>
 
-<span class="c1"># --- Execution Manifest (guide 04) ---------------------------------------------</span>
+<span class="c1"># --- Execution Manifest (the EM guide) ---------------------------------------------</span>
 <span class="nt">Process StateManager</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">functionClusterAffiliation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">STATE_MANAGEMENT</span>
 <span class="w">  </span><span class="nt">states</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MachineFG.[Startup, Driving, Shutdown, Restart, Verify]</span><span class="w">   </span><span class="c1"># all but Off</span>
@@ -3547,7 +3547,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 </tbody>
 </table></div>
-<p><strong>ARXML excerpts.</strong> The following excerpts show the real syntax for the unambiguous parts of the configuration. They come from one file that validates against the R25-11 XML schema (<code>AUTOSAR_00054.xsd</code>), and whose references were checked together with the ARXML of <a href="02_Manifests.html#1216-the-running-example-complete-configuration">guide 02</a> and <a href="06_PlatformHealthManagement.html#1415-the-running-example-complete-configuration">guide 06</a>. The elements are split parts: the <code>Machine</code> <code>HPC</code> and the component <code>StateManagerSwc</code> merge with their definitions in those guides. References to the service ports <code>ControllerStatePort</code>, <code>AdasStatePort</code> and <code>AdasTriggerPort</code> and to the network handle point to elements that the excerpts leave out. The <code>ANY</code> rows cannot be written in ARXML (<a href="#43-from-tables-to-model-elements">Section 4.3</a>).</p>
+<p><strong>ARXML excerpts.</strong> The following excerpts show the real syntax for the unambiguous parts of the configuration. They come from one file that validates against the R25-11 XML schema (<code>AUTOSAR_00054.xsd</code>), and whose references were checked together with the ARXML of the <a href="Manifests.html#1216-the-running-example-complete-configuration">Manifests guide</a> and the <a href="PlatformHealthManagement.html#1415-the-running-example-complete-configuration">PHM guide</a>. The elements are split parts: the <code>Machine</code> <code>HPC</code> and the component <code>StateManagerSwc</code> merge with their definitions in those guides. References to the service ports <code>ControllerStatePort</code>, <code>AdasStatePort</code> and <code>AdasTriggerPort</code> and to the network handle point to elements that the excerpts leave out. The <code>ANY</code> rows cannot be written in ARXML (<a href="#43-from-tables-to-model-elements">Section 4.3</a>).</p>
 <details>
 <summary><code>AdasAgentStates</code>: the type of the StateMachine AdasAgent (30 lines)</summary>
 <div class="code-block" data-lang="xml"><pre class="highlight"><code><span class="nt">&lt;MODE-DECLARATION-GROUP&gt;</span>
@@ -3829,9 +3829,9 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 </tbody>
 </table></div>
-<p>SM itself uses <code>ara::exec::StateClient</code> (<a href="04_ExecutionManagement.html#145-stateclient">EM guide, Section 14.5</a>) and implements <code>ara::phm::RecoveryAction</code> (<a href="06_PlatformHealthManagement.html#154-recoveryaction">guide 06, Section 15.4</a>); these are documented in their guides.</p>
+<p>SM itself uses <code>ara::exec::StateClient</code> (<a href="ExecutionManagement.html#145-stateclient">EM guide, Section 14.5</a>) and implements <code>ara::phm::RecoveryAction</code> (the <a href="PlatformHealthManagement.html#154-recoveryaction">PHM guide, Section 15.4</a>); these are documented in their guides.</p>
 <h3 id="132-the-service-interfaces-and-their-data-types">13.2 The Service Interfaces and Their Data Types<a class="anchor" href="#132-the-service-interfaces-and-their-data-types" aria-label="Link to this section">#</a></h3>
-<p>The service interfaces are defined in the model (SWS, Chapter 9). Applications use the proxies that the <code>ara::com</code> generator creates from them; <a href="07_CommunicationManagement.html#22-skeleton-and-proxy">guide 07</a> explains proxies.</p>
+<p>The service interfaces are defined in the model (SWS, Chapter 9). Applications use the proxies that the <code>ara::com</code> generator creates from them; the <a href="CommunicationManagement.html#22-skeleton-and-proxy">CM guide</a> explains proxies.</p>
 <p><strong><code>StateMachineService</code></strong> ([SWS_SM_91022]), one per StateMachine ([SWS_SM_00600]):</p>
 <div class="table-wrap"><table>
 <thead>
@@ -4058,7 +4058,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </table></div>
 <p>The identifier of <code>SmErrorDomain</code> is <code>0x8000'0000'0000'0301</code>, defined in the SWS Core ([SWS_CORE_90023]).</p>
 <blockquote>
-<p><strong>Pitfall:</strong> The codes 5 and 6 mean <code>kOperationRejected</code> and <code>kOperationFailed</code> for the services, but <code>kAtLeastOneRejected</code> and <code>kAtLeastOneHadIssuesToLeave</code> in <code>SmErrc</code>. The SWS does not say whether the application errors of the services belong to the same error domain identifier. Never compare only the number: compare <code>ara::core::ErrorCode</code> objects, which compare domain and value (<a href="03_CoreAndGeneral.html#71-errorcode-value-domain-and-support-data">guide 03, Section 7.1</a>).</p>
+<p><strong>Pitfall:</strong> The codes 5 and 6 mean <code>kOperationRejected</code> and <code>kOperationFailed</code> for the services, but <code>kAtLeastOneRejected</code> and <code>kAtLeastOneHadIssuesToLeave</code> in <code>SmErrc</code>. The SWS does not say whether the application errors of the services belong to the same error domain identifier. Never compare only the number: compare <code>ara::core::ErrorCode</code> objects, which compare domain and value (the <a href="CoreAndGeneral.html#71-errorcode-value-domain-and-support-data">Core guide, Section 7.1</a>).</p>
 </blockquote>
 <h3 id="134-s2rsatellite">13.4 S2RSatellite<a class="anchor" href="#134-s2rsatellite" aria-label="Link to this section">#</a></h3>
 <p>An S2R-aware application derives from the abstract class <code>ara::sm::s2r::S2RSatellite</code> and implements the two callbacks.</p>
@@ -4227,7 +4227,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </code></pre></div>
 <p>All three functions are documented as not thread-safe.</p>
 <h3 id="137-example-the-main-loop-of-smcontrol">13.7 Example: The Main Loop of SmControl<a class="anchor" href="#137-example-the-main-loop-of-smcontrol" aria-label="Link to this section">#</a></h3>
-<p>The following sketch shows how <code>SmControl</code> uses the services of SM. It is simplified: the proxy class names follow the <code>ara::com</code> naming rules for the namespace <code>ara::sm</code>, but generated headers, service discovery and error handling differ between tools; guide 07 explains them. Only the SM logic is complete.</p>
+<p>The following sketch shows how <code>SmControl</code> uses the services of SM. It is simplified: the proxy class names follow the <code>ara::com</code> naming rules for the namespace <code>ara::sm</code>, but generated headers, service discovery and error handling differ between tools; the CM guide explains them. Only the SM logic is complete.</p>
 <div class="code-block" data-lang="cpp"><pre class="highlight"><code><span class="c1">// Illustrative sketch of SmControl, the SMControlApplication of HPC.</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdlib&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">"ara/core/initialization.h"</span>
@@ -4270,7 +4270,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <span class="w">        </span><span class="c1">// "inTransition": keep the last published value (Section 5.4)</span>
 <span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="c1">// ECU reset requested by Diagnostic Management (ara::diag::EcuResetRequest, guide 12a).</span>
+<span class="w">    </span><span class="c1">// ECU reset requested by Diagnostic Management (ara::diag::EcuResetRequest, the Diagnostics Part 1 guide).</span>
 <span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">OnEcuReset</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Request</span><span class="p">(</span><span class="n">controller_</span><span class="p">,</span><span class="w"> </span><span class="n">kReset</span><span class="p">);</span><span class="w"> </span><span class="p">}</span>
 
 <span class="k">private</span><span class="o">:</span>
@@ -4307,7 +4307,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <li><strong><code>RequestTransition</code> blocks until the new ActionList is done.</strong> Do not call it from a callback that must return quickly; use a worker thread or <code>Future::then</code>.</li>
 <li><strong><code>UpdateAllowed</code> is set immediately at startup</strong>, because the SWS defines no initial value (<a href="#92-granting-a-session-updateallowed">Section 9.2</a>).</li>
 <li><strong>The names compared in <code>OnAdasState</code> are configuration names.</strong> A renamed StateMachine State silently breaks this code; generate the constants from the configuration if your tool allows it.</li>
-<li><strong><code>AdasStatusType</code> is a generated enumeration.</strong> Its enumerators take the literal names of the model (<code>Off</code>, <code>Active</code>, <code>Degraded</code>, <code>Unavailable</code>), without a <code>k</code> prefix ([SWS_LBAP_00028]; <a href="07_CommunicationManagement.html#55-data-types">guide 07, Section 5.5</a>).</li>
+<li><strong><code>AdasStatusType</code> is a generated enumeration.</strong> Its enumerators take the literal names of the model (<code>Off</code>, <code>Active</code>, <code>Degraded</code>, <code>Unavailable</code>), without a <code>k</code> prefix ([SWS_LBAP_00028]; the <a href="CommunicationManagement.html#55-data-types">CM guide, Section 5.5</a>).</li>
 </ul>
 <blockquote>
 <p><strong>Key takeaways</strong></p>
@@ -4354,7 +4354,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 </tbody>
 </table></div>
-<p>The violations are raised by the constructors of <code>S2RHub</code> and <code>S2RSatellite</code>, for example when an instance specifier does not resolve to a port or the calling process does not match the IAM mapping. A violation terminates the offending process (<a href="03_CoreAndGeneral.html#63-violations-fail-early">guide 03, Section 6.3</a>). Implementations may add non-standardized violations.</p>
+<p>The violations are raised by the constructors of <code>S2RHub</code> and <code>S2RSatellite</code>, for example when an instance specifier does not resolve to a port or the calling process does not match the IAM mapping. A violation terminates the offending process (the <a href="CoreAndGeneral.html#63-violations-fail-early">Core guide, Section 6.3</a>). Implementations may add non-standardized violations.</p>
 <p>Everything else, for example &quot;transition requested&quot;, &quot;ErrorCode 42 mapped to <code>Degraded</code>&quot; or &quot;recovery ignored during update&quot;, appears only in the verbose log of your SM implementation. Agree with your vendor which messages it logs and at which level, and use <code>CurrentState</code> notifications as a second, standardized trace.</p>
 <blockquote>
 <p><strong>Key takeaways</strong></p>
@@ -5221,8 +5221,8 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p><em>End of the training guide. For normative details, always refer to <code>AUTOSAR_AP_SWS_StateManagement</code> (R25-11) and to the specifications it references.</em></p>
 
 </article>
-<nav class="pager" aria-label="Previous and next guide"><a class="pager-prev" href="04_ExecutionManagement.html"><span class="pager-label">← Previous</span><span class="pager-title">04 · Execution Management</span></a><a class="pager-next" href="06_PlatformHealthManagement.html"><span class="pager-label">Next →</span><span class="pager-title">06 · Platform Health Management</span></a></nav>
-<footer class="site-footer"><p>Author: Hieu Do Minh/Claude · Based on the AUTOSAR Adaptive Platform and Foundation specifications, release R25-11.</p><p>Training material, not a normative reference. Where a guide and an AUTOSAR specification differ, the specification applies. Specifications: <a href="https://www.autosar.org/standards" target="_blank" rel="noopener">autosar.org/standards</a>.</p></footer>
+<nav class="pager" aria-label="Previous and next guide"><a class="pager-prev" href="ExecutionManagement.html"><span class="pager-label">← Previous</span><span class="pager-title">Execution Management</span></a><a class="pager-next" href="PlatformHealthManagement.html"><span class="pager-label">Next →</span><span class="pager-title">Platform Health Management</span></a></nav>
+<footer class="site-footer"><p>Based on the AUTOSAR Adaptive Platform and Foundation specifications, release R25-11.</p><p>Training material, not a normative reference. Where a guide and an AUTOSAR specification differ, the specification applies. Specifications: <a href="https://www.autosar.org/standards" target="_blank" rel="noopener">autosar.org/standards</a>.</p></footer>
 </main>
 <aside class="toc" aria-label="On this page"><p class="toc-label">On this page</p><ul><li class="lvl2"><a href="#about-this-guide">About This Guide</a></li><li class="lvl3"><a href="#who-this-guide-is-for">Who This Guide Is For</a></li><li class="lvl3"><a href="#learning-objectives">Learning Objectives</a></li><li class="lvl3"><a href="#how-to-read-this-guide">How to Read This Guide</a></li><li class="lvl3"><a href="#the-running-example">The Running Example</a></li><li class="lvl2"><a href="#table-of-contents">Table of Contents</a></li><li class="lvl2"><a href="#1-introduction-to-state-management">1. Introduction to State Management</a></li><li class="lvl3"><a href="#11-what-is-state-management">1.1 What Is State Management?</a></li><li class="lvl3"><a href="#12-what-state-management-does-not-do">1.2 What State Management Does Not Do</a></li><li class="lvl3"><a href="#13-analogies">1.3 Analogies</a></li><li class="lvl3"><a href="#14-two-ways-to-build-state-management">1.4 Two Ways to Build State Management</a></li><li class="lvl3"><a href="#15-state-management-and-ara">1.5 State Management and ARA</a></li><li class="lvl2"><a href="#2-core-concepts-and-terminology">2. Core Concepts and Terminology</a></li><li class="lvl3"><a href="#21-the-states-state-management-handles">2.1 The States State Management Handles</a></li><li class="lvl3"><a href="#22-statemachine-statemachine-state-and-initial-state">2.2 StateMachine, StateMachine State and Initial State</a></li><li class="lvl3"><a href="#23-actionlist-and-actionlistitem">2.3 ActionList and ActionListItem</a></li><li class="lvl3"><a href="#24-transitionrequesttable-and-errorrecoverytable">2.4 TransitionRequestTable and ErrorRecoveryTable</a></li><li class="lvl3"><a href="#25-controller-and-agent">2.5 Controller and Agent</a></li><li class="lvl3"><a href="#26-smcontrolapplication">2.6 SMControlApplication</a></li><li class="lvl3"><a href="#27-update-session-terms">2.7 Update Session Terms</a></li><li class="lvl3"><a href="#28-suspend-to-ram-terms">2.8 Suspend-to-RAM Terms</a></li><li class="lvl3"><a href="#29-standardized-or-project-specific">2.9 Standardized or Project-Specific?</a></li><li class="lvl2"><a href="#3-state-management-in-the-system-architecture">3. State Management in the System Architecture</a></li><li class="lvl3"><a href="#31-where-state-management-sits-in-the-platform">3.1 Where State Management Sits in the Platform</a></li><li class="lvl3"><a href="#32-interfaces-provided-by-state-management">3.2 Interfaces Provided by State Management</a></li><li class="lvl3"><a href="#33-interfaces-required-by-state-management">3.3 Interfaces Required by State Management</a></li><li class="lvl3"><a href="#34-interaction-map">3.4 Interaction Map</a></li><li class="lvl3"><a href="#35-who-may-talk-to-state-management">3.5 Who May Talk to State Management</a></li><li class="lvl2"><a href="#4-configuration-overview">4. Configuration Overview</a></li><li class="lvl3"><a href="#41-where-the-configuration-lives">4.1 Where the Configuration Lives</a></li><li class="lvl3"><a href="#42-how-the-elements-relate">4.2 How the Elements Relate</a></li><li class="lvl3"><a href="#43-from-tables-to-model-elements">4.3 From Tables to Model Elements</a></li><li class="lvl2"><a href="#5-statemachines-and-transitions">5. StateMachines and Transitions</a></li><li class="lvl3"><a href="#51-anatomy-of-a-statemachine">5.1 Anatomy of a StateMachine</a></li><li class="lvl3"><a href="#52-requesting-a-transition">5.2 Requesting a Transition</a></li><li class="lvl3"><a href="#53-triggers-from-network-management">5.3 Triggers from Network Management</a></li><li class="lvl3"><a href="#54-publishing-the-state-currentstate">5.4 Publishing the State: CurrentState</a></li><li class="lvl3"><a href="#55-worked-example-smcontrol-brings-hpc-from-startup-to-driving">5.5 Worked Example: SmControl Brings HPC from Startup to Driving</a></li><li class="lvl2"><a href="#6-actionlists-what-happens-when-a-state-is-entered">6. ActionLists: What Happens When a State Is Entered</a></li><li class="lvl3"><a href="#61-order-parallelism-and-sync">6.1 Order, Parallelism and SYNC</a></li><li class="lvl3"><a href="#62-function-group-state-items">6.2 Function Group State Items</a></li><li class="lvl3"><a href="#63-network-handle-items-and-afterrun">6.3 Network Handle Items and Afterrun</a></li><li class="lvl3"><a href="#64-completeness-rules">6.4 Completeness Rules</a></li><li class="lvl3"><a href="#65-actionlisttimeout">6.5 ActionListTimeout</a></li><li class="lvl3"><a href="#66-worked-example-the-actionlists-of-adasagent">6.6 Worked Example: The ActionLists of AdasAgent</a></li><li class="lvl2"><a href="#7-controller-and-agents">7. Controller and Agents</a></li><li class="lvl3"><a href="#71-why-several-statemachines">7.1 Why Several StateMachines</a></li><li class="lvl3"><a href="#72-the-controller-owns-the-machine-lifecycle">7.2 The Controller Owns the Machine Lifecycle</a></li><li class="lvl3"><a href="#73-starting-and-stopping-agents">7.3 Starting and Stopping Agents</a></li><li class="lvl3"><a href="#74-the-agents-off-state">7.4 The Agent&#x27;s Off State</a></li><li class="lvl3"><a href="#75-startup-shutdown-and-restart-of-the-machine">7.5 Startup, Shutdown and Restart of the Machine</a></li><li class="lvl3"><a href="#76-worked-example-hpccontroller-and-adasagent">7.6 Worked Example: HpcController and AdasAgent</a></li><li class="lvl2"><a href="#8-error-handling-and-recovery">8. Error Handling and Recovery</a></li><li class="lvl3"><a href="#81-where-errors-come-from">8.1 Where Errors Come From</a></li><li class="lvl3"><a href="#82-the-errorrecoverytable-and-the-any-entry">8.2 The ErrorRecoveryTable and the ANY Entry</a></li><li class="lvl3"><a href="#83-the-recovery-reaction">8.3 The Recovery Reaction</a></li><li class="lvl3"><a href="#84-nested-recovery">8.4 Nested Recovery</a></li><li class="lvl3"><a href="#85-state-managements-side-of-recoveryhandler">8.5 State Management&#x27;s Side of RecoveryHandler</a></li><li class="lvl3"><a href="#86-failures-reported-by-execution-management">8.6 Failures Reported by Execution Management</a></li><li class="lvl3"><a href="#87-worked-example-fusion-fails-and-adas-goes-to-degraded">8.7 Worked Example: Fusion Fails and ADAS Goes to Degraded</a></li><li class="lvl3"><a href="#88-worked-example-a-stuck-cameradriver">8.8 Worked Example: A Stuck CameraDriver</a></li><li class="lvl3"><a href="#89-error-handling-without-statemachines">8.9 Error Handling Without StateMachines</a></li><li class="lvl2"><a href="#9-software-updates-state-managements-side">9. Software Updates: State Management&#x27;s Side</a></li><li class="lvl3"><a href="#91-the-updaterequest-interface">9.1 The UpdateRequest Interface</a></li><li class="lvl3"><a href="#92-granting-a-session-updateallowed">9.2 Granting a Session: UpdateAllowed</a></li><li class="lvl3"><a href="#93-impactedbyupdate">9.3 ImpactedByUpdate</a></li><li class="lvl3"><a href="#94-prepare-verify-and-roll-back">9.4 Prepare, Verify and Roll Back</a></li><li class="lvl3"><a href="#95-machine-reset-during-a-session">9.5 Machine Reset During a Session</a></li><li class="lvl3"><a href="#96-ending-the-session-afterupdate">9.6 Ending the Session: AfterUpdate</a></li><li class="lvl3"><a href="#97-worked-example-updating-adascluster-to-110">9.7 Worked Example: Updating AdasCluster to 1.1.0</a></li><li class="lvl2"><a href="#10-power-management-and-suspend-to-ram">10. Power Management and Suspend-to-RAM</a></li><li class="lvl3"><a href="#101-why-suspend-to-ram">10.1 Why Suspend-to-RAM</a></li><li class="lvl3"><a href="#102-tolerant-aware-and-not-supported-applications">10.2 Tolerant, Aware and Not Supported Applications</a></li><li class="lvl3"><a href="#103-s2r-hub-and-s2r-satellites">10.3 S2R Hub and S2R Satellites</a></li><li class="lvl3"><a href="#104-talking-to-the-operating-system-powerstateinterface">10.4 Talking to the Operating System: PowerStateInterface</a></li><li class="lvl3"><a href="#105-suspend-to-ram-in-the-statemachine-approach">10.5 Suspend-to-RAM in the StateMachine Approach</a></li><li class="lvl3"><a href="#106-autonomous-wake-up">10.6 Autonomous Wake-Up</a></li><li class="lvl3"><a href="#107-security-and-virtual-machines">10.7 Security and Virtual Machines</a></li><li class="lvl3"><a href="#108-what-hpc-does">10.8 What HPC Does</a></li><li class="lvl2"><a href="#11-other-interactions">11. Other Interactions</a></li><li class="lvl3"><a href="#111-network-management-and-network-handles">11.1 Network Management and Network Handles</a></li><li class="lvl3"><a href="#112-diagnostics-ecu-reset-and-communication-control">11.2 Diagnostics: ECU Reset and Communication Control</a></li><li class="lvl3"><a href="#113-persistency-logging-and-supervision-of-state-management">11.3 Persistency, Logging and Supervision of State Management</a></li><li class="lvl2"><a href="#12-configuration-reference-what-to-configure">12. Configuration Reference: What to Configure</a></li><li class="lvl3"><a href="#121-minimal-configuration">12.1 Minimal Configuration</a></li><li class="lvl3"><a href="#122-statemanagementmoduleinstantiation">12.2 StateManagementModuleInstantiation</a></li><li class="lvl3"><a href="#123-statemanagementstatenotification-and-the-statemachine-type">12.3 StateManagementStateNotification and the StateMachine Type</a></li><li class="lvl3"><a href="#124-requests-and-rules">12.4 Requests and Rules</a></li><li class="lvl3"><a href="#125-statemanagementactionlist">12.5 StateManagementActionList</a></li><li class="lvl3"><a href="#126-action-items">12.6 Action Items</a></li><li class="lvl3"><a href="#127-error-codes-functiongrouperrormapping-and-related-references">12.7 Error Codes: FunctionGroupErrorMapping and Related References</a></li><li class="lvl3"><a href="#128-network-management-mappings">12.8 Network Management Mappings</a></li><li class="lvl3"><a href="#129-port-interfaces-and-ports">12.9 Port Interfaces and Ports</a></li><li class="lvl3"><a href="#1210-suspend-to-ram-configuration">12.10 Suspend-to-RAM Configuration</a></li><li class="lvl3"><a href="#1211-related-settings-outside-state-management">12.11 Related Settings Outside State Management</a></li><li class="lvl3"><a href="#1212-the-running-example-complete-configuration">12.12 The Running Example: Complete Configuration</a></li><li class="lvl2"><a href="#13-api-reference-and-usage-guide-arasm">13. API Reference and Usage Guide (ara::sm)</a></li><li class="lvl3"><a href="#131-api-overview">13.1 API Overview</a></li><li class="lvl3"><a href="#132-the-service-interfaces-and-their-data-types">13.2 The Service Interfaces and Their Data Types</a></li><li class="lvl3"><a href="#133-errors-application-errors-and-smerrordomain">13.3 Errors: Application Errors and SmErrorDomain</a></li><li class="lvl3"><a href="#134-s2rsatellite">13.4 S2RSatellite</a></li><li class="lvl3"><a href="#135-s2rhub">13.5 S2RHub</a></li><li class="lvl3"><a href="#136-apextsmpowerstateinterface">13.6 apext::sm::PowerStateInterface</a></li><li class="lvl3"><a href="#137-example-the-main-loop-of-smcontrol">13.7 Example: The Main Loop of SmControl</a></li><li class="lvl2"><a href="#14-logging-security-events-and-violations">14. Logging, Security Events and Violations</a></li><li class="lvl2"><a href="#15-end-to-end-walkthrough-a-drive-cycle-of-the-hpc">15. End-to-End Walkthrough: A Drive Cycle of the HPC</a></li><li class="lvl3"><a href="#151-power-on">15.1 Power On</a></li><li class="lvl3"><a href="#152-drive">15.2 Drive</a></li><li class="lvl3"><a href="#153-a-failure">15.3 A Failure</a></li><li class="lvl3"><a href="#154-an-update-request-while-driving">15.4 An Update Request While Driving</a></li><li class="lvl3"><a href="#155-power-off">15.5 Power Off</a></li><li class="lvl3"><a href="#156-state-timeline">15.6 State Timeline</a></li><li class="lvl2"><a href="#16-best-practices-pitfalls-and-troubleshooting">16. Best Practices, Pitfalls and Troubleshooting</a></li><li class="lvl3"><a href="#161-best-practices">16.1 Best Practices</a></li><li class="lvl3"><a href="#162-common-pitfalls">16.2 Common Pitfalls</a></li><li class="lvl3"><a href="#163-troubleshooting-guide">16.3 Troubleshooting Guide</a></li><li class="lvl2"><a href="#17-summary-and-self-check-quiz">17. Summary and Self-Check Quiz</a></li><li class="lvl3"><a href="#171-summary">17.1 Summary</a></li><li class="lvl3"><a href="#172-self-check-quiz">17.2 Self-Check Quiz</a></li><li class="lvl2"><a href="#appendix-a-glossary-and-acronyms">Appendix A. Glossary and Acronyms</a></li><li class="lvl2"><a href="#appendix-b-quick-reference-cheat-sheet">Appendix B. Quick Reference Cheat Sheet</a></li><li class="lvl2"><a href="#appendix-c-spec-traceability">Appendix C. Spec Traceability</a></li><li class="lvl2"><a href="#appendix-d-notable-changes-in-recent-releases">Appendix D. Notable Changes in Recent Releases</a></li><li class="lvl2"><a href="#appendix-e-references">Appendix E. References</a></li></ul></aside>
 </div>

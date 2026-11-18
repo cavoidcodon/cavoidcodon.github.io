@@ -10,7 +10,7 @@
 >
 > **Version:** 1.0 (draft, pending review)
 >
-> **Part of the series:** [AUTOSAR Adaptive Platform Training Guides](00_LearningPath.md). Previous: [01 Adaptive Platform Overview and Architecture](01_PlatformOverview.md). Next: [03 `ara::core` and General Conventions](03_CoreAndGeneral.md).
+> **Part of the series:** [AUTOSAR Adaptive Platform Training Guides](../README.md). Previous: [Adaptive Platform Overview and Architecture](PlatformOverview.md). Next: [`ara::core` and General Conventions](CoreAndGeneral.md).
 
 ## About This Guide
 
@@ -23,7 +23,7 @@ The Adaptive Platform knows nothing about your system until you describe it. Whi
 - **Platform developers** who read the configuration of their functional cluster from the model.
 - **Tool and model engineers** who generate, convert or check ARXML.
 
-Assumed background: modern C++ and basic XML. Read [guide 00](00_LearningPath.md) (at least Chapters 1 and 6) and [guide 01](01_PlatformOverview.md) first. The [EM guide](04_ExecutionManagement.md) explains the behavior behind the Execution Manifest; this guide explains its structure.
+Assumed background: modern C++ and basic XML. Read the [main page](../README.md) of the series, the [Running Example guide](RunningExample.md) and the [Platform Overview guide](PlatformOverview.md) first. The [EM guide](ExecutionManagement.md) explains the behavior behind the Execution Manifest; this guide explains its structure.
 
 ### Learning Objectives
 
@@ -60,20 +60,20 @@ All ARXML in this guide is real ARXML. Each fragment is an excerpt of the comple
 
 ### The Running Example
 
-This guide models a small but complete part of `HPC`, the running example of the series ([guide 00, Chapter 6](00_LearningPath.md#6-the-running-example-the-hpc-reference-system)): the service `CameraService`, the process `CameraDriver` that provides it, the process `Fusion` that uses it, the Machine `HPC` with its Function Groups `MachineFG` and `ADAS`, and the two Software Clusters `HpcPlatformCore` and `AdasCluster`. The other processes and services of `HPC` are modeled in the same way; their owner guides add them when they need them.
+This guide models a small but complete part of `HPC`, the running example of the series (the [Running Example guide](RunningExample.md)): the service `CameraService`, the process `CameraDriver` that provides it, the process `Fusion` that uses it, the Machine `HPC` with its Function Groups `MachineFG` and `ADAS`, and the two Software Clusters `HpcPlatformCore` and `AdasCluster`. The other processes and services of `HPC` are modeled in the same way; their owner guides add them when they need them.
 
-The model adds the following details to the running example. They are part of the master definition in guide 00.
+The model adds the following details to the running example. They are part of the master definition in the Running Example guide.
 
-| Element | Value (illustrative) | Defined in guide 00 |
+| Element | Value (illustrative) | Defined in the Running Example guide |
 | --- | --- | --- |
-| Package structure | Top-level package `/HPC`, with sub-packages named after the recommended package of each element kind; standard types from `/AUTOSAR/StdTypes` | [Section 6.1](00_LearningPath.md#61-purpose-and-rules) |
-| `CameraService` contract | Namespace `hpc::camera`, version 1.0; event `Image` (`CameraImage`), field `CameraStatus` (`CameraState`: `Ok`, `Blocked`, `NotAvailable`; getter and notifier; initial value `NotAvailable`), method `SetExposureMode(mode)` (`ExposureMode`: `Auto`, `Day`, `Night`) with the error `ExposureModeNotSupported` | [Section 6.6](00_LearningPath.md#66-services-and-their-consumers) |
-| SOME/IP IDs of `CameraService` | Service `0x1001`, instance `0x0001`, method `0x0001`, getter `0x0002`, event 1 and notifier 2 (`0x8001` and `0x8002` on the wire), event group `CameraEvents` 1; TCP port 30501 | [Section 6.7](00_LearningPath.md#67-network-deployment) |
-| Software components | `CameraDriverSwc` with the P-port `CameraPPort`, `FusionSwc` with the R-port `CameraRPort`; root prototype `Root`; instance specifiers `/camera_driver/Root/CameraPPort` and `/fusion/Root/CameraRPort` | [Section 6.5](00_LearningPath.md#65-processes) |
-| Execution error of `Fusion` | `processExecutionError` 42 is the application error `FusionFailed` of the error domain `AdasExecutionErrors` | [Section 6.5](00_LearningPath.md#65-processes) |
-| Hardware and machine design | Processor `Soc` with four cores `Core0` to `Core3`; machine design `HpcDesign` | [Section 6.3](00_LearningPath.md#63-the-hpc-machine) |
-| `ADAS.Verify` | The `Verify` state of `ADAS`, used while an update of `AdasCluster` is activated | [Section 6.4](00_LearningPath.md#64-function-groups-and-states) |
-| Software Cluster identity | Vendor IDs `0x1111` (`HpcPlatformCore`) and `0x1234` (`AdasCluster`); vendor certificates `PlatformVendorCert` and `AdasSupplierCert` | [Sections 6.3](00_LearningPath.md#63-the-hpc-machine) and [6.12](00_LearningPath.md#612-security) |
+| Package structure | Top-level package `/HPC`, with sub-packages named after the recommended package of each element kind; standard types from `/AUTOSAR/StdTypes` | [Section 1.1](RunningExample.md#11-purpose-and-rules) |
+| `CameraService` contract | Namespace `hpc::camera`, version 1.0; event `Image` (`CameraImage`), field `CameraStatus` (`CameraState`: `Ok`, `Blocked`, `NotAvailable`; getter and notifier; initial value `NotAvailable`), method `SetExposureMode(mode)` (`ExposureMode`: `Auto`, `Day`, `Night`) with the error `ExposureModeNotSupported` | [Section 1.6](RunningExample.md#16-services-and-their-consumers) |
+| SOME/IP IDs of `CameraService` | Service `0x1001`, instance `0x0001`, method `0x0001`, getter `0x0002`, event 1 and notifier 2 (`0x8001` and `0x8002` on the wire), event group `CameraEvents` 1; TCP port 30501 | [Section 1.7](RunningExample.md#17-network-deployment) |
+| Software components | `CameraDriverSwc` with the P-port `CameraPPort`, `FusionSwc` with the R-port `CameraRPort`; root prototype `Root`; instance specifiers `/camera_driver/Root/CameraPPort` and `/fusion/Root/CameraRPort` | [Section 1.5](RunningExample.md#15-processes) |
+| Execution error of `Fusion` | `processExecutionError` 42 is the application error `FusionFailed` of the error domain `AdasExecutionErrors` | [Section 1.5](RunningExample.md#15-processes) |
+| Hardware and machine design | Processor `Soc` with four cores `Core0` to `Core3`; machine design `HpcDesign` | [Section 1.3](RunningExample.md#13-the-hpc-machine) |
+| `ADAS.Verify` | The `Verify` state of `ADAS`, used while an update of `AdasCluster` is activated | [Section 1.4](RunningExample.md#14-function-groups-and-states) |
+| Software Cluster identity | Vendor IDs `0x1111` (`HpcPlatformCore`) and `0x1234` (`AdasCluster`); vendor certificates `PlatformVendorCert` and `AdasSupplierCert` | [Sections 1.3](RunningExample.md#13-the-hpc-machine) and [1.12](RunningExample.md#112-security) |
 
 ## Table of Contents
 
@@ -216,10 +216,10 @@ The following table shows what the platform learns from its manifests and which 
 
 | The platform learns ... | From | Details in |
 | --- | --- | --- |
-| which processes exist, when they run and with which arguments, priorities and limits | the Execution Manifest | [Chapter 8](#8-the-execution-manifest), [EM guide](04_ExecutionManagement.md#4-configuration-overview) |
-| how each service is offered and found on the network, with which IDs and ports | the Service Instance Manifest | [Chapter 9](#9-the-service-instance-manifest-and-the-instancespecifier), [guide 07](07_CommunicationManagement.md#6-service-discovery-offering-and-finding-services), [guide 08a](08a_NetworkBindings.md) |
+| which processes exist, when they run and with which arguments, priorities and limits | the Execution Manifest | [Chapter 8](#8-the-execution-manifest), [EM guide](ExecutionManagement.md#4-configuration-overview) |
+| how each service is offered and found on the network, with which IDs and ports | the Service Instance Manifest | [Chapter 9](#9-the-service-instance-manifest-and-the-instancespecifier), the [CM guide](CommunicationManagement.md#6-service-discovery-offering-and-finding-services), the [Network Bindings guide](NetworkBindings.md) |
 | how the Machine itself is configured: timeouts, resource groups, processors, platform modules | the Machine Manifest | [Chapter 7](#7-system-design-machine-design-and-the-machine-manifest), the cluster guides |
-| which files form one installable unit, and in which version | the Software Distribution content | [Chapter 10](#10-software-clusters-and-software-packages), guide 13 |
+| which files form one installable unit, and in which version | the Software Distribution content | [Chapter 10](#10-software-clusters-and-software-packages), the UCM guide |
 
 ### 1.2 Design Models and Target Configuration
 
@@ -264,7 +264,7 @@ Three rules govern this relation:
 | --- | --- |
 | an API. Applications do not read their manifests. | Applications use the `ara::` APIs. They name their ports with an `InstanceSpecifier`, and the functional clusters resolve it with the manifest ([Chapter 13](#13-where-code-meets-the-manifest)). |
 | one file | The model is split into many files. Each file is a partial model, and the files are merged into one model ([Section 3.7](#37-many-files-one-model)). |
-| the format that the platform reads at run time | Each implementation converts the ARXML into its own format, preserving the content ([TPS_MANI_01021]). The [EM guide](04_ExecutionManagement.md#22-manifests) calls the result *Processed Manifests*. |
+| the format that the platform reads at run time | Each implementation converts the ARXML into its own format, preserving the content ([TPS_MANI_01021]). The [EM guide](ExecutionManagement.md#22-manifests) calls the result *Processed Manifests*. |
 | a description of behavior | The specifications of the functional clusters define what a cluster *does* with a setting. The TPS defines only what can be configured. |
 | checked completely by the XML Schema | The schema checks the syntax. The constraints of the TPS are checked by tools at defined points of the workflow ([Section 3.9](#39-validating-arxml)). |
 | used on the Classic Platform | Classic ECUs are configured with the ECU Configuration (EcuC). Both platforms share the system design ([Section 7.1](#71-the-system-and-its-extracts)). |
@@ -289,7 +289,7 @@ Several AUTOSAR documents work together. The following table tells you which one
 | *XML Schema Production Rules* (`AUTOSAR_FO_TPS_XMLSchemaProductionRules`) | Schema Production Rules | How the XML tags are derived from the meta-model names. |
 | XML Schema `AUTOSAR_00054.xsd` (`AUTOSAR_FO_MMOD_XMLSchema`) | XSD | Which XML is syntactically valid in R25-11. |
 | *Standardized M1 Models used for the Definition of AUTOSAR* (`AUTOSAR_FO_MOD_GeneralDefinitions`) | Standardized models | Ready-made model content, for example the C++ standard types and the states of `MachineFG`. |
-| *Specification of Adaptive Platform Core* (`AUTOSAR_AP_SWS_Core`) | SWS Core | The `ara::core::InstanceSpecifier` class ([Section 13.2](#132-the-instancespecifier-in-code)); [guide 03](03_CoreAndGeneral.md) covers the rest. |
+| *Specification of Adaptive Platform Core* (`AUTOSAR_AP_SWS_Core`) | SWS Core | The `ara::core::InstanceSpecifier` class ([Section 13.2](#132-the-instancespecifier-in-code)); the [Core guide](CoreAndGeneral.md) covers the rest. |
 
 > **Note:** The specifications of the functional clusters (SWS) say how a cluster *uses* a setting. For example, the TPS defines the attribute `StartupConfig.schedulingPolicy`, while the *Specification of Execution Management* says what EM does with it. The *Configuration Reference* chapter of each cluster guide combines both.
 
@@ -378,10 +378,10 @@ Manifest content is relevant in very different phases of a project, so the TPS d
 | **Execution Manifest** | The target-configuration information of an application: its processes and how they are started | The executable code | [8](#8-the-execution-manifest) |
 | **Service Instance Manifest** | How service-oriented communication is configured for the underlying transport protocols | The executable code that uses the communication | [9](#9-the-service-instance-manifest-and-the-instancespecifier) |
 | **Machine Manifest** | The configuration of the Machine itself, without applications | The software that establishes the platform instance | [7](#7-system-design-machine-design-and-the-machine-manifest) |
-| **Raw Data Stream Manifest** | Client and server of raw data streams | The software that uses the stream | guide 09 |
+| **Raw Data Stream Manifest** | Client and server of raw data streams | The software that uses the stream | NM/TSync/RDS guide |
 | **Software Distribution** | Packaging and logistics: Software Clusters and Software Packages | The uploadable package | [10](#10-software-clusters-and-software-packages) |
 
-*Platform Design* (Section 4.4), and therefore [guide 01, Section 8.2](01_PlatformOverview.md#82-manifests-in-one-table), presents a shorter view: the *Application Design* plus three kinds of manifest (Execution, Service Instance and Machine). Both views fit together. The Application Design is design content that is not necessarily deployed to the Machine, so the TPS does not count it as a manifest; and the TPS adds the Raw Data Stream Manifest and the Software Distribution. The TPS is the normative view.
+*Platform Design* (Section 4.4), and therefore the [Platform Overview guide, Section 8.2](PlatformOverview.md#82-manifests-in-one-table), presents a shorter view: the *Application Design* plus three kinds of manifest (Execution, Service Instance and Machine). Both views fit together. The Application Design is design content that is not necessarily deployed to the Machine, so the TPS does not count it as a manifest; and the TPS adds the Raw Data Stream Manifest and the Software Distribution. The TPS is the normative view.
 
 The following diagram shows which manifest travels with which software.
 
@@ -778,7 +778,7 @@ Ports are not only for services. A port typed by a functional-cluster interface,
 Two kinds of further qualification can be attached to a port:
 
 - **Port prototype props.** An `RPortPrototype` may carry `RPortPrototypeProps.searchIntention` with the value `searchForAllInstances` or `searchForSpecificInstance`. It records the developer's intention; it creates no binding contract, because the actual search behavior is defined in the Service Instance Manifest ([TPS_MANI_01057]).
-- **ComSpecs.** A `ComSpec` qualifies the use of one element of the interface at one port. The Adaptive Platform supports only a limited selection of ComSpec attributes ([TPS_MANI_01053]). One of them you need in almost every model: a provided port with a field has a `FieldSenderComSpec`, whose `initValue` sets the value of the field before the service is offered ([TPS_MANI_03212]); if the ComSpec exists, the initial value must exist ([constr_10152]). The other ComSpec attributes, for example for E2E protection and for the declared intent to use an element, are covered in guides 07, 08 and 15.
+- **ComSpecs.** A `ComSpec` qualifies the use of one element of the interface at one port. The Adaptive Platform supports only a limited selection of ComSpec attributes ([TPS_MANI_01053]). One of them you need in almost every model: a provided port with a field has a `FieldSenderComSpec`, whose `initValue` sets the value of the field before the service is offered ([TPS_MANI_03212]); if the ComSpec exists, the initial value must exist ([constr_10152]). The other ComSpec attributes, for example for E2E protection and for the declared intent to use an element, are covered in the CM, Secure Communication and IAM guides.
 
 ### 5.3 The Executable and Its Root Prototype
 
@@ -787,7 +787,7 @@ An `Executable` represents an executable program in the model (TPS, Section 3.2.
 | Attribute | Purpose |
 | --- | --- |
 | `category` | `APPLICATION_LEVEL` for software above the middleware, `PLATFORM_LEVEL` for software at the level of the middleware, such as a functional cluster ([constr_1605]) |
-| `reportingBehavior` | Whether the processes of the Executable report their Execution State to EM. If absent, they report ([TPS_MANI_01279]). See the [EM guide](04_ExecutionManagement.md#24-process-flavors). |
+| `reportingBehavior` | Whether the processes of the Executable report their Execution State to EM. If absent, they report ([TPS_MANI_01279]). See the [EM guide](ExecutionManagement.md#24-process-flavors). |
 | `rootSwComponentPrototype` | The root of the component hierarchy of the Executable ([TPS_MANI_01010]). Optional, for platform modules that use no service-oriented communication ([TPS_MANI_03056]). |
 | `version` | The version of the program, as a semantic version such as `1.0.0` |
 | `minimumTimerGranularity` | The minimum timer resolution that the program requires |
@@ -910,9 +910,9 @@ On the Adaptive Platform, the errors that a method can raise are defined globall
 
 Within one domain, the short names and the error codes of the errors must be unique ([constr_1664], [constr_1665]), because the C++ binding turns them into the enumerators of an enumeration of the domain. Within one method, no two referenced domains may share a domain value ([constr_10574]). If the service is used by a Classic Platform ECU over SOME/IP, error codes are limited to 1 to 63 and must be unique within the method ([constr_3772], [constr_3773]), because the Classic `Std_ReturnType` reserves only six bits for errors.
 
-The value of an error domain is a `PositiveUnlimitedInteger`. Its range is given by [constr_2637] of the *Generic Structure Template* ([TPS_MANI_01863]): from 0 to 18446744073709551615 (`0xffffffffffffffff`), that is, any unsigned 64-bit value. The running example uses small illustrative values; [guide 03, Chapter 7](03_CoreAndGeneral.md#7-errorcode-and-errordomain) explains the error domains of `ara::core`.
+The value of an error domain is a `PositiveUnlimitedInteger`. Its range is given by [constr_2637] of the *Generic Structure Template* ([TPS_MANI_01863]): from 0 to 18446744073709551615 (`0xffffffffffffffff`), that is, any unsigned 64-bit value. The running example uses small illustrative values; the [Core guide, Chapter 7](CoreAndGeneral.md#7-errorcode-and-errordomain) explains the error domains of `ara::core`.
 
-Application errors have a second use: a `StartupConfig` can reference one in the role `processExecutionError`, to tell State Management which error a failing process represents (status DRAFT, TPS, Table 10.4). That is how `Fusion` reports the value 42 in the [EM guide](04_ExecutionManagement.md#1311-the-running-example-complete-configuration).
+Application errors have a second use: a `StartupConfig` can reference one in the role `processExecutionError`, to tell State Management which error a failing process represents (status DRAFT, TPS, Table 10.4). That is how `Fusion` reports the value 42 in the [EM guide](ExecutionManagement.md#1311-the-running-example-complete-configuration).
 
 ### 6.4 Data Types
 
@@ -952,22 +952,22 @@ Applications also use ports to reach functional clusters. For this purpose the T
 
 | Port interface (examples) | Purpose | TPS section | Owner guide |
 | --- | --- | --- | --- |
-| `StateClientInterface`, `StateManagementPortInterface` subclasses | State Management requests and notifications | 4.5 | 04, 05 |
-| `PhmSupervisedEntityInterface` | Supervision checkpoints of a process | 4.8 | 06 |
-| `LogAndTraceInterface` | Modeled log messages | 4.13 | 10 |
-| `PersistencyKeyValueStorageInterface`, `PersistencyFileStorageInterface` | Key-value storages and file storages | 4.6 | [11](11_Persistency.md#142-persistencyinterface-and-its-subclasses) |
-| `DiagnosticDataIdentifierInterface`, `DiagnosticRoutineInterface`, `DiagnosticMonitorInterface` and others | Diagnostic data, routines and events | 4.9 | [12a](12a_Diagnostics.md#1410-diagnostic-port-interfaces), [12b](12b_Diagnostics.md#31-fault-memory-classes-and-their-port-interfaces) |
-| `CryptoKeySlotInterface`, `CryptoCertificateInterface`, `CryptoProviderInterface` | Access to keys, certificates and crypto providers | 4.10 | 14 |
-| `SecurityEventReportInterface` | Reporting of security events | 4.12 | 16 |
-| `FirewallStateSwitchInterface` | Switching firewall states | 4.14 | 16 |
-| `SynchronizedTimeBaseConsumerInterface`, `SynchronizedTimeBaseProviderInterface` | Time bases | 4.7 | 09 |
-| `NetworkManagementPortInterface` | Network management | 4.15 | 09 |
-| `RawDataStreamClientInterface`, `RawDataStreamServerInterface` | Raw data streams | 4.11 | 09 |
-| `SuspendToRamSatelliteInterface`, `SuspendToRamHubInterface` | Suspend-to-RAM (new in R25-11) | 4.16 | 05 |
+| `StateClientInterface`, `StateManagementPortInterface` subclasses | State Management requests and notifications | 4.5 | EM, SM |
+| `PhmSupervisedEntityInterface` | Supervision checkpoints of a process | 4.8 | PHM |
+| `LogAndTraceInterface` | Modeled log messages | 4.13 | Log and Trace |
+| `PersistencyKeyValueStorageInterface`, `PersistencyFileStorageInterface` | Key-value storages and file storages | 4.6 | [Persistency](Persistency.md#142-persistencyinterface-and-its-subclasses) |
+| `DiagnosticDataIdentifierInterface`, `DiagnosticRoutineInterface`, `DiagnosticMonitorInterface` and others | Diagnostic data, routines and events | 4.9 | [Diagnostics Part 1](DiagnosticsPart1.md#1410-diagnostic-port-interfaces), [Diagnostics Part 2](DiagnosticsPart2.md#31-fault-memory-classes-and-their-port-interfaces) |
+| `CryptoKeySlotInterface`, `CryptoCertificateInterface`, `CryptoProviderInterface` | Access to keys, certificates and crypto providers | 4.10 | Cryptography |
+| `SecurityEventReportInterface` | Reporting of security events | 4.12 | IDSM and Firewall |
+| `FirewallStateSwitchInterface` | Switching firewall states | 4.14 | IDSM and Firewall |
+| `SynchronizedTimeBaseConsumerInterface`, `SynchronizedTimeBaseProviderInterface` | Time bases | 4.7 | NM/TSync/RDS |
+| `NetworkManagementPortInterface` | Network management | 4.15 | NM/TSync/RDS |
+| `RawDataStreamClientInterface`, `RawDataStreamServerInterface` | Raw data streams | 4.11 | NM/TSync/RDS |
+| `SuspendToRamSatelliteInterface`, `SuspendToRamHubInterface` | Suspend-to-RAM (new in R25-11) | 4.16 | SM |
 
 ### 6.6 Worked Example: `CameraService` as ARXML
 
-The contract of `CameraService` ([guide 00, Section 6.6](00_LearningPath.md#66-services-and-their-consumers)) needs four data types: the structure `CameraImage`, the vector `PixelVector` for its pixels, and the two enumerations `ExposureMode` and `CameraState`. All four are placed in the namespace `hpc::camera`; the following excerpt shows the namespace once. The integer types come from `/AUTOSAR/StdTypes`.
+The contract of `CameraService` (the [Running Example guide, Section 1.6](RunningExample.md#16-services-and-their-consumers)) needs four data types: the structure `CameraImage`, the vector `PixelVector` for its pixels, and the two enumerations `ExposureMode` and `CameraState`. All four are placed in the namespace `hpc::camera`; the following excerpt shows the namespace once. The integer types come from `/AUTOSAR/StdTypes`.
 
 ```xml
 <STD-CPP-IMPLEMENTATION-DATA-TYPE>
@@ -1117,7 +1117,7 @@ Finally, the interface itself, with its namespace, version and three elements:
 
 Notice the details that the constraints require: the field has all three `HAS-...` attributes ([constr_1673]); the event has no initial value ([constr_1494]); the error has a code and a domain ([constr_10132], [constr_1625]). The short names of the `SYMBOL-PROPS` (`Ns1`, `Ns2`) are only identifiers; the namespace in the code comes from the `SYMBOL`s.
 
-> **Note (implementation example):** From these types, a generator could emit C++ declarations like the following sketch. The member names are the short names of the sub-elements ([TPS_MANI_03181]), and a `VECTOR` maps to `ara::core::Vector` ([TPS_MANI_03175]). The exact form of the generated code, including the form of enumerations, is defined by the language binding of Communication Management ([guide 07, Section 5.5](07_CommunicationManagement.md#55-data-types)) and may differ in your tool.
+> **Note (implementation example):** From these types, a generator could emit C++ declarations like the following sketch. The member names are the short names of the sub-elements ([TPS_MANI_03181]), and a `VECTOR` maps to `ara::core::Vector` ([TPS_MANI_03175]). The exact form of the generated code, including the form of enumerations, is defined by the language binding of Communication Management (the [CM guide, Section 5.5](CommunicationManagement.md#55-data-types)) and may differ in your tool.
 >
 > ```cpp
 > // Illustrative sketch of generated code. Not normative.
@@ -1166,7 +1166,7 @@ A vehicle contains Classic ECUs and Adaptive Machines, so its system design must
 
 A typical workflow is that the OEM strips everything that does not concern one Machine from the system design and hands the extract to the supplier who develops that Machine (TPS, Section 7.1), just as the Classic Platform uses ECU extracts.
 
-The communication designer describes the network: Ethernet clusters, their physical channels (VLANs) and the network endpoints with their IP addresses. The canonical way to give a Machine an IP address is a `NetworkEndpoint`, referenced from the Ethernet connector of its `MachineDesign` (TPS, Section 7.2.1). The `Machine` meta-class itself is not meant for system design (TPS, Section 7.2). [Guide 08a](08a_NetworkBindings.md) covers the network topology in detail.
+The communication designer describes the network: Ethernet clusters, their physical channels (VLANs) and the network endpoints with their IP addresses. The canonical way to give a Machine an IP address is a `NetworkEndpoint`, referenced from the Ethernet connector of its `MachineDesign` (TPS, Section 7.2.1). The `Machine` meta-class itself is not meant for system design (TPS, Section 7.2). The [Network Bindings guide](NetworkBindings.md) covers the network topology in detail.
 
 ### 7.2 Machine Design
 
@@ -1177,7 +1177,7 @@ Because the Adaptive Platform communicates over Ethernet, designing the communic
 - `communicationConnector`: the connections to the network, typically an `EthernetCommunicationConnector`, which references its unicast `NetworkEndpoint`s and aggregates the `ApApplicationEndpoint`s. An `ApApplicationEndpoint` defines a UDP or TCP port; together with the network endpoint it forms a socket ([TPS_MANI_03280]). The port number `0` asks the middleware for an ephemeral port ([TPS_MANI_03227]).
 - `serviceDiscoveryConfig`: the SOME/IP service discovery settings per connector, such as the multicast address and the port (TPS, Section 6.5).
 - `processor`: processors and cores known at design time, so that design-level core affinity can refer to them ([Section 5.4](#54-process-design-a-stand-in-for-a-future-process)).
-- further settings, for example the partial network timers, the access control mode, and the design of the DoIP functional cluster ([guide 12a, Section 14.12](12a_Diagnostics.md#1412-doip-configuration)).
+- further settings, for example the partial network timers, the access control mode, and the design of the DoIP functional cluster (the [Diagnostics Part 1 guide, Section 14.12](DiagnosticsPart1.md#1412-doip-configuration)).
 
 According to the Methodology TR, the communication structure of a prospective Machine is designed first, either by the OEM's communication designer or by a Tier 1 integrator on the basis of the network endpoints that the OEM shares. The result is the `MachineDesign`. The configuration of the Machine for a real ECU follows as the second step, in the Machine Manifest ([TR_AMETH_00003], [TR_AMETH_00021]).
 
@@ -1188,12 +1188,12 @@ According to the Methodology TR, the communication structure of a prospective Ma
 | Attribute | Purpose | Rule |
 | --- | --- | --- |
 | `machineDesign` | The `MachineDesign` that this Machine implements. Everything defined there applies to the Machine as well. | Shall exist ([constr_10169]) |
-| `trustedPlatformExecutableLaunchBehavior` | `strictMode`, `monitorMode` or `noTrustedPlatformSupport` ([TPS_MANI_01273]). See the [EM guide](04_ExecutionManagement.md#123-launch-behavior-modes). | Shall exist ([constr_10170]) |
+| `trustedPlatformExecutableLaunchBehavior` | `strictMode`, `monitorMode` or `noTrustedPlatformSupport` ([TPS_MANI_01273]). See the [EM guide](ExecutionManagement.md#123-launch-behavior-modes). | Shall exist ([constr_10170]) |
 | `defaultApplicationTimeout` | The default start-up timeout (`enterTimeoutValue`) and termination timeout (`exitTimeoutValue`) of applications, in seconds ([TPS_MANI_01412], [TPS_MANI_03151]) | Both values shall exist ([constr_10430], [constr_10431], [constr_10432]) |
 | `environmentVariable` | Environment variables for all processes of the Machine ([TPS_MANI_01208]). The aggregation is splitable, so several partial models can contribute. | |
 | `processor` | The processors, each with its cores; `coreId` is unique per processor ([constr_1549]) | At least one ([constr_10171]) |
 | `moduleInstantiation` | The configuration of the platform modules on this Machine ([Section 7.4](#74-platform-module-instantiations)) | |
-| `secureCommunicationDeployment` | The assignment of secure communication settings to crypto resources | Guide 14 |
+| `secureCommunicationDeployment` | The assignment of secure communication settings to crypto resources | Cryptography guide |
 
 ### 7.4 Platform Module Instantiations
 
@@ -1207,7 +1207,7 @@ Each cluster guide explains its own instantiation. Be aware that for two cluster
 
 ### 7.5 Function Groups and Their States
 
-**In plain words:** a Function Group is a named state machine that switches a set of processes on and off together ([EM guide, Section 7.2](04_ExecutionManagement.md#72-function-groups-and-function-group-states)). In the model it is built from the same mode constructs that the Classic Platform uses for modes.
+**In plain words:** a Function Group is a named state machine that switches a set of processes on and off together ([EM guide, Section 7.2](ExecutionManagement.md#72-function-groups-and-function-group-states)). In the model it is built from the same mode constructs that the Classic Platform uses for modes.
 
 **Formally:**
 
@@ -1260,7 +1260,7 @@ The OEM's communication designer gives `HPC` its address on the backbone and its
 
 The network endpoint `HpcUnicast` (`192.168.10.10/24`) and the SD multicast endpoint (`239.192.255.251`) live in the Ethernet cluster `/HPC/Topology/Backbone`, and the system extract `/HPC/Systems/HpcMachineDesignExtract` of category `MACHINE_DESIGN_EXTRACT` references the cluster and the machine design ([Section 12.16](#1216-the-running-example-complete-configuration)).
 
-The platform integrator writes the Machine Manifest. The values come from the [EM guide, Section 13.11](04_ExecutionManagement.md#1311-the-running-example-complete-configuration) and from [guide 00, Section 6.3](00_LearningPath.md#63-the-hpc-machine):
+The platform integrator writes the Machine Manifest. The values come from the [EM guide, Section 13.11](ExecutionManagement.md#1311-the-running-example-complete-configuration) and from the [Running Example guide, Section 1.3](RunningExample.md#13-the-hpc-machine):
 
 ```xml
 <MACHINE>
@@ -1397,7 +1397,7 @@ classDiagram
 
 ## 8. The Execution Manifest
 
-> **Why this matters:** The Execution Manifest turns an Executable into running processes. The [EM guide](04_ExecutionManagement.md) explains what Execution Management *does* with each setting; this chapter shows how the settings are *modeled*, so that you can read and write them as ARXML.
+> **Why this matters:** The Execution Manifest turns an Executable into running processes. The [EM guide](ExecutionManagement.md) explains what Execution Management *does* with each setting; this chapter shows how the settings are *modeled*, so that you can read and write them as ARXML.
 
 ### 8.1 Process: From Executable to OS Process
 
@@ -1410,10 +1410,10 @@ classDiagram
 | `executable` | The Executable that the process runs (stereotype `≪atpUriDef≫`) | [Section 8.4](#84-worked-example-the-processes-cameradriver-and-fusion) |
 | `design` | The `ProcessDesign` that stood in for this process at design time | [Section 5.4](#54-process-design-a-stand-in-for-a-future-process) |
 | `stateDependentStartupConfig` | The startup configurations, each for a set of Function Group States | [Section 8.2](#82-state-dependent-startup-configuration) |
-| `numberOfRestartAttempts` | How often a failed start is retried | [EM guide, Section 13.3](04_ExecutionManagement.md#133-process) |
+| `numberOfRestartAttempts` | How often a failed start is retried | [EM guide, Section 13.3](ExecutionManagement.md#133-process) |
 | `preMapping` | Whether the Executable is preloaded into memory | EM guide |
-| `functionClusterAffiliation` | The functional cluster the process belongs to; standardized values `STATE_MANAGEMENT` and `PLATFORM_HEALTH_MANAGEMENT` ([TPS_MANI_01337]) | EM guide, guides 05 and 06 |
-| `processStateMachine` | The process states (`Running`, `Terminated`) that other processes can depend on; the supported states are standardized by EM | [EM guide, Chapter 6](04_ExecutionManagement.md#6-execution-dependencies-startup-and-shutdown-ordering) |
+| `functionClusterAffiliation` | The functional cluster the process belongs to; standardized values `STATE_MANAGEMENT` and `PLATFORM_HEALTH_MANAGEMENT` ([TPS_MANI_01337]) | EM guide, the SM and PHM guides |
+| `processStateMachine` | The process states (`Running`, `Terminated`) that other processes can depend on; the supported states are standardized by EM | [EM guide, Chapter 6](ExecutionManagement.md#6-execution-dependencies-startup-and-shutdown-ordering) |
 
 ### 8.2 State-Dependent Startup Configuration
 
@@ -1421,7 +1421,7 @@ The startup behavior is modeled by `StateDependentStartupConfig`s aggregated by 
 
 The states are referenced through an instance reference, because a state (`ModeDeclaration`) belongs to a reusable group and is identified only together with the Function Group that uses the group ([Section 3.5](#35-instance-references--iref)). Because these references point into one Machine's Function Groups, the Execution Manifest is specific to the Machine on which the binary is deployed (TPS, Section 10.3.1).
 
-The model enforces the structural rules that the [EM guide](04_ExecutionManagement.md#42-how-the-elements-relate) relies on:
+The model enforces the structural rules that the [EM guide](ExecutionManagement.md#42-how-the-elements-relate) relies on:
 
 | Rule | Constraint |
 | --- | --- |
@@ -1432,7 +1432,7 @@ The model enforces the structural rules that the [EM guide](04_ExecutionManageme
 | Every startup configuration references a ResourceGroup and a `StartupConfig`. | [constr_10175], [constr_10176] |
 | On each Machine, some process runs in `Shutdown` and some process runs in `Restart`. | [constr_1618], [constr_1619] |
 
-The `StartupConfig` itself is a separate, reusable element (recommended package `StartupConfigs`). It holds the arguments, the environment variables, the scheduling policy and priority, the timeouts, the termination behavior, the permission to create child processes and the execution error. The [EM guide, Section 13.5](04_ExecutionManagement.md#135-startupconfig) explains each of them; [Section 12.11](#1211-process-statedependentstartupconfig-and-startupconfig) lists them with their XML names.
+The `StartupConfig` itself is a separate, reusable element (recommended package `StartupConfigs`). It holds the arguments, the environment variables, the scheduling policy and priority, the timeouts, the termination behavior, the permission to create child processes and the execution error. The [EM guide, Section 13.5](ExecutionManagement.md#135-startupconfig) explains each of them; [Section 12.11](#1211-process-statedependentstartupconfig-and-startupconfig) lists them with their XML names.
 
 ### 8.3 Mapping Processes to the Machine
 
@@ -1475,7 +1475,7 @@ The Function Group `ADAS` belongs to `AdasCluster`, so its states are defined in
 </FUNCTION-GROUP-SET>
 ```
 
-The [EM guide, Section 13.11](04_ExecutionManagement.md#1311-the-running-example-complete-configuration) shows `Fusion` as a conceptual view. Here is the real ARXML of its startup configuration and process:
+The [EM guide, Section 13.11](ExecutionManagement.md#1311-the-running-example-complete-configuration) shows `Fusion` as a conceptual view. Here is the real ARXML of its startup configuration and process:
 
 ```xml
 <STARTUP-CONFIG>
@@ -1536,7 +1536,7 @@ The [EM guide, Section 13.11](04_ExecutionManagement.md#1311-the-running-example
 </PROCESS>
 ```
 
-`CameraDriver` runs in `Normal` *and* `Degraded` with one shared startup configuration, so its `STATE-DEPENDENT-STARTUP-CONFIG` contains two `FUNCTION-GROUP-STATE-IREF`s. That is how it keeps running when `ADAS` switches between the two states ([EM guide, Section 13.11](04_ExecutionManagement.md#1311-the-running-example-complete-configuration)). Both processes are mapped to `HPC`:
+`CameraDriver` runs in `Normal` *and* `Degraded` with one shared startup configuration, so its `STATE-DEPENDENT-STARTUP-CONFIG` contains two `FUNCTION-GROUP-STATE-IREF`s. That is how it keeps running when `ADAS` switches between the two states ([EM guide, Section 13.11](ExecutionManagement.md#1311-the-running-example-complete-configuration)). Both processes are mapped to `HPC`:
 
 ```xml
 <PROCESS-TO-MACHINE-MAPPING-SET>
@@ -1566,7 +1566,7 @@ The following table maps the keys of the conceptual view in the EM guide to the 
 | `timeout: { enter: 3s, exit: 500ms }` | `STARTUP-CONFIG/TIMEOUT/ENTER-TIMEOUT-VALUE` and `EXIT-TIMEOUT-VALUE`, in seconds |
 | `processExecutionError: 42` | `STARTUP-CONFIG/PROCESS-EXECUTION-ERROR-REF` to the `AP-APPLICATION-ERROR` `FusionFailed` with `ERROR-CODE` 42 |
 
-> **Note (simplification):** The real `Fusion` also has two Execution Dependencies: `CalibrationCheck` *Terminated* and `LoggerCompanion` *Running* ([EM guide, Section 6.5](04_ExecutionManagement.md#65-dependencies-in-the-running-example)). An `EXECUTION-DEPENDENCY` references, with the instance reference `PROCESS-STATE-IREF`, a process state in the `processStateMachine` of the other process. Because this guide does not model `CalibrationCheck` and `LoggerCompanion`, the dependencies are left out.
+> **Note (simplification):** The real `Fusion` also has two Execution Dependencies: `CalibrationCheck` *Terminated* and `LoggerCompanion` *Running* ([EM guide, Section 6.5](ExecutionManagement.md#65-dependencies-in-the-running-example)). An `EXECUTION-DEPENDENCY` references, with the instance reference `PROCESS-STATE-IREF`, a process state in the `processStateMachine` of the other process. Because this guide does not model `CalibrationCheck` and `LoggerCompanion`, the dependencies are left out.
 
 > **Key takeaways**
 >
@@ -1589,7 +1589,7 @@ The following table maps the keys of the conceptual view in the EM guide to the 
 
 For SOME/IP, the deployment assigns the service identifier `serviceInterfaceId` ([TPS_MANI_03040]), defines the event groups that clients subscribe to ([TPS_MANI_03041]) and the SOME/IP version ([TPS_MANI_03042]). It is the common configuration set that is shared between the server and all clients (TPS, Section 13.2.1). The contract version of the interface is mapped to a version of each deployment, and different deployments of the same interface may use different version numbers ([TPS_MANI_03617]).
 
-The methodology assigns the deployment to the software cluster responsible: the SOME/IP service ID must be unambiguous in the system, and the method IDs, event IDs and event groups unambiguous within the deployment ([TR_AMETH_00027]). [Guide 08a](08a_NetworkBindings.md) explains all SOME/IP and DDS attributes.
+The methodology assigns the deployment to the software cluster responsible: the SOME/IP service ID must be unambiguous in the system, and the method IDs, event IDs and event groups unambiguous within the deployment ([TR_AMETH_00027]). The [Network Bindings guide](NetworkBindings.md) explains all SOME/IP and DDS attributes.
 
 ### 9.2 Provided and Required Service Instances
 
@@ -1598,7 +1598,7 @@ An `AdaptivePlatformServiceInstance` makes the functionality of a service interf
 - A `ProvidedApServiceInstance` represents a provider that offers the service with particular properties.
 - A `RequiredApServiceInstance` represents a client that observes the offers and chooses a provider.
 
-Both are abstract. Their transport-specific subclasses are `ProvidedSomeipServiceInstance` and `RequiredSomeipServiceInstance`, the corresponding DDS classes, and user-defined classes. Every instance references the `ServiceInterfaceDeployment` that identifies its interface; it can also carry E2E protection and secure communication settings (TPS, Table 13.28; guides 08 and 14). For SOME/IP, a provided instance has a `serviceInstanceId`; a required instance has a `requiredServiceInstanceId` and a `requiredMinorVersion` (TPS, Section 13.3.1).
+Both are abstract. Their transport-specific subclasses are `ProvidedSomeipServiceInstance` and `RequiredSomeipServiceInstance`, the corresponding DDS classes, and user-defined classes. Every instance references the `ServiceInterfaceDeployment` that identifies its interface; it can also carry E2E protection and secure communication settings (TPS, Table 13.28; the Secure Communication and Cryptography guides). For SOME/IP, a provided instance has a `serviceInstanceId`; a required instance has a `requiredServiceInstanceId` and a `requiredMinorVersion` (TPS, Section 13.3.1).
 
 Service instances are `ARElement`s: they live in packages and can be used in several manifests (TPS, Section 13.3). The methodology lets the software cluster responsible define them during the design, and the integrator finalize their IDs according to the service topology of the system ([TR_AMETH_00005], [TR_AMETH_00028]).
 
@@ -1778,9 +1778,9 @@ The mappings connect the ports of the two processes to the instances, and the in
 </SOMEIP-SERVICE-INSTANCE-TO-MACHINE-MAPPING>
 ```
 
-> **Note:** The guide models `Fusion` as a SOME/IP client of `CameraService`, although provider and consumer run on the same Machine. Whether a local consumer uses the SOME/IP instance or a local binding is decided in [guide 08a](08a_NetworkBindings.md). The transport protocol TCP, the event and method IDs and the service discovery timing are illustrative; [guide 08a](08a_NetworkBindings.md) owns them.
+> **Note:** The guide models `Fusion` as a SOME/IP client of `CameraService`, although provider and consumer run on the same Machine. Whether a local consumer uses the SOME/IP instance or a local binding is decided in the [Network Bindings guide](NetworkBindings.md). The transport protocol TCP, the event and method IDs and the service discovery timing are illustrative; the [Network Bindings guide](NetworkBindings.md) owns them.
 
-The following sequence diagram shows, conceptually, how this configuration is used when `Fusion` starts to look for the service. The exact API and the behavior of Communication Management are the topic of [guide 07](07_CommunicationManagement.md#69-worked-example-fusion-finds-cameraservice) and [guide 08a](08a_NetworkBindings.md).
+The following sequence diagram shows, conceptually, how this configuration is used when `Fusion` starts to look for the service. The exact API and the behavior of Communication Management are the topic of the [CM guide](CommunicationManagement.md#69-worked-example-fusion-finds-cameraservice) and the [Network Bindings guide](NetworkBindings.md).
 
 ```mermaid
 sequenceDiagram
@@ -1862,9 +1862,9 @@ On each Machine, exactly one Software Cluster of category `PLATFORM_CORE` is dep
 
 A Software Cluster alone cannot be installed. It is wrapped in a `SoftwarePackage`, which handles the *logistics* of the installation, while the Software Cluster describes the *structure* of the software ([TPS_MANI_01221]). The package says, for example, which action to take (`install`, `update`, `remove` or `updateConfiguration`), what to do after the installation (`reboot`, `restartApplication` or `nothing`), and who packaged and signed it ([TPS_MANI_01222], [TPS_MANI_01223]). The Methodology TR shows the result as nested manifests, each with its own signature: the Software Cluster manifest inside the Software Package manifest (Methodology TR, Figure 2.32). The format of the package and the update strategy, complete or delta, are implementation-specific ([TR_AMETH_00222]).
 
-A `VehiclePackage` describes an update campaign across several UCMs ([TPS_MANI_01290]). Guide 13 explains packages, campaigns and their processing.
+A `VehiclePackage` describes an update campaign across several UCMs ([TPS_MANI_01290]). The UCM guide explains packages, campaigns and their processing.
 
-The following diagram shows the nesting for the update of `AdasCluster` described in [guide 00, Section 6.11](00_LearningPath.md#611-software-updates).
+The following diagram shows the nesting for the update of `AdasCluster` described in the [Running Example guide, Section 1.11](RunningExample.md#111-software-updates).
 
 ```mermaid
 flowchart TB
@@ -2044,13 +2044,13 @@ The Methodology TR marks its chapters on software cluster integration and packag
 
 A Software Cluster is wrapped into a Software Package, together with its binaries ([TR_AMETH_00006], [TR_AMETH_00206]). The installation instructions per Software Cluster, such as add, update or remove, are part of the package description ([TR_AMETH_00221]). The packages are stored on an OEM back-end and provided to the Machines in the field ([TR_AMETH_00224], [TR_AMETH_00225]). AUTOSAR does not specify the format of the package or whether updates are complete or delta updates ([TR_AMETH_00222]).
 
-Before any package can be installed, the Machine must be set up initially: the operating system and the platform modules, at least UCM and the modules it depends on, are installed with their Machine Manifest, Execution Manifests and Service Instance Manifests ([TR_AMETH_00031]). From then on, UCM installs further software as packages ([Section 10.3](#103-software-package-and-vehicle-package), guide 13).
+Before any package can be installed, the Machine must be set up initially: the operating system and the platform modules, at least UCM and the modules it depends on, are installed with their Machine Manifest, Execution Manifests and Service Instance Manifests ([TR_AMETH_00031]). From then on, UCM installs further software as packages ([Section 10.3](#103-software-package-and-vehicle-package), the UCM guide).
 
 ### 11.8 How the Platform Consumes Manifests at Run Time
 
-The ARXML stays in the development world. On the Machine, each platform implementation uses its own format, which must preserve the content and semantics of the ARXML ([TPS_MANI_01021]). The [EM guide](04_ExecutionManagement.md#41-where-the-configuration-lives) calls the result *Processed Manifests*: the conversion happens off-board at integration or deployment time, or on the Machine by UCM at installation time, and, if a Trusted Platform is configured, EM checks their integrity and authenticity before it uses them ([EM guide, Section 12.2](04_ExecutionManagement.md#122-what-em-verifies-and-why)).
+The ARXML stays in the development world. On the Machine, each platform implementation uses its own format, which must preserve the content and semantics of the ARXML ([TPS_MANI_01021]). The [EM guide](ExecutionManagement.md#41-where-the-configuration-lives) calls the result *Processed Manifests*: the conversion happens off-board at integration or deployment time, or on the Machine by UCM at installation time, and, if a Trusted Platform is configured, EM checks their integrity and authenticity before it uses them ([EM guide, Section 12.2](ExecutionManagement.md#122-what-em-verifies-and-why)).
 
-The functional clusters read their configuration through the *Registry*, an internal component of the platform, with its native interface `ManifestAccessor` (*SW Architecture*, Section 9.7.3; [guide 01, Section 5.7](01_PlatformOverview.md#57-configuration)). The interface is not standardized in detail. The required-interface tables of the *SW Architecture* show what each cluster reads, for example:
+The functional clusters read their configuration through the *Registry*, an internal component of the platform, with its native interface `ManifestAccessor` (*SW Architecture*, Section 9.7.3; the [Platform Overview guide, Section 5.7](PlatformOverview.md#57-configuration)). The interface is not standardized in detail. The required-interface tables of the *SW Architecture* show what each cluster reads, for example:
 
 | Cluster | Reads from the manifests (*SW Architecture*, Chapter 9) |
 | --- | --- |
@@ -2080,7 +2080,7 @@ The TPS states that its manifest content "will be replaced step-by-step" by a ta
 
 The benefits that APMC names are a much simpler model structure, the ability to define default values, terminology specific to each functional cluster, arbitrary multiplicities, changes without a change of the XML Schema, vendor extensions as first-class citizens, and a clear separation between design workflow and configuration workflow (APMC, Section 2.3). APMC also describes how much of the design is copied into the configuration: nothing, everything, or a part, with flat references or instance references into the remaining design (APMC, Section 2.4).
 
-**Status in R25-11.** For two functional clusters, APMC is already the canonical target configuration: Persistency and Update and Configuration Management. Their parameters are documented in Chapter 10.1 of their specifications; the M2 description in the TPS is still provided but may be discontinued (TPS, Sections 12.2 and 12.8). The TPS Appendix I describes how the APMC parameters of Persistency map to the manifest meta-classes. [Guide 11](11_Persistency.md#14-configuration-reference-what-to-configure) and guide 13 explain these configurations. All other clusters are configured through the meta-model as described in this guide.
+**Status in R25-11.** For two functional clusters, APMC is already the canonical target configuration: Persistency and Update and Configuration Management. Their parameters are documented in Chapter 10.1 of their specifications; the M2 description in the TPS is still provided but may be discontinued (TPS, Sections 12.2 and 12.8). The TPS Appendix I describes how the APMC parameters of Persistency map to the manifest meta-classes. The [Persistency guide](Persistency.md#14-configuration-reference-what-to-configure) and the UCM guide explain these configurations. All other clusters are configured through the meta-model as described in this guide.
 
 > **Key takeaways**
 >
@@ -2131,7 +2131,7 @@ The following checklist produces the model of this guide. Each step names the el
 | `RPortPrototype.requiredInterface` | The interface the port requires | `PortInterface` (tref) | `0..1` | not specified | [TPS_MANI_01040] | Proxy side of the service |
 | `PortPrototype.portPrototypeProps` | Further qualification of a port | `RPortPrototypeProps` | `0..1` | not specified | Only for components in an Executable ([constr_3642]); `RPortPrototypeProps` only in R-ports ([constr_3359]) | None directly |
 | `RPortPrototypeProps.searchIntention` | Whether the developer intends to search for one instance or for all | `searchForAllInstances`, `searchForSpecificInstance` | `0..1` | not specified | Not binding ([TPS_MANI_01057]) | The real search is configured in the Service Instance Manifest |
-| `FieldSenderComSpec.initValue` (in `PPortPrototype.providedComSpec`) | The value of a field before the service is offered | `ValueSpecification` | `0..1` | not specified | Shall exist if the ComSpec exists ([constr_10152], `IT_BefAraApiGen`) | Can be used to set the field value before the offer ([TPS_MANI_03212]); [guide 07, Section 9.2](07_CommunicationManagement.md#92-the-value-before-the-offer) |
+| `FieldSenderComSpec.initValue` (in `PPortPrototype.providedComSpec`) | The value of a field before the service is offered | `ValueSpecification` | `0..1` | not specified | Shall exist if the ComSpec exists ([constr_10152], `IT_BefAraApiGen`) | Can be used to set the field value before the offer ([TPS_MANI_03212]); the [CM guide, Section 9.2](CommunicationManagement.md#92-the-value-before-the-offer) |
 
 ### 12.3 Executable and RootSwComponentPrototype
 
@@ -2140,13 +2140,13 @@ The following checklist produces the model of this guide. Each step names the el
 | Attribute | Meaning | Type and values | Mult. | Default | Rules | Effect at run time |
 | --- | --- | --- | --- | --- | --- | --- |
 | `category` | Application or platform software | `APPLICATION_LEVEL`, `PLATFORM_LEVEL` (standardized) | `0..1` | not specified | [constr_1605]; `PLATFORM_LEVEL` required for module processes ([constr_1490]) | Marks platform modules |
-| `reportingBehavior` | Whether processes report their Execution State | `reportsExecutionState`, `doesNotReportExecutionState` | `0..1` | Reports ([TPS_MANI_01279]) | | [EM guide, Section 2.4](04_ExecutionManagement.md#24-process-flavors) |
+| `reportingBehavior` | Whether processes report their Execution State | `reportsExecutionState`, `doesNotReportExecutionState` | `0..1` | Reports ([TPS_MANI_01279]) | | [EM guide, Section 2.4](ExecutionManagement.md#24-process-flavors) |
 | `rootSwComponentPrototype` | Root of the component hierarchy | `RootSwComponentPrototype` | `0..1` | not specified | Optional for platform modules without service-oriented communication ([TPS_MANI_03056]) | Its short name is the second element of every `InstanceSpecifier` |
 | `RootSwComponentPrototype.applicationType` | The component type of the root | `SwComponentType` (tref) | `0..1` | not specified | Only composition or Adaptive component types ([constr_1492]) | |
-| `version` | Version of the program | `StrongRevisionLabelString`, for example `1.0.0` | `0..1` | not specified | | Used for updates and diagnostics (guides 12a, 13) |
+| `version` | Version of the program | `StrongRevisionLabelString`, for example `1.0.0` | `0..1` | not specified | | Used for updates and diagnostics (the Diagnostics Part 1 and UCM guides) |
 | `minimumTimerGranularity` | Minimum timer resolution required | `TimeValue` (seconds) | `0..1` | not specified | | Not specified by the TPS; the OS side is described by `OsModuleInstantiation.supportedTimerGranularity` |
-| `suspendToRamAwareness` | Behavior during suspend-to-RAM (candidate, DRAFT) | `suspendToRamTolerant`, `suspendToRamAware`, `suspendToRamNotSupported` | `0..1` | not specified | [TPS_MANI_01513] | Guide 05 |
-| `implementationProps` | Build-time properties of platform-level Executables | `ExecutableLoggingImplementationProps` | `*` | not specified | Only for `PLATFORM_LEVEL` ([constr_10113]) | [Guide 10, 15.9](10_LogAndTrace.md#159-traceswitchconfig-and-executableloggingimplementationprops) |
+| `suspendToRamAwareness` | Behavior during suspend-to-RAM (candidate, DRAFT) | `suspendToRamTolerant`, `suspendToRamAware`, `suspendToRamNotSupported` | `0..1` | not specified | [TPS_MANI_01513] | SM guide |
+| `implementationProps` | Build-time properties of platform-level Executables | `ExecutableLoggingImplementationProps` | `*` | not specified | Only for `PLATFORM_LEVEL` ([constr_10113]) | [Log and Trace guide, 15.9](LogAndTrace.md#159-traceswitchconfig-and-executableloggingimplementationprops) |
 
 ### 12.4 ServiceInterface and Its Elements
 
@@ -2156,13 +2156,13 @@ The following checklist produces the model of this guide. Each step names the el
 | --- | --- | --- | --- | --- | --- | --- |
 | `ServiceInterface.namespace` | Namespace of the generated code, in order | `SymbolProps` with `symbol` (`CIdentifier`) | `*` | not specified | Order is significant ([TPS_MANI_01006]) | C++ namespace of proxies, skeletons and types |
 | `ServiceInterface.majorVersion`, `minorVersion` | Version of the service contract | `PositiveInteger` | `0..1` each | not specified | Semantic versioning ([TPS_MANI_03616]) | Mapped to a version per deployment ([TPS_MANI_03617]) |
-| `ServiceInterface.event` | Events | `VariableDataPrototype` | `*` | not specified | No `initValue` ([constr_1494]) | Event of proxy and skeleton ([guide 07](07_CommunicationManagement.md#7-events-and-triggers)) |
+| `ServiceInterface.event` | Events | `VariableDataPrototype` | `*` | not specified | No `initValue` ([constr_1494]) | Event of proxy and skeleton (the [CM guide](CommunicationManagement.md#7-events-and-triggers)) |
 | `ServiceInterface.field` | Fields | `Field` | `*` | not specified | | Field of proxy and skeleton |
 | `Field.hasGetter`, `hasSetter`, `hasNotifier` | Which accessors exist | `Boolean` | `0..1` each | not specified | All three shall exist, at least one `true` ([constr_1673], [constr_10129], [constr_10130], [constr_10131]) | Which methods and notifications are generated |
 | `ServiceInterface.method` | Methods | `ClientServerOperation` | `*` | not specified | | Method of proxy and skeleton |
 | `ClientServerOperation.argument` | Arguments, in order | `ArgumentDataPrototype` with `direction` `in`, `out`, `inout` | `*` | not specified | No optional arguments | Signature of the method |
 | `ClientServerOperation.fireAndForget` | No response expected | `Boolean` | `0..1` | Not fire and forget ([TPS_MANI_03119]) | No `out`/`inout` arguments, no errors ([constr_3374], [constr_3375]) | One-way call |
-| `ClientServerOperation.possibleApError`, `possibleApErrorSet` | Errors the method can raise | `ApApplicationError`, `ApApplicationErrorSet` (ref) | `*` | not specified | Unique domain values per method ([constr_10574]) | Errors returned through `ara::core` ([guide 03, 7.8](03_CoreAndGeneral.md#78-generated-error-domains)) |
+| `ClientServerOperation.possibleApError`, `possibleApErrorSet` | Errors the method can raise | `ApApplicationError`, `ApApplicationErrorSet` (ref) | `*` | not specified | Unique domain values per method ([constr_10574]) | Errors returned through `ara::core` (the [Core guide, 7.8](CoreAndGeneral.md#78-generated-error-domains)) |
 | `ServiceInterface.trigger` | Triggers (events without data) | `Trigger` | `*` | not specified | | Queued, processed first in, first out |
 | `VariableDataPrototype.type`, `Field.type`, `ArgumentDataPrototype.type` (`TYPE-TREF`) | The data type of an event, field or argument | `AutosarDataType`, for example `CppImplementationDataType` (tref) | `0..1` | not specified | C++ types required from header generation ([TPS_MANI_03223]) | Type in the generated code |
 
@@ -2180,7 +2180,7 @@ The following checklist produces the model of this guide. Each step names the el
 | `namespace` | Namespace of the type | `SymbolProps` | `*` | not specified | Not for `VALUE` ([constr_3443]) | C++ namespace |
 | `headerFile` | Header that declares the type | `String`, for example `cstdint` | `0..1` | not specified | Exclusive with `typeEmitter` ([constr_1743]) | `#include` |
 | `typeEmitter` | Who generates the type | `NameToken`; reserved `TYPE_EMITTER_ARA`, `FUNDAMENTAL_TYPE` | `0..1` | not specified | [TPS_MANI_01176], [TPS_MANI_01177] | `TYPE_EMITTER_ARA`: the `ara` generator generates the type |
-| `swDataDefProps.compuMethod` | Labels of an enumeration or bit field | `CompuMethod` of category `TEXTTABLE` or `BITFIELD_TEXTTABLE` | `0..1` | not specified | [constr_10566] | Enumerators ([guide 07, Section 5.5](07_CommunicationManagement.md#55-data-types)) |
+| `swDataDefProps.compuMethod` | Labels of an enumeration or bit field | `CompuMethod` of category `TEXTTABLE` or `BITFIELD_TEXTTABLE` | `0..1` | not specified | [constr_10566] | Enumerators (the [CM guide, Section 5.5](CommunicationManagement.md#55-data-types)) |
 
 ### 12.6 ApApplicationError and ApApplicationErrorDomain
 
@@ -2190,7 +2190,7 @@ The following checklist produces the model of this guide. Each step names the el
 | --- | --- | --- | --- | --- | --- | --- |
 | `ApApplicationError.errorCode` | Code of the error in its domain | `Integer` | `0..1` | not specified | Shall exist ([constr_10132]); unique in the domain ([constr_1665]); 1 to 63 for Classic interoperability ([constr_3772]) | Value of the generated enumerator |
 | `ApApplicationError.errorDomain` | The domain | `ApApplicationErrorDomain` (ref) | `0..1` | not specified | Shall exist ([constr_1625]); short names unique per domain ([constr_1664]) | |
-| `ApApplicationErrorDomain.value` | Identifier of the domain | `PositiveUnlimitedInteger` | `0..1` | not specified | Shall exist ([constr_10133]); 0 to `0xffffffffffffffff` ([TPS_MANI_01863], [constr_2637]) | Identifies the error domain in `ara::core` ([guide 03, 7.4](03_CoreAndGeneral.md#74-error-domain-identifiers)) |
+| `ApApplicationErrorDomain.value` | Identifier of the domain | `PositiveUnlimitedInteger` | `0..1` | not specified | Shall exist ([constr_10133]); 0 to `0xffffffffffffffff` ([TPS_MANI_01863], [constr_2637]) | Identifies the error domain in `ara::core` (the [Core guide, 7.4](CoreAndGeneral.md#74-error-domain-identifiers)) |
 | `ApApplicationErrorDomain.namespace` | Namespace of the domain's code | `SymbolProps` | `*` | not specified | | C++ namespace |
 | `ApApplicationErrorSet.apApplicationError` | A reusable group of errors | `ApApplicationError` (ref) | `*` | not specified | [TPS_MANI_01198] | Same as listing the errors |
 
@@ -2206,7 +2206,7 @@ The following checklist produces the model of this guide. Each step names the el
 
 ### 12.8 MachineDesign, EthernetCommunicationConnector and ApApplicationEndpoint
 
-**Purpose:** the design-time description of a Machine and its network connection. **Lives in:** system design. **Configured by:** OEM communication designer or Tier 1 integrator. **Spec:** TPS 6, 7.2.1, 13.1; Tables 6.8, 13.1, 13.37. [Guide 08a](08a_NetworkBindings.md) covers all network attributes.
+**Purpose:** the design-time description of a Machine and its network connection. **Lives in:** system design. **Configured by:** OEM communication designer or Tier 1 integrator. **Spec:** TPS 6, 7.2.1, 13.1; Tables 6.8, 13.1, 13.37. The [Network Bindings guide](NetworkBindings.md) covers all network attributes.
 
 | Element.attribute | Meaning | Type and values | Mult. | Default | Rules | Effect at run time |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -2223,14 +2223,14 @@ The following checklist produces the model of this guide. Each step names the el
 | Element.attribute | Meaning | Type and values | Mult. | Default | Rules | Effect at run time |
 | --- | --- | --- | --- | --- | --- | --- |
 | `Machine.machineDesign` | The design that the Machine implements | `MachineDesign` (ref) | `0..1` | not specified | Shall exist ([constr_10169]) | Network settings of the design apply |
-| `Machine.trustedPlatformExecutableLaunchBehavior` | How a failed authentication affects launching | `strictMode`, `monitorMode`, `noTrustedPlatformSupport` | `0..1` | not specified | Shall exist ([constr_10170]) | [EM guide, Section 12.3](04_ExecutionManagement.md#123-launch-behavior-modes) |
-| `Machine.defaultApplicationTimeout` | Default start-up and termination timeout | `EnterExitTimeout` with `enterTimeoutValue`, `exitTimeoutValue` (`TimeValue`, seconds) | `0..1` | not specified | Both values shall exist ([constr_10430] to [constr_10432]) | Used when a `StartupConfig` defines no timeout ([EM guide, Section 13.5](04_ExecutionManagement.md#135-startupconfig)) |
+| `Machine.trustedPlatformExecutableLaunchBehavior` | How a failed authentication affects launching | `strictMode`, `monitorMode`, `noTrustedPlatformSupport` | `0..1` | not specified | Shall exist ([constr_10170]) | [EM guide, Section 12.3](ExecutionManagement.md#123-launch-behavior-modes) |
+| `Machine.defaultApplicationTimeout` | Default start-up and termination timeout | `EnterExitTimeout` with `enterTimeoutValue`, `exitTimeoutValue` (`TimeValue`, seconds) | `0..1` | not specified | Both values shall exist ([constr_10430] to [constr_10432]) | Used when a `StartupConfig` defines no timeout ([EM guide, Section 13.5](ExecutionManagement.md#135-startupconfig)) |
 | `Machine.environmentVariable` | Machine-wide environment variables | `TagWithOptionalValue` with `key`, `value` | `*` | not specified | Splitable | Environment of all processes; process values win (EM guide) |
 | `Machine.processor` | Processors of the Machine | `Processor` with `core` (`ProcessorCore` with `coreId`) | `*` | not specified | At least one ([constr_10171]); `core` shall exist ([constr_10172]); `coreId` shall exist and be unique per processor ([constr_10173], [constr_1549]) | Targets of core affinity |
 | `Machine.moduleInstantiation` | Platform module configuration | `AdaptiveModuleInstantiation` subclasses | `*` | not specified | | Cluster guides |
-| `OsModuleInstantiation.resourceGroup` | Resource groups | `ResourceGroup` with `cpuUsage` (percent), `memUsage` (bytes) | `*` | not specified | At least one ([constr_1661]) | Limits of the group ([EM guide, Chapter 11](04_ExecutionManagement.md#11-resource-management)) |
+| `OsModuleInstantiation.resourceGroup` | Resource groups | `ResourceGroup` with `cpuUsage` (percent), `memUsage` (bytes) | `*` | not specified | At least one ([constr_1661]) | Limits of the group ([EM guide, Chapter 11](ExecutionManagement.md#11-resource-management)) |
 | `OsModuleInstantiation.supportedTimerGranularity` | Timer granularity that the OS supports (one tick) | `TimeValue` | `0..1` | not specified | | Not specified by the TPS |
-| `Machine.secureCommunicationDeployment` | Secure communication settings | `TlsDeployment`, `SecOcDeployment` | `*` | not specified | | Guide 14 |
+| `Machine.secureCommunicationDeployment` | Secure communication settings | `TlsDeployment`, `SecOcDeployment` | `*` | not specified | | Cryptography guide |
 
 ### 12.10 FunctionGroupSet, ModeDeclarationGroup and ModeDeclaration
 
@@ -2239,13 +2239,13 @@ The following checklist produces the model of this guide. Each step names the el
 | Element.attribute | Meaning | Type and values | Mult. | Default | Rules | Effect at run time |
 | --- | --- | --- | --- | --- | --- | --- |
 | `FunctionGroupSet.functionGroup` | The Function Groups | `ModeDeclarationGroupPrototype` with `type` (tref) | `*` | not specified | Claimed by at most one Software Cluster ([constr_1786]); exactly one `MachineFG` per Machine ([SWS_EM_CONSTR_02556]) | State machines controlled by State Management and EM |
-| `ModeDeclarationGroup.modeDeclaration` | The states | `ModeDeclaration` | `*` | not specified | `Off` ([TPS_MANI_03195]) and `Verify` ([constr_10023]) mandatory | The states that `SetState` can request ([EM guide, Section 14.4](04_ExecutionManagement.md#144-functiongroup-and-functiongroupstate)) |
+| `ModeDeclarationGroup.modeDeclaration` | The states | `ModeDeclaration` | `*` | not specified | `Off` ([TPS_MANI_03195]) and `Verify` ([constr_10023]) mandatory | The states that `SetState` can request ([EM guide, Section 14.4](ExecutionManagement.md#144-functiongroup-and-functiongroupstate)) |
 | `ModeDeclarationGroup.initialMode` | The initial state | `ModeDeclaration` (ref) | `0..1` | not specified | Shall be `Off` ([TPS_MANI_03195]) | State of the Function Group before the first transition |
 | `ModeDeclaration.value` | Numeric value of a state | `PositiveInteger` | `0..1` | not specified | | Not used by this guide |
 
 ### 12.11 Process, StateDependentStartupConfig and StartupConfig
 
-**Purpose:** how an Executable is started. **Lives in:** Execution Manifest. **Configured by:** integrator. **Spec:** TPS 10.2, 10.3; Tables 10.1, 10.3 to 10.7. The [EM guide, Chapter 13](04_ExecutionManagement.md#13-configuration-reference-what-to-configure) gives the meaning, the behavior when an attribute is absent and the run-time effect of every attribute; this table gives the model structure.
+**Purpose:** how an Executable is started. **Lives in:** Execution Manifest. **Configured by:** integrator. **Spec:** TPS 10.2, 10.3; Tables 10.1, 10.3 to 10.7. The [EM guide, Chapter 13](ExecutionManagement.md#13-configuration-reference-what-to-configure) gives the meaning, the behavior when an attribute is absent and the run-time effect of every attribute; this table gives the model structure.
 
 | Element.attribute | XML element | Type and values | Mult. | Rules |
 | --- | --- | --- | --- | --- |
@@ -2277,23 +2277,23 @@ The following checklist produces the model of this guide. Each step names the el
 | --- | --- | --- | --- | --- | --- | --- |
 | `ProcessToMachineMappingSet.processToMachineMapping` | The mappings | `ProcessToMachineMapping` | `*` | not specified | | |
 | `ProcessToMachineMapping.process`, `machine` | The process and its Machine | (ref) | `0..1` each | not specified | Both shall exist ([constr_10174], [constr_10658]); each process mapped once ([constr_1553], [constr_5004]) | The Machine on which EM starts the process |
-| `ProcessToMachineMapping.shallRunOn`, `shallNotRunOn` | Core affinity | `ProcessorCore` (ref) | `*` each | All cores (EM guide) | Cores of the referenced Machine and one processor; only one of the two ([constr_3393], [constr_1676], [constr_1677]) | [EM guide, Section 11.5](04_ExecutionManagement.md#115-cpu-core-affinity-and-scheduling) |
+| `ProcessToMachineMapping.shallRunOn`, `shallNotRunOn` | Core affinity | `ProcessorCore` (ref) | `*` each | All cores (EM guide) | Cores of the referenced Machine and one processor; only one of the two ([constr_3393], [constr_1676], [constr_1677]) | [EM guide, Section 11.5](ExecutionManagement.md#115-cpu-core-affinity-and-scheduling) |
 | `ProcessToMachineMapping.nonOsModuleInstantiation` | The platform module that the process implements | `NonOsModuleInstantiation` (ref) | `0..1` | not specified | Executable `PLATFORM_LEVEL` ([constr_1490]) | Cluster guides |
-| `ProcessToMachineMapping.persistencyCentralStorageURI` | Central place for the process's storage information | `UriString` | `0..1` | not specified | Shall exist if the process uses Persistency ([constr_10090]) | [Guide 11, 14.12](11_Persistency.md#1412-the-legacy-m2-target-configuration) |
+| `ProcessToMachineMapping.persistencyCentralStorageURI` | Central place for the process's storage information | `UriString` | `0..1` | not specified | Shall exist if the process uses Persistency ([constr_10090]) | [Persistency guide, 14.12](Persistency.md#1412-the-legacy-m2-target-configuration) |
 | `ProcessToMachineMapping.design` | The design-level mapping | `ProcessDesignToMachineDesignMapping` (ref) | `0..1` | not specified | | |
 
 ### 12.13 ServiceInterfaceDeployment and Service Instances
 
-**Purpose:** the transport-specific representation of a service interface and its instances. **Lives in:** Service Instance Manifest. **Configured by:** software cluster responsible, finalized by the integrator. **Spec:** TPS 13.2, 13.3; Tables 13.6 to 13.11, 13.28 to 13.30, 13.34, 13.49. [Guide 08a](08a_NetworkBindings.md) covers the SOME/IP and DDS attributes.
+**Purpose:** the transport-specific representation of a service interface and its instances. **Lives in:** Service Instance Manifest. **Configured by:** software cluster responsible, finalized by the integrator. **Spec:** TPS 13.2, 13.3; Tables 13.6 to 13.11, 13.28 to 13.30, 13.34, 13.49. The [Network Bindings guide](NetworkBindings.md) covers the SOME/IP and DDS attributes.
 
 | Element.attribute | Meaning | Type and values | Mult. | Default | Rules | Effect at run time |
 | --- | --- | --- | --- | --- | --- | --- |
 | `ServiceInterfaceDeployment.serviceInterface` | The deployed interface | `ServiceInterface` (ref, `≪atpUriDef≫`) | `0..1` | not specified | All elements deployed, except for DDS ([constr_10029]) | |
 | `ServiceInterfaceDeployment.eventDeployment`, `fieldDeployment`, `methodDeployment` | One deployment per element | `ServiceEventDeployment`, `ServiceFieldDeployment`, `ServiceMethodDeployment` subclasses | `*` each | not specified | Elements of the same interface ([constr_3300], [constr_3301], [constr_3302]) | IDs and transport per element |
 | `ServiceInterfaceDeploymentElement.minimumSendInterval` | Minimum time between two transmissions | `TimeValue` (seconds) | `0..1` | `0`, which means no minimum ([SWS_CM_00139]; TPS, Section 13.2) | 0 to 10 s ([constr_10655]) | Rate limit in `ara::com` |
-| `SomeipServiceInterfaceDeployment.serviceInterfaceId`, `serviceInterfaceVersion`, `eventGroup` | SOME/IP service ID, version and event groups | `PositiveInteger`, `SomeipServiceVersion`, `SomeipEventGroup` | `0..1`, `0..1`, `*` | not specified | ID and version shall exist ([constr_10212], [constr_10213]) | [Guide 08a](08a_NetworkBindings.md) |
+| `SomeipServiceInterfaceDeployment.serviceInterfaceId`, `serviceInterfaceVersion`, `eventGroup` | SOME/IP service ID, version and event groups | `PositiveInteger`, `SomeipServiceVersion`, `SomeipEventGroup` | `0..1`, `0..1`, `*` | not specified | ID and version shall exist ([constr_10212], [constr_10213]) | [Network Bindings guide](NetworkBindings.md) |
 | `AdaptivePlatformServiceInstance.serviceInterfaceDeployment` | The deployment the instance uses | `ServiceInterfaceDeployment` (ref) | `0..1` | not specified | | |
-| `AdaptivePlatformServiceInstance.e2eEventProtectionProps`, `e2eMethodProtectionProps`, `secureComConfig` | E2E protection and secure communication | (aggr) | `*` each | not specified | | Guides 08, 14 |
+| `AdaptivePlatformServiceInstance.e2eEventProtectionProps`, `e2eMethodProtectionProps`, `secureComConfig` | E2E protection and secure communication | (aggr) | `*` each | not specified | | Secure Communication and Cryptography guides |
 | `ProvidedSomeipServiceInstance.serviceInstanceId`, `sdServerConfig`, `providedEventGroup` | Instance ID, SD server timing, event groups | `PositiveInteger`, `SomeipSdServerServiceInstanceConfig` (ref), `SomeipProvidedEventGroup` | `0..1`, `0..1`, `*` | not specified | ID and SD config shall exist ([constr_10219], [constr_10218]); ID 0 to 65534 ([constr_1770]); `multicastThreshold` shall exist ([constr_10220]) | Offer on the network |
 | `RequiredSomeipServiceInstance.requiredServiceInstanceId`, `requiredMinorVersion`, `sdClientConfig`, `requiredEventGroup` | Searched instance and version, SD client timing, event groups | `AnyServiceInstanceId`, `AnyVersionString` (a number or `ANY`), (ref), `SomeipRequiredEventGroup` | `0..1`, `0..1`, `0..1`, `*` | not specified | SD config shall exist ([constr_10221]); event group timing shall exist ([constr_10222]) | Find and subscribe |
 
@@ -2310,7 +2310,7 @@ The following checklist produces the model of this guide. Each step names the el
 | `ServiceInstanceToMachineMapping.communicationConnector` | The connector of the Machine | `CommunicationConnector` (ref) | `0..1` | not specified | | Network interface and local address |
 | `ServiceInstanceToMachineMapping.serviceInstance` | The mapped instances | `AdaptivePlatformServiceInstance` (ref) | `*` | not specified | | |
 | `SomeipServiceInstanceToMachineMapping.tcpPort`, `udpPort` | Local ports | `ApApplicationEndpoint` (ref) | `0..1` each | not specified | A TCP endpoint serves provided or required instances, not both ([constr_3487]); one address family ([constr_5155]); a TCP method deployment needs a `tcpPort` ([constr_3310]) | Ports in SD offers and subscriptions ([TPS_MANI_03292], [TPS_MANI_03293]) |
-| `ServiceInstanceToMachineMapping.secureComPropsForTcp`, `secureComPropsForUdp`, `secOcComPropsForMulticast` | Security of the endpoints | (ref) | `0..1`, `0..1`, `*` | not specified | | Guide 14 |
+| `ServiceInstanceToMachineMapping.secureComPropsForTcp`, `secureComPropsForUdp`, `secOcComPropsForMulticast` | Security of the endpoints | (ref) | `0..1`, `0..1`, `*` | not specified | | Cryptography guide |
 
 ### 12.15 SoftwareClusterDesign and SoftwareCluster
 
@@ -2320,19 +2320,19 @@ The following checklist produces the model of this guide. Each step names the el
 | --- | --- | --- | --- | --- | --- | --- |
 | `category` (both) | Kind of cluster | `PLATFORM_CORE`, `PLATFORM`, `APPLICATION_LAYER`; custom values with a prefix | `0..1` | not specified | [TPS_MANI_01331]; exactly one `PLATFORM_CORE` per Machine ([constr_1788]) | `PLATFORM_CORE` cannot be removed by UCM |
 | `SoftwareClusterDesign.containedProcess` | The processes of the design | `ProcessDesign` (ref) | `*` | not specified | [TPS_MANI_01211] | |
-| `SoftwareClusterDesign.installationBehavior` | Whether derived clusters can be removed | `canBeRemoved`, `cannotBeRemoved` | `0..1` | not specified | Shall be `cannotBeRemoved` for `PLATFORM_CORE` ([constr_10410]) | UCM accepts or rejects removal (guide 13) |
+| `SoftwareClusterDesign.installationBehavior` | Whether derived clusters can be removed | `canBeRemoved`, `cannotBeRemoved` | `0..1` | not specified | Shall be `cannotBeRemoved` for `PLATFORM_CORE` ([constr_10410]) | UCM accepts or rejects removal (the UCM guide) |
 | `SoftwareClusterDesign.intendedTargetMachine` | Target machine design | `MachineDesign` (ref, `≪atpUriDef≫`) | `*` | not specified | At most one ([constr_3727]) | |
-| `SoftwareClusterDesign.dependsOn`, `conflictsTo` | Dependencies on other clusters | `SoftwareClusterDependencyFormula` | `0..1` each | not specified | Design level only in R25-11 ([TPS_MANI_01480], [TPS_MANI_01482]) | Checked at installation (guide 13) |
+| `SoftwareClusterDesign.dependsOn`, `conflictsTo` | Dependencies on other clusters | `SoftwareClusterDependencyFormula` | `0..1` each | not specified | Design level only in R25-11 ([TPS_MANI_01480], [TPS_MANI_01482]) | Checked at installation (the UCM guide) |
 | `SoftwareClusterDesign.requiredARElement`, `requiredDesignElement` | Required elements | (ref) | `*` each | not specified | No other cluster designs or clusters ([constr_1560]) | |
 | `SoftwareCluster.containedProcess` | The processes | `Process` (ref) | `*` | not specified | All on one Machine ([constr_1536]); only claimed Function Groups ([constr_1787]) | Installed and started on the Machine |
 | `SoftwareCluster.containedPackageElement` | Uploadable elements | `UploadablePackageElement` (ref) | `*` | not specified | Mandatory reference for uploadable elements ([TPS_MANI_01116]) | Installed with the cluster |
 | `SoftwareCluster.containedARElement` | Other elements | `ARElement` (ref) | `*` | not specified | No clusters or cluster designs ([constr_1566]) | Installed with the cluster |
 | `SoftwareCluster.claimedFunctionGroup` | Reserved Function Groups | `ModeDeclarationGroupPrototype` (ref) | `*` | not specified | At most one cluster per Function Group ([constr_1786]) | |
-| `SoftwareCluster.version` | Version of the cluster | `StrongRevisionLabelString` | `0..1` | not specified | Shall exist ([constr_10234]); major, minor, patch ([constr_1747]) | Compared by UCM (guide 13) |
+| `SoftwareCluster.version` | Version of the cluster | `StrongRevisionLabelString` | `0..1` | not specified | Shall exist ([constr_10234]); major, minor, patch ([constr_1747]) | Compared by UCM (the UCM guide) |
 | `SoftwareCluster.vendorId` | Vendor ID from the AUTOSAR vendor list | `PositiveInteger` | `0..1` | not specified | Shall exist ([constr_10235]) | |
-| `SoftwareCluster.vendorSignature` | Certificate of the vendor's signature | `CryptoServiceCertificate` (ref) | `0..1` | not specified | Shall exist ([constr_10233]) | Authenticity check (guides 13, 14) |
+| `SoftwareCluster.vendorSignature` | Certificate of the vendor's signature | `CryptoServiceCertificate` (ref) | `0..1` | not specified | Shall exist ([constr_10233]) | Authenticity check (the UCM and Cryptography guides) |
 | `SoftwareCluster.design` | The applied cluster designs | `SoftwareClusterDesign` (ref, `≪atpUriDef≫`) | `*` | not specified | Contract of [TPS_MANI_01112] | |
-| `SoftwareCluster.moduleInstantiation`, `license`, `releaseNotes`, `typeApproval`, `artifactChecksum`, `artifactLocator`, `diagnosticDeploymentProps` | Further content | (various) | various | not specified | [TPS_MANI_01202], [TPS_MANI_01219], [TPS_MANI_01220], [TPS_MANI_01345], [TPS_MANI_01381] | Guides 12a, 13 |
+| `SoftwareCluster.moduleInstantiation`, `license`, `releaseNotes`, `typeApproval`, `artifactChecksum`, `artifactLocator`, `diagnosticDeploymentProps` | Further content | (various) | various | not specified | [TPS_MANI_01202], [TPS_MANI_01219], [TPS_MANI_01220], [TPS_MANI_01345], [TPS_MANI_01381] | Diagnostics Part 1 and UCM guides |
 
 ### 12.16 The Running Example: Complete Configuration
 
@@ -3443,26 +3443,26 @@ The following table shows where the values of this model are used later in the s
 
 | Value in the model | Used by | Explained in |
 | --- | --- | --- |
-| Instance specifiers `/camera_driver/Root/CameraPPort` and `/fusion/Root/CameraRPort` | The code of `CameraDriver` and `Fusion`, Communication Management | 07 |
-| Namespace `hpc::camera`, the types `CameraImage`, `PixelVector`, `ExposureMode`, `CameraState`, the initial value `NotAvailable` | Generated proxies and skeletons | 07 |
-| Error `ExposureModeNotSupported` in domain `CameraErrors` | The result of `SetExposureMode` in `ara::core` | [03](03_CoreAndGeneral.md#97-worked-example-fusion-requests-the-night-exposure-mode), 07 |
-| Service ID `0x1001`, instance ID `0x0001`, method and event IDs, event group `CameraEvents`, TCP 30501, SD timing | SOME/IP and SOME/IP-SD on the backbone | 08 |
-| `HpcUnicast`, `SdMulticast`, `BackboneConnector` | Network configuration, firewall rules | 08, 16 |
-| States of `MachineFG` and `ADAS`, including `Verify` | State Management, EM, UCM | 04, 05, 13 |
-| StartupConfigs, ResourceGroups, `numberOfRestartAttempts`, memory limit | Execution Management | 04 |
-| `FusionFailed` (42) | EM reports it to State Management | 04, 05 |
-| Processor `Soc` and its cores | Core affinity | 04 |
-| `timestamp` of `CameraImage` | Time stamps with `VehicleTime` | 09 |
-| `version` of `fusion` (1.0.0, later 1.1.0) | DID `FusionSoftwareVersion`, the update | 12a, 13 |
-| `AdasClusterDesign`, `AdasCluster`, `HpcPlatformCore`: categories, versions, vendor IDs, vendor certificates | UCM, package verification | 13, 14 |
-| Strict mode of the trusted platform | EM, IdsM | 04, 16 |
+| Instance specifiers `/camera_driver/Root/CameraPPort` and `/fusion/Root/CameraRPort` | The code of `CameraDriver` and `Fusion`, Communication Management | CM |
+| Namespace `hpc::camera`, the types `CameraImage`, `PixelVector`, `ExposureMode`, `CameraState`, the initial value `NotAvailable` | Generated proxies and skeletons | CM |
+| Error `ExposureModeNotSupported` in domain `CameraErrors` | The result of `SetExposureMode` in `ara::core` | [Core](CoreAndGeneral.md#97-worked-example-fusion-requests-the-night-exposure-mode), CM |
+| Service ID `0x1001`, instance ID `0x0001`, method and event IDs, event group `CameraEvents`, TCP 30501, SD timing | SOME/IP and SOME/IP-SD on the backbone | Network Bindings |
+| `HpcUnicast`, `SdMulticast`, `BackboneConnector` | Network configuration, firewall rules | Network Bindings, IDSM and Firewall |
+| States of `MachineFG` and `ADAS`, including `Verify` | State Management, EM, UCM | EM, SM, UCM |
+| StartupConfigs, ResourceGroups, `numberOfRestartAttempts`, memory limit | Execution Management | EM |
+| `FusionFailed` (42) | EM reports it to State Management | EM, SM |
+| Processor `Soc` and its cores | Core affinity | EM |
+| `timestamp` of `CameraImage` | Time stamps with `VehicleTime` | NM/TSync/RDS |
+| `version` of `fusion` (1.0.0, later 1.1.0) | DID `FusionSoftwareVersion`, the update | Diagnostics Part 1, UCM |
+| `AdasClusterDesign`, `AdasCluster`, `HpcPlatformCore`: categories, versions, vendor IDs, vendor certificates | UCM, package verification | UCM, Cryptography |
+| Strict mode of the trusted platform | EM, IdsM | EM, IDSM and Firewall |
 
 > **Key takeaways**
 >
 > - Follow the minimal configuration checklist; most mistakes are missing mandatory references, such as the ResourceGroup of a startup configuration or the service discovery configuration of a service instance.
 > - Many attributes are `0..1` in the class table and made mandatory by a constraint; the tables of this chapter list these constraints.
 > - Defaults exist only where the specifications state them, for example for `reportingBehavior`, `fireAndForget` and `numberOfRestartAttempts`.
-> - The behavior behind the Execution Manifest is explained in the EM guide, the behavior behind the Service Instance Manifest in [guide 07](07_CommunicationManagement.md) and [guide 08a](08a_NetworkBindings.md).
+> - The behavior behind the Execution Manifest is explained in the EM guide, the behavior behind the Service Instance Manifest in the [CM guide](CommunicationManagement.md) and the [Network Bindings guide](NetworkBindings.md).
 > - The complete model of `CameraService`, `CameraDriver`, `Fusion`, `HPC` and the two Software Clusters is about 1,000 lines of validated ARXML.
 
 ---
@@ -3478,7 +3478,7 @@ The C++ headers of a service interface are generated before the implementation s
 | Model element | Appears in the code as | Rule |
 | --- | --- | --- |
 | `ServiceInterface` with its `namespace` | Proxy and skeleton classes in that namespace, for example `hpc::camera` | [TPS_MANI_01004], [TPS_MANI_01006] |
-| `event`, `method`, `field` with `hasGetter`, `hasSetter`, `hasNotifier` | Members of proxy and skeleton | [Guide 07, Chapter 5](07_CommunicationManagement.md#5-from-service-interface-to-generated-code) |
+| `event`, `method`, `field` with `hasGetter`, `hasSetter`, `hasNotifier` | Members of proxy and skeleton | [CM guide, Chapter 5](CommunicationManagement.md#5-from-service-interface-to-generated-code) |
 | `CppImplementationDataType` with `typeEmitter` `TYPE_EMITTER_ARA` | A generated type definition | [TPS_MANI_01177] |
 | `CppImplementationDataType` with a `headerFile` | An `#include` of an existing declaration, for example `<cstdint>` | [TPS_MANI_01309] |
 | `ApApplicationError` and `ApApplicationErrorDomain` | An enumeration of the errors of the domain, with the short names and codes of the errors | Rationale of [constr_1664], [constr_1665] |
@@ -3488,7 +3488,7 @@ The software component types themselves need not appear in the code: the TPS not
 
 ### 13.2 The InstanceSpecifier in Code
 
-The class `ara::core::InstanceSpecifier` represents an AUTOSAR instance specifier, "basically an AUTOSAR shortName path wrapper" ([SWS_CORE_08001]). [Guide 03](03_CoreAndGeneral.md#1111-instancespecifier) covers `ara::core` in general; the following table lists the parts of the class that matter here.
+The class `ara::core::InstanceSpecifier` represents an AUTOSAR instance specifier, "basically an AUTOSAR shortName path wrapper" ([SWS_CORE_08001]). The [Core guide](CoreAndGeneral.md#1111-instancespecifier) covers `ara::core` in general; the following table lists the parts of the class that matter here.
 
 | Member (header `ara/core/instance_specifier.h`) | Purpose | Requirement |
 | --- | --- | --- |
@@ -3524,7 +3524,7 @@ int main(int argc, char* argv[]) {
     }
 
     // Pass specifier.Value() to the find function of the generated CameraService
-    // proxy (guide 07). Communication Management resolves it with the mapping
+    // proxy (the CM guide). Communication Management resolves it with the mapping
     // Fusion_CameraRPort of the Service Instance Manifest (Section 9.3).
 
     return ara::core::Deinitialize().HasValue() ? EXIT_SUCCESS : EXIT_FAILURE;
@@ -3594,7 +3594,7 @@ sequenceDiagram
     CM-->>CM: CameraDriver offers, Fusion finds CameraService
 ```
 
-Later, the update of `AdasCluster` to 1.1.0 ([guide 00, Section 6.11](00_LearningPath.md#611-software-updates)) repeats steps 7 to 9 with a new Software Package. During its activation, State Management switches `ADAS` to `Off`, then to `Verify` and back to `Normal`, and the manifests are reparsed, unless the Machine is reset (*Platform Design*, Section 13.9 and Figure 13.10). Guide 13 tells this story.
+Later, the update of `AdasCluster` to 1.1.0 (the [Running Example guide, Section 1.11](RunningExample.md#111-software-updates)) repeats steps 7 to 9 with a new Software Package. During its activation, State Management switches `ADAS` to `Off`, then to `Verify` and back to `Normal`, and the manifests are reparsed, unless the Machine is reset (*Platform Design*, Section 13.9 and Figure 13.10). The UCM guide tells this story.
 
 > **Key takeaways**
 >
@@ -3644,10 +3644,10 @@ Later, the update of `AdasCluster` to 1.1.0 ([guide 00, Section 6.11](00_Learnin
 | The tool reports an unresolved reference | A typo in the path, a missing file, or a wrong `DEST` | The absolute path ([Section 3.2](#32-packages-short-names-and-paths)); whether the file with the target is part of the merged model |
 | A file from a supplier does not load | Different release | The schema number in `xsi:schemaLocation` |
 | The header generation fails or produces unexpected names | A constraint at `IT_BefAraApiGen` is violated, or a namespace is missing | Fields, data type categories, error domains ([Chapter 6](#6-service-interfaces-and-data-types)) |
-| A process never starts | It references no state of the active Function Group, or it is not mapped to the Machine | `FUNCTION-GROUP-STATE-IREF`s and the `PROCESS-TO-MACHINE-MAPPING` ([Chapter 8](#8-the-execution-manifest)); the [EM guide](04_ExecutionManagement.md#173-troubleshooting-guide) |
+| A process never starts | It references no state of the active Function Group, or it is not mapped to the Machine | `FUNCTION-GROUP-STATE-IREF`s and the `PROCESS-TO-MACHINE-MAPPING` ([Chapter 8](#8-the-execution-manifest)); the [EM guide](ExecutionManagement.md#173-troubleshooting-guide) |
 | `InstanceSpecifierMappingIntegrityViolation` at run time | The specifier string does not match the model, or the port has no mapping for this process | The path in the code against the Executable, root prototype and port names; the `PROCESS-REF` of the mapping ([Section 9.3](#93-connecting-a-port-to-a-service-instance)) |
-| A proxy never finds its service | Different deployments, IDs or versions on the two sides, or no machine mapping | Service ID, instance ID, major and minor version, event groups, `SERVICE-INSTANCE-TO-MACHINE-MAPPING` ([Section 9.6](#96-worked-example-cameraservice-between-cameradriver-and-fusion)); [guide 08a](08a_NetworkBindings.md) |
-| UCM rejects a package | Missing version, vendor ID or signature, or a Function Group claimed twice | The `SOFTWARE-CLUSTER` attributes ([Section 10.2](#102-software-cluster-the-uploadable-unit)); guide 13 |
+| A proxy never finds its service | Different deployments, IDs or versions on the two sides, or no machine mapping | Service ID, instance ID, major and minor version, event groups, `SERVICE-INSTANCE-TO-MACHINE-MAPPING` ([Section 9.6](#96-worked-example-cameraservice-between-cameradriver-and-fusion)); the [Network Bindings guide](NetworkBindings.md) |
+| UCM rejects a package | Missing version, vendor ID or signature, or a Function Group claimed twice | The `SOFTWARE-CLUSTER` attributes ([Section 10.2](#102-software-cluster-the-uploadable-unit)); the UCM guide |
 
 > **Key takeaways**
 >
@@ -3690,9 +3690,9 @@ References point from target configuration to design. This keeps the design inde
 </details>
 
 <details>
-<summary>3. Name the five kinds of manifest of the TPS. Why does guide 01 show only three?</summary>
+<summary>3. Name the five kinds of manifest of the TPS. Why does the Platform Overview guide show only three?</summary>
 
-Execution Manifest, Service Instance Manifest, Machine Manifest, Raw Data Stream Manifest and Software Distribution (TPS, Section 2.5). Guide 01 follows *Platform Design*, which shows the Application Design plus the first three; the Application Design is design content and not a manifest in the sense of the TPS. See [Section 2.3](#23-the-kinds-of-manifest).
+Execution Manifest, Service Instance Manifest, Machine Manifest, Raw Data Stream Manifest and Software Distribution (TPS, Section 2.5). The Platform Overview guide follows *Platform Design*, which shows the Application Design plus the first three; the Application Design is design content and not a manifest in the sense of the TPS. See [Section 2.3](#23-the-kinds-of-manifest).
 
 </details>
 
@@ -3762,7 +3762,7 @@ The TPS requires a `Verify` state in every Function Group ([constr_10023]), and 
 <details>
 <summary>13. <code>CameraDriver</code> keeps running when <code>ADAS</code> switches from <code>Normal</code> to <code>Degraded</code>. How is this modeled?</summary>
 
-Its single `StateDependentStartupConfig` references both states with two `FUNCTION-GROUP-STATE-IREF`s; the states are or-ed ([TPS_MANI_01046]). See [Section 8.4](#84-worked-example-the-processes-cameradriver-and-fusion) and the [EM guide](04_ExecutionManagement.md#1311-the-running-example-complete-configuration).
+Its single `StateDependentStartupConfig` references both states with two `FUNCTION-GROUP-STATE-IREF`s; the states are or-ed ([TPS_MANI_01046]). See [Section 8.4](#84-worked-example-the-processes-cameradriver-and-fusion) and the [EM guide](ExecutionManagement.md#1311-the-running-example-complete-configuration).
 
 </details>
 
@@ -3885,7 +3885,7 @@ The software cluster responsible defines the service deployments and instances d
 | Execution Manifest | `Process`, `StartupConfig`, `FunctionGroupSet` of application Function Groups, `ProcessToMachineMappingSet` | The executable code |
 | Service Instance Manifest | `ServiceInterfaceDeployment`, service instances, `ServiceInstanceToPortPrototypeMapping`, `ServiceInstanceToMachineMapping` | The code that communicates |
 | Machine Manifest | `Machine`, module instantiations, `ResourceGroup`, `Processor`, `MachineFG` | The platform software |
-| Raw Data Stream Manifest | Raw data stream mappings | The code that streams (guide 09) |
+| Raw Data Stream Manifest | Raw data stream mappings | The code that streams (the NM/TSync/RDS guide) |
 | Software Distribution | `SoftwareCluster`, `SoftwarePackage`, `VehiclePackage` | The package |
 
 **ARXML rules**
@@ -4002,7 +4002,7 @@ This summary is based on the change history of the TPS (Appendix F) and of the r
 - *Methodology for Adaptive Platform* (`AUTOSAR_AP_TR_Methodology`), Adaptive Platform
 - *Adaptive Platform Machine Configuration* (`AUTOSAR_AP_TPS_MachineConfiguration`), Adaptive Platform
 - *Specification of Adaptive Platform Core* (`AUTOSAR_AP_SWS_Core`), Adaptive Platform
-- *Specification of Execution Management* (`AUTOSAR_AP_SWS_ExecutionManagement`), Adaptive Platform, through the [EM guide](04_ExecutionManagement.md)
+- *Specification of Execution Management* (`AUTOSAR_AP_SWS_ExecutionManagement`), Adaptive Platform, through the [EM guide](ExecutionManagement.md)
 - *Explanation of Adaptive Platform Design* (`AUTOSAR_AP_EXP_PlatformDesign`), Adaptive Platform
 - *Explanation of Adaptive Platform Software Architecture* (`AUTOSAR_AP_EXP_SWArchitecture`), Adaptive Platform
 - *Generic Structure Template* (`AUTOSAR_FO_TPS_GenericStructureTemplate`), Foundation

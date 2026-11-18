@@ -10,7 +10,7 @@
 >
 > **Version:** 1.0 (draft, pending review)
 >
-> **Part of the series:** [AUTOSAR Adaptive Platform Training Guides](00_LearningPath.md). Previous: [00 Learning Path, Series Glossary and Running Example](00_LearningPath.md). Next: [02 Manifests and Methodology](02_Manifests.md).
+> **Part of the series:** [AUTOSAR Adaptive Platform Training Guides](../README.md). Previous: [Series Glossary](Glossary.md). Next: [Manifests and Methodology](Manifests.md).
 
 ## About This Guide
 
@@ -25,7 +25,7 @@ This guide gives you the big picture of the AUTOSAR Adaptive Platform (AP). It e
 - **Platform developers** who build or extend a functional cluster and need the interfaces between clusters.
 - **Engineers with Classic Platform experience** who want to know what carries over and what does not.
 
-Assumed background: modern C++, plus basic Linux/POSIX knowledge. Read [guide 00](00_LearningPath.md) first, at least its Chapters 1 and 6.
+Assumed background: modern C++, plus basic Linux/POSIX knowledge. Read the [main page](../README.md) of the series first, and skim the [Running Example guide](RunningExample.md), the running example.
 
 ### Learning Objectives
 
@@ -44,7 +44,7 @@ After working through this guide you will be able to:
 
 Chapters 1 and 2 give the background: what the platform is and why it exists. Chapters 3 to 6 describe the architecture. Chapter 7 covers the Operating System Interface; it replaces the API chapter of the other guides, because the Operating System Interface defines no `ara::` API. Chapter 8 previews development, safety and security, which later guides treat in depth. Chapter 9 maps the running example onto the architecture. Chapters 10 and 11 are for practice and self-check, and the appendices are for lookup.
 
-This guide has no configuration chapters. It is an overview: [Section 8.2](#82-manifests-in-one-table) points to [guide 02](02_Manifests.md) and to the *Configuration Reference* chapter of each cluster guide.
+This guide has no configuration chapters. It is an overview: [Section 8.2](#82-manifests-in-one-table) points to the [Manifests guide](Manifests.md) and to the *Configuration Reference* chapter of each cluster guide.
 
 | Convention | Meaning |
 | --- | --- |
@@ -59,7 +59,7 @@ This guide has no configuration chapters. It is an overview: [Section 8.2](#82-m
 
 ### The Running Example
 
-All guides share the invented high-performance ECU `HPC`, defined in [guide 00, Chapter 6](00_LearningPath.md#6-the-running-example-the-hpc-reference-system). `HPC` runs an ADAS feature: it fuses images of a front camera, detections of the smart radar `FrontRadar` and vehicle dynamics signals from the `ChassisECU` into a list of detected objects. It sits on an Ethernet backbone together with `Cockpit`, `FrontRadar`, `TelematicsUnit` and `CentralGateway`, which connects the Classic ECUs `ChassisECU` and `InstrumentCluster` on the CAN bus.
+All guides share the invented high-performance ECU `HPC`, defined in the [Running Example guide](RunningExample.md). `HPC` runs an ADAS feature: it fuses images of a front camera, detections of the smart radar `FrontRadar` and vehicle dynamics signals from the `ChassisECU` into a list of detected objects. It sits on an Ethernet backbone together with `Cockpit`, `FrontRadar`, `TelematicsUnit` and `CentralGateway`, which connects the Classic ECUs `ChassisECU` and `InstrumentCluster` on the CAN bus.
 
 This guide uses the whole example but adds **no new elements**. It explains why each node runs the platform it runs ([Section 9.1](#91-which-platform-runs-on-which-node-and-why)), shows the `HPC` Machine layer by layer ([Section 9.2](#92-the-hpc-machine-layer-by-layer)), lists which functional clusters each process relies on ([Section 9.3](#93-which-clusters-each-process-relies-on)) and follows one fusion cycle through the platform ([Section 9.4](#94-walkthrough-one-fusion-cycle-through-the-platform)).
 
@@ -229,7 +229,7 @@ The Adaptive Platform is a standard, not a product. In a project you use an impl
 | The operating system interface for applications: PSE51 and the C++ standard library | The operating system interfaces that Execution Management uses to create processes (*OSI*, Chapter 1) |
 | The service interfaces through which UCM installs and activates Software Packages | The format of the Software Package itself (*Platform Design*, Section 13.3.1) |
 
-The kinds of AUTOSAR documents (RS, SWS, TPS, PRS, EXP, TR) and their weight are explained in [guide 00, Section 4.3](00_LearningPath.md#43-how-autosar-documents-are-named) and [Section 5.2](00_LearningPath.md#52-three-kinds-of-statements). This guide relies mostly on explanatory documents, so most of its statements explain the standard; the requirement IDs come from the *Operating System Interface* and, in Chapter 2, from the Classic Platform *Specification of Operating System*.
+The kinds of AUTOSAR documents (RS, SWS, TPS, PRS, EXP, TR) and their weight are explained on the [main page](../README.md#how-autosar-documents-are-named) of the series, together with the [three kinds of statements](../README.md#three-kinds-of-statements) that the guides keep apart. This guide relies mostly on explanatory documents, so most of its statements explain the standard; the requirement IDs come from the *Operating System Interface* and, in Chapter 2, from the Classic Platform *Specification of Operating System*.
 
 ### 1.4 Releases and Maturity
 
@@ -239,9 +239,9 @@ The kinds of AUTOSAR documents (RS, SWS, TPS, PRS, EXP, TR) and their weight are
 - **Stabilization.** AUTOSAR declared R24-11 a stabilization release, to get a stable and consistent set of APIs for production-grade applications. The remaining issues of that stabilization were solved in R25-11 (*Release Overview*, Section 1.5.3).
 - **C++17.** The minimum C++ version of the AUTOSAR code base is now C++17, to align with MISRA C++:2023 and because some OS suppliers deprecate C++14. A move to C++20 is being evaluated (*Release Overview*, Section 1.5.4).
 
-[Guide 00, Chapter 1](00_LearningPath.md#1-welcome-to-the-series) explains why the whole series uses R25-11 only.
+The whole series uses R25-11 only ([main page](../README.md#what-the-series-covers)).
 
-> **Pitfall:** Training material and code examples from older releases are still in circulation. Typical traps are the `DeterministicClient` API of Execution Management, which was removed in R24-11 ([EM guide, Appendix D](04_ExecutionManagement.md#appendix-d-notable-changes-in-recent-releases)), and C++14-era code. Check the release on the title page of every document you use.
+> **Pitfall:** Training material and code examples from older releases are still in circulation. Typical traps are the `DeterministicClient` API of Execution Management, which was removed in R24-11 ([EM guide, Appendix D](ExecutionManagement.md#appendix-d-notable-changes-in-recent-releases)), and C++14-era code. Check the release on the title page of every document you use.
 
 ### 1.5 Analogies: A Middleware on a POSIX Operating System
 
@@ -249,7 +249,7 @@ The *SW Architecture* calls the Adaptive Platform "conceptually a middleware" be
 
 | On a Linux system you know | Adaptive Platform counterpart | Where the analogy breaks down |
 | --- | --- | --- |
-| systemd starts and stops services | Execution Management starts and stops processes; State Management decides which ones should run | The decision logic is a separate cluster, and processes are grouped by Function Group States ([EM guide, Section 1.3](04_ExecutionManagement.md#13-analogies-systemd-and-autosar-classic)) |
+| systemd starts and stops services | Execution Management starts and stops processes; State Management decides which ones should run | The decision logic is a separate cluster, and processes are grouped by Function Group States ([EM guide, Section 1.3](ExecutionManagement.md#13-analogies-systemd-and-autosar-classic)) |
 | D-Bus or a DDS middleware | Communication Management (`ara::com`) | Proxies and skeletons are generated from ARXML service descriptions; the same code works locally and across the network |
 | journald or syslog | Log and Trace (`ara::log`) | Messages use the DLT protocol; *modeled* messages keep their static text in the model and send only the arguments |
 | dpkg or YUM | Update and Configuration Management | The *Platform Design* itself makes this comparison, and adds safe and secure activation and rollback (*Platform Design*, Section 13.1) |
@@ -413,8 +413,8 @@ The characteristics of the Adaptive Platform follow from the problem and from th
   - access to pre-existing files only;
   - constraints on the use of platform APIs by applications;
   - execution of authenticated code only.
-- **Mechanisms in R25-11.** The operating system groups processes into *ResourceGroups* with CPU-time and memory limits ([SWS_OSI_02000], [SWS_OSI_02001], [SWS_OSI_02002]). Execution Management configures the scheduling policy, the priority, the core affinity and pre-mapped memory of each process ([EM guide, Chapter 11](04_ExecutionManagement.md#11-resource-management)). It distinguishes *deterministic subsystems*, whose computing time is guaranteed, from *best-effort subsystems* ([EM guide, Section 11.5](04_ExecutionManagement.md#115-cpu-core-affinity-and-scheduling)). Platform Health Management detects timing faults at run time, with alive, deadline and logical supervision, and triggers a recovery (*Platform Design*, Section 17.3). This is *detect and react*, not *prevent by construction*.
-- **What is no longer there.** R25-11 has no API for deterministic execution. The `DeterministicClient` of Execution Management, with its activation cycles and worker pools, was removed in R24-11 ([EM guide, Appendix D](04_ExecutionManagement.md#appendix-d-notable-changes-in-recent-releases)); its description had already left the *Platform Design* in R23-11.
+- **Mechanisms in R25-11.** The operating system groups processes into *ResourceGroups* with CPU-time and memory limits ([SWS_OSI_02000], [SWS_OSI_02001], [SWS_OSI_02002]). Execution Management configures the scheduling policy, the priority, the core affinity and pre-mapped memory of each process ([EM guide, Chapter 11](ExecutionManagement.md#11-resource-management)). It distinguishes *deterministic subsystems*, whose computing time is guaranteed, from *best-effort subsystems* ([EM guide, Section 11.5](ExecutionManagement.md#115-cpu-core-affinity-and-scheduling)). Platform Health Management detects timing faults at run time, with alive, deadline and logical supervision, and triggers a recovery (*Platform Design*, Section 17.3). This is *detect and react*, not *prevent by construction*.
+- **What is no longer there.** R25-11 has no API for deterministic execution. The `DeterministicClient` of Execution Management, with its activation cycles and worker pools, was removed in R24-11 ([EM guide, Appendix D](ExecutionManagement.md#appendix-d-notable-changes-in-recent-releases)); its description had already left the *Platform Design* in R23-11.
 
 The *Operating System Interface* states the limit itself: the standard POSIX scheduling policies "may not guarantee proper execution for all real-time scenarios" (*OSI*, Section 7.1.3). The Adaptive Platform therefore offers bounded and configurable resource usage, but not a statically analyzed schedule of the whole system. **Hard real-time control loops with fixed periods and strict deadlines stay on Classic ECUs.** The *Platform Design* shows exactly this split: planning on the Adaptive Platform, trajectory control with its safety function on the Classic Platform ([Section 2.10](#210-where-each-platform-fits-in-a-vehicle)).
 
@@ -465,7 +465,7 @@ The Adaptive Platform does **not** replace the Classic Platform or non-AUTOSAR p
 - **Signal-to-Service translation.** Signals sent by Classic ECUs, for example over CAN, can be translated into `ara::com` services that are reachable over Ethernet (*SW Architecture*, Section 7.3.5).
 - **One system model.** The AUTOSAR methodology supports a *System Design* that describes the software components of both platforms in one model, including a mapping of signals to services (*Platform Design*, Section 4.4).
 
-The *Platform Design* shows a typical split of an automated driving function (*Platform Design*, Figure 3.2). Classic ECUs provide the inputs from the sensors and from car-to-car and car-to-infrastructure communication. The Adaptive Platform performs the perception of the environment, of the driver state and of the vehicle state, builds an environment model and plans maneuvers and trajectories. The planned trajectory goes back to a Classic ECU, which performs the trajectory control together with a safety function that also reads the inertial sensors directly. The following diagram applies this split to the running example. `HPC` stops at the object list; actuators are not part of the example ([guide 00, Section 6.2](00_LearningPath.md#62-the-vehicle-context)).
+The *Platform Design* shows a typical split of an automated driving function (*Platform Design*, Figure 3.2). Classic ECUs provide the inputs from the sensors and from car-to-car and car-to-infrastructure communication. The Adaptive Platform performs the perception of the environment, of the driver state and of the vehicle state, builds an environment model and plans maneuvers and trajectories. The planned trajectory goes back to a Classic ECU, which performs the trajectory control together with a safety function that also reads the inertial sensors directly. The following diagram applies this split to the running example. `HPC` stops at the object list; actuators are not part of the example (the [Running Example guide, Section 1.2](RunningExample.md#12-the-vehicle-context)).
 
 ```mermaid
 flowchart LR
@@ -536,13 +536,13 @@ Three properties of ARA matter for application developers:
 
 - **One look for all clusters.** From the application's point of view, the interfaces of all clusters look alike: they are specified C++ interfaces. There are differences under the hood, for example whether a call stays in the process or goes to a daemon ([Section 4.2](#42-library-based-and-service-based-functional-clusters)), but the application does not see them (*Platform Design*, Section 4.1.1).
 - **ARA is the boundary, not the implementation.** Underneath ARA, including inside the ARA libraries that run in the application process, an implementation may use any other interface it needs (*Platform Design*, Section 4.1.1).
-- **ARA must be initialized.** An application calls `ara::core::Initialize()` inside `main()` before it uses other ARA APIs, and `ara::core::Deinitialize()` before it returns (*Platform Design*, Section 18.4). Guide 03 (`03_CoreAndGeneral.md`, planned) explains the rules.
+- **ARA must be initialized.** An application calls `ara::core::Initialize()` inside `main()` before it uses other ARA APIs, and `ara::core::Deinitialize()` before it returns (*Platform Design*, Section 18.4). The Core guide (`CoreAndGeneral.md`, planned) explains the rules.
 
 The specified language binding is C++. The R25-11 release also contains an explanatory document on ARA applications in Rust (`AUTOSAR_AP_EXP_ARARustApplications`, *Release Overview*, Chapter 3). This series covers the C++ binding only.
 
 ### 3.3 Four Groups of Functional Clusters
 
-A **functional cluster** (FC) is a logical group of platform functionality with its own specification and API ([guide 00, Appendix A](00_LearningPath.md#appendix-a-series-glossary-and-acronyms)). The *Platform Design* sorts the clusters into four groups (*Platform Design*, Section 4.1.1 and Figure 4.1):
+A **functional cluster** (FC) is a logical group of platform functionality with its own specification and API (the [Series Glossary](Glossary.md)). The *Platform Design* sorts the clusters into four groups (*Platform Design*, Section 4.1.1 and Figure 4.1):
 
 | Group | Meaning | R25-11 members in the logical view | How applications use them |
 | --- | --- | --- | --- |
@@ -555,7 +555,7 @@ Any Adaptive Application can also provide services to other applications (*Platf
 
 ### 3.4 Adaptive Applications, Executables and Processes
 
-An **Adaptive Application** is a piece of software that delivers a function. It consists of one or more **Executables**, program files with one entry point. Execution Management creates **processes** from them, as described by **Modelled Processes** in the manifest. One Executable may be started as several processes, and the processes of one application may run on one Machine or be distributed over several Machines (*Platform Design*, Sections 4.2.1 and 6.2). The [EM guide, Section 2.1](04_ExecutionManagement.md#21-software-units-from-application-to-os-process) explains these units in detail.
+An **Adaptive Application** is a piece of software that delivers a function. It consists of one or more **Executables**, program files with one entry point. Execution Management creates **processes** from them, as described by **Modelled Processes** in the manifest. One Executable may be started as several processes, and the processes of one application may run on one Machine or be distributed over several Machines (*Platform Design*, Sections 4.2.1 and 6.2). The [EM guide, Section 2.1](ExecutionManagement.md#21-software-units-from-application-to-os-process) explains these units in detail.
 
 Not every application is a portable Adaptive Application. The *Platform Design* distinguishes four kinds, depending on whether the software runs at user level or at platform level, and whether it is specific to an operating system or hardware or fully compliant with AUTOSAR (*Platform Design*, Section 4.1.4, Figure 4.5):
 
@@ -566,9 +566,9 @@ Not every application is a portable Adaptive Application. The *Platform Design* 
 
 All of them, including the functional clusters, are applications from the point of view of Execution Management, and EM launches them all in the same way. The only exception is EM itself (*Platform Design*, Section 4.1.4).
 
-In the model, an application is an `AdaptiveApplicationSwComponentType` with ports. A port typed by a service interface either provides a service instance (`PPortPrototype`) or requires one (`RPortPrototype`). The same service interface can be provided by several ports as different service instances, and one service instance can have many consumers. AUTOSAR standardizes this model, but not a C++ component framework for implementing it (*SW Architecture*, Section 13.15). Guides 02 ([Chapter 5](02_Manifests.md#5-application-design-components-ports-and-executables)) and 07 cover the model and the generated code.
+In the model, an application is an `AdaptiveApplicationSwComponentType` with ports. A port typed by a service interface either provides a service instance (`PPortPrototype`) or requires one (`RPortPrototype`). The same service interface can be provided by several ports as different service instances, and one service instance can have many consumers. AUTOSAR standardizes this model, but not a C++ component framework for implementing it (*SW Architecture*, Section 13.15). The Manifests guides ([Chapter 5](Manifests.md#5-application-design-components-ports-and-executables)) and 07 cover the model and the generated code.
 
-*Example:* `Fusion` is a process created from the Executable `fusion`. Its application provides `ObjectListService` and requires `CameraService`, `VehicleDynamicsService` and `CalibrationDataService` ([guide 00, Section 6.6](00_LearningPath.md#66-services-and-their-consumers)).
+*Example:* `Fusion` is a process created from the Executable `fusion`. Its application provides `ObjectListService` and requires `CameraService`, `VehicleDynamicsService` and `CalibrationDataService` (the [Running Example guide, Section 1.6](RunningExample.md#16-services-and-their-consumers)).
 
 ### 3.5 Standardized and Non-standardized Parts
 
@@ -661,7 +661,7 @@ The Adaptive Platform regards the hardware it runs on as a **Machine**, to get a
 - **Exactly one instance of the Adaptive Platform runs on a Machine.**
 - Usually the hardware is a single chip that hosts one or several Machines. Several chips can also form one Machine, if the implementation allows it.
 
-*Example:* `HPC` is one Machine on a multi-core SoC, without a hypervisor ([guide 00, Section 6.3](00_LearningPath.md#63-the-hpc-machine)).
+*Example:* `HPC` is one Machine on a multi-core SoC, without a hypervisor (the [Running Example guide, Section 1.3](RunningExample.md#13-the-hpc-machine)).
 
 ### 4.4 Software Clusters and Software Packages
 
@@ -681,7 +681,7 @@ Each Software Cluster has a category, with these rules (*SW Architecture*, Secti
 
 The platform packages contain all functional cluster daemons together with their configuration, for example their startup configuration. Applications therefore do not have to configure the platform (*SW Architecture*, Section 12.2). For the same reason, processes of functional clusters should only appear in `PLATFORM_CORE` or `PLATFORM` clusters, so that application clusters stay independent of the platform (*SW Architecture*, Section 13.4).
 
-The following diagram shows the two Software Clusters of `HPC` ([guide 00, Section 6.3](00_LearningPath.md#63-the-hpc-machine)). `HPC` has no `PLATFORM` cluster: all platform daemons are part of the platform core.
+The following diagram shows the two Software Clusters of `HPC` (the [Running Example guide, Section 1.3](RunningExample.md#13-the-hpc-machine)). `HPC` has no `PLATFORM` cluster: all platform daemons are part of the platform core.
 
 ```mermaid
 flowchart TB
@@ -754,91 +754,91 @@ Three documents classify the functional clusters in different ways. Do not mix t
 - **ARA groups** (*Platform Design*, Figure 4.1): Platform Foundation, Platform Services, Standardized Application/Interfaces and Vehicle Services ([Section 3.3](#33-four-groups-of-functional-clusters)).
 - **Document clusters** (*Release Overview*, Chapter 3): AdaptiveFoundation, AdaptiveServices, General, MethodologyAndTemplates and ReleaseDocumentation. They group *documents*, not functional clusters. For example, the documents of Safe Hardware Acceleration belong to AdaptiveServices, although the logical view shows the cluster in the Platform Foundation.
 
-The list of clusters in this chapter is the list of building blocks in the *SW Architecture* (Chapter 9), which is up to date for R25-11. Identity and Access Management is not a building block: it is a framework that several clusters implement ([Section 5.5](#55-security)). The following table is the master map. The columns *Namespace* and *ARA group* come from the logical view, *Category* and *Daemon-based* from the *SW Architecture*. It matches the table in [guide 00, Section 2.3](00_LearningPath.md#23-functional-clusters-and-their-guides).
+The list of clusters in this chapter is the list of building blocks in the *SW Architecture* (Chapter 9), which is up to date for R25-11. Identity and Access Management is not a building block: it is a framework that several clusters implement ([Section 5.5](#55-security)). The following table is the master map. The columns *Namespace* and *ARA group* come from the logical view, *Category* and *Daemon-based* from the *SW Architecture*. It matches the table on the [main page](../README.md#functional-clusters-and-their-guides) of the series.
 
 | Functional cluster | Short name | Namespace | Category | ARA group | Daemon-based | Guide |
 | --- | --- | --- | --- | --- | --- | --- |
-| [Execution Management](#52-runtime) | exec | `ara::exec` | Runtime | Foundation | yes | [04](04_ExecutionManagement.md) |
-| [State Management](#52-runtime) | sm | `ara::sm` | Runtime | Platform Service | yes | 05 |
-| [Log and Trace](#52-runtime) | log | `ara::log` | Runtime | Foundation | no | 10 |
-| [Core](#52-runtime) | core | `ara::core` | Runtime | Foundation | no | 03 |
-| [Operating System Interface](#52-runtime) | n/a | POSIX PSE51, C++ standard library | Runtime | Foundation | no | 01 ([Chapter 7](#7-the-operating-system-interface)) |
-| [Communication Management](#53-communication) | com | `ara::com` | Communication | Foundation | yes | 07, 08 |
-| [Raw Data Stream](#53-communication) | rds | `ara::rds` | Communication | Foundation | no | 09 |
-| [Network Management](#53-communication) | nm | `ara::nm` | Communication | Foundation | yes | 09 |
-| [Time Synchronization](#53-communication) | tsync | `ara::tsync` | Communication | Foundation | yes | 09 |
+| [Execution Management](#52-runtime) | exec | `ara::exec` | Runtime | Foundation | yes | [EM](ExecutionManagement.md) |
+| [State Management](#52-runtime) | sm | `ara::sm` | Runtime | Platform Service | yes | SM |
+| [Log and Trace](#52-runtime) | log | `ara::log` | Runtime | Foundation | no | Log and Trace |
+| [Core](#52-runtime) | core | `ara::core` | Runtime | Foundation | no | Core |
+| [Operating System Interface](#52-runtime) | n/a | POSIX PSE51, C++ standard library | Runtime | Foundation | no | Platform Overview ([Chapter 7](#7-the-operating-system-interface)) |
+| [Communication Management](#53-communication) | com | `ara::com` | Communication | Foundation | yes | CM, Network Bindings, Secure Communication |
+| [Raw Data Stream](#53-communication) | rds | `ara::rds` | Communication | Foundation | no | NM/TSync/RDS |
+| [Network Management](#53-communication) | nm | `ara::nm` | Communication | Foundation | yes | NM/TSync/RDS |
+| [Time Synchronization](#53-communication) | tsync | `ara::tsync` | Communication | Foundation | yes | NM/TSync/RDS |
 | [Automotive API Gateway](#53-communication) | aag | `ara::aag` | Communication | Vehicle Service | yes | not covered |
-| [Persistency](#54-storage) | per | `ara::per` | Storage | Foundation | no | 11 |
+| [Persistency](#54-storage) | per | `ara::per` | Storage | Foundation | no | Persistency |
 | [Remote Persistency](#54-storage) | rper | `ara::rper` | Storage | Vehicle Service | yes | not covered |
-| [Cryptography](#55-security) | crypto | `ara::crypto` | Security | Foundation | yes | 14 |
-| [Intrusion Detection System Manager](#55-security) | idsm | `ara::idsm` | Security | Foundation | yes | 16 |
-| [Firewall](#55-security) | fw | `ara::fw` | Security | Foundation | yes | 16 |
-| [Platform Health Management](#56-safety) | phm | `ara::phm` | Safety | Foundation | yes | [06](06_PlatformHealthManagement.md) |
+| [Cryptography](#55-security) | crypto | `ara::crypto` | Security | Foundation | yes | Cryptography |
+| [Intrusion Detection System Manager](#55-security) | idsm | `ara::idsm` | Security | Foundation | yes | IDSM and Firewall |
+| [Firewall](#55-security) | fw | `ara::fw` | Security | Foundation | yes | IDSM and Firewall |
+| [Platform Health Management](#56-safety) | phm | `ara::phm` | Safety | Foundation | yes | [PHM](PlatformHealthManagement.md) |
 | [Safe Hardware Acceleration](#56-safety) | shwa | `ara::shwa` | Safety | Foundation | no | not covered |
-| [Update and Configuration Management](#57-configuration) | ucm | `ara::ucm` | Configuration | Platform Service | yes | 13 |
-| [Vehicle Update and Configuration Management](#57-configuration) | vucm | `ara::vucm` | Configuration | Vehicle Service | yes | 13 (context only) |
+| [Update and Configuration Management](#57-configuration) | ucm | `ara::ucm` | Configuration | Platform Service | yes | UCM |
+| [Vehicle Update and Configuration Management](#57-configuration) | vucm | `ara::vucm` | Configuration | Vehicle Service | yes | UCM (context only) |
 | [Registry](#57-configuration) | n/a | (internal, no public API) | Configuration | (not shown) | no | not covered |
-| [Diagnostic Management](#58-diagnostics) | diag | `ara::diag` | Diagnostics | Foundation | yes | 12a, 12b |
+| [Diagnostic Management](#58-diagnostics) | diag | `ara::diag` | Diagnostics | Foundation | yes | Diagnostics Part 1, Diagnostics Part 2 |
 
-Guide numbers without a link refer to guides that are planned; [guide 00, Section 2.1](00_LearningPath.md#21-all-guides-at-a-glance) lists their file names. Each paragraph below starts with the responsibility as the *SW Architecture* states it and ends with the guide and the role in the running example.
+Guide names without a link refer to guides that are planned; the [main page](../README.md#the-guides) lists all guides. Each paragraph below starts with the responsibility as the *SW Architecture* states it and ends with the guide and the role in the running example.
 
 ### 5.2 Runtime
 
-**Execution Management (EM).** EM controls the processes of the platform and of the Adaptive Applications: it starts, configures and stops them as configured in Function Group States, using the interfaces of the operating system. It limits their resource consumption with the ResourceGroups of the operating system. EM is the entry point of the platform: the operating system starts it during boot, and EM then controls the startup and shutdown of the platform. Optionally it continues the chain of trust from a Trust Anchor and refuses to start software whose integrity or authenticity cannot be verified (*SW Architecture*, Section 9.2.1). EM does not schedule threads at run time; the operating system does (*Platform Design*, Section 6.3). Every process reports its state to EM with `ExecutionClient`; State Management requests state changes with `StateClient`. *Running example:* EM starts every process of `HPC`. Guide: [04](04_ExecutionManagement.md).
+**Execution Management (EM).** EM controls the processes of the platform and of the Adaptive Applications: it starts, configures and stops them as configured in Function Group States, using the interfaces of the operating system. It limits their resource consumption with the ResourceGroups of the operating system. EM is the entry point of the platform: the operating system starts it during boot, and EM then controls the startup and shutdown of the platform. Optionally it continues the chain of trust from a Trust Anchor and refuses to start software whose integrity or authenticity cannot be verified (*SW Architecture*, Section 9.2.1). EM does not schedule threads at run time; the operating system does (*Platform Design*, Section 6.3). Every process reports its state to EM with `ExecutionClient`; State Management requests state changes with `StateClient`. *Running example:* EM starts every process of `HPC`. Guide: [EM](ExecutionManagement.md).
 
-**State Management (SM).** SM determines the desired target state of the platform, that is, the set of active Function Group States, from application-specific inputs, and delegates the switching to EM (*SW Architecture*, Section 9.2.2). SM is unique: it is not entirely part of a stack, because its logic is largely project-specific and is usually completed by the system integrator. It sets Function Group States, requests the activation and deactivation of (partial) networks, shuts down or restarts the machine, recovers from errors reported by PHM or EM, prepares and verifies Software Clusters for UCM, and, new in R25-11, coordinates applications before Suspend-to-RAM (*Platform Design*, Chapter 7; *Release Overview*, Section 2.1.1.2). An optional, configurable *StateMachine* concept covers standard use cases, driven by a project-specific *SMControlApplication*. Access to SM must be secured, for example by IAM, and PHM supervises it. *Running example:* the process `StateManager`. Guide: 05.
+**State Management (SM).** SM determines the desired target state of the platform, that is, the set of active Function Group States, from application-specific inputs, and delegates the switching to EM (*SW Architecture*, Section 9.2.2). SM is unique: it is not entirely part of a stack, because its logic is largely project-specific and is usually completed by the system integrator. It sets Function Group States, requests the activation and deactivation of (partial) networks, shuts down or restarts the machine, recovers from errors reported by PHM or EM, prepares and verifies Software Clusters for UCM, and, new in R25-11, coordinates applications before Suspend-to-RAM (*Platform Design*, Chapter 7; *Release Overview*, Section 2.1.1.2). An optional, configurable *StateMachine* concept covers standard use cases, driven by a project-specific *SMControlApplication*. Access to SM must be secured, for example by IAM, and PHM supervises it. *Running example:* the process `StateManager`. Guide: SM.
 
-**Log and Trace (LT).** Log and Trace builds and logs messages of different severities. Applications can be configured to forward them to various sinks: the network, a serial bus, the console or non-volatile storage (*SW Architecture*, Section 9.2.3). It uses the AUTOSAR Log and Trace protocol (DLT), which adds information such as an ECU ID. *Non-modeled* (verbose) messages carry all their parts; *modeled* (non-verbose) messages keep their static parts in the model and are meant for timing-related analysis and production (*Platform Design*, Chapter 16). *Running example:* ECU ID `HPC1`; `Fusion` logs with application ID `FUSN`. Guide: 10.
+**Log and Trace (LT).** Log and Trace builds and logs messages of different severities. Applications can be configured to forward them to various sinks: the network, a serial bus, the console or non-volatile storage (*SW Architecture*, Section 9.2.3). It uses the AUTOSAR Log and Trace protocol (DLT), which adds information such as an ECU ID. *Non-modeled* (verbose) messages carry all their parts; *modeled* (non-verbose) messages keep their static parts in the model and are meant for timing-related analysis and production (*Platform Design*, Chapter 16). *Running example:* ECU ID `HPC1`; `Fusion` logs with application ID `FUSN`. Guide: Log and Trace.
 
-**Core.** Core provides the initialization and de-initialization of ARA (`ara::core::Initialize()` and `Deinitialize()`) and the termination of processes (*SW Architecture*, Section 9.2.4). It also defines the common types that other clusters use in their APIs: `ErrorCode`, `Result`, `Future` and `Promise` for error handling without C++ exceptions, which ASIL-certified compilers often do not support, container types with their own memory allocation behavior, and memory resources (*Platform Design*, Chapter 18). Core neither provides interfaces to other clusters nor requires any. *Running example:* every `HPC` process that uses ARA. Guide: 03.
+**Core.** Core provides the initialization and de-initialization of ARA (`ara::core::Initialize()` and `Deinitialize()`) and the termination of processes (*SW Architecture*, Section 9.2.4). It also defines the common types that other clusters use in their APIs: `ErrorCode`, `Result`, `Future` and `Promise` for error handling without C++ exceptions, which ASIL-certified compilers often do not support, container types with their own memory allocation behavior, and memory resources (*Platform Design*, Chapter 18). Core neither provides interfaces to other clusters nor requires any. *Running example:* every `HPC` process that uses ARA. Guide: Core.
 
 **Operating System Interface (OSI).** The OSI provides the services that multi-threaded real-time applications use through the POSIX PSE51 profile, plus the C++ standard library. It does not provide any means to start or control processes; that is EM's job, through implementation-specific interfaces. A typical stack does not provide an actual implementation of the OSI, because the standard libraries of the language and the operating system already provide everything (*SW Architecture*, Section 9.2.5). [Chapter 7](#7-the-operating-system-interface) covers it.
 
 ### 5.3 Communication
 
-**Communication Management (CM).** CM is responsible for all levels of service-oriented communication between applications: within a process, between processes and between Machines, including Classic Platforms and third-party platforms. Communication paths can be established at design time, startup or run time. CM consists of a generic part for brokering and configuration, plus generated *skeletons* for service providers and *proxies* for service consumers (*SW Architecture*, Section 9.3.1). A service consists of *events*, *methods* and *fields*. Providers register their services at a *Service Registry*, and consumers find them by *service discovery*. The *language binding* defines how services appear in C++; the *network binding* defines how their data is serialized on the network. CM supports SOME/IP, DDS, IPC and signal-based network bindings (*Platform Design*, Chapter 8). At the data link layer, CM communication is based on Ethernet; CAN XL can be used only by tunneling Ethernet frames (*Platform Design*, Section 8.1). *Running example:* all six services of `HPC`, including the Signal-to-Service translation of the CAN signals. Guides: 07 (concepts and API) and 08 (network bindings and Signal-to-Service translation).
+**Communication Management (CM).** CM is responsible for all levels of service-oriented communication between applications: within a process, between processes and between Machines, including Classic Platforms and third-party platforms. Communication paths can be established at design time, startup or run time. CM consists of a generic part for brokering and configuration, plus generated *skeletons* for service providers and *proxies* for service consumers (*SW Architecture*, Section 9.3.1). A service consists of *events*, *methods* and *fields*. Providers register their services at a *Service Registry*, and consumers find them by *service discovery*. The *language binding* defines how services appear in C++; the *network binding* defines how their data is serialized on the network. CM supports SOME/IP, DDS, IPC and signal-based network bindings (*Platform Design*, Chapter 8). At the data link layer, CM communication is based on Ethernet; CAN XL can be used only by tunneling Ethernet frames (*Platform Design*, Section 8.1). *Running example:* all six services of `HPC`, including the Signal-to-Service translation of the CAN signals. Guides: CM (concepts and API), Network Bindings (network bindings and Signal-to-Service translation) and Secure Communication.
 
-**Raw Data Stream (RDS).** RDS is responsible for raw communication between applications in a distributed environment (*SW Architecture*, Section 9.3.2). It offers standalone APIs (`ara::rds`) for raw binary data streams with external ECUs, for example sensors or audio and video sources: as a TCP byte stream or a UDP datagram stream at the network layer, or as an IEEE 1722 stream at the data link layer. RDS provides no end-to-end protection, so a safety-related application must analyze the possible communication faults itself (*Platform Design*, Chapter 21). *Running example:* the radar detections that `FrontRadar` streams over TCP to `Fusion` or `FusionLite`. Guide: 09.
+**Raw Data Stream (RDS).** RDS is responsible for raw communication between applications in a distributed environment (*SW Architecture*, Section 9.3.2). It offers standalone APIs (`ara::rds`) for raw binary data streams with external ECUs, for example sensors or audio and video sources: as a TCP byte stream or a UDP datagram stream at the network layer, or as an IEEE 1722 stream at the data link layer. RDS provides no end-to-end protection, so a safety-related application must analyze the possible communication faults itself (*Platform Design*, Chapter 21). *Running example:* the radar detections that `FrontRadar` streams over TCP to `Fusion` or `FusionLite`. Guide: NM/TSync/RDS.
 
-**Network Management (NM).** NM requests and queries the state of logical network handles, which can be mapped to physical or partial networks (*SW Architecture*, Section 9.3.3). The AUTOSAR NM algorithm is decentralized: each node sends periodic NM messages as long as it needs the network, and all nodes go to sleep together when no NM messages are received any more. With partial networking, an ECU can ignore NM messages for partial networks that do not concern it. NM is controlled by State Management, which coordinates networks with Function Group States (*Platform Design*, Chapter 12). *Running example:* the partial network `AdasPn`. Guide: 09.
+**Network Management (NM).** NM requests and queries the state of logical network handles, which can be mapped to physical or partial networks (*SW Architecture*, Section 9.3.3). The AUTOSAR NM algorithm is decentralized: each node sends periodic NM messages as long as it needs the network, and all nodes go to sleep together when no NM messages are received any more. With partial networking, an ECU can ignore NM messages for partial networks that do not concern it. NM is controlled by State Management, which coordinates networks with Function Group States (*Platform Design*, Chapter 12). *Running example:* the partial network `AdasPn`. Guide: NM/TSync/RDS.
 
-**Time Synchronization (TSync).** TSync provides synchronized time information to distributed applications. This is essential when events across a distributed system must be correlated or triggered at an accurate time (*SW Architecture*, Section 9.3.4). Applications access *Time Base Resources* that are synchronized with time bases on other nodes, based on IEEE 802.1AS. Each time value carries information on how current and how trustworthy it is (*Platform Design*, Chapter 11). *Running example:* the time base `VehicleTime`, mastered by `CentralGateway`. Guide: 09.
+**Time Synchronization (TSync).** TSync provides synchronized time information to distributed applications. This is essential when events across a distributed system must be correlated or triggered at an accurate time (*SW Architecture*, Section 9.3.4). Applications access *Time Base Resources* that are synchronized with time bases on other nodes, based on IEEE 802.1AS. Each time value carries information on how current and how trustworthy it is (*Platform Design*, Chapter 11). *Running example:* the time base `VehicleTime`, mastered by `CentralGateway`. Guide: NM/TSync/RDS.
 
 **Automotive API Gateway (AAG).** The gateway lets on-board and off-board clients get, set and subscribe to selected vehicle data. Its external interface follows the *Vehicle Information Service Specification* (VISS), and its data model the *Vehicle Signal Specification* (VSS). It maps this external interface to vehicle-internal `ara::com` services and handles the transport, the security and the access control of the external interface (*SW Architecture*, Section 9.3.5; *Platform Design*, Chapter 22). Not covered by this series and not used by the running example.
 
 ### 5.4 Storage
 
-**Persistency.** Persistency stores data in the non-volatile memory of a Machine, so that it survives boot and ignition cycles. It offers *Key-Value Storages* and *File Storages*. Persistent data is always private to one process: there is deliberately no way to share data between processes through Persistency, to avoid a second communication path besides Communication Management. Threads of the same process may access a storage concurrently. Persistency can protect the integrity of the data with CRCs, hash values and redundant copies, offers *safe storage*, quotas, encryption and authentication with a message authentication code, and supports the update of storages when software is updated (*SW Architecture*, Section 9.4.1; *Platform Design*, Chapter 10). *Running example:* `CalibrationKvs` and `Recordings` of `Storage`, and `FusionParams` of `Fusion`. Guide: 11.
+**Persistency.** Persistency stores data in the non-volatile memory of a Machine, so that it survives boot and ignition cycles. It offers *Key-Value Storages* and *File Storages*. Persistent data is always private to one process: there is deliberately no way to share data between processes through Persistency, to avoid a second communication path besides Communication Management. Threads of the same process may access a storage concurrently. Persistency can protect the integrity of the data with CRCs, hash values and redundant copies, offers *safe storage*, quotas, encryption and authentication with a message authentication code, and supports the update of storages when software is updated (*SW Architecture*, Section 9.4.1; *Platform Design*, Chapter 10). *Running example:* `CalibrationKvs` and `Recordings` of `Storage`, and `FusionParams` of `Fusion`. Guide: Persistency.
 
 **Remote Persistency.** New in R25-11. Remote Persistency shares data managed by Persistency between applications on the same or on different Machines, through `ara::com` services, for example configuration settings. It is typically implemented as a daemon that uses one internal Key-Value Storage per provided service interface; access is mediated by IAM (*Platform Design*, Chapter 23). In R25-11 its service interface is preliminary, and it does not support File Storages (*Release Overview*, Section 4.1). Not covered by this series.
 
 ### 5.5 Security
 
-**Cryptography.** Cryptography provides cryptographic routines for confidentiality and integrity, for example hashes, plus auxiliary functions such as key management and random number generation. It is designed to encapsulate security-sensitive operations in a separate component such as a Hardware Security Module (HSM). Keys can be restricted to particular usages, such as decrypt-only, or to individual applications (*SW Architecture*, Section 9.5.1). An X.509 certificate management provider (`ara::crypto::x509`) parses, verifies and stores certificates and handles revocation lists (*Platform Design*, Chapter 15). R25-11 reworked the APIs for simpler use, standardized algorithm identifiers and fewer dynamic memory allocations (*Release Overview*, Section 2.1.1.5). *Running example:* the keys and certificates of `HPC`, stored in its HSM. Guide: 14.
+**Cryptography.** Cryptography provides cryptographic routines for confidentiality and integrity, for example hashes, plus auxiliary functions such as key management and random number generation. It is designed to encapsulate security-sensitive operations in a separate component such as a Hardware Security Module (HSM). Keys can be restricted to particular usages, such as decrypt-only, or to individual applications (*SW Architecture*, Section 9.5.1). An X.509 certificate management provider (`ara::crypto::x509`) parses, verifies and stores certificates and handles revocation lists (*Platform Design*, Chapter 15). R25-11 reworked the APIs for simpler use, standardized algorithm identifiers and fewer dynamic memory allocations (*Release Overview*, Section 2.1.1.5). *Running example:* the keys and certificates of `HPC`, stored in its HSM. Guide: Cryptography.
 
-**Intrusion Detection System Manager (IdsM).** IdsM receives *security events* from security sensors in functional clusters and applications, optionally with context data. It qualifies them according to configurable rules into *qualified security events*, which are stored on the ECU or forwarded towards a security operations center in the backend (*SW Architecture*, Section 9.5.2; *Platform Design*, Chapter 19). *Running example:* the integrity event of EM and the access-denied event of IAM. Guide: 16.
+**Intrusion Detection System Manager (IdsM).** IdsM receives *security events* from security sensors in functional clusters and applications, optionally with context data. It qualifies them according to configurable rules into *qualified security events*, which are stored on the ECU or forwarded towards a security operations center in the backend (*SW Architecture*, Section 9.5.2; *Platform Design*, Chapter 19). *Running example:* the integrity event of EM and the access-denied event of IAM. Guide: IDSM and Firewall.
 
-**Firewall.** The Firewall filters Ethernet traffic. Each rule consists of a pattern and an action, such as allow or block; if no rule matches, a default action applies. The rules are configured in the Machine Manifest. The Firewall cluster is a management cluster: it reads the rules and configures the underlying firewall engine, which typically sits in the TCP/IP stack or below. It supports stateless and stateful inspection and deep packet inspection, firewall states such as driving, parking or diagnostic session, and reports blocked messages as security events to IdsM (*SW Architecture*, Section 9.5.3; *Platform Design*, Chapter 20). In R25-11 it does not support activating or deactivating rules at run time or OEM-defined security events (*Release Overview*, Section 4.4). *Running example:* the default-drop rule set of `HPC`. Guide: 16.
+**Firewall.** The Firewall filters Ethernet traffic. Each rule consists of a pattern and an action, such as allow or block; if no rule matches, a default action applies. The rules are configured in the Machine Manifest. The Firewall cluster is a management cluster: it reads the rules and configures the underlying firewall engine, which typically sits in the TCP/IP stack or below. It supports stateless and stateful inspection and deep packet inspection, firewall states such as driving, parking or diagnostic session, and reports blocked messages as security events to IdsM (*SW Architecture*, Section 9.5.3; *Platform Design*, Chapter 20). In R25-11 it does not support activating or deactivating rules at run time or OEM-defined security events (*Release Overview*, Section 4.4). *Running example:* the default-drop rule set of `HPC`. Guide: IDSM and Firewall.
 
-**Identity and Access Management (IAM).** IAM is not a cluster of its own but a framework for access control. It controls the requests of Adaptive Applications to service interfaces, to functional clusters of the Platform Foundation and to related modeled resources. A *Policy Decision Point* (PDP) decides whether a subject may access a resource; a *Policy Enforcement Point* (PEP) enforces that decision. IAM separates privileges, protects against privilege escalation and lets integrators verify the access rights at deployment (*Platform Design*, Chapter 14). The *SW Architecture* removed IAM as a functional cluster in R23-11. *Running example:* the access rights of `Fusion`, `CameraDriver` and `StateManager`. Guide: 15.
+**Identity and Access Management (IAM).** IAM is not a cluster of its own but a framework for access control. It controls the requests of Adaptive Applications to service interfaces, to functional clusters of the Platform Foundation and to related modeled resources. A *Policy Decision Point* (PDP) decides whether a subject may access a resource; a *Policy Enforcement Point* (PEP) enforces that decision. IAM separates privileges, protects against privilege escalation and lets integrators verify the access rights at deployment (*Platform Design*, Chapter 14). The *SW Architecture* removed IAM as a functional cluster in R23-11. *Running example:* the access rights of `Fusion`, `CameraDriver` and `StateManager`. Guide: IAM.
 
 ### 5.6 Safety
 
-**Platform Health Management (PHM).** PHM supervises processes in safety-critical setups with three kinds of supervision, based on *checkpoints* that the supervised software reports: *alive supervision* (not too often, not too rarely), *deadline supervision* (steps within a minimum and maximum time) and *logical supervision* (the control flow matches the designed control flow). It reports failures to State Management. PHM also controls the hardware watchdog, which in turn supervises PHM. Because State Management and Execution Management must always work, PHM always supervises them, and a supervision failure in either of them is recovered by a reset of the Machine (*SW Architecture*, Section 9.6.1; *Platform Design*, Section 17.3). *Running example:* the process `PlatformHealth`, which supervises `Fusion` and `CameraDriver`. Guide: 06.
+**Platform Health Management (PHM).** PHM supervises processes in safety-critical setups with three kinds of supervision, based on *checkpoints* that the supervised software reports: *alive supervision* (not too often, not too rarely), *deadline supervision* (steps within a minimum and maximum time) and *logical supervision* (the control flow matches the designed control flow). It reports failures to State Management. PHM also controls the hardware watchdog, which in turn supervises PHM. Because State Management and Execution Management must always work, PHM always supervises them, and a supervision failure in either of them is recovered by a reset of the Machine (*SW Architecture*, Section 9.6.1; *Platform Design*, Section 17.3). *Running example:* the process `PlatformHealth`, which supervises `Fusion` and `CameraDriver`. Guide: PHM.
 
 **Safe Hardware Acceleration (SHWA).** SHWA offers a mechanism to use hardware accelerators for tasks that can run in parallel (*SW Architecture*, Section 9.6.2). Its API (`ara::shwa`) selects a suitable accelerator, allocates data buffers on it, and collects and schedules tasks; it covers data management, task execution, and device management and monitoring. The vendor implements it with the tools, libraries and drivers of the accelerator (*Platform Design*, Section 17.4). Its software specification is new in R25-11, and the concept is still in the life-cycle state *draft* (*Release Overview*, Sections 2.1.1.1 and 2.1.2). Not covered by this series.
 
 ### 5.7 Configuration
 
-**Update and Configuration Management (UCM).** UCM updates, installs, removes and keeps a record of the software on an Adaptive Machine in a safe and secure way (*SW Architecture*, Section 9.7.1). The *Platform Design* compares it to package managers such as dpkg or YUM. UCM works at the granularity of Software Clusters: each Software Package addresses exactly one Software Cluster and says whether it is added, updated or removed. An update has three phases: preparation (transfer and processing), activation (which can be rolled back), and cleanup. UCM offers its functions as an `ara::com` service. It has no separate configuration interface: even a single configuration change needs a new Software Package, so calibration and variant coding are not supported (*Platform Design*, Chapter 13). *Running example:* the update of `AdasCluster` from 1.0.0 to 1.1.0. Guide: 13.
+**Update and Configuration Management (UCM).** UCM updates, installs, removes and keeps a record of the software on an Adaptive Machine in a safe and secure way (*SW Architecture*, Section 9.7.1). The *Platform Design* compares it to package managers such as dpkg or YUM. UCM works at the granularity of Software Clusters: each Software Package addresses exactly one Software Cluster and says whether it is added, updated or removed. An update has three phases: preparation (transfer and processing), activation (which can be rolled back), and cleanup. UCM offers its functions as an `ara::com` service. It has no separate configuration interface: even a single configuration change needs a new Software Package, so calibration and variant coding are not supported (*Platform Design*, Chapter 13). *Running example:* the update of `AdasCluster` from 1.0.0 to 1.1.0. Guide: UCM.
 
-**Vehicle Update and Configuration Management (V-UCM).** V-UCM does the same for a whole vehicle: it updates software over the air or through a diagnostic tester, and coordinates and distributes the packages among the UCMs in the vehicle. It is the standardized UCM client. OEM-specific parts are pushed into applications: an *OTA Client* connects V-UCM to the backend, a *Vehicle State Manager* computes whether the vehicle is in a safe state for the update, the driver is asked for consent, and a *Flashing Adapter* updates Classic ECUs through diagnostics (*SW Architecture*, Section 9.7.2; *Platform Design*, Section 13.5). *Running example:* V-UCM runs on `TelematicsUnit`. Guide 13 covers it only as the client of UCM.
+**Vehicle Update and Configuration Management (V-UCM).** V-UCM does the same for a whole vehicle: it updates software over the air or through a diagnostic tester, and coordinates and distributes the packages among the UCMs in the vehicle. It is the standardized UCM client. OEM-specific parts are pushed into applications: an *OTA Client* connects V-UCM to the backend, a *Vehicle State Manager* computes whether the vehicle is in a safe state for the update, the driver is asked for consent, and a *Flashing Adapter* updates Classic ECUs through diagnostics (*SW Architecture*, Section 9.7.2; *Platform Design*, Section 13.5). *Running example:* V-UCM runs on `TelematicsUnit`. The UCM guide covers it only as the client of UCM.
 
 **Registry.** The Registry is an internal component of the platform that gives other clusters access to the information stored in the manifests. It is not a standardized functional cluster and is not used by applications (*SW Architecture*, Section 9.7.3). Almost every daemon-based cluster reads its configuration through it ([Section 6.3](#63-the-hub-interfaces)). Not covered by this series.
 
 ### 5.8 Diagnostics
 
-**Diagnostic Management (DM).** DM handles the diagnostic events of the processes on the Machine and stores them, with their associated data, persistently. It gives external diagnostic clients access to diagnostic data through standardized protocols: ISO 14229-5 (UDS on IP), based on ISO 14229-1 (UDS) and ISO 13400-2 (DoIP) (*SW Architecture*, Section 9.8.1). Its configuration is based on the Diagnostic Extract Template of the Classic Platform. DM has a *diagnostic communication* part, the diagnostic server, comparable to the DCM of the Classic Platform, and an *event memory* part, comparable to the DEM, which manages Diagnostic Trouble Codes (DTCs). It dispatches requests, for example to read a data identifier or to run a routine, to the diagnostic ports of the applications. Besides UDS, DM supports Service-Oriented Vehicle Diagnostics (SOVD); R25-11 adopted ASAM SOVD 1.1 / ISO 17978-3. A Machine can use one diagnostic address per Software Cluster, a single address for the whole Machine, or something in between (*Platform Design*, Chapter 9). *Running example:* one diagnostic address `0x1010` for all of `HPC`. Guides: 12a and 12b.
+**Diagnostic Management (DM).** DM handles the diagnostic events of the processes on the Machine and stores them, with their associated data, persistently. It gives external diagnostic clients access to diagnostic data through standardized protocols: ISO 14229-5 (UDS on IP), based on ISO 14229-1 (UDS) and ISO 13400-2 (DoIP) (*SW Architecture*, Section 9.8.1). Its configuration is based on the Diagnostic Extract Template of the Classic Platform. DM has a *diagnostic communication* part, the diagnostic server, comparable to the DCM of the Classic Platform, and an *event memory* part, comparable to the DEM, which manages Diagnostic Trouble Codes (DTCs). It dispatches requests, for example to read a data identifier or to run a routine, to the diagnostic ports of the applications. Besides UDS, DM supports Service-Oriented Vehicle Diagnostics (SOVD); R25-11 adopted ASAM SOVD 1.1 / ISO 17978-3. A Machine can use one diagnostic address per Software Cluster, a single address for the whole Machine, or something in between (*Platform Design*, Chapter 9). *Running example:* one diagnostic address `0x1010` for all of `HPC`. Guides: Diagnostics Part 1 and Diagnostics Part 2.
 
 ### 5.9 Other R25-11 Content Without a Functional Cluster
 
@@ -898,13 +898,13 @@ PSE51 offers no services for inter-process communication between applications, s
 
 > **Note:** The two explanatory documents phrase PSE51 differently. The *Platform Design* says that PSE51 services do not include IPC (*Platform Design*, Section 4.1.5). The *SW Architecture* lists asynchronous signals and message passing among the PSE51 services (*SW Architecture*, Section 9.2.5). The rule for applications is the same in both: Adaptive Application processes may not use IPC directly and communicate only through ARA (*Platform Design*, Section 4.2.1).
 
-This rule is why Persistency keeps data private to one process: a shared storage would be a second communication path besides Communication Management (*Platform Design*, Section 10.1). In the running example, `Storage` therefore shares the camera calibration through `CalibrationDataService` instead of a shared file ([guide 00, Section 6.6](00_LearningPath.md#66-services-and-their-consumers)).
+This rule is why Persistency keeps data private to one process: a shared storage would be a second communication path besides Communication Management (*Platform Design*, Section 10.1). In the running example, `Storage` therefore shares the camera calibration through `CalibrationDataService` instead of a shared file (the [Running Example guide, Section 1.6](RunningExample.md#16-services-and-their-consumers)).
 
 ### 6.2 How Clusters Talk to Each Other
 
 Functional clusters are not bound to ARA. They may interact in implementation-specific ways, and they may use the public ARA interfaces of other clusters. A typical model is that a cluster offers implementation-specific, protected methods to the other clusters (*Platform Design*, Section 4.2.3).
 
-Since release 18-03, the specifications describe **Inter-Functional-Cluster (IFC) interfaces**: the interfaces that a cluster provides to other clusters. They are not part of ARA and are not formal requirements on implementations. They clarify the interaction between clusters and are described in an annex of the respective SWS (*Platform Design*, Section 4.2.3). The *SW Architecture* likewise lists, for every cluster, the interfaces it provides and requires, and stresses that these dependencies are recommendations: an implementation may define its own internal interfaces (*SW Architecture*, Sections 8.2 and 9). The [EM guide, Section 3.4](04_ExecutionManagement.md#34-interaction-map) shows an example: the notifications from EM to PHM are real interactions, but their signatures are vendor-specific.
+Since release 18-03, the specifications describe **Inter-Functional-Cluster (IFC) interfaces**: the interfaces that a cluster provides to other clusters. They are not part of ARA and are not formal requirements on implementations. They clarify the interaction between clusters and are described in an annex of the respective SWS (*Platform Design*, Section 4.2.3). The *SW Architecture* likewise lists, for every cluster, the interfaces it provides and requires, and stresses that these dependencies are recommendations: an implementation may define its own internal interfaces (*SW Architecture*, Sections 8.2 and 9). The [EM guide, Section 3.4](ExecutionManagement.md#34-interaction-map) shows an example: the notifications from EM to PHM are real interactions, but their signatures are vendor-specific.
 
 ### 6.3 The Hub Interfaces
 
@@ -943,7 +943,7 @@ Four more interfaces connect specific pairs (*SW Architecture*, Tables 9.4, 9.12
 Three clusters form the core of the platform's lifecycle. The *Platform Design* calls them highly safety-relevant and inter-dependent (*Platform Design*, Section 17.3):
 
 - **State Management decides.** It determines which Function Group States should be active and requests them from EM with `StateClient` (*Platform Design*, Section 4.1.4).
-- **Execution Management executes.** It starts and stops processes and reports the result, as well as unexpected terminations, back to State Management ([EM guide, Section 7.4](04_ExecutionManagement.md#74-division-of-responsibilities-sm-decides-em-executes)).
+- **Execution Management executes.** It starts and stops processes and reports the result, as well as unexpected terminations, back to State Management ([EM guide, Section 7.4](ExecutionManagement.md#74-division-of-responsibilities-sm-decides-em-executes)).
 - **Platform Health Management supervises.** It supervises the applications and reports failures to State Management through `RecoveryAction`. It always supervises EM and SM themselves. Because the normal recovery path runs through EM and SM, a failure in one of them is recovered by a reset of the Machine through the watchdog. PHM serves the hardware watchdog, which in turn supervises PHM (*SW Architecture*, Section 9.6.1; *Platform Design*, Section 17.3).
 
 The following diagram shows these relations.
@@ -961,18 +961,18 @@ flowchart LR
     PHM -->|"serves it, and resets the Machine<br/>through it if EM or SM fail"| WD["Hardware watchdog"]
 ```
 
-When EM changes a Function Group State, it notifies PHM just before it terminates a supervised process, so that PHM stops supervising it and State Management receives no false supervision failures. When a newly started process reports `kRunning`, EM notifies PHM to start its alive supervision; deadline and logical supervision start with the first reported checkpoint (*SW Architecture*, Section 11.1.1.3). Guides 04, 05 and 06 explain each side in detail.
+When EM changes a Function Group State, it notifies PHM just before it terminates a supervised process, so that PHM stops supervising it and State Management receives no false supervision failures. When a newly started process reports `kRunning`, EM notifies PHM to start its alive supervision; deadline and logical supervision start with the first reported checkpoint (*SW Architecture*, Section 11.1.1.3). The EM, SM and PHM guides explain each side in detail.
 
 ### 6.5 Walkthrough: The Platform Starts and Stops
 
-The *SW Architecture* describes how the platform starts (*SW Architecture*, Section 11.1.1.1). The following sequence applies it to `HPC`; the startup of `HPC` is described from EM's side in [EM guide, Section 9.2](04_ExecutionManagement.md#92-machine-startup-step-by-step).
+The *SW Architecture* describes how the platform starts (*SW Architecture*, Section 11.1.1.1). The following sequence applies it to `HPC`; the startup of `HPC` is described from EM's side in [EM guide, Section 9.2](ExecutionManagement.md#92-machine-startup-step-by-step).
 
 1. The operating system initializes in an implementation-specific way, including drivers and low-level services. The platform requires the **watchdog to be enabled before the platform starts**, for example by the bootloader or the operating system.
 2. The operating system starts **Execution Management as the first process of the platform** ([SWS_OSI_01040]).
-3. EM activates the Machine State `Startup`, that is, `MachineFG.Startup`. This starts the processes configured for it. **State Management must be part of `Startup`**; PHM and application processes may be part of it too. On `HPC`, EM starts `StateManager`, `SmControl`, `PlatformHealth` and the daemons of the other platform clusters in `Startup` ([guide 00, Section 6.3](00_LearningPath.md#63-the-hpc-machine)).
+3. EM activates the Machine State `Startup`, that is, `MachineFG.Startup`. This starts the processes configured for it. **State Management must be part of `Startup`**; PHM and application processes may be part of it too. On `HPC`, EM starts `StateManager`, `SmControl`, `PlatformHealth` and the daemons of the other platform clusters in `Startup` (the [Running Example guide, Section 1.3](RunningExample.md#13-the-hpc-machine)).
 4. Every started process calls `ara::core::Initialize()` and reports `kRunning` to EM.
 5. PHM starts to serve the watchdog. **The time between enabling the watchdog and the start of PHM must be shorter than the watchdog timeout.** The integrator must ensure this.
-6. When `Startup` has been reached, State Management takes over and determines the next Function Group States. On `HPC`, the project-specific application `SmControl` asks State Management for the transition `Drive` when `PowerMode` reports that the vehicle is switched on; `StateManager` then requests `MachineFG.Driving` and `ADAS.Normal` ([guide 05, Section 5.5](05_StateManagement.md#55-worked-example-smcontrol-brings-hpc-from-startup-to-driving)).
+6. When `Startup` has been reached, State Management takes over and determines the next Function Group States. On `HPC`, the project-specific application `SmControl` asks State Management for the transition `Drive` when `PowerMode` reports that the vehicle is switched on; `StateManager` then requests `MachineFG.Driving` and `ADAS.Normal` (the [SM guide, Section 5.5](StateManagement.md#55-worked-example-smcontrol-brings-hpc-from-startup-to-driving)).
 
 ```mermaid
 sequenceDiagram
@@ -1000,7 +1000,7 @@ sequenceDiagram
     A->>EM: ReportExecutionState(kRunning)
 ```
 
-**Shutdown** works the other way around (*SW Architecture*, Section 11.1.1.2). State Management requests the Machine State `Shutdown`. The *SW Architecture* assumes that only EM, State Management and an application that asks the operating system to shut down run in this state. That application is specific to the operating system or the project, and is usually not an Adaptive Application; keeping it outside EM keeps project-specific functionality out of EM. EM terminates the other processes in an orderly way, including PHM, and starts the shutdown application. The operating system then terminates the remaining processes and shuts the Machine down in an implementation-specific way. On `HPC`, the shutdown application is `PowerControl`. Unlike the scenario in the *SW Architecture*, `HPC` also keeps `PlatformHealth` configured for `Shutdown`, so that the watchdog is served until the machine powers off ([guide 00, Section 6.5](00_LearningPath.md#65-processes)); the scenario is an example, not a rule.
+**Shutdown** works the other way around (*SW Architecture*, Section 11.1.1.2). State Management requests the Machine State `Shutdown`. The *SW Architecture* assumes that only EM, State Management and an application that asks the operating system to shut down run in this state. That application is specific to the operating system or the project, and is usually not an Adaptive Application; keeping it outside EM keeps project-specific functionality out of EM. EM terminates the other processes in an orderly way, including PHM, and starts the shutdown application. The operating system then terminates the remaining processes and shuts the Machine down in an implementation-specific way. On `HPC`, the shutdown application is `PowerControl`. Unlike the scenario in the *SW Architecture*, `HPC` also keeps `PlatformHealth` configured for `Shutdown`, so that the watchdog is served until the machine powers off (the [Running Example guide, Section 1.5](RunningExample.md#15-processes)); the scenario is an example, not a rule.
 
 ### 6.6 Communication Protocols Used by the Platform
 
@@ -1034,7 +1034,7 @@ A protocol in the list is not mandatory for every Machine; that depends on the p
 | Application | DHCPv6, DNS | supported | Network configuration and name resolution |
 | Application | DHCPv4, mDNS, IPC, OAuth 2.0, HTTP and HTTPS, VISS | external standard | For example IPC within a Machine, and HTTP, OAuth and mDNS around SOVD |
 
-For applications, the entry points to these protocols are the communication APIs of ARA (*SW Architecture*, Section 13.14.4): `ara::com` for service-oriented communication with the SOME/IP, DDS and signal-based bindings, `ara::rds` for raw data, `ara::adi::sensoritf` for sensor interfaces, SOVD as part of `ara::diag`, and `ara::aag` for the Automotive API. In the running example, `CameraService` uses SOME/IP over TCP with TLS, `ObjectListService` uses DDS, diagnostics use DoIP, and the CAN signals arrive through Signal-to-Service translation ([guide 00, Section 6.7](00_LearningPath.md#67-network-deployment)).
+For applications, the entry points to these protocols are the communication APIs of ARA (*SW Architecture*, Section 13.14.4): `ara::com` for service-oriented communication with the SOME/IP, DDS and signal-based bindings, `ara::rds` for raw data, `ara::adi::sensoritf` for sensor interfaces, SOVD as part of `ara::diag`, and `ara::aag` for the Automotive API. In the running example, `CameraService` uses SOME/IP over TCP with TLS, `ObjectListService` uses DDS, diagnostics use DoIP, and the CAN signals arrive through Signal-to-Service translation (the [Running Example guide, Section 1.7](RunningExample.md#17-network-deployment)).
 
 ### 6.7 Patterns You Will Meet in Every Guide
 
@@ -1044,8 +1044,8 @@ The *SW Architecture* defines a few patterns that recur across the clusters. Kno
 | --- | --- | --- |
 | Offer and StopOffer | A callback is invoked only between `Offer()` and `StopOffer()`. This decouples the lifetime of an object from the time in which it handles asynchronous callbacks and avoids races during construction. `StopOffer()` blocks until a running callback has finished (*SW Architecture*, Section 8.5.6). | Skeletons of `ara::com` services, many interfaces of Diagnostic Management, `RecoveryAction` of PHM |
 | `InstanceSpecifier` and port interfaces | An API object refers to an element of the manifest by its path, so that the same code can be deployed with different configurations (*SW Architecture*, Section 8.3). | `FunctionGroup`, proxies and skeletons, Persistency storages |
-| Errors, Violations, Corruptions | An *Error* is a recoverable failure of an API call and must be handled by the application. A *Violation* (failed pre- or post-condition, for example an `InstanceSpecifier` that does not exist in the manifest) and a *Corruption* (for example a stack overflow or a memory bit flip) are not recoverable and terminate the process. A *failed default allocation* means that the default memory allocation could not be satisfied (*SW Architecture*, Section 13.12). | Every API; guide 03 |
-| Initialize and Deinitialize | `ara::core::Initialize()` inside `main()` before other ARA calls, `ara::core::Deinitialize()` before leaving `main()` (*Platform Design*, Section 18.4). | Every application; guide 03 |
+| Errors, Violations, Corruptions | An *Error* is a recoverable failure of an API call and must be handled by the application. A *Violation* (failed pre- or post-condition, for example an `InstanceSpecifier` that does not exist in the manifest) and a *Corruption* (for example a stack overflow or a memory bit flip) are not recoverable and terminate the process. A *failed default allocation* means that the default memory allocation could not be satisfied (*SW Architecture*, Section 13.12). | Every API; the Core guide |
+| Initialize and Deinitialize | `ara::core::Initialize()` inside `main()` before other ARA calls, `ara::core::Deinitialize()` before leaving `main()` (*Platform Design*, Section 18.4). | Every application; the Core guide |
 | Platform extensions | Callouts, callbacks and plugins that the OEM implements ([Section 3.5](#35-standardized-and-non-standardized-parts)). | Communication Management, Diagnostic Management, Cryptography |
 
 > **Key takeaways**
@@ -1094,9 +1094,9 @@ flowchart TB
 | Party | Responsibility | Source |
 | --- | --- | --- |
 | Operating system | Schedules threads, enforces memory and CPU limits, isolates processes, provides IPC, networking and storage | *Platform Design*, Section 5.1; *SW Architecture*, Section 7.2.2 |
-| Execution Management | Starts and terminates processes, and configures the operating system for each process: scheduling policy and priority of the main thread, core affinity, ResourceGroup, arguments and environment | [EM guide, Chapter 11](04_ExecutionManagement.md#11-resource-management) |
+| Execution Management | Starts and terminates processes, and configures the operating system for each process: scheduling policy and priority of the main thread, core affinity, ResourceGroup, arguments and environment | [EM guide, Chapter 11](ExecutionManagement.md#11-resource-management) |
 | Operating System Interface (the specification) | Defines what applications may use and what the operating system must support | *OSI*, Chapters 7 and 8 |
-| Adaptive Application | Uses only PSE51, the C++ standard library and ARA; configures the threads that it creates itself | *Platform Design*, Section 4.1.3; [EM guide, Section 11.5](04_ExecutionManagement.md#115-cpu-core-affinity-and-scheduling) |
+| Adaptive Application | Uses only PSE51, the C++ standard library and ARA; configures the threads that it creates itself | *Platform Design*, Section 4.1.3; [EM guide, Section 11.5](ExecutionManagement.md#115-cpu-core-affinity-and-scheduling) |
 
 ### 7.2 PSE51 for Applications, Full POSIX for the Platform
 
@@ -1128,7 +1128,7 @@ The operating system shall provide an implementation of the C++ standard library
 - **The C++ standard library is part of ARA.** It covers most PSE51 functions through C++ interfaces, for example the thread support library and the input/output library (*OSI*, Section 8.1.2; *Platform Design*, Section 4.1.3).
 - **Some PSE51 functions have no C++ counterpart,** for example setting the scheduling policy of a thread. Applications then need the PSE51 C interface in addition to the C++ library (*OSI*, Section 8.1.2).
 - **Do not mix the two threading interfaces needlessly.** The *Platform Design* recommends not to mix the C++ threading interface with the native PSE51 threading interface, to avoid complications, and accepts the combined use where the C++ library is not sufficient (*Platform Design*, Section 4.1.3). [Section 7.6](#76-scheduling-policies) shows a typical case.
-- **Environment variables in static initializers.** `getenv()` should return valid values as soon as non-OS functions can be called, in particular from C++ static initializer code ([SWS_OSI_01015]). EM passes the environment variables configured in the manifests ([EM guide, Section 5.8](04_ExecutionManagement.md#58-signal-mask-arguments-and-environment-variables)).
+- **Environment variables in static initializers.** `getenv()` should return valid values as soon as non-OS functions can be called, in particular from C++ static initializer code ([SWS_OSI_01015]). EM passes the environment variables configured in the manifests ([EM guide, Section 5.8](ExecutionManagement.md#58-signal-mask-arguments-and-environment-variables)).
 
 > **Note (implementation example):** On a typical Linux system, `g++` links the C++ library `libstdc++`, which itself depends on `glibc`, the C library that implements the POSIX functions, partly by calling the Linux kernel (*OSI*, Sections 8.1.1 and 8.1.2).
 
@@ -1141,10 +1141,10 @@ A process provides at least an entry point (`main()`) for its first thread, its 
 | [SWS_OSI_01040] | allow starting Execution Management as the *Initial Process* of the platform, that is, a process with management rights, for example to determine the exit status, over all processes of the platform (*OSI*, Chapter 2) | The OS of `HPC` starts EM, and EM starts every other process |
 | [SWS_OSI_01008] | support multiple processes | Ten processes plus the platform daemons |
 | [SWS_OSI_01006] | allow multiple threads in a process; on a multi-core processor, threads of one process may run in parallel | `Fusion` can run worker threads ([Section 7.6](#76-scheduling-policies)) |
-| [SWS_OSI_01009] | isolate the processes from one another, so that an invalid memory access is detected | A crash of `Fusion` cannot corrupt `Storage`; EM reports the crash ([EM guide, Section 5.7](04_ExecutionManagement.md#57-crashes-outside-a-state-transition)) |
+| [SWS_OSI_01009] | isolate the processes from one another, so that an invalid memory access is detected | A crash of `Fusion` cannot corrupt `Storage`; EM reports the crash ([EM guide, Section 5.7](ExecutionManagement.md#57-crashes-outside-a-state-transition)) |
 | [SWS_OSI_01010] | execute each process in a dedicated address space | `Fusion` and `FusionLite` have separate address spaces |
-| [SWS_OSI_01014] | allow configuring a process so that it cannot create other processes | `permissionToCreateChildProcess` is `false` for `Fusion` ([EM guide, Section 13.11](04_ExecutionManagement.md#1311-the-running-example-complete-configuration)) |
-| [SWS_OSI_01012] | provide mechanisms to bind processes to CPU cores; EM uses them ([SWS_EM_02104]) | Core affinity through `shallRunOn` or `shallNotRunOn` ([EM guide, Section 11.5](04_ExecutionManagement.md#115-cpu-core-affinity-and-scheduling)) |
+| [SWS_OSI_01014] | allow configuring a process so that it cannot create other processes | `permissionToCreateChildProcess` is `false` for `Fusion` ([EM guide, Section 13.11](ExecutionManagement.md#1311-the-running-example-complete-configuration)) |
+| [SWS_OSI_01012] | provide mechanisms to bind processes to CPU cores; EM uses them ([SWS_EM_02104]) | Core affinity through `shallRunOn` or `shallNotRunOn` ([EM guide, Section 11.5](ExecutionManagement.md#115-cpu-core-affinity-and-scheduling)) |
 
 With virtual memory, each process has its own logical address space. Several instances of the same Executable may share the physical pages of their code and read-only data, while their writable data lives in separate physical pages (*OSI*, Section 7.1.2; *Platform Design*, Section 5.4). The *Platform Design* names the reason for the multi-process design: freedom from interference between functional clusters and applications (*Platform Design*, Section 5.4).
 
@@ -1171,23 +1171,23 @@ These default policies may not guarantee proper execution for all real-time scen
 
 > **Note:** The *Platform Design* lists only `SCHED_FIFO` and `SCHED_RR` as the standard policies (*Platform Design*, Section 5.3). The *Operating System Interface* also requires `SCHED_OTHER` ([SWS_OSI_01003]). The SWS is normative, so all three must be supported.
 
-Execution Management sets the scheduling policy and priority of the **main thread** of a process from the manifest. Threads that the process creates itself are its own responsibility ([EM guide, Section 11.5](04_ExecutionManagement.md#115-cpu-core-affinity-and-scheduling)). The C++ standard library cannot set a scheduling policy, so this is where an application combines the C++ and the PSE51 interfaces ([Section 7.3](#73-c-and-its-standard-library)).
+Execution Management sets the scheduling policy and priority of the **main thread** of a process from the manifest. Threads that the process creates itself are its own responsibility ([EM guide, Section 11.5](ExecutionManagement.md#115-cpu-core-affinity-and-scheduling)). The C++ standard library cannot set a scheduling policy, so this is where an application combines the C++ and the PSE51 interfaces ([Section 7.3](#73-c-and-its-standard-library)).
 
-The following example shows a worker thread that runs the 50 ms fusion cycle of `Fusion`. The manifest of `Fusion` gives its main thread `SCHED_FIFO` with priority 40 ([EM guide, Section 13.11](04_ExecutionManagement.md#1311-the-running-example-complete-configuration)). The example is illustrative: initialization, termination handling, logging and error handling are shortened, and vendor headers may differ in detail.
+The following example shows a worker thread that runs the 50 ms fusion cycle of `Fusion`. The manifest of `Fusion` gives its main thread `SCHED_FIFO` with priority 40 ([EM guide, Section 13.11](ExecutionManagement.md#1311-the-running-example-complete-configuration)). The example is illustrative: initialization, termination handling, logging and error handling are shortened, and vendor headers may differ in detail.
 
 ```cpp
 // Illustrative example: a worker thread of Fusion for its 50 ms fusion cycle.
 // ara::core::Initialize(), ExecutionClient and the termination handler are
-// omitted; see guides 03 and 04.
+// omitted; see the Core and EM guides.
 #include <atomic>
 #include <chrono>
 #include <thread>
 #include <pthread.h>  // PSE51 C interface: thread scheduling
 #include <sched.h>    // PSE51 C interface: SCHED_FIFO, sched_param
 
-std::atomic<bool> gRunning{true};  // cleared by the termination handler (guide 04)
+std::atomic<bool> gRunning{true};  // cleared by the termination handler (the EM guide)
 
-void RunFusionCycle();  // read inputs, fuse, publish ObjectListService (guide 07)
+void RunFusionCycle();  // read inputs, fuse, publish ObjectListService (the CM guide)
 
 void FusionLoop()
 {
@@ -1214,7 +1214,7 @@ int main()
     sched_param param{};
     param.sched_priority = 35;  // illustrative: below the main thread
     if (pthread_setschedparam(worker.native_handle(), SCHED_FIFO, &param) != 0) {
-        // Report the problem, for example with ara::log (guide 10).
+        // Report the problem, for example with ara::log (the Log and Trace guide).
     }
 
     worker.join();
@@ -1222,7 +1222,7 @@ int main()
 }
 ```
 
-Two points are worth noting. First, the worker's policy is set explicitly, so the code does not depend on which scheduling attributes a new thread inherits on a particular operating system. Second, `sleep_until()` gives a lower bound on the wake-up time, not an upper bound. The loop is periodic, but not deterministic in the sense of [Section 2.3](#23-determinism-the-key-property-of-classic-ecus); PHM's deadline supervision of the cycle detects when it runs late ([guide 00, Section 6.13](00_LearningPath.md#613-safety)).
+Two points are worth noting. First, the worker's policy is set explicitly, so the code does not depend on which scheduling attributes a new thread inherits on a particular operating system. Second, `sleep_until()` gives a lower bound on the wake-up time, not an upper bound. The loop is periodic, but not deterministic in the sense of [Section 2.3](#23-determinism-the-key-property-of-classic-ecus); PHM's deadline supervision of the cycle detects when it runs late (the [Running Example guide, Section 1.13](RunningExample.md#113-safety)).
 
 > **Note (implementation example):** On Linux, `SCHED_FIFO` and `SCHED_RR` use static priorities from 1 (low) to 99 (high); `SCHED_OTHER` is the standard time-sharing scheduler and uses static priority 0. `SCHED_DEADLINE`, available since Linux 3.14, implements global earliest-deadline-first scheduling with a constant bandwidth server. Unprivileged threads can raise their real-time priority only up to the `RLIMIT_RTPRIO` limit; `CAP_SYS_NICE` lifts this restriction. By default, Linux also reserves 5 % of each second for non-real-time threads (`sched_rt_runtime_us` = 950000 of `sched_rt_period_us` = 1000000) [EXT-009]. Real-time projects check these settings during integration.
 
@@ -1244,7 +1244,7 @@ Applications are expected to behave correctly, but intentional or unintentional 
 - **Memory.** The operating system shall support groups of processes that may allocate memory dynamically up to a configured limit ([SWS_OSI_02001]). The limit covers the code and read-only data of the Executable, its modifiable data, the thread stacks, the heap, the kernel memory used for the process (for example thread control blocks and page table entries), shared memory between processes of the same group and shared objects loaded by processes of the same group. Whether shared memory and shared objects used *across* groups and memory-mapped files count is implementation-specific.
 - **CPU time.** The operating system shall support groups of processes that may use at most a configured amount of CPU time over a defined period ([SWS_OSI_02002]). The algorithm is not specified. Examples are fixed periodic time windows similar to ARINC 653, a quota that is replenished each period, or usage accounting over past periods with thresholds. Giving idle time to a group that is over its limit is a valid optimization, but not a requirement.
 
-The OSI mentions one manifest element, `ResourceGroup`, aggregated by `OsModuleInstantiation.resourceGroup`. Its attribute `cpuUsage` (`PositiveInteger`, multiplicity 0..1) is the CPU limit in percent of the total CPU capacity of the Machine; `memUsage` (`PositiveInteger`, 0..1) is the memory limit in bytes (*OSI*, Appendix A). The OSI defines no default values and no constraints for them (*OSI*, Chapter 10). `HPC` uses three groups: `platform_rg` (20 % CPU, 512 MiB), `adas_rg` (60 %, 2 GiB) and `legacy_rg` (10 %, 256 MiB) ([guide 00, Section 6.3](00_LearningPath.md#63-the-hpc-machine)). The [EM guide, Section 11.3](04_ExecutionManagement.md#113-resourcegroup-group-level-limits) explains how EM assigns processes to these groups, and [Section 11.7](04_ExecutionManagement.md#117-mapping-to-os-mechanisms) shows how Linux control groups can implement them [EXT-010].
+The OSI mentions one manifest element, `ResourceGroup`, aggregated by `OsModuleInstantiation.resourceGroup`. Its attribute `cpuUsage` (`PositiveInteger`, multiplicity 0..1) is the CPU limit in percent of the total CPU capacity of the Machine; `memUsage` (`PositiveInteger`, 0..1) is the memory limit in bytes (*OSI*, Appendix A). The OSI defines no default values and no constraints for them (*OSI*, Chapter 10). `HPC` uses three groups: `platform_rg` (20 % CPU, 512 MiB), `adas_rg` (60 %, 2 GiB) and `legacy_rg` (10 %, 256 MiB) (the [Running Example guide, Section 1.3](RunningExample.md#13-the-hpc-machine)). The [EM guide, Section 11.3](ExecutionManagement.md#113-resourcegroup-group-level-limits) explains how EM assigns processes to these groups, and [Section 11.7](ExecutionManagement.md#117-mapping-to-os-mechanisms) shows how Linux control groups can implement them [EXT-010].
 
 ### 7.9 Devices, Networking, Startup and Shutdown
 
@@ -1290,7 +1290,7 @@ If tracing is desired, the OSI shall log a modeled message for each of the follo
 | `OsTaskSchedule` | `0x8000e00b` | A task is scheduled and enters *Running* | [SWS_OSI_02014] |
 | `OsTaskWait` | `0x8000e00c` | A task enters *Waiting* | [SWS_OSI_02015] |
 
-`OsProcessInfo` links an operating system PID to a Modelled Process of the manifest. This lets a trace tool show, for example, that PID 1234 is the process `Fusion` of the running example. [Guide 10](10_LogAndTrace.md#8-modeled-messages) explains how modeled messages are logged and read.
+`OsProcessInfo` links an operating system PID to a Modelled Process of the manifest. This lets a trace tool show, for example, that PID 1234 is the process `Fusion` of the running example. The [Log and Trace guide](LogAndTrace.md#8-modeled-messages) explains how modeled messages are logged and read.
 
 ### 7.11 What the OSI Does Not Define
 
@@ -1301,7 +1301,7 @@ The OSI is a short specification. Knowing what it leaves out prevents you from s
 | An `ara::` API ("This functional cluster does not define any APIs", *OSI*, Chapter 8) | PSE51 and the C++ standard library |
 | Service interfaces | – (*OSI*, Chapter 9) |
 | Security events, violation messages, production errors | – (*OSI*, Sections 7.3.1, 7.3.3 and 7.3.4) |
-| Default values and semantic constraints of configuration | – (*OSI*, Chapter 10); the `ResourceGroup` element is owned by the [EM guide, Chapter 11](04_ExecutionManagement.md#11-resource-management) |
+| Default values and semantic constraints of configuration | – (*OSI*, Chapter 10); the `ResourceGroup` element is owned by the [EM guide, Chapter 11](ExecutionManagement.md#11-resource-management) |
 | Demands on the base software, platform extension interfaces | – (*OSI*, Appendices B and C) |
 | How processes are created and controlled | Execution Management, through implementation-specific OS interfaces |
 | Recurring or absolute timers | Not yet specified ([Section 7.7](#77-time-triggered-execution)) |
@@ -1341,7 +1341,7 @@ flowchart LR
     DB --> EM["Execution Management<br/>starts and configures the process"]
 ```
 
-The important idea is that **configuration travels with the software**. The Executable is packaged together with its manifests, installed by UCM, and processed on the Machine into a format that EM and the other clusters read at run time ([EM guide, Section 2.2](04_ExecutionManagement.md#22-manifests)). The [Manifests guide](02_Manifests.md) explains the manifests and the methodology in detail; its [Chapter 11](02_Manifests.md#11-the-methodology-from-design-to-a-running-machine) covers the methodology.
+The important idea is that **configuration travels with the software**. The Executable is packaged together with its manifests, installed by UCM, and processed on the Machine into a format that EM and the other clusters read at run time ([EM guide, Section 2.2](ExecutionManagement.md#22-manifests)). The [Manifests guide](Manifests.md) explains the manifests and the methodology in detail; its [Chapter 11](Manifests.md#11-the-methodology-from-design-to-a-running-machine) covers the methodology.
 
 ### 8.2 Manifests in One Table
 
@@ -1354,7 +1354,7 @@ A **manifest** is a piece of AUTOSAR model description that configures an Adapti
 | Service Instance Manifest | How service-oriented communication is configured for the transport protocol | The Executable that uses the communication | Service interface deployment, service instance deployment, E2E protection, security protection, Log and Trace |
 | Machine Manifest | The configuration of the Machine itself, without applications | The software that establishes the platform instance | Network connection, service discovery, Machine States and Function Groups, configuration of the cluster implementations, crypto, PHM, Time Synchronization, available hardware resources |
 
-Each functional cluster reads its part of this configuration. That is why every cluster guide of this series has a *Configuration Overview* chapter and a *Configuration Reference* chapter, which list each element and attribute that the cluster reads, with its meaning and its effect at run time. The [EM guide, Chapters 4](04_ExecutionManagement.md#4-configuration-overview) and [13](04_ExecutionManagement.md#13-configuration-reference-what-to-configure) are the first example.
+Each functional cluster reads its part of this configuration. That is why every cluster guide of this series has a *Configuration Overview* chapter and a *Configuration Reference* chapter, which list each element and attribute that the cluster reads, with its meaning and its effect at run time. The [EM guide, Chapters 4](ExecutionManagement.md#4-configuration-overview) and [UCM](ExecutionManagement.md#13-configuration-reference-what-to-configure) are the first example.
 
 ### 8.3 Safety
 
@@ -1366,24 +1366,24 @@ The Adaptive Platform supports the development of safety-related systems, but it
 - **End-to-end protection.** E2E checks whether data changed during transmission, whether messages were lost or repeated, and how reliable the communication channel is. It works between all combinations of Adaptive and Classic instances. It detects faults and reports them, but does not react to them; that is the application's job. In R25-11 it supports events, methods and fields with limitations (*Platform Design*, Section 17.2).
 - **Safety features per cluster** are listed in [Section 5.10](#510-protocols-safety-and-security-features-per-cluster).
 
-Guides: 04 (resource management), 06 (supervision), 08 (E2E) and 17 (integration).
+Guides: EM (resource management), PHM (supervision), Secure Communication (E2E) and Integration.
 
 ### 8.4 Security
 
-- **Trusted Platform.** The code executed on the platform must be unaltered (integrity) and of legitimate origin (authenticity). A *Trust Anchor*, often a public key in non-modifiable memory or in an HSM, starts a *chain of trust*: each step of the boot process authenticates the next one, the operating system launches EM only after its authenticity has been verified, and EM then authenticates the Adaptive Applications before launching them (*Platform Design*, Section 6.5; *SW Architecture*, Section 13.13). `HPC` runs in `strictMode`, so software that fails the check is not started ([EM guide, Chapter 12](04_ExecutionManagement.md#12-security-trusted-platform-and-iam)).
+- **Trusted Platform.** The code executed on the platform must be unaltered (integrity) and of legitimate origin (authenticity). A *Trust Anchor*, often a public key in non-modifiable memory or in an HSM, starts a *chain of trust*: each step of the boot process authenticates the next one, the operating system launches EM only after its authenticity has been verified, and EM then authenticates the Adaptive Applications before launching them (*Platform Design*, Section 6.5; *SW Architecture*, Section 13.13). `HPC` runs in `strictMode`, so software that fails the check is not started ([EM guide, Chapter 12](ExecutionManagement.md#12-security-trusted-platform-and-iam)).
 - **Access control.** IAM decides and enforces which application may use which service interface or platform resource ([Section 5.5](#55-security)).
 - **Secure communication.** SecOC, (D)TLS, IPsec and MACsec protect the communication ([Section 6.6](#66-communication-protocols-used-by-the-platform)).
 - **Keys and certificates.** Cryptography encapsulates keys, ideally in an HSM.
 - **Detection and filtering.** Security sensors report events to IdsM; the Firewall filters network traffic.
 - **Security features per cluster** are listed in [Section 5.10](#510-protocols-safety-and-security-features-per-cluster).
 
-Guides: 04 (Trusted Platform), 08 (secure communication), 14 (Cryptography), 15 (IAM) and 16 (IdsM and Firewall).
+Guides: EM (Trusted Platform), Secure Communication, Cryptography, IAM, and IDSM and Firewall.
 
 ### 8.5 Software Updates Over the Air
 
 One declared goal of the Adaptive Platform is the flexible update of software and its configuration over the air (*Platform Design*, Section 13.1). UCM installs, updates and removes Software Clusters on one Machine, in three phases: preparation, activation and cleanup. During activation it coordinates with State Management through the `UpdateRequest` service, verifies the new software, and can roll back to the previous version (*Platform Design*, Sections 13.4 and 13.9). V-UCM coordinates an update campaign across the whole vehicle and distributes the packages to the UCMs; an OTA Client connects it to the backend (*Platform Design*, Section 13.5; *SW Architecture*, Section 12.1). UCM and V-UCM authenticate every package, and IAM ensures that only legitimate clients use their services (*Platform Design*, Sections 13.7 and 13.8).
 
-*Running example:* V-UCM on `TelematicsUnit` brings `AdasCluster` 1.1.0 to `HPC`; UCM activates it through the `Verify` state of the Function Group `ADAS` and rolls back if the verification fails ([guide 00, Section 6.11](00_LearningPath.md#611-software-updates)). Guide 13 tells the whole story.
+*Running example:* V-UCM on `TelematicsUnit` brings `AdasCluster` 1.1.0 to `HPC`; UCM activates it through the `Verify` state of the Function Group `ADAS` and rolls back if the verification fails (the [Running Example guide, Section 1.11](RunningExample.md#111-software-updates)). The UCM guide tells the whole story.
 
 > **Key takeaways**
 >
@@ -1401,7 +1401,7 @@ One declared goal of the Adaptive Platform is the flexible update of software an
 
 ### 9.1 Which Platform Runs on Which Node, and Why
 
-The following table applies the reasoning of [Chapter 2](#2-why-two-platforms-classic-and-adaptive) to the nodes of the running example ([guide 00, Section 6.2](00_LearningPath.md#62-the-vehicle-context)).
+The following table applies the reasoning of [Chapter 2](#2-why-two-platforms-classic-and-adaptive) to the nodes of the running example (the [Running Example guide, Section 1.2](RunningExample.md#12-the-vehicle-context)).
 
 | Node | Platform | Why this platform fits |
 | --- | --- | --- |
@@ -1416,7 +1416,7 @@ The following table applies the reasoning of [Chapter 2](#2-why-two-platforms-cl
 
 ### 9.2 The `HPC` Machine, Layer by Layer
 
-The following diagram shows `HPC` on the layers of [Chapter 3](#3-the-architecture-logical-view) and [Chapter 4](#4-the-architecture-physical-view-and-deployment). EM is the first platform process; the platform daemons and the applications are processes that EM starts; library-based clusters run inside the processes that use them ([guide 00, Section 6.3](00_LearningPath.md#63-the-hpc-machine)).
+The following diagram shows `HPC` on the layers of [Chapter 3](#3-the-architecture-logical-view) and [Chapter 4](#4-the-architecture-physical-view-and-deployment). EM is the first platform process; the platform daemons and the applications are processes that EM starts; library-based clusters run inside the processes that use them (the [Running Example guide, Section 1.3](RunningExample.md#13-the-hpc-machine)).
 
 ```mermaid
 flowchart TB
@@ -1449,32 +1449,32 @@ flowchart TB
     OS --> HW
 ```
 
-All application processes belong to the Software Cluster `AdasCluster` and run in states of the Function Group `ADAS`. The platform processes belong to `HpcPlatformCore` and run in states of `MachineFG`. `LegacyLogger` is a third-party binary that cannot be modified and does not report its execution state ([guide 00, Section 6.5](00_LearningPath.md#65-processes)).
+All application processes belong to the Software Cluster `AdasCluster` and run in states of the Function Group `ADAS`. The platform processes belong to `HpcPlatformCore` and run in states of `MachineFG`. `LegacyLogger` is a third-party binary that cannot be modified and does not report its execution state (the [Running Example guide, Section 1.5](RunningExample.md#15-processes)).
 
 ### 9.3 Which Clusters Each Process Relies On
 
-The following matrix shows which functional clusters each process of `HPC` uses directly. It is derived from the roles in [guide 00, Chapter 6](00_LearningPath.md#6-the-running-example-the-hpc-reference-system); the owner guides give the details. Every process that uses ARA also uses Core, to initialize the runtime, and in practice every process logs; the column *Log* only marks the log IDs that guide 00 defines.
+The following matrix shows which functional clusters each process of `HPC` uses directly. It is derived from the roles in the [Running Example guide](RunningExample.md); the owner guides give the details. Every process that uses ARA also uses Core, to initialize the runtime, and in practice every process logs; the column *Log* only marks the log IDs that the Running Example guide defines.
 
 | Process | EM | CM | Log | Per | PHM | Crypto | Diag | RDS | TSync | Other | Owner guides |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `StateManager` | reports state; uses `StateClient` | provides the State Management services (`StateMachineService`, `StateMachineNotification`, `UpdateAllowedService`, `UpdateRequest`) | | | supervised by PHM; receives its recovery requests | | | | | requests `AdasPn` from NM | 04, [05](05_StateManagement.md#31-where-state-management-sits-in-the-platform) |
-| `SmControl` | reports state | uses `PowerModeService`, `VehicleDynamicsService` and the State Management services; provides `AdasStatusService` | | | | | implements `EcuResetRequest` | | | | [05](05_StateManagement.md#26-smcontrolapplication), 08, 12a |
-| `PlatformHealth` | reports state | | | | is PHM | | | | | serves the hardware watchdog | 04, [06](06_PlatformHealthManagement.md#13-the-hardware-watchdog-and-critical-failures) |
-| `PowerControl` | started in `Shutdown` and `Restart` | | | | | | | | | powers off or reboots through the OS | 04, 05 |
-| `Storage` | reports state | provides `CalibrationDataService`, uses `ObjectListService` | | `CalibrationKvs`, `Recordings` | | MAC with `CalibrationMacKey` | | | | | 04, 07, 11 |
-| `CameraDriver` | reports state | provides `CameraService`, calls `SetCalibration` | `CAMD` | | supervised (alive) | | routine `CalibrateCamera`, monitor `CameraBlocked` | | time-stamps images with `VehicleTime` | | 07, 09, 12a, 12b |
-| `CalibrationCheck` | reports state; self-terminating | calls `GetCalibration` | | | | checks authenticity | | | | | 04, 11, 14 |
-| `LegacyLogger` | started; non-reporting | | | | | | | | | third-party binary | 04 |
-| `LoggerCompanion` | reports state once `LegacyLogger` is ready (companion) | | | | | | | | | | 04 |
-| `Fusion` | reports state | uses `CameraService`, `VehicleDynamicsService`, `CalibrationDataService`; provides `ObjectListService` | `FUSN` | `FusionParams` | supervised (alive, deadline, logical) | | DID `FusionSoftwareVersion` | radar stream (client) | | | 03, 04, 06, 07, 10, 11, 12a, 13 |
-| `FusionLite` | reports state | uses `VehicleDynamicsService`, `CalibrationDataService`; provides a reduced `ObjectListService` | | | | | | radar stream (client) | | | 04, 06, 15 |
-| Platform daemons | report state | CM daemon: all bindings, (D)TLS with `HpcDeviceCert` | | | | UCM: `PackageVerificationKey` | DM daemon: DoIP, address `0x1010` | | TSync daemon: follows `VehicleTime` | IdsM, Firewall, NM | 08 to 16 |
+| `StateManager` | reports state; uses `StateClient` | provides the State Management services (`StateMachineService`, `StateMachineNotification`, `UpdateAllowedService`, `UpdateRequest`) | | | supervised by PHM; receives its recovery requests | | | | | requests `AdasPn` from NM | EM, [SM](StateManagement.md#31-where-state-management-sits-in-the-platform) |
+| `SmControl` | reports state | uses `PowerModeService`, `VehicleDynamicsService` and the State Management services; provides `AdasStatusService` | | | | | implements `EcuResetRequest` | | | | [SM](StateManagement.md#26-smcontrolapplication), Network Bindings, Diagnostics Part 1 |
+| `PlatformHealth` | reports state | | | | is PHM | | | | | serves the hardware watchdog | EM, [PHM](PlatformHealthManagement.md#13-the-hardware-watchdog-and-critical-failures) |
+| `PowerControl` | started in `Shutdown` and `Restart` | | | | | | | | | powers off or reboots through the OS | EM, SM |
+| `Storage` | reports state | provides `CalibrationDataService`, uses `ObjectListService` | | `CalibrationKvs`, `Recordings` | | MAC with `CalibrationMacKey` | | | | | EM, CM, Persistency |
+| `CameraDriver` | reports state | provides `CameraService`, calls `SetCalibration` | `CAMD` | | supervised (alive) | | routine `CalibrateCamera`, monitor `CameraBlocked` | | time-stamps images with `VehicleTime` | | CM, NM/TSync/RDS, Diagnostics Part 1, Diagnostics Part 2 |
+| `CalibrationCheck` | reports state; self-terminating | calls `GetCalibration` | | | | checks authenticity | | | | | EM, Persistency, Cryptography |
+| `LegacyLogger` | started; non-reporting | | | | | | | | | third-party binary | EM |
+| `LoggerCompanion` | reports state once `LegacyLogger` is ready (companion) | | | | | | | | | | EM |
+| `Fusion` | reports state | uses `CameraService`, `VehicleDynamicsService`, `CalibrationDataService`; provides `ObjectListService` | `FUSN` | `FusionParams` | supervised (alive, deadline, logical) | | DID `FusionSoftwareVersion` | radar stream (client) | | | Core, EM, PHM, CM, Log and Trace, Persistency, Diagnostics Part 1, UCM |
+| `FusionLite` | reports state | uses `VehicleDynamicsService`, `CalibrationDataService`; provides a reduced `ObjectListService` | | | | | | radar stream (client) | | | EM, PHM, IAM |
+| Platform daemons | report state | CM daemon: all bindings, (D)TLS with `HpcDeviceCert` | | | | UCM: `PackageVerificationKey` | DM daemon: DoIP, address `0x1010` | | TSync daemon: follows `VehicleTime` | IdsM, Firewall, NM | Network Bindings, Secure Communication, NM/TSync/RDS, Log and Trace, Persistency, Diagnostics Part 1, Diagnostics Part 2, UCM, Cryptography, IAM, IDSM and Firewall |
 
 Read the matrix by column to see the reach of a cluster: Communication Management touches almost every process, while Raw Data Stream is used only by the two fusion processes.
 
 ### 9.4 Walkthrough: One Fusion Cycle Through the Platform
 
-The following sequence shows one 50 ms cycle of `Fusion` in `ADAS.Normal`, with the clusters that each step uses. Checkpoint names and the ordering are illustrative ([guide 00, Section 6.13](00_LearningPath.md#613-safety)).
+The following sequence shows one 50 ms cycle of `Fusion` in `ADAS.Normal`, with the clusters that each step uses. Checkpoint names and the ordering are illustrative (the [Running Example guide, Section 1.13](RunningExample.md#113-safety)).
 
 ```mermaid
 sequenceDiagram
@@ -1503,12 +1503,12 @@ sequenceDiagram
 
 | Step | What happens | Clusters involved | Guide |
 | --- | --- | --- | --- |
-| Checkpoints | `Fusion` reports checkpoints; PHM checks that the cycle is alive, on time and in the right order | Platform Health Management | [06](06_PlatformHealthManagement.md#57-worked-example-instrumenting-fusion-and-cameradriver) |
-| Camera image | `CameraDriver` sends the image as an event; Communication Management delivers it locally | Communication Management, Time Synchronization (time stamp) | 07, 09 |
-| Vehicle dynamics | The CAN signals of `ChassisECU` reach `HPC` as PDUs through `CentralGateway` and are translated into events of `VehicleDynamicsService` | Communication Management (Signal-to-Service translation) | 08 |
-| Radar | `Fusion` reads the raw detections from its TCP connection to `FrontRadar` | Raw Data Stream | 09 |
-| Object list | `Fusion` sends the object list; Communication Management delivers it to `Storage` locally and to `Cockpit` over DDS | Communication Management | 07, 08 |
-| Logging | `Fusion` logs a message that a DLT client can read | Log and Trace | 10 |
+| Checkpoints | `Fusion` reports checkpoints; PHM checks that the cycle is alive, on time and in the right order | Platform Health Management | [PHM](PlatformHealthManagement.md#57-worked-example-instrumenting-fusion-and-cameradriver) |
+| Camera image | `CameraDriver` sends the image as an event; Communication Management delivers it locally | Communication Management, Time Synchronization (time stamp) | CM, NM/TSync/RDS |
+| Vehicle dynamics | The CAN signals of `ChassisECU` reach `HPC` as PDUs through `CentralGateway` and are translated into events of `VehicleDynamicsService` | Communication Management (Signal-to-Service translation) | Network Bindings |
+| Radar | `Fusion` reads the raw detections from its TCP connection to `FrontRadar` | Raw Data Stream | NM/TSync/RDS |
+| Object list | `Fusion` sends the object list; Communication Management delivers it to `Storage` locally and to `Cockpit` over DDS | Communication Management | CM, Network Bindings |
+| Logging | `Fusion` logs a message that a DLT client can read | Log and Trace | Log and Trace |
 | Underneath | The operating system schedules the threads of all processes within their ResourceGroups; EM is not involved during the cycle | Operating System Interface | [Chapter 7](#7-the-operating-system-interface) |
 
 > **Key takeaways**
@@ -1572,7 +1572,7 @@ sequenceDiagram
 | The Machine resets later, without an application error | PHM detected a supervision failure of EM or State Management | PHM log messages; supervision configuration of the EM and SM processes ([Section 6.4](#64-the-lifecycle-core-em-sm-and-phm)) |
 | A `SCHED_FIFO` thread still misses its deadline | Other real-time threads with higher priority, the CPU limit of its ResourceGroup, or OS limits on real-time threads | Thread priorities, `cpuUsage` of the ResourceGroup, real-time settings of the OS, PHM deadline supervision reports ([Sections 7.6 and 7.8](#76-scheduling-policies)) |
 | A process hits its memory limit although its own heap is small | The ResourceGroup limit covers all processes of the group, including stacks, kernel resources and shared memory within the group ([SWS_OSI_02001]) | Memory accounting of the whole group ([Section 7.8](#78-resource-control-with-resourcegroups)) |
-| An application does not find a service on another Machine | Missing or inconsistent deployment: network binding, service instance configuration or firewall rules | Service Instance Manifest ([guide 07](07_CommunicationManagement.md#14-configuration-reference-what-to-configure) and [guide 08a](08a_NetworkBindings.md)), firewall rules (guide 16) |
+| An application does not find a service on another Machine | Missing or inconsistent deployment: network binding, service instance configuration or firewall rules | Service Instance Manifest (the [CM guide](CommunicationManagement.md#14-configuration-reference-what-to-configure) and the [Network Bindings guide](NetworkBindings.md)), firewall rules (the IDSM and Firewall guide) |
 | A trace shows PIDs but no process names | No `OsProcessInfo` messages were logged at the start of tracing, or the trace tool lacks the model | OS tracing configuration and the modeled messages ([Section 7.10](#710-os-tracing-with-arti)) |
 | Clusters from two vendors do not work together | Internal interfaces are not standardized | Use the platform clusters of one stack vendor ([Section 1.3](#13-what-the-standard-defines-and-what-it-leaves-open)) |
 
@@ -1598,7 +1598,7 @@ sequenceDiagram
 7. **Operating System Interface.** AUTOSAR specifies no operating system. The OSI requires processes with isolated address spaces, threads, core binding, three scheduling policies, at least 8 ResourceGroups, EM as the Initial Process, and DRAFT ARTI trace messages, but no API of its own.
 8. **Cross-cutting topics.** Configuration travels with the software in manifests; safety and security rest on isolation, supervision, E2E, the chain of trust, access control and protected keys; UCM and V-UCM update the software over the air.
 
-Continue with [guide 02, *Manifests and Methodology*](02_Manifests.md), or with the [EM guide](04_ExecutionManagement.md).
+Continue with the [Manifests guide, *Manifests and Methodology*](Manifests.md), or with the [EM guide](ExecutionManagement.md).
 
 ### 11.2 Self-Check Quiz
 
@@ -1865,13 +1865,13 @@ When OS tracing starts, the OSI logs one `OsProcessInfo` message per existing pr
 
 | Category | Clusters (daemon-based in bold) | Guides |
 | --- | --- | --- |
-| Runtime | **Execution Management**, **State Management**, Log and Trace, Core, Operating System Interface | 04, 05, 10, 03, 01 |
-| Communication | **Communication Management**, Raw Data Stream, **Network Management**, **Time Synchronization**, **Automotive API Gateway** | 07, 08, 09; AAG not covered |
-| Storage | Persistency, **Remote Persistency** | 11; Remote Persistency not covered |
-| Security | **Cryptography**, **Intrusion Detection System Manager**, **Firewall**; IAM as a framework | 14, 16, 15 |
-| Safety | **Platform Health Management**, Safe Hardware Acceleration | 06; SHWA not covered |
-| Configuration | **Update and Configuration Management**, **Vehicle Update and Configuration Management**, Registry | 13; Registry not covered |
-| Diagnostics | **Diagnostic Management** | 12a, 12b |
+| Runtime | **Execution Management**, **State Management**, Log and Trace, Core, Operating System Interface | EM, SM, Log and Trace, Core, Platform Overview |
+| Communication | **Communication Management**, Raw Data Stream, **Network Management**, **Time Synchronization**, **Automotive API Gateway** | CM, Network Bindings, Secure Communication, NM/TSync/RDS; AAG not covered |
+| Storage | Persistency, **Remote Persistency** | Persistency; Remote Persistency not covered |
+| Security | **Cryptography**, **Intrusion Detection System Manager**, **Firewall**; IAM as a framework | Cryptography, IDSM and Firewall, IAM |
+| Safety | **Platform Health Management**, Safe Hardware Acceleration | PHM; SHWA not covered |
+| Configuration | **Update and Configuration Management**, **Vehicle Update and Configuration Management**, Registry | UCM; Registry not covered |
+| Diagnostics | **Diagnostic Management** | Diagnostics Part 1, Diagnostics Part 2 |
 
 ### B.3 OSI Requirements at a Glance
 
@@ -1933,7 +1933,7 @@ Use this table to find the normative or explanatory text (R25-11) for each topic
 | What the OSI does not define | [7.11](#711-what-the-osi-does-not-define) | *OSI* 7.3, 8, 9, 10, Appendices B and C | – |
 | Workflow and manifests | [8.1](#81-from-service-definition-to-running-process), [8.2](#82-manifests-in-one-table) | *Platform Design* 4.3 to 4.8; *SW Architecture* 13.6 to 13.10 | – |
 | Safety, security, updates | [8.3](#83-safety) to [8.5](#85-software-updates-over-the-air) | *Platform Design* 6.5, 13, 14, 17; *SW Architecture* 12.1, 13.13 | – |
-| Running example | [Chapter 9](#9-the-running-example-on-the-architecture-map) | Guide 00, Chapter 6 | – |
+| Running example | [Chapter 9](#9-the-running-example-on-the-architecture-map) | Running Example guide | – |
 
 ## Appendix D. Notable Changes in Recent Releases
 
@@ -1943,7 +1943,7 @@ This summary is based on the change histories of the *Operating System Interface
 | --- | --- | --- |
 | R22-11 | Firewall added as a functional cluster; *StateMachine* concept in State Management; first use-case view in the *SW Architecture*. | *Platform Design*, *SW Architecture* change history |
 | R23-11 | Raw Data Stream separated from Communication Management; Vehicle UCM and Raw Data Stream added as building blocks; IAM removed as a building block of the *SW Architecture*; the obsolete *Recovery Action* and *Deterministic Client* descriptions removed from the EM chapter of the *Platform Design*; ARTI tracing interface and its log messages added to the OSI. | *Platform Design*, *SW Architecture*, *OSI* change history; [SWS_OSI_02003] to [SWS_OSI_02015] added |
-| R24-11 | Automotive API Gateway added; Health Channels and System Health Management removed from PHM; ARTI tracing extended in the OSI; R24-11 declared a stabilization release; `DeterministicClient` removed from Execution Management. | *Platform Design*, *SW Architecture*, *OSI* change history; *Release Overview* 1.5.3; [EM guide, Appendix D](04_ExecutionManagement.md#appendix-d-notable-changes-in-recent-releases) |
+| R24-11 | Automotive API Gateway added; Health Channels and System Health Management removed from PHM; ARTI tracing extended in the OSI; R24-11 declared a stabilization release; `DeterministicClient` removed from Execution Management. | *Platform Design*, *SW Architecture*, *OSI* change history; *Release Overview* 1.5.3; [EM guide, Appendix D](ExecutionManagement.md#appendix-d-notable-changes-in-recent-releases) |
 | R25-11 | Remote Persistency and Safe Hardware Acceleration added as functional clusters, with new SWS documents; Sensor Interfaces introduced in the *Platform Design*; Suspend-to-RAM in State Management; requirements for a Hardware Test Manager; Crypto rework; minimum C++ version raised to C++17, and the OSI updated to C++17; AP RS ManifestSpecification and AP RS IdentityAndAccessManagement removed. | *Release Overview* 1.5.4, 2.1, 2.2; *OSI* change history |
 
 ## Appendix E. References
@@ -1957,7 +1957,7 @@ This summary is based on the change histories of the *Operating System Interface
 - *Layered Software Architecture* (`AUTOSAR_CP_EXP_LayeredSoftwareArchitecture`), Classic Platform
 - *Specification of Operating System* (`AUTOSAR_CP_SWS_OS`), Classic Platform
 - *Glossary* (`AUTOSAR_FO_TR_Glossary`), Foundation
-- *Specification of Execution Management* (`AUTOSAR_AP_SWS_ExecutionManagement`), Adaptive Platform, through the [EM guide](04_ExecutionManagement.md)
+- *Specification of Execution Management* (`AUTOSAR_AP_SWS_ExecutionManagement`), Adaptive Platform, through the [EM guide](ExecutionManagement.md)
 
 **Other sources:**
 

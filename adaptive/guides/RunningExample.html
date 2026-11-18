@@ -1,0 +1,1666 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AUTOSAR Adaptive Platform: The Running Example · AUTOSAR AP Guides</title>
+<meta name="description" content="AUTOSAR Adaptive Platform: The Running Example">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/pygments.css">
+<script>(function(){try{var t=localStorage.getItem('theme');}catch(e){}
+if(t!=='light'&&t!=='dark'){t=window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}
+document.documentElement.setAttribute('data-theme',t);})();</script>
+</head>
+<body class="page-guide">
+<header class="topbar">
+  <button class="icon-btn menu-btn" id="menu-btn" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+  <a class="brand" href="../index.html"><span class="brand-mark">AP</span><span class="brand-text">AUTOSAR AP Guides</span></a>
+  <span class="release">R25-11</span>
+  <div class="search" role="search">
+    <span class="search-icon"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+    <input id="search-input" type="search" placeholder="Search sections…  ( / )" autocomplete="off" aria-label="Search all guides">
+    <ul id="search-results" class="search-results" role="listbox" hidden></ul>
+  </div>
+  <button class="icon-btn" id="theme-btn" aria-label="Toggle dark mode"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z" fill="currentColor"/></svg></button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Guides">
+  <a class="sidebar-home" href="../index.html">Home</a>
+  <p class="sidebar-label">Guides</p>
+  <ol class="guide-list"><li><a href="../guides/RunningExample.html" class="active" aria-current="page"><span class="title">The Running Example</span></a></li><li><a href="../guides/Glossary.html"><span class="title">Series Glossary</span></a></li><li><a href="../guides/PlatformOverview.html"><span class="title">Adaptive Platform Overview and Architecture</span></a></li><li><a href="../guides/Manifests.html"><span class="title">Manifests and Methodology</span></a></li><li><a href="../guides/CoreAndGeneral.html"><span class="title"><code>ara::core</code> and General Conventions</span></a></li><li><a href="../guides/ExecutionManagement.html"><span class="title">Execution Management</span></a></li><li><a href="../guides/StateManagement.html"><span class="title">State Management</span></a></li><li><a href="../guides/PlatformHealthManagement.html"><span class="title">Platform Health Management</span></a></li><li><a href="../guides/CommunicationManagement.html"><span class="title">Communication Management Part 1: <code>ara::com</code> Concepts and API</span></a></li><li><a href="../guides/NetworkBindings.html"><span class="title">Communication Management Part 2: Network Bindings (SOME/IP, Signal-Based, DDS)</span></a></li><li><a href="../guides/SecureAndSafeCommunication.html"><span class="title">Communication Management Part 3: Secure Communication and End-to-End Protection</span></a></li><li><a href="../guides/LogAndTrace.html"><span class="title">Log and Trace</span></a></li><li><a href="../guides/Persistency.html"><span class="title">Persistency</span></a></li><li><a href="../guides/DiagnosticsPart1.html"><span class="title">Diagnostics Part 1</span></a></li><li><a href="../guides/DiagnosticsPart2.html"><span class="title">Diagnostics Part 2</span></a></li></ol>
+</nav>
+<div class="scrim" id="scrim" hidden></div>
+<main class="content" id="content">
+<article class="markdown">
+<h1 id="autosar-adaptive-platform-the-running-example">AUTOSAR Adaptive Platform: The Running Example<a class="anchor" href="#autosar-adaptive-platform-the-running-example" aria-label="Link to this section">#</a></h1>
+<blockquote>
+<p><strong>Source specification:</strong></p>
+<ul>
+<li><em>Explanation of Adaptive Platform Design</em> (<code>AUTOSAR_AP_EXP_PlatformDesign</code>), AUTOSAR Adaptive Platform <strong>R25-11</strong>.</li>
+<li><em>Explanation of Adaptive Platform Software Architecture</em> (<code>AUTOSAR_AP_EXP_SWArchitecture</code>), AUTOSAR Adaptive Platform <strong>R25-11</strong>.</li>
+</ul>
+<p><strong>Document type:</strong> Training Material.</p>
+<p><strong>Author:</strong> Hieu Do Minh</p>
+<p><strong>Version:</strong> 1.0</p>
+<p><strong>Part of the series:</strong> <a href="../index.html">AUTOSAR Adaptive Platform Training Guides</a>. Next: <a href="Glossary.html">Series Glossary</a>.</p>
+</blockquote>
+<h2 id="about-this-guide">About This Guide<a class="anchor" href="#about-this-guide" aria-label="Link to this section">#</a></h2>
+<p>All guides of the series show their topic on one invented system: the high-performance ECU <code>HPC</code>, which runs a camera- and radar-based ADAS feature. This guide is the master definition of that system. It describes the vehicle around <code>HPC</code>, the machine itself, its Function Groups, processes and services, its network deployment, its persistent data, diagnostics, updates, security and safety, and it names for each element the guide that explains it in detail. It does not explain a functional cluster. The <a href="../index.html">main page</a> introduces the series, and the <a href="Glossary.html">Series Glossary</a> defines the terms used here.</p>
+<h3 id="who-this-guide-is-for">Who This Guide Is For<a class="anchor" href="#who-this-guide-is-for" aria-label="Link to this section">#</a></h3>
+<p>Everyone who reads the series, in particular:</p>
+<ul>
+<li><strong>Application developers</strong> who write software that runs on the Adaptive Platform.</li>
+<li><strong>Integrators</strong> who configure manifests, deploy software and debug ECUs.</li>
+<li><strong>Platform developers</strong> who build or extend functional clusters.</li>
+</ul>
+<p>Assumed background: modern C++, plus basic Linux/POSIX knowledge. No prior AUTOSAR knowledge is needed.</p>
+<h3 id="what-you-will-get-from-this-guide">What You Will Get From This Guide<a class="anchor" href="#what-you-will-get-from-this-guide" aria-label="Link to this section">#</a></h3>
+<p>After reading this guide you will be able to:</p>
+<ol>
+<li>Describe the <code>HPC</code> running example: its network, Function Groups, processes and services.</li>
+<li>Find the guide that explains a given part of the example in detail.</li>
+<li>Find the scenario on the running example that each guide tells.</li>
+</ol>
+<h3 id="how-to-read-this-guide">How to Read This Guide<a class="anchor" href="#how-to-read-this-guide" aria-label="Link to this section">#</a></h3>
+<p>Read <a href="#11-purpose-and-rules">Section 1.1</a> to <a href="#16-services-and-their-consumers">Section 1.6</a> once. The rest of <a href="#1-the-hpc-reference-system">Chapter 1</a> is a reference: skim it now and come back when a guide uses a part of it. <a href="#appendix-a-running-example-quick-reference">Appendix A</a> lists all names and values on one page.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Convention</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>illustrative</em></td>
+<td>A value of the running example that was invented for teaching, such as an IP address or a service ID.</td>
+</tr>
+<tr>
+<td>Owner guides</td>
+<td>The guides that explain an element in detail, by short name. The <a href="../index.html#the-guides">main page</a> lists all guides and their short names.</td>
+</tr>
+<tr>
+<td><strong>Note</strong></td>
+<td>Background or a simplification of the example.</td>
+</tr>
+<tr>
+<td><strong>Pitfall</strong></td>
+<td>A common mistake seen in real projects.</td>
+</tr>
+<tr>
+<td><strong>Key takeaways</strong></td>
+<td>A short summary at the end of the chapter.</td>
+</tr>
+<tr>
+<td>Diagrams</td>
+<td>Written in Mermaid. They render natively on GitHub and GitLab.</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="table-of-contents">Table of Contents<a class="anchor" href="#table-of-contents" aria-label="Link to this section">#</a></h2>
+<ul>
+<li><a href="#autosar-adaptive-platform-the-running-example">AUTOSAR Adaptive Platform: The Running Example</a>
+<ul>
+<li><a href="#about-this-guide">About This Guide</a>
+<ul>
+<li><a href="#who-this-guide-is-for">Who This Guide Is For</a></li>
+<li><a href="#what-you-will-get-from-this-guide">What You Will Get From This Guide</a></li>
+<li><a href="#how-to-read-this-guide">How to Read This Guide</a></li>
+</ul>
+</li>
+<li><a href="#table-of-contents">Table of Contents</a></li>
+<li><a href="#1-the-hpc-reference-system">1. The HPC Reference System</a>
+<ul>
+<li><a href="#11-purpose-and-rules">1.1 Purpose and Rules</a></li>
+<li><a href="#12-the-vehicle-context">1.2 The Vehicle Context</a></li>
+<li><a href="#13-the-hpc-machine">1.3 The HPC Machine</a></li>
+<li><a href="#14-function-groups-and-states">1.4 Function Groups and States</a></li>
+<li><a href="#15-processes">1.5 Processes</a></li>
+<li><a href="#16-services-and-their-consumers">1.6 Services and Their Consumers</a></li>
+<li><a href="#17-network-deployment">1.7 Network Deployment</a></li>
+<li><a href="#18-classic-ecus-and-signal-to-service-translation">1.8 Classic ECUs and Signal-to-Service Translation</a></li>
+<li><a href="#19-persistent-data">1.9 Persistent Data</a></li>
+<li><a href="#110-diagnostics">1.10 Diagnostics</a></li>
+<li><a href="#111-software-updates">1.11 Software Updates</a></li>
+<li><a href="#112-security">1.12 Security</a></li>
+<li><a href="#113-safety">1.13 Safety</a></li>
+<li><a href="#114-time-network-management-and-logging">1.14 Time, Network Management and Logging</a></li>
+<li><a href="#115-scenario-index">1.15 Scenario Index</a></li>
+</ul>
+</li>
+<li><a href="#appendix-a-running-example-quick-reference">Appendix A. Running Example Quick Reference</a>
+<ul>
+<li><a href="#a1-nodes-and-addresses">A.1 Nodes and Addresses</a></li>
+<li><a href="#a2-function-groups-and-processes">A.2 Function Groups and Processes</a></li>
+<li><a href="#a3-services-signals-and-streams">A.3 Services, Signals and Streams</a></li>
+<li><a href="#a4-data-diagnostics-and-updates">A.4 Data, Diagnostics and Updates</a></li>
+<li><a href="#a5-security-safety-time-and-logging">A.5 Security, Safety, Time and Logging</a></li>
+</ul>
+</li>
+<li><a href="#appendix-b-references">Appendix B. References</a></li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="1-the-hpc-reference-system">1. The HPC Reference System<a class="anchor" href="#1-the-hpc-reference-system" aria-label="Link to this section">#</a></h2>
+<blockquote>
+<p><strong>Why this matters:</strong> Abstract concepts are easier to learn on a concrete system. All guides use the same invented ECU, so that what you learn in one guide connects to the next. This chapter is the master definition of that system. It stays skeletal on purpose: each element names the guide that explains it in detail.</p>
+</blockquote>
+<h3 id="11-purpose-and-rules">1.1 Purpose and Rules<a class="anchor" href="#11-purpose-and-rules" aria-label="Link to this section">#</a></h3>
+<p><code>HPC</code> is a fictional high-performance ECU that runs a camera- and radar-based ADAS feature. It is small enough to keep in your head, but it touches every functional cluster of the series. It is not a real product. The Function Groups, the processes, their states and their Execution Dependencies were introduced by the <a href="ExecutionManagement.html#the-running-example">EM guide</a>.</p>
+<p>Guide <a href="Manifests.html">Manifests</a> writes a part of the example as real ARXML (<a href="Manifests.html#1216-the-running-example-complete-configuration">Section 12.16</a>). All its model elements live in the top-level package <code>/HPC</code>, in sub-packages named after the recommended package of each element kind, for example <code>/HPC/ServiceInterfaces</code>, <code>/HPC/Executables</code> and <code>/HPC/Processes</code>. Standardized data types, such as <code>uint8_t</code>, are taken from the package <code>/AUTOSAR/StdTypes</code> that AUTOSAR publishes. The Manifests guide owns this package structure.</p>
+<blockquote>
+<p><strong>Note:</strong> <em>HPC</em> is also the general AUTOSAR abbreviation for a <em>high performance computer</em>. In the series, <code>HPC</code> in code font always means the machine of the running example.</p>
+</blockquote>
+<h3 id="12-the-vehicle-context">1.2 The Vehicle Context<a class="anchor" href="#12-the-vehicle-context" aria-label="Link to this section">#</a></h3>
+<p>The ADAS feature on <code>HPC</code> works like this. A front camera, attached to <code>HPC</code>, and the smart radar sensor <code>FrontRadar</code> observe the road. <code>HPC</code> combines their data with the vehicle speed, steering angle and yaw rate from the chassis, and computes a list of detected objects. The <code>Cockpit</code> computer shows the camera image and the objects to the driver, and the <code>InstrumentCluster</code> shows whether the ADAS feature is active. Software updates arrive over the air through the <code>TelematicsUnit</code>, and workshops connect a <code>DiagnosticTester</code>.</p>
+<p>The following diagram shows the network topology.</p>
+<pre class="mermaid">flowchart LR
+    subgraph OFF[&quot;Off-board&quot;]
+        BE[&quot;Backend&quot;]
+        DT[&quot;DiagnosticTester&quot;]
+    end
+    subgraph ETH[&quot;Ethernet backbone&quot;]
+        HPC[&quot;HPC&lt;br/&gt;(Adaptive Platform)&quot;]
+        CP[&quot;Cockpit&quot;]
+        FR[&quot;FrontRadar&quot;]
+        TU[&quot;TelematicsUnit&lt;br/&gt;(OTA Client, V-UCM)&quot;]
+        GW[&quot;CentralGateway&lt;br/&gt;(switch, CAN gateway,&lt;br/&gt;time master)&quot;]
+    end
+    subgraph CAN[&quot;CAN bus&quot;]
+        CH[&quot;ChassisECU&lt;br/&gt;(Classic Platform)&quot;]
+        IC[&quot;InstrumentCluster&lt;br/&gt;(Classic Platform)&quot;]
+    end
+    BE ---|&quot;cellular&quot;| TU
+    DT ---|&quot;DoIP&quot;| GW
+    HPC --- GW
+    CP --- GW
+    FR --- GW
+    TU --- GW
+    GW --- CH
+    GW --- IC
+</pre>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Node</th>
+<th>Platform</th>
+<th>Role in the example</th>
+<th>IPv4 (illustrative)</th>
+<th>Owner guides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>HPC</code></td>
+<td>Adaptive Platform; the only node that is detailed</td>
+<td>Runs the ADAS feature</td>
+<td><code>192.168.10.10</code></td>
+<td>all</td>
+</tr>
+<tr>
+<td><code>CentralGateway</code></td>
+<td>Classic Platform, black box</td>
+<td>Ethernet switch; routes PDUs between the CAN bus and <code>HPC</code>; time master; sends <code>PowerMode</code>; access point for the <code>DiagnosticTester</code></td>
+<td><code>192.168.10.1</code></td>
+<td><a href="NetworkBindings.html">Network Bindings</a>, NM/TSync/RDS, Diagnostics Part 1</td>
+</tr>
+<tr>
+<td><code>ChassisECU</code></td>
+<td>Classic Platform, CAN</td>
+<td>Sends <code>VehicleSpeed</code>, <code>SteeringAngle</code> and <code>YawRate</code></td>
+<td>(CAN only)</td>
+<td><a href="NetworkBindings.html">Network Bindings</a></td>
+</tr>
+<tr>
+<td><code>InstrumentCluster</code></td>
+<td>Classic Platform, CAN</td>
+<td>Shows <code>AdasStatus</code> to the driver</td>
+<td>(CAN only)</td>
+<td><a href="NetworkBindings.html">Network Bindings</a></td>
+</tr>
+<tr>
+<td><code>FrontRadar</code></td>
+<td>Smart sensor, not AUTOSAR</td>
+<td>Streams raw radar detections to <code>HPC</code></td>
+<td><code>192.168.10.30</code></td>
+<td>NM/TSync/RDS</td>
+</tr>
+<tr>
+<td><code>Cockpit</code></td>
+<td>Black box; its platform is not specified</td>
+<td>Shows the camera image, the detected objects and the ADAS status</td>
+<td><code>192.168.10.20</code></td>
+<td><a href="CommunicationManagement.html#133-multi-binding">CM</a>, <a href="NetworkBindings.html">Network Bindings</a>, IDSM and Firewall</td>
+</tr>
+<tr>
+<td><code>TelematicsUnit</code></td>
+<td>Adaptive Platform, black box</td>
+<td>Hosts the OTA Client and Vehicle Update and Configuration Management (V-UCM); connects the vehicle to the <code>Backend</code></td>
+<td><code>192.168.10.40</code></td>
+<td>UCM</td>
+</tr>
+<tr>
+<td><code>DiagnosticTester</code></td>
+<td>Off-board</td>
+<td>Sends UDS requests over DoIP</td>
+<td>(assigned when connected)</td>
+<td>Diagnostics Part 1, Diagnostics Part 2</td>
+</tr>
+<tr>
+<td><code>Backend</code></td>
+<td>Off-board</td>
+<td>Provides update packages; receives qualified security events</td>
+<td>(off-board)</td>
+<td>UCM, IDSM and Firewall</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p><strong>Note (simplification):</strong> A real ADAS ECU also controls actuators, such as brakes and steering, and uses more sensors. The example leaves them out. Its final output is the object list.</p>
+</blockquote>
+<h3 id="13-the-hpc-machine">1.3 The HPC Machine<a class="anchor" href="#13-the-hpc-machine" aria-label="Link to this section">#</a></h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Value</th>
+<th>Owner guides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Machine</td>
+<td><code>HPC</code>: one Machine, running one instance of the Adaptive Platform</td>
+<td><a href="PlatformOverview.html#43-the-machine">Platform Overview</a></td>
+</tr>
+<tr>
+<td>Hardware</td>
+<td>A multi-core SoC (the processor <code>Soc</code> with the four cores <code>Core0</code> to <code>Core3</code>) with a Hardware Security Module (HSM), a hardware watchdog and flash memory for persistent data. No hypervisor.</td>
+<td><a href="PlatformOverview.html#92-the-hpc-machine-layer-by-layer">Platform Overview</a>, <a href="Manifests.html#76-worked-example-the-hpc-machine">Manifests</a>, PHM, Persistency, Cryptography</td>
+</tr>
+<tr>
+<td>Machine design</td>
+<td><code>HpcDesign</code>: the design-time description of <code>HPC</code> in the system, with its Ethernet connection to the backbone</td>
+<td><a href="Manifests.html#72-machine-design">Manifests</a>, <a href="NetworkBindings.html">Network Bindings</a></td>
+</tr>
+<tr>
+<td>Operating system</td>
+<td>A POSIX operating system. Implementation notes in the series assume Linux.</td>
+<td><a href="PlatformOverview.html#7-the-operating-system-interface">Platform Overview</a></td>
+</tr>
+<tr>
+<td>Network interface</td>
+<td>One Ethernet interface on the backbone, <code>192.168.10.10/24</code> (illustrative)</td>
+<td><a href="NetworkBindings.html">Network Bindings</a>, IDSM and Firewall</td>
+</tr>
+<tr>
+<td>Trusted Platform</td>
+<td><code>strictMode</code>: software that fails the integrity check is not started</td>
+<td><a href="ExecutionManagement.html#12-security-trusted-platform-and-iam">EM</a></td>
+</tr>
+<tr>
+<td>ResourceGroups</td>
+<td><code>platform_rg</code> (20 % CPU, 512 MiB), <code>adas_rg</code> (60 % CPU, 2 GiB), <code>legacy_rg</code> (10 % CPU, 256 MiB)</td>
+<td><a href="ExecutionManagement.html#1311-the-running-example-complete-configuration">EM</a></td>
+</tr>
+<tr>
+<td>Diagnostic address</td>
+<td>DoIP logical address <code>0x1010</code> (illustrative) for the whole machine</td>
+<td>Diagnostics Part 1</td>
+</tr>
+<tr>
+<td>Log ECU ID</td>
+<td><code>HPC1</code> (illustrative)</td>
+<td>Log and Trace</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Software Clusters.</strong> A Software Cluster is the unit in which software is deployed and updated. Each Machine has exactly one Software Cluster with the category <code>PLATFORM_CORE</code>. It is expected to contain at least Execution Management, State Management and Update and Configuration Management, because these are needed to install any further software. A Function Group belongs to exactly one Software Cluster (<em>SW Architecture</em>, Sections 12.2 and 13.4). <code>HPC</code> has two Software Clusters:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Software Cluster</th>
+<th>Category</th>
+<th>Version</th>
+<th>Function Group</th>
+<th>Contents</th>
+<th>Owner guides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>HpcPlatformCore</code></td>
+<td><code>PLATFORM_CORE</code></td>
+<td>1.0.0</td>
+<td><code>MachineFG</code></td>
+<td>The operating system, Execution Management, the processes <code>StateManager</code>, <code>SmControl</code>, <code>PlatformHealth</code> and <code>PowerControl</code>, the daemons of the other platform clusters, and the platform libraries</td>
+<td><a href="Manifests.html#104-worked-example-adascluster-and-hpcplatformcore">Manifests</a>, UCM</td>
+</tr>
+<tr>
+<td><code>AdasCluster</code></td>
+<td><code>APPLICATION_LAYER</code></td>
+<td>1.0.0, later 1.1.0 (<a href="#111-software-updates">Section 1.11</a>)</td>
+<td><code>ADAS</code></td>
+<td>The seven ADAS processes and their configuration</td>
+<td><a href="Manifests.html#104-worked-example-adascluster-and-hpcplatformcore">Manifests</a>, UCM</td>
+</tr>
+</tbody>
+</table></div>
+<p>Each Software Cluster carries the ID of its vendor and is signed by that vendor: <code>HpcPlatformCore</code> has the vendor ID <code>0x1111</code> and is signed with <code>PlatformVendorCert</code>; <code>AdasCluster</code> has the vendor ID <code>0x1234</code> and is signed with <code>AdasSupplierCert</code> (<a href="#112-security">Section 1.12</a>). The Manifests guide shows both Software Clusters as ARXML.</p>
+<p><strong>Platform daemons.</strong> Besides <code>StateManager</code> and <code>PlatformHealth</code>, <code>HpcPlatformCore</code> contains the daemons of Communication Management, Diagnostic Management, Update and Configuration Management, Cryptography, the Intrusion Detection System Manager, the Firewall, Network Management and Time Synchronization. EM starts them in <code>MachineFG.Startup</code>. Their process names are vendor-specific, so the series calls them by their cluster, for example &quot;the UCM daemon&quot;. Library-based clusters, such as Log and Trace, Persistency, Core and Raw Data Stream, run inside the processes that use them.</p>
+<h3 id="14-function-groups-and-states">1.4 Function Groups and States<a class="anchor" href="#14-function-groups-and-states" aria-label="Link to this section">#</a></h3>
+<p><code>HPC</code> has two Function Groups, both defined in the <a href="ExecutionManagement.html#73-machinefg-and-machine-states">EM guide</a>:</p>
+<ul>
+<li><strong><code>MachineFG</code></strong> controls the machine lifecycle. States: <code>Off</code>, <code>Startup</code>, <code>Driving</code>, <code>Shutdown</code>, <code>Restart</code> and <code>Verify</code>. <code>Driving</code> is project-specific; the others are mandatory.</li>
+<li><strong><code>ADAS</code></strong> controls the ADAS feature. States: <code>Off</code>, <code>Normal</code>, <code>Degraded</code> and <code>Verify</code>. The <em>Manifest Specification</em> requires a <code>Verify</code> state in every Function Group ([constr_10023]). State Management switches <code>ADAS</code> to <code>Verify</code> while an update of <code>AdasCluster</code> is activated; the UCM guide decides which processes run in it.</li>
+</ul>
+<p>The following diagrams show the main transitions. EM performs every transition; it initiates only <code>Off</code> → <code>Startup</code> of <code>MachineFG</code> itself. All other transitions are requested by State Management.</p>
+<pre class="mermaid">stateDiagram-v2
+    direction LR
+    [*] --&gt; Off
+    Off --&gt; Startup: EM at boot
+    Startup --&gt; Driving: vehicle switched on
+    Driving --&gt; Shutdown: vehicle switched off
+    Driving --&gt; Restart: ECU reset or update
+    Verify --&gt; Driving: update verified
+    note right of Verify: entered while an update that affects MachineFG is activated (the UCM guide)
+</pre>
+<pre class="mermaid">stateDiagram-v2
+    direction LR
+    [*] --&gt; Off
+    Off --&gt; Normal: machine in Driving
+    Normal --&gt; Degraded: supervision failure, Fusion crash or diagnostic request
+    Normal --&gt; Off: shutdown or update
+    Degraded --&gt; Off: shutdown or update
+    Off --&gt; Verify: update of AdasCluster activated
+    Verify --&gt; Normal: update verified
+</pre>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Transition</th>
+<th>Requested by State Management when ...</th>
+<th>Owner guides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MachineFG</code>: <code>Off</code> → <code>Startup</code></td>
+<td>(not SM: EM performs it on its own at boot)</td>
+<td>EM</td>
+</tr>
+<tr>
+<td><code>MachineFG</code>: <code>Startup</code> → <code>Driving</code></td>
+<td>startup is complete and <code>PowerMode</code> reports that the vehicle is switched on</td>
+<td>SM</td>
+</tr>
+<tr>
+<td><code>ADAS</code>: <code>Off</code> → <code>Normal</code></td>
+<td>the machine is in <code>Driving</code>. SM also requests the partial network <code>AdasPn</code>.</td>
+<td><a href="StateManagement.html#76-worked-example-hpccontroller-and-adasagent">SM</a>, NM/TSync/RDS</td>
+</tr>
+<tr>
+<td><code>ADAS</code>: <code>Normal</code> → <code>Degraded</code></td>
+<td>PHM reports a supervision failure of <code>Fusion</code> or <code>CameraDriver</code>, EM reports that <code>Fusion</code> crashed (<code>ExecutionError</code> 42), or a diagnostic request asks for it through <code>SmControl</code></td>
+<td>EM, <a href="StateManagement.html#87-worked-example-fusion-fails-and-adas-goes-to-degraded">SM</a>, PHM, Diagnostics Part 1</td>
+</tr>
+<tr>
+<td><code>ADAS</code>: <code>Degraded</code> → <code>Normal</code></td>
+<td>not during a drive. <code>ADAS</code> returns to <code>Normal</code> only when it is started again, at the next drive cycle through <code>Off</code>; this also restarts a failed <code>CameraDriver</code></td>
+<td><a href="StateManagement.html#88-worked-example-a-stuck-cameradriver">SM</a></td>
+</tr>
+<tr>
+<td><code>ADAS</code> → <code>Off</code>, then <code>MachineFG</code> → <code>Shutdown</code></td>
+<td><code>PowerMode</code> reports that the vehicle is switched off</td>
+<td>EM, <a href="StateManagement.html#15-end-to-end-walkthrough-a-drive-cycle-of-the-hpc">SM</a></td>
+</tr>
+<tr>
+<td><code>MachineFG</code> → <code>Restart</code></td>
+<td>Diagnostic Management requests an ECU reset through <code>SmControl</code>, or UCM requests a machine reset</td>
+<td><a href="StateManagement.html#112-diagnostics-ecu-reset-and-communication-control">SM</a>, Diagnostics Part 1, UCM</td>
+</tr>
+<tr>
+<td><code>ADAS</code>: <code>Off</code> → <code>Verify</code> → <code>Normal</code></td>
+<td>UCM activates an update of <code>AdasCluster</code>: SM switches <code>ADAS</code> off, then to <code>Verify</code> to check the new software, and finally back to <code>Normal</code> (<em>Platform Design</em>, Figure 13.10)</td>
+<td><a href="StateManagement.html#97-worked-example-updating-adascluster-to-110">SM</a>, UCM</td>
+</tr>
+<tr>
+<td><code>MachineFG</code> → <code>Verify</code></td>
+<td>UCM activates an update that affects <code>MachineFG</code>, that is, the <code>HpcPlatformCore</code> Software Cluster</td>
+<td>SM, UCM</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>State Management design.</strong> <code>HPC</code> uses the <em>StateMachine approach</em> of State Management (the <a href="StateManagement.html#14-two-ways-to-build-state-management">SM guide, Section 1.4</a>). The process <code>StateManager</code> runs two StateMachines; the project-specific application <code>SmControl</code> decides which transitions to request (the <a href="StateManagement.html#76-worked-example-hpccontroller-and-adasagent">SM guide, Section 7.6</a>). All values are illustrative.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>StateMachine</th>
+<th>Role</th>
+<th>Controls</th>
+<th>StateMachine States (initial in bold)</th>
+<th>Transition requests (value)</th>
+<th>Error reactions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>HpcController</code></td>
+<td>Controller</td>
+<td><code>MachineFG</code>; starts and stops <code>AdasAgent</code></td>
+<td><strong><code>Init</code></strong>, <code>Driving</code>, <code>Shutdown</code>, <code>Restart</code>, <code>PrepareUpdate</code>, <code>VerifyUpdate</code>, <code>PrepareRollback</code>, <code>AfterUpdate</code>, <code>ContinueUpdate</code>, <code>LeaveSuspend</code></td>
+<td><code>Drive</code> (1), <code>PowerOff</code> (2), <code>Reset</code> (3)</td>
+<td><code>ANY</code> → <code>Restart</code></td>
+</tr>
+<tr>
+<td><code>AdasAgent</code></td>
+<td>Agent</td>
+<td><code>ADAS</code> and the partial network <code>AdasPn</code> (network handle <code>AdasPnHandle</code>)</td>
+<td><code>Off</code>, <strong><code>Normal</code></strong>, <code>Degraded</code>, <code>PrepareUpdate</code>, <code>VerifyUpdate</code>, <code>PrepareRollback</code></td>
+<td><code>Degrade</code> (10), from <code>Normal</code> only</td>
+<td>42 → <code>Degraded</code>; 1 → <code>Degraded</code>; <code>ANY</code> → <code>Off</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>The <code>Off</code> state of <code>AdasAgent</code> keeps <code>AdasPn</code> for an afterrun of 2 s before it releases it. <code>HPC</code> does not use Suspend-to-RAM; <code>LeaveSuspend</code> exists only because R25-11 requires it in every Controller (the <a href="StateManagement.html#108-what-hpc-does">SM guide, Section 10.8</a>). The <a href="StateManagement.html#1212-the-running-example-complete-configuration">SM guide, Section 12.12</a> gives the complete configuration.</p>
+<h3 id="15-processes">1.5 Processes<a class="anchor" href="#15-processes" aria-label="Link to this section">#</a></h3>
+<p>Ten processes come from the <a href="ExecutionManagement.html#the-running-example">EM guide</a>; the SM guide added the eleventh, <code>SmControl</code>. The executables marked with * are named here for the first time. The role column adds what the other guides need.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Process</th>
+<th>Executable</th>
+<th>Function Group States</th>
+<th>ResourceGroup</th>
+<th>Role</th>
+<th>Owner guides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>StateManager</code></td>
+<td><code>state_manager</code>*</td>
+<td><code>MachineFG</code>: Startup, Driving, Shutdown, Restart, Verify</td>
+<td><code>platform_rg</code></td>
+<td>The State Management daemon. Runs the StateMachines <code>HpcController</code> and <code>AdasAgent</code> and provides their services, the <code>UpdateAllowedService</code> and the <code>UpdateRequest</code> service for UCM.</td>
+<td>EM, <a href="StateManagement.html#31-where-state-management-sits-in-the-platform">SM</a></td>
+</tr>
+<tr>
+<td><code>SmControl</code></td>
+<td><code>sm_control</code>*</td>
+<td><code>MachineFG</code>: Startup, Driving, Verify</td>
+<td><code>platform_rg</code></td>
+<td>The SMControlApplication with the project-specific logic: uses <code>PowerModeService</code> and <code>VehicleDynamicsService</code>, provides <code>AdasStatusService</code>, requests StateMachine transitions, decides whether an update is allowed, and implements the ECU reset for Diagnostic Management.</td>
+<td><a href="StateManagement.html#26-smcontrolapplication">SM</a>, <a href="NetworkBindings.html">Network Bindings</a>, Diagnostics Part 1</td>
+</tr>
+<tr>
+<td><code>PlatformHealth</code></td>
+<td><code>platform_health</code>*</td>
+<td>same as <code>StateManager</code></td>
+<td><code>platform_rg</code></td>
+<td>The Platform Health Management daemon. Supervises <code>Fusion</code> and <code>CameraDriver</code> and triggers the watchdog.</td>
+<td>EM, PHM</td>
+</tr>
+<tr>
+<td><code>PowerControl</code></td>
+<td><code>power_control</code>*</td>
+<td><code>MachineFG</code>: Shutdown, Restart</td>
+<td><code>platform_rg</code></td>
+<td>Powers off or reboots the machine.</td>
+<td>EM, SM</td>
+</tr>
+<tr>
+<td><code>Storage</code></td>
+<td><code>storage</code></td>
+<td><code>ADAS</code>: Normal, Degraded</td>
+<td><code>adas_rg</code></td>
+<td>The ADAS data store. Keeps the camera calibration, provides <code>CalibrationDataService</code>, and records object lists.</td>
+<td>EM, <a href="CommunicationManagement.html#1513-complete-example-storage">CM</a>, Persistency</td>
+</tr>
+<tr>
+<td><code>CameraDriver</code></td>
+<td><code>camera_driver</code>*</td>
+<td><code>ADAS</code>: Normal, Degraded</td>
+<td><code>adas_rg</code></td>
+<td>Drives the front camera. Provides <code>CameraService</code>, time-stamps images, detects a blocked camera and runs the camera calibration routine.</td>
+<td><a href="CommunicationManagement.html#1511-complete-example-cameradriver">CM</a>, NM/TSync/RDS, Diagnostics Part 1, Diagnostics Part 2</td>
+</tr>
+<tr>
+<td><code>CalibrationCheck</code></td>
+<td><code>calib_check</code></td>
+<td><code>ADAS</code>: Normal</td>
+<td><code>adas_rg</code></td>
+<td>Self-terminating check at ADAS start: reads the calibration through <code>CalibrationDataService</code> and verifies that it is complete, plausible and authentic.</td>
+<td>EM, Persistency, Cryptography</td>
+</tr>
+<tr>
+<td><code>LegacyLogger</code></td>
+<td><code>legacy_logger</code></td>
+<td><code>ADAS</code>: Normal, Degraded</td>
+<td><code>legacy_rg</code></td>
+<td>Third-party data logger. Non-reporting; cannot be modified.</td>
+<td>EM</td>
+</tr>
+<tr>
+<td><code>LoggerCompanion</code></td>
+<td><code>logger_companion</code></td>
+<td><code>ADAS</code>: Normal, Degraded</td>
+<td><code>adas_rg</code></td>
+<td>Companion process of <code>LegacyLogger</code>.</td>
+<td>EM</td>
+</tr>
+<tr>
+<td><code>Fusion</code></td>
+<td><code>fusion</code> (version 1.0.0, later 1.1.0)</td>
+<td><code>ADAS</code>: Normal</td>
+<td><code>adas_rg</code></td>
+<td>Fuses camera images, radar detections and vehicle dynamics into an object list. Provides <code>ObjectListService</code> and a DID. Supervised by PHM. <code>processExecutionError</code> = 42, which is the application error <code>FusionFailed</code> of the error domain <code>AdasExecutionErrors</code>.</td>
+<td><a href="Manifests.html#84-worked-example-the-processes-cameradriver-and-fusion">Manifests</a>, <a href="CoreAndGeneral.html#16-end-to-end-walkthrough-a-day-of-error-handling-in-fusion">Core</a>, EM, PHM, <a href="CommunicationManagement.html#1512-complete-example-fusion">CM</a>, Log and Trace, Persistency, Diagnostics Part 1, UCM</td>
+</tr>
+<tr>
+<td><code>FusionLite</code></td>
+<td><code>fusion_lite</code>*</td>
+<td><code>ADAS</code>: Degraded</td>
+<td><code>adas_rg</code></td>
+<td>Reduced fallback that uses only the radar and vehicle dynamics, so it also works with a blocked camera. Provides a reduced <code>ObjectListService</code>.</td>
+<td>EM, PHM, IAM</td>
+</tr>
+</tbody>
+</table></div>
+<p>The Execution Dependencies are unchanged from the <a href="ExecutionManagement.html#65-dependencies-in-the-running-example">EM guide</a>: <code>CalibrationCheck</code> needs <code>Storage</code> <em>Running</em>; <code>LoggerCompanion</code> needs <code>LegacyLogger</code> <em>Running</em>; <code>Fusion</code> needs <code>CalibrationCheck</code> <em>Terminated</em> and <code>LoggerCompanion</code> <em>Running</em>; <code>FusionLite</code> needs <code>LoggerCompanion</code> <em>Running</em>.</p>
+<p><strong>Software components and instance specifiers.</strong> The Manifests guide (<a href="Manifests.html#55-worked-example-cameradriver-and-fusion">Section 5.5</a>) models the executables <code>camera_driver</code> and <code>fusion</code> with one software component each, <code>CameraDriverSwc</code> and <code>FusionSwc</code>, placed in the root prototype <code>Root</code> of the executable. Their ports for <code>CameraService</code> are <code>CameraPPort</code> (provided) and <code>CameraRPort</code> (required). The application code therefore identifies them with the instance specifiers <code>/camera_driver/Root/CameraPPort</code> and <code>/fusion/Root/CameraRPort</code>. For Platform Health Management, <code>FusionSwc</code> also has the R-port <code>FusionCyclePort</code> and <code>CameraDriverSwc</code> the R-port <code>ImageLoopPort</code>, typed by the Supervised Entity interfaces <code>FusionCycle</code> and <code>CameraImageLoop</code> (<a href="#113-safety">Section 1.13</a>); their instance specifiers are <code>/fusion/Root/FusionCyclePort</code> and <code>/camera_driver/Root/ImageLoopPort</code>. Other executables are modeled in the same way when a guide needs them. The CM guide adds the ports of <code>ObjectListService</code> and <code>CalibrationDataService</code>: <code>FusionSwc</code> has the P-port <code>ObjectListPPort</code> and the R-port <code>CalibrationRPort</code>, and <code>CameraDriverSwc</code> the R-port <code>CalibrationRPort</code>. The executables <code>fusion_lite</code>, <code>storage</code> and <code>calib_check</code> hold the components <code>FusionLiteSwc</code> (<code>ObjectListPPort</code>, <code>CalibrationRPort</code>), <code>StorageSwc</code> (<code>CalibrationPPort</code>, <code>ObjectListRPort</code>) and <code>CalibrationCheckSwc</code> (<code>CalibrationRPort</code>) in their root prototypes <code>Root</code>, so that the code uses specifiers such as <code>/fusion/Root/ObjectListPPort</code>, <code>/storage/Root/CalibrationPPort</code> and <code>/calib_check/Root/CalibrationRPort</code>. The <code>FieldSenderComSpec</code> of <code>ObjectListPPort</code> gives the field <code>FusionMode</code> the initial value <code>Full</code> in <code>FusionSwc</code> and <code>RadarOnly</code> in <code>FusionLiteSwc</code> (the <a href="CommunicationManagement.html#1411-the-running-example-complete-configuration">CM guide, Section 14.11</a>).</p>
+<p><strong>State Management ports and process states.</strong> The executable <code>state_manager</code> has, in its root prototype <code>Root</code>, the R-ports <code>MachineFgPort</code> and <code>AdasFgPort</code>, typed by the State Client interfaces <code>MachineFgStateClient</code> and <code>AdasStateClient</code>, so that the code uses the instance specifiers <code>/state_manager/Root/MachineFgPort</code> and <code>/state_manager/Root/AdasFgPort</code>. The Function Group Port Mappings <code>StateManagerToMachineFG</code> and <code>StateManagerToADAS</code> connect the two ports of the process <code>StateManager</code> to <code>MachineFG</code> and <code>ADAS</code> (<a href="ExecutionManagement.html#1310-state-management-access-stateclientinterface-and-functiongroupportmapping">EM guide, Section 13.10</a>). The root prototype is typed by the component <code>StateManagerSwc</code>. For Platform Health Management, it also has the P-port <code>PhmRecoveryPort</code>, typed by the recovery notification interface <code>SupervisionRecovery</code>, and the R-port <code>HeartbeatPort</code>, typed by the Supervised Entity interface <code>StateManagerHeartbeat</code> (<a href="#113-safety">Section 1.13</a>); the instance specifiers are <code>/state_manager/Root/PhmRecoveryPort</code> and <code>/state_manager/Root/HeartbeatPort</code>. For its StateMachines, <code>StateManagerSwc</code> has P-ports for the services of each StateMachine (<code>ControllerServicePort</code>, <code>AdasServicePort</code>, <code>ControllerStatePort</code>, <code>AdasStatePort</code>), for <code>UpdateAllowedService</code> (<code>UpdateAllowedPort</code>) and for <code>UpdateRequest</code> (<code>UpdateRequestPort</code>), and R-ports as inputs of its tables (<code>ControllerTriggerPort</code>, <code>AdasTriggerPort</code>, <code>ControllerErrorPort</code>, <code>AdasErrorPort</code>). <code>SmControl</code> is modeled by the component <code>SmControlSwc</code> in the root prototype <code>Root</code> of <code>sm_control</code>, with the ports <code>PowerModeRPort</code>, <code>VehicleDynamicsRPort</code>, <code>AdasStatusPPort</code>, <code>ControllerRequestRPort</code>, <code>AdasRequestRPort</code>, <code>AdasStateRPort</code>, <code>UpdateAllowedRPort</code> and <code>EcuResetPort</code> (the <a href="StateManagement.html#129-port-interfaces-and-ports">SM guide, Section 12.9</a>). The processes that others depend on (<code>Storage</code>, <code>CalibrationCheck</code>, <code>LegacyLogger</code>, <code>LoggerCompanion</code>) have a process state machine typed by the group <code>ProcessStates</code>, with the states <code>Running</code> and <code>Terminated</code> (<a href="ExecutionManagement.html#1311-the-running-example-complete-configuration">EM guide, Section 13.11</a>).</p>
+<blockquote>
+<p><strong>Pitfall:</strong> Service use is not an Execution Dependency. <code>Fusion</code> uses <code>CameraService</code>, but it has no Execution Dependency on <code>CameraDriver</code>. It waits for the service through Service Discovery, as the EM guide recommends (<a href="ExecutionManagement.html#66-prefer-service-discovery-for-applications">EM guide, Section 6.6</a>).</p>
+</blockquote>
+<h3 id="16-services-and-their-consumers">1.6 Services and Their Consumers<a class="anchor" href="#16-services-and-their-consumers" aria-label="Link to this section">#</a></h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Service interface</th>
+<th>Provider</th>
+<th>Consumers</th>
+<th>Elements</th>
+<th>Owner guides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CameraService</code></td>
+<td><code>CameraDriver</code></td>
+<td><code>Fusion</code> (on <code>HPC</code>), <code>Cockpit</code> (remote)</td>
+<td>event <code>Image</code>, method <code>SetExposureMode</code>, field <code>CameraStatus</code></td>
+<td><a href="Manifests.html#66-worked-example-cameraservice-as-arxml">Manifests</a>, <a href="CommunicationManagement.html#56-worked-example-the-generated-api-of-cameraservice">CM</a>, <a href="NetworkBindings.html">Network Bindings</a></td>
+</tr>
+<tr>
+<td><code>ObjectListService</code></td>
+<td><code>Fusion</code>; <code>FusionLite</code> with reduced content</td>
+<td><code>Storage</code> (on <code>HPC</code>), <code>Cockpit</code> (remote)</td>
+<td>event <code>ObjectList</code>, field <code>FusionMode</code></td>
+<td><a href="CommunicationManagement.html#78-worked-example-images-for-fusion-object-lists-for-storage">CM</a>, <a href="NetworkBindings.html">Network Bindings</a></td>
+</tr>
+<tr>
+<td><code>CalibrationDataService</code></td>
+<td><code>Storage</code></td>
+<td>read: <code>CalibrationCheck</code>, <code>Fusion</code>, <code>FusionLite</code>; write: <code>CameraDriver</code></td>
+<td>methods <code>GetCalibration</code>, <code>SetCalibration</code>, trigger <code>CalibrationUpdated</code></td>
+<td><a href="CommunicationManagement.html#135-worked-example-calibrationdataservice-over-local-ipc">CM</a>, Persistency, IAM</td>
+</tr>
+<tr>
+<td><code>VehicleDynamicsService</code></td>
+<td>Communication Management, by Signal-to-Service translation</td>
+<td><code>Fusion</code>, <code>FusionLite</code>, <code>SmControl</code></td>
+<td>events <code>VehicleSpeed</code>, <code>SteeringAngle</code>, <code>YawRate</code></td>
+<td><a href="NetworkBindings.html">Network Bindings</a></td>
+</tr>
+<tr>
+<td><code>PowerModeService</code></td>
+<td>Communication Management, by Signal-to-Service translation</td>
+<td><code>SmControl</code></td>
+<td>field <code>PowerMode</code> (notifier only) with the values <code>Off</code> and <code>On</code></td>
+<td><a href="StateManagement.html#55-worked-example-smcontrol-brings-hpc-from-startup-to-driving">SM</a>, <a href="NetworkBindings.html">Network Bindings</a></td>
+</tr>
+<tr>
+<td><code>AdasStatusService</code></td>
+<td><code>SmControl</code></td>
+<td><code>InstrumentCluster</code> (through Signal-to-Service translation), <code>Cockpit</code></td>
+<td>field <code>AdasStatus</code> (notifier only) with the values <code>Off</code>, <code>Active</code>, <code>Degraded</code>, <code>Unavailable</code></td>
+<td><a href="StateManagement.html#137-example-the-main-loop-of-smcontrol">SM</a>, <a href="NetworkBindings.html">Network Bindings</a></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>The <code>CameraService</code> contract</strong> (detailed in the <a href="Manifests.html#66-worked-example-cameraservice-as-arxml">Manifests guide, Section 6.6</a>). Namespace <code>hpc::camera</code>, version 1.0. The event <code>Image</code> carries a <code>CameraImage</code>: <code>timestamp</code> (<code>uint64_t</code>), <code>width</code> and <code>height</code> (<code>uint16_t</code>) and <code>pixels</code> (a vector of <code>uint8_t</code>). The field <code>CameraStatus</code> has the type <code>CameraState</code> with the values <code>Ok</code>, <code>Blocked</code> and <code>NotAvailable</code>; it has a getter and a notifier but no setter, and its initial value is <code>NotAvailable</code>. The method <code>SetExposureMode(mode)</code> takes an <code>ExposureMode</code> with the values <code>Auto</code>, <code>Day</code> and <code>Night</code>, and can fail with the application error <code>ExposureModeNotSupported</code> (code 1 of the error domain <code>CameraErrors</code>). <code>Fusion</code> calls <code>SetExposureMode(Night)</code> when the camera image gets dark; if <code>CameraDriver</code> answers <code>ExposureModeNotSupported</code>, <code>Fusion</code> keeps the mode <code>Auto</code> (the <a href="CoreAndGeneral.html#97-worked-example-fusion-requests-the-night-exposure-mode">Core guide, Section 9.7</a>).</p>
+<p><strong>The <code>ObjectListService</code> contract</strong> (detailed in the <a href="CommunicationManagement.html#1411-the-running-example-complete-configuration">CM guide, Section 14.11</a>). Namespace <code>hpc::fusion</code>, version 1.0. The event <code>ObjectList</code> carries an <code>ObjectListData</code>: <code>timestamp</code> (<code>uint64_t</code>, <code>VehicleTime</code>) and <code>objects</code>, a vector of <code>DetectedObject</code> with <code>id</code> (<code>uint16_t</code>), <code>kind</code> (<code>ObjectKind</code> with the values <code>Unknown</code>, <code>Vehicle</code>, <code>Pedestrian</code> and <code>Cyclist</code>), <code>x</code> and <code>y</code> (<code>float</code>, in metres) and <code>vx</code> and <code>vy</code> (<code>float</code>, in metres per second). The field <code>FusionMode</code> has the type <code>FusionModeType</code> with the values <code>Full</code> and <code>RadarOnly</code>; it has a getter and a notifier but no setter. <code>Fusion</code> publishes <code>Full</code>, <code>FusionLite</code> publishes <code>RadarOnly</code>.</p>
+<p><strong>The <code>CalibrationDataService</code> contract</strong> (detailed in the <a href="CommunicationManagement.html#135-worked-example-calibrationdataservice-over-local-ipc">CM guide, Section 13.5</a>). Namespace <code>hpc::storage</code>, version 1.0. The method <code>GetCalibration(key)</code> returns the <code>CalibrationRecord</code> of a <code>CalibrationKey</code> (<code>CameraExtrinsics</code> or <code>RadarAlignment</code>, the keys of <code>CalibrationKvs</code>) or fails with <code>CalibrationNotFound</code>; <code>SetCalibration(key, record)</code> stores a record or fails with <code>CalibrationRejected</code>. A <code>CalibrationRecord</code> has <code>values</code> (a vector of <code>float</code>) and <code>writtenAt</code> (<code>uint64_t</code>). After each successful <code>SetCalibration</code>, <code>Storage</code> sends the trigger <code>CalibrationUpdated</code>, and <code>Fusion</code> and <code>FusionLite</code> read the calibration again. The skeletons of <code>CameraDriver</code> and <code>Storage</code> execute method calls with the processing mode <code>kEventSingleThread</code>.</p>
+<p><strong>Error domains.</strong> Every error belongs to an error domain, and the identifier of each domain must be unique in the platform. Application domains use identifiers whose most significant bit is 0 (the <a href="CoreAndGeneral.html#74-error-domain-identifiers">Core guide, Section 7.4</a>). The example has four domains:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Error domain</th>
+<th>Identifier</th>
+<th>Namespace</th>
+<th>Errors (code)</th>
+<th>How it is defined</th>
+<th>Owner guides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CameraErrors</code></td>
+<td><code>0x1001</code> (4097)</td>
+<td><code>hpc::camera</code></td>
+<td><code>ExposureModeNotSupported</code> (1)</td>
+<td>Modeled; referenced by <code>SetExposureMode</code>, so its C++ code is generated</td>
+<td><a href="Manifests.html#63-application-errors">Manifests</a>, <a href="CoreAndGeneral.html#78-generated-error-domains">Core</a>, CM</td>
+</tr>
+<tr>
+<td><code>AdasExecutionErrors</code></td>
+<td><code>0x1002</code> (4098)</td>
+<td>none</td>
+<td><code>FusionFailed</code> (42), <code>AdasStateTimeout</code> (60), <code>AdasTransitionRequestFailed</code> (61)</td>
+<td>Modeled; 42 is the <code>processExecutionError</code> of <code>Fusion</code>; 60 and 61 are error codes of the State Management configuration</td>
+<td><a href="Manifests.html#63-application-errors">Manifests</a>, EM, <a href="StateManagement.html#81-where-errors-come-from">SM</a></td>
+</tr>
+<tr>
+<td><code>FusionErrors</code></td>
+<td><code>0x1003</code> (4099)</td>
+<td><code>hpc::fusion</code></td>
+<td><code>kInputTimeout</code> (1), <code>kCalibrationImplausible</code> (2)</td>
+<td>Written by hand inside <code>Fusion</code>, not modeled; used only inside the process</td>
+<td><a href="CoreAndGeneral.html#77-defining-a-new-error-domain">Core</a></td>
+</tr>
+<tr>
+<td><code>CalibrationErrors</code></td>
+<td><code>0x1004</code> (4100)</td>
+<td><code>hpc::storage</code></td>
+<td><code>CalibrationNotFound</code> (1), <code>CalibrationRejected</code> (2)</td>
+<td>Modeled; referenced by <code>GetCalibration</code> and <code>SetCalibration</code> of <code>CalibrationDataService</code></td>
+<td><a href="CommunicationManagement.html#88-application-errors">CM</a>, Persistency</td>
+</tr>
+</tbody>
+</table></div>
+<p>Three design decisions are worth knowing:</p>
+<ul>
+<li><strong>Shared data goes through a service.</strong> Persistent data is private to one process (<em>Platform Design</em>, Section 10.1). <code>CalibrationCheck</code> and <code>Fusion</code> therefore cannot read data that another process stored. <code>Storage</code> owns the calibration and shares it through <code>CalibrationDataService</code>.</li>
+<li><strong>Two providers, never at the same time.</strong> <code>Fusion</code> and <code>FusionLite</code> both provide <code>ObjectListService</code>, but they run in different <code>ADAS</code> states. They offer the same service instance, so the proxy of <code>Storage</code> simply reconnects after a switch (the <a href="CommunicationManagement.html#96-worked-example-camerastatus-and-fusionmode">CM guide, Section 9.6</a>); the Network Bindings guide shows the DDS deployment.</li>
+<li><strong>The ADAS status comes from <code>SmControl</code></strong>, which follows the <code>CurrentState</code> of the StateMachine <code>AdasAgent</code> in State Management.</li>
+</ul>
+<p>Standardized platform services, such as the <code>PackageManagement</code> service of UCM or the services of State Management (<code>StateMachineService</code> and <code>StateMachineNotification</code> for each StateMachine, <code>UpdateAllowedService</code> and <code>UpdateRequest</code>), are used as the specifications define them. The running example does not redefine them.</p>
+<p>The following diagram shows who provides and who uses which service.</p>
+<pre class="mermaid">flowchart LR
+    CD[&quot;CameraDriver&quot;] --&gt; CS([&quot;CameraService&quot;])
+    CS --&gt; FU[&quot;Fusion&quot;]
+    CS --&gt; CK[&quot;Cockpit (remote)&quot;]
+    FU --&gt; OL([&quot;ObjectListService&quot;])
+    FL[&quot;FusionLite&quot;] --&gt; OL
+    OL --&gt; ST[&quot;Storage&quot;]
+    OL --&gt; CK
+    ST --&gt; CAL([&quot;CalibrationDataService&quot;])
+    CAL --&gt; CC[&quot;CalibrationCheck&quot;]
+    CAL --&gt; FU
+    CAL --&gt; FL
+    CD --&gt;|&quot;SetCalibration&quot;| CAL
+    S2S[&quot;CM: Signal-to-Service&lt;br/&gt;translation&quot;] --&gt; VD([&quot;VehicleDynamicsService&quot;])
+    S2S --&gt; PM([&quot;PowerModeService&quot;])
+    VD --&gt; FU
+    VD --&gt; FL
+    PM --&gt; SMC[&quot;SmControl&quot;]
+    VD --&gt; SMC
+    SMC --&gt; AS([&quot;AdasStatusService&quot;])
+    AS --&gt; S2S
+    AS --&gt; CK
+</pre>
+<h3 id="17-network-deployment">1.7 Network Deployment<a class="anchor" href="#17-network-deployment" aria-label="Link to this section">#</a></h3>
+<p>All values in this section are illustrative. The owner guides check them against the protocol specifications.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Communication</th>
+<th>Binding or protocol</th>
+<th>Details (illustrative)</th>
+<th>Owner guides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CameraService</code></td>
+<td>SOME/IP over TCP, secured with TLS 1.2 (<code>CameraTlsServer</code> on <code>HPC</code>, <code>CameraTlsClient</code> for <code>Fusion</code>; cipher suite <code>TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256</code>); <code>SetExposureMode</code> E2E-protected with <code>PROFILE_04m</code> (data ID <code>0x10010001</code>, source ID of <code>Fusion</code> <code>0x0000001</code>)</td>
+<td>Service ID <code>0x1001</code>, instance ID <code>0x0001</code>, TCP server port 30501 on <code>HPC</code>; method <code>SetExposureMode</code> <code>0x0001</code>, getter of <code>CameraStatus</code> <code>0x0002</code>, event <code>Image</code> <code>0x8001</code> and notifier of <code>CameraStatus</code> <code>0x8002</code> on the wire (event IDs 1 and 2 in the manifest; on the wire, an event carries its event ID plus <code>0x8000</code>), event group <code>CameraEvents</code> 1</td>
+<td><a href="Manifests.html#96-worked-example-cameraservice-between-cameradriver-and-fusion">Manifests</a>, <a href="NetworkBindings.html">Network Bindings</a>, <a href="SecureAndSafeCommunication.html">Secure Communication</a>, Cryptography</td>
+</tr>
+<tr>
+<td><code>AdasStatusService</code> to <code>Cockpit</code></td>
+<td>SOME/IP over UDP, E2E-protected with <code>PROFILE_04</code></td>
+<td>Service ID <code>0x1002</code>, instance ID <code>0x0001</code>, UDP server port 30502 on <code>HPC</code>; notifier of <code>AdasStatus</code> event ID 1 (<code>0x8001</code> on the wire), event group <code>AdasStatusEvents</code> 1; E2E data ID <code>0x10020001</code>; <code>SmControl</code> publishes on every change and at least every 100 ms</td>
+<td>Network Bindings, <a href="SecureAndSafeCommunication.html#116-worked-example-the-state-of-adasstatus-through-a-burst-of-lost-messages">Secure Communication</a></td>
+</tr>
+<tr>
+<td>Service discovery for SOME/IP</td>
+<td>SOME/IP-SD</td>
+<td>UDP port 30490, multicast address <code>239.192.255.251</code></td>
+<td>Network Bindings</td>
+</tr>
+<tr>
+<td><code>ObjectListService</code></td>
+<td>DDS</td>
+<td>Domain ID 1; topics <code>AdasObjectList</code> (event <code>ObjectList</code>) and <code>AdasFusionMode</code> (notifier of <code>FusionMode</code>); discovery type <code>TOPIC</code>; QoS profile <code>AdasReliable</code> (its content is vendor-specific; it should define a finite liveliness lease and a deadline); no E2E profile, because the DDS binding does not use the AUTOSAR E2E protocol</td>
+<td>Network Bindings, <a href="SecureAndSafeCommunication.html#133-worked-example-what-storage-sees-for-objectlist">Secure Communication</a></td>
+</tr>
+<tr>
+<td><code>CalibrationDataService</code></td>
+<td>Local IPC binding</td>
+<td>User-defined deployment <code>CalibrationDataService_Ipc</code> (category <code>SERVICE_INTERFACE_DEPLOYMENT_IPC</code>) on the connector <code>HpcIpcConnector</code> of <code>HpcDesign</code>; Minimum Send Interval of <code>SetCalibration</code> 1 s; only on <code>HPC</code></td>
+<td><a href="CommunicationManagement.html#135-worked-example-calibrationdataservice-over-local-ipc">CM</a></td>
+</tr>
+<tr>
+<td><code>VehicleDynamicsService</code>, <code>PowerModeService</code>, <code>AdasStatusService</code> to <code>InstrumentCluster</code></td>
+<td>Signal-Based SOME/IP binding with the Partial SOME/IP Header (Signal-to-Service translation)</td>
+<td>See <a href="#18-classic-ecus-and-signal-to-service-translation">Section 1.8</a></td>
+<td>Network Bindings</td>
+</tr>
+<tr>
+<td>Radar detections</td>
+<td>Raw Data Stream over TCP</td>
+<td><code>FrontRadar</code> is the server at <code>192.168.10.30</code>, port 50001; <code>Fusion</code> or <code>FusionLite</code> connects as the client</td>
+<td>NM/TSync/RDS</td>
+</tr>
+<tr>
+<td>Software updates</td>
+<td><code>PackageManagement</code> service of UCM, used by V-UCM on <code>TelematicsUnit</code></td>
+<td>Service deployment defined in the UCM guide</td>
+<td>UCM</td>
+</tr>
+<tr>
+<td>Diagnostics</td>
+<td>UDS over DoIP</td>
+<td>DoIP port 13400; <code>HPC</code> logical address <code>0x1010</code>, tester logical address <code>0x0E80</code></td>
+<td>Diagnostics Part 1</td>
+</tr>
+<tr>
+<td>Network Management</td>
+<td>UDP NM on the backbone</td>
+<td>See <a href="#114-time-network-management-and-logging">Section 1.14</a></td>
+<td>NM/TSync/RDS</td>
+</tr>
+<tr>
+<td>Time synchronization</td>
+<td>gPTP (IEEE 802.1AS) on the backbone</td>
+<td><code>CentralGateway</code> is the time master</td>
+<td>NM/TSync/RDS</td>
+</tr>
+<tr>
+<td>Logging</td>
+<td>DLT protocol version 2 to a logging client on the network</td>
+<td>ECU ID <code>HPC1</code>; DLT sink <code>HpcDltChannel</code>, log channel <code>HPCN</code>, TCP server port 3490 on <code>HPC</code> (<code>BackboneConnector</code>); non-verbose mode</td>
+<td><a href="LogAndTrace.html#102-machine-sinks-and-per-port-sinks">Log and Trace</a></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="18-classic-ecus-and-signal-to-service-translation">1.8 Classic ECUs and Signal-to-Service Translation<a class="anchor" href="#18-classic-ecus-and-signal-to-service-translation" aria-label="Link to this section">#</a></h3>
+<p>The Classic ECUs on the CAN bus exchange <em>signals</em>, not services. Signal-to-Service translation in Communication Management maps these signals to service elements on <code>HPC</code>, and back. The following diagram shows the path of the vehicle dynamics signals and of the ADAS status.</p>
+<pre class="mermaid">flowchart LR
+    CH[&quot;ChassisECU&quot;] --&gt;|&quot;CAN: ChassisDynamics&quot;| GW[&quot;CentralGateway&quot;]
+    GW --&gt;|&quot;PDUs over Ethernet&quot;| CM[&quot;HPC: Communication Management&lt;br/&gt;(Signal-to-Service translation)&quot;]
+    CM --&gt;|&quot;VehicleDynamicsService&quot;| FU[&quot;Fusion, FusionLite&quot;]
+    SMC[&quot;SmControl&quot;] --&gt;|&quot;AdasStatusService&quot;| CM
+    CM --&gt;|&quot;PDUs over Ethernet&quot;| GW
+    GW --&gt;|&quot;CAN: AdasHmi&quot;| IC[&quot;InstrumentCluster&quot;]
+</pre>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Signals</th>
+<th>Sender → receiver</th>
+<th>PDU (CAN ID, cycle; illustrative)</th>
+<th>Service on <code>HPC</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>VehicleSpeed</code>, <code>SteeringAngle</code>, <code>YawRate</code></td>
+<td><code>ChassisECU</code> → <code>HPC</code></td>
+<td><code>ChassisDynamics</code> (<code>0x101</code>, 10 ms)</td>
+<td><code>VehicleDynamicsService</code></td>
+</tr>
+<tr>
+<td><code>PowerMode</code></td>
+<td><code>CentralGateway</code> → <code>HPC</code></td>
+<td><code>VehicleMode</code> (<code>0x120</code>, 100 ms)</td>
+<td><code>PowerModeService</code></td>
+</tr>
+<tr>
+<td><code>AdasStatus</code></td>
+<td><code>HPC</code> → <code>InstrumentCluster</code></td>
+<td><code>AdasHmi</code> (<code>0x2A0</code>, 100 ms)</td>
+<td><code>AdasStatusService</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>The Adaptive Platform communicates over Ethernet at the data link layer (<em>Platform Design</em>, Section 8.1). <code>HPC</code> therefore has no CAN interface of its own: <code>CentralGateway</code> routes the PDUs between the CAN bus and <code>HPC</code>. The Network Bindings guide explains how Communication Management receives these PDUs and maps them to services.</p>
+<p>The signals have this layout (illustrative; all signals little endian, as is common on CAN):</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>PDU</th>
+<th>Signal</th>
+<th>Start bit, length</th>
+<th>Type and scaling</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ChassisDynamics</code> (8 bytes)</td>
+<td><code>VehicleSpeed</code></td>
+<td>0, 16 bit</td>
+<td>unsigned, 0.01 km/h per bit</td>
+</tr>
+<tr>
+<td></td>
+<td><code>SteeringAngle</code></td>
+<td>16, 16 bit</td>
+<td>signed, 0.1 degree per bit</td>
+</tr>
+<tr>
+<td></td>
+<td><code>YawRate</code></td>
+<td>32, 16 bit</td>
+<td>signed, 0.01 degree/s per bit</td>
+</tr>
+<tr>
+<td></td>
+<td><code>ChassisDynamicsCrc</code></td>
+<td>48, 8 bit</td>
+<td>E2E CRC (<code>PROFILE_11</code>)</td>
+</tr>
+<tr>
+<td></td>
+<td><code>ChassisDynamicsCounter</code></td>
+<td>56, 4 bit</td>
+<td>E2E counter</td>
+</tr>
+<tr>
+<td></td>
+<td><code>ChassisDynamicsDataIdNibble</code></td>
+<td>60, 4 bit</td>
+<td>High nibble of the E2E data ID <code>0x101</code></td>
+</tr>
+<tr>
+<td><code>VehicleMode</code> (1 byte)</td>
+<td><code>PowerMode</code></td>
+<td>0, 2 bit</td>
+<td>0 = <code>Off</code>, 1 = <code>On</code></td>
+</tr>
+<tr>
+<td><code>AdasHmi</code> (1 byte)</td>
+<td><code>AdasStatus</code></td>
+<td>0, 3 bit</td>
+<td>0 = <code>Off</code>, 1 = <code>Active</code>, 2 = <code>Degraded</code>, 3 = <code>Unavailable</code></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Protection</strong> (the <a href="SecureAndSafeCommunication.html">Secure Communication guide</a>). <code>VehicleSpeed</code>, <code>SteeringAngle</code>, <code>YawRate</code> and the three E2E header signals form the signal group <code>ChassisDynamicsGroup</code>, protected end-to-end by <code>ChassisECU</code> with <code>PROFILE_11</code> (data ID <code>0x101</code>, <code>lower12Bit</code>); the translation on <code>HPC</code> is a safe translation. <code>CentralGateway</code> sends <code>VehicleMode</code> as the secured PDU <code>VehicleModeSecured</code> (5 bytes: the 1-byte PDU, an 8-bit truncated freshness value and a 24-bit truncated MAC; SecOC Profile 1, SecOC data ID <code>0x0120</code>, freshness value ID 1, key <code>VehicleModeSecOcKey</code>); the translation of <code>PowerMode</code> is a secure translation. <code>AdasHmi</code> is not protected.</p>
+<p>On the Ethernet side, the PDUs use the <strong>Signal-Based SOME/IP</strong> binding with the <strong>Partial SOME/IP Header</strong>: each PDU is preceded by a 4-byte Message ID (service ID and event ID plus <code>0x8000</code>) and a 4-byte length. <code>CentralGateway</code> offers the translated services with SOME/IP service discovery and subscribes to the one that <code>HPC</code> provides.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Service on <code>HPC</code></th>
+<th>Deployment for the translation (illustrative)</th>
+<th>Consumers or receiver</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>VehicleDynamicsService</code></td>
+<td>Service ID <code>0x2001</code>, instance ID <code>0x0001</code>; the three events come from one PDU and therefore share event ID 1 (<code>0x8001</code> on the wire); event group <code>VehicleDynamicsEvents</code> 1; offered by <code>CentralGateway</code> (<code>192.168.10.1</code>, UDP port 30610); <code>HPC</code> receives on UDP port 30601</td>
+<td><code>Fusion</code>, <code>FusionLite</code> and <code>SmControl</code>, each with its own required service instance</td>
+</tr>
+<tr>
+<td><code>PowerModeService</code></td>
+<td>Service ID <code>0x2002</code>, instance ID <code>0x0001</code>; notifier of <code>PowerMode</code> event ID 1; event group <code>PowerModeEvents</code> 1; offered by <code>CentralGateway</code> on UDP port 30610</td>
+<td><code>SmControl</code></td>
+</tr>
+<tr>
+<td><code>AdasStatusService</code> to <code>InstrumentCluster</code></td>
+<td>A second, signal-based deployment of the same service interface: service ID <code>0x2003</code>, instance ID <code>0x0001</code>; notifier of <code>AdasStatus</code> event ID 1; event group <code>AdasHmiEvents</code> 1; offered by <code>HPC</code> on UDP port 30602; <code>CentralGateway</code> subscribes and puts the PDU <code>AdasHmi</code> on CAN; <code>SmControl</code> publishes <code>AdasStatus</code> at least every 100 ms</td>
+<td><code>InstrumentCluster</code></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="19-persistent-data">1.9 Persistent Data<a class="anchor" href="#19-persistent-data" aria-label="Link to this section">#</a></h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Storage</th>
+<th>Kind</th>
+<th>Owner process</th>
+<th>Content</th>
+<th>Notes</th>
+<th>Owner guides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CalibrationKvs</code></td>
+<td>Key-Value Storage</td>
+<td><code>Storage</code></td>
+<td>Key <code>CameraExtrinsics</code> (mounting angles and position of the camera) and key <code>RadarAlignment</code> (angular offset of the radar)</td>
+<td>Protected by a message authentication code (MAC) with <code>CalibrationMacKey</code>. Changed only through <code>SetCalibration</code>.</td>
+<td>Persistency, Cryptography</td>
+</tr>
+<tr>
+<td><code>Recordings</code></td>
+<td>File Storage</td>
+<td><code>Storage</code></td>
+<td>Recorded object lists, one file per recording</td>
+<td>Limited by a quota; the oldest recording is deleted first</td>
+<td>Persistency</td>
+</tr>
+<tr>
+<td><code>FusionParams</code></td>
+<td>Key-Value Storage</td>
+<td><code>Fusion</code></td>
+<td>Key <code>TrackerTuning</code>: tuning parameters that <code>Fusion</code> learns while driving</td>
+<td>Migrated by the update to <code>AdasCluster</code> 1.1.0, which changes the data type of <code>TrackerTuning</code></td>
+<td>Persistency, UCM</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Ports and interfaces.</strong> Each storage is reached through an R-port of the software component of its process: <code>CalibrationKvsPort</code> and <code>RecordingsPort</code> in <code>StorageSwc</code> (instance specifiers <code>/storage/Root/CalibrationKvsPort</code> and <code>/storage/Root/RecordingsPort</code>), and <code>FusionParamsPort</code> in <code>FusionSwc</code> (<code>/fusion/Root/FusionParamsPort</code>). The ports are typed by the persistency interfaces <code>CalibrationKvsInterface</code>, <code>RecordingsInterface</code> and <code>FusionParamsInterface</code>, all with the access mode <code>readWrite</code>. The values of <code>CalibrationKvs</code> have the type <code>CalibrationRecord</code> of <code>CalibrationDataService</code>; their initial values <code>CameraExtrinsicsDefault</code> and <code>RadarAlignmentDefault</code> mean &quot;not calibrated&quot; (an empty value list).</p>
+<p><strong><code>TrackerTuning</code> in two versions.</strong> <code>fusion</code> 1.0.0 stores <code>hpc::fusion::TrackerTuningV1</code> (<code>gateDistance</code> as <code>float</code> in metres, <code>maxCoastCycles</code> as <code>std::uint8_t</code>). <code>fusion</code> 1.1.0 uses <code>hpc::fusion::TrackerTuningV2</code> (<code>gateDistance</code>, <code>maxCoastCycles</code> as <code>std::uint16_t</code>, and the new <code>minConfidence</code> as <code>float</code>), raises the contract version of <code>FusionParamsInterface</code> from 1.0.0 to 1.1.0, and declares the old type as the previous data type. When <code>Fusion</code> 1.1.0 opens <code>FusionParams</code> for the first time after the update, its update callback reports the old contract version; <code>Fusion</code> then converts the stored value and removes the backup (the <a href="Persistency.html#1212-worked-example-fusionparams-and-the-update-to-adascluster-110">Persistency guide, Section 12.12</a>).</p>
+<p><strong>Target configuration</strong> (illustrative values; the <a href="Persistency.html#1413-the-running-example-complete-configuration">Persistency guide, Section 14.13</a> has the details):</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Storage</th>
+<th>Version</th>
+<th>Update strategy</th>
+<th>Minimum / maximum size</th>
+<th>Integrity and security</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CalibrationKvs</code></td>
+<td>1.0.0</td>
+<td>keep existing</td>
+<td>16 KiB / 64 KiB</td>
+<td>2 out of 3 copies for the whole storage, in two locations; MAC <code>MAC/CMAC/AES-128</code> with the key slot <code>CalibrationMacKeySlot</code>, which holds <code>CalibrationMacKey</code></td>
+</tr>
+<tr>
+<td><code>Recordings</code></td>
+<td>1.0.0</td>
+<td>keep existing</td>
+<td>64 MiB / 256 MiB, at most 64 files</td>
+<td>none: recordings can be made again</td>
+</tr>
+<tr>
+<td><code>FusionParams</code></td>
+<td>1.0.0, 1.1.0 in <code>AdasCluster</code> 1.1.0</td>
+<td>keep existing</td>
+<td>4 KiB / 16 KiB</td>
+<td>CRC <code>CRC_32P4</code> (32 bits) per key-value pair</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>Storage</code> syncs <code>CalibrationKvs</code> after every accepted <code>SetCalibration</code> and answers <code>CalibrationNotFound</code> when a key cannot be read or authenticated. It syncs a recording every 10 s and when the recording ends, and it deletes the oldest recording when the quota or the file limit is reached.</p>
+<h3 id="110-diagnostics">1.10 Diagnostics<a class="anchor" href="#110-diagnostics" aria-label="Link to this section">#</a></h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Value (illustrative)</th>
+<th>Provider on <code>HPC</code></th>
+<th>Owner guides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Diagnostic address</td>
+<td>DoIP logical address <code>0x1010</code>, one for the whole machine: both Software Clusters share one diagnostic configuration (<code>DiagnosticContributionSet</code> <code>HpcDiagnostics</code>); functional address <code>0xE400</code></td>
+<td>Diagnostic Management</td>
+<td><a href="DiagnosticsPart1.html#23-diagnostic-server-instances-and-software-clusters">Diagnostics Part 1</a></td>
+</tr>
+<tr>
+<td>DoIP</td>
+<td>Protocol version 3 (ISO 13400-2:2019); at most 2 tester connections and 2 Diagnostic Conversations; tester connection <code>WorkshopTesters</code> with source addresses <code>0x0E00</code> to <code>0x0EFF</code>, priority 10; EID from the MAC address; no TLS. <code>SmControl</code> provides the DoIP power mode.</td>
+<td>Diagnostic Management, <code>SmControl</code></td>
+<td><a href="DiagnosticsPart1.html#59-worked-example-diagnostictester-connects-to-hpc">Diagnostics Part 1</a></td>
+</tr>
+<tr>
+<td>Sessions</td>
+<td><code>DefaultSession</code> (<code>0x01</code>) and <code>ExtendedSession</code> (<code>0x03</code>); P2 50 ms, P2* 5000 ms, S3 5000 ms</td>
+<td>Diagnostic Management</td>
+<td><a href="DiagnosticsPart1.html#81-diagnosticsessioncontrol-and-the-s3-timer">Diagnostics Part 1</a></td>
+</tr>
+<tr>
+<td>Security level <code>Level1</code></td>
+<td>SecurityAccess with RequestSeed <code>0x01</code> and SendKey <code>0x02</code>; 4-byte seed and key; 3 failed attempts, then 10 s delay</td>
+<td><code>SmControl</code> (port <code>SecurityLevelPort</code>)</td>
+<td><a href="DiagnosticsPart1.html#84-worked-example-unlocking-hpc-for-calibration">Diagnostics Part 1</a>, Cryptography</td>
+</tr>
+<tr>
+<td>DID <code>0x0101</code> <code>FusionSoftwareVersion</code></td>
+<td>Read with the UDS service ReadDataByIdentifier in both sessions without security; 8-byte ASCII text; typed interface <code>FusionSwVersionDid</code>, P-port <code>SwVersionDidPort</code> of <code>FusionSwc</code></td>
+<td><code>Fusion</code></td>
+<td><a href="DiagnosticsPart1.html#107-worked-example-fusionsoftwareversion">Diagnostics Part 1</a></td>
+</tr>
+<tr>
+<td>DID <code>0xF190</code> VIN</td>
+<td>Vehicle identification number (17 bytes), also used by DoIP vehicle identification</td>
+<td><code>SmControl</code> (port <code>VinDidPort</code>)</td>
+<td><a href="DiagnosticsPart1.html#105-the-vin-did">Diagnostics Part 1</a></td>
+</tr>
+<tr>
+<td>Routine <code>0x0201</code> <code>CalibrateCamera</code></td>
+<td>Started with the UDS service RoutineControl in the extended session at <code>Level1</code>; start and request results; about 3 s. Measures the camera position and stores it with <code>SetCalibration</code>. Typed interface <code>CalibrateCameraRoutine</code>, P-port <code>CalibrateCameraPort</code> of <code>CameraDriverSwc</code>.</td>
+<td><code>CameraDriver</code></td>
+<td><a href="DiagnosticsPart1.html#114-worked-example-calibratecamera">Diagnostics Part 1</a></td>
+</tr>
+<tr>
+<td>Routine <code>0x0202</code> <code>DegradeAdas</code></td>
+<td>Extended session, <code>Level1</code>, start only; requests <code>Degrade</code> (10) from <code>AdasAgent</code></td>
+<td><code>SmControl</code> (port <code>DegradeAdasPort</code>)</td>
+<td><a href="DiagnosticsPart1.html#127-worked-example-degradeadas">Diagnostics Part 1</a>, <a href="StateManagement.html#112-diagnostics-ecu-reset-and-communication-control">SM</a></td>
+</tr>
+<tr>
+<td>ECU reset</td>
+<td>The UDS service ECUReset (<code>0x11</code>), hardReset and softReset, extended session and <code>Level1</code>, positive response before the reset. Diagnostic Management calls <code>ara::diag::EcuResetRequest</code>, which <code>SmControl</code> implements on <code>EcuResetPort</code>; <code>SmControl</code> requests <code>Reset</code> from <code>HpcController</code>, whose <code>Restart</code> state requests <code>MachineFG.Restart</code>.</td>
+<td>Diagnostic Management, <code>SmControl</code>, <code>StateManager</code></td>
+<td><a href="StateManagement.html#112-diagnostics-ecu-reset-and-communication-control">SM</a>, <a href="DiagnosticsPart1.html#126-worked-example-ecu-reset-through-smcontrol">Diagnostics Part 1</a></td>
+</tr>
+<tr>
+<td>Diagnostic event <code>CameraBlocked</code></td>
+<td>Reported by the diagnostic monitor in <code>CameraDriver</code> when the camera image stays dark or frozen: every 100 ms <code>kPrefailed</code> or <code>kPrepassed</code> on the R-port <code>CameraBlockedMonitorPort</code> of <code>CameraDriverSwc</code> (<code>DiagnosticMonitorInterface</code>). Counter-based debouncing <code>CameraBlockedDebounce</code>: step up 2, step down 1, thresholds 20 and −20, jump down to 0.</td>
+<td><code>CameraDriver</code></td>
+<td><a href="DiagnosticsPart2.html#59-worked-example-the-camerablocked-monitor">Diagnostics Part 2</a></td>
+</tr>
+<tr>
+<td>Operation cycle and conditions</td>
+<td>Operation cycle <code>IgnitionCycle</code> (type <code>ignition</code>), restarted by <code>SmControl</code> when <code>PowerMode</code> becomes <code>On</code> (R-port <code>IgnitionCyclePort</code>). Enable condition <code>PowerModeOn</code> (group <code>CameraMonitoringConditions</code>, initial value false, R-port <code>PowerModeOnConditionPort</code>). Clear condition <code>VehicleStandstill</code> (group <code>ClearConditions</code>, below 0.5 km/h, R-port <code>StandstillClearConditionPort</code>). <code>SmControl</code> also reads the event memory (R-port <code>PrimaryMemoryPort</code>) and calls <code>EnableControlDtc</code> at the start of every drive.</td>
+<td><code>SmControl</code></td>
+<td><a href="DiagnosticsPart2.html#74-worked-example-smcontrol-owns-the-cycle-and-the-conditions">Diagnostics Part 2</a></td>
+</tr>
+<tr>
+<td>DTC <code>0x9A1011</code></td>
+<td><code>CameraBlockedDtc</code> (&quot;Front camera blocked&quot;), mapped to <code>CameraBlocked</code>; ISO 14229-1 format, severity <code>checkAtNextHalt</code>, priority 2, significance <code>fault</code>, confirmation threshold 2 (pending in the first drive, confirmed in the next one with a failure); aging after 40 <code>IgnitionCycle</code>s; clear condition <code>VehicleStandstill</code></td>
+<td>Diagnostic Management</td>
+<td><a href="DiagnosticsPart2.html#87-worked-example-two-drives-with-a-blocked-camera">Diagnostics Part 2</a></td>
+</tr>
+<tr>
+<td>Event memory <code>HpcPrimaryMemory</code></td>
+<td>Primary memory, 20 entries, displacement <code>full</code>, storage trigger <code>testFailed</code>, snapshot numbering <code>calculated</code> (at most 2 records for <code>0x9A1011</code>). Snapshot: DID <code>0x0102</code> <code>VehicleSpeed</code> (2 bytes, 0.01 km/h), provided by <code>SmControl</code> (P-port <code>VehicleSpeedDidPort</code>). Extended data: record <code>0x01</code> occurrence counter, <code>0x02</code> aging counter up, <code>0x03</code> maximum FDC since clear, all internal.</td>
+<td>Diagnostic Management, <code>SmControl</code></td>
+<td><a href="DiagnosticsPart2.html#99-worked-example-the-entry-of-0x9a1011">Diagnostics Part 2</a></td>
+</tr>
+<tr>
+<td>Fault-memory services</td>
+<td><code>0x19</code> sub-functions <code>0x01</code>, <code>0x02</code>, <code>0x04</code>, <code>0x06</code>, <code>0x0A</code>, <code>0x14</code> and <code>0x14</code> ClearDiagnosticInformation in both sessions without security; <code>0x85</code> ControlDTCSetting in the extended session; no <code>0x86</code></td>
+<td>Diagnostic Management</td>
+<td><a href="DiagnosticsPart2.html#10-reading-clearing-and-controlling-the-fault-memory-over-uds">Diagnostics Part 2</a></td>
+</tr>
+<tr>
+<td>File transfer</td>
+<td><code>0x38</code> ReadFile and ReadDir in the extended session at <code>Level1</code>: <code>Storage</code> provides <code>FileTransferService</code> on the P-port <code>RecordingsTransferPort</code> to read the files of <code>Recordings</code></td>
+<td><code>Storage</code></td>
+<td><a href="DiagnosticsPart2.html#116-worked-example-reading-a-recording-from-storage">Diagnostics Part 2</a></td>
+</tr>
+<tr>
+<td>SOVD</td>
+<td>SOVD server <code>HpcSovdServer</code> on <code>HPC</code> (component qualifier <code>hpc</code>, HTTPS with TLS); the Diagnostic Server of <code>HpcDiagnostics</code> is the sub-component <code>hpcdiag</code>; no SOVD gateway on <code>HPC</code>. <code>SmControl</code> provides <code>SovdAuthorization</code> and <code>SovdProximityChallenge</code>. SOVD data <code>CameraStatus</code> (category <code>CURRENT_DATA</code>) and the asynchronous operation <code>CameraCalibration</code> (proximity proof required) are provided by <code>CameraDriver</code>; faults are read and deleted through <code>DiagnosticSovdFaultMemoryAccess</code>.</td>
+<td>Diagnostic Management, <code>CameraDriver</code>, <code>SmControl</code></td>
+<td><a href="DiagnosticsPart2.html#12-sovd-concepts-and-server-setup">Diagnostics Part 2</a></td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p><strong>Pitfall:</strong> <code>Fusion</code> runs only in <code>ADAS.Normal</code>. When <code>ADAS</code> is <code>Off</code> or <code>Degraded</code>, nobody provides <code>FusionSoftwareVersion</code>, and Diagnostic Management answers with the NRC <code>0x94</code> (the <a href="DiagnosticsPart1.html#107-worked-example-fusionsoftwareversion">Diagnostics Part 1 guide, Section 10.7</a>).</p>
+</blockquote>
+<h3 id="111-software-updates">1.11 Software Updates<a class="anchor" href="#111-software-updates" aria-label="Link to this section">#</a></h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Value</th>
+<th>Owner guides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Installed software</td>
+<td><code>HpcPlatformCore</code> 1.0.0 and <code>AdasCluster</code> 1.0.0</td>
+<td>UCM</td>
+</tr>
+<tr>
+<td>Update</td>
+<td>A Software Package with <code>AdasCluster</code> 1.1.0. It contains <code>fusion</code> 1.1.0 and the new version of <code>FusionParams</code>.</td>
+<td>Persistency, UCM</td>
+</tr>
+<tr>
+<td>Package authenticity</td>
+<td>The package is signed; UCM verifies it with <code>PackageVerificationKey</code></td>
+<td>UCM, Cryptography</td>
+</tr>
+<tr>
+<td>UCM client</td>
+<td>V-UCM on <code>TelematicsUnit</code>, which receives the package from the <code>Backend</code> through the OTA Client</td>
+<td>UCM</td>
+</tr>
+<tr>
+<td>Activation</td>
+<td>Through the <code>Verify</code> state of <code>ADAS</code>, the Function Group of <code>AdasCluster</code>, coordinated by UCM and State Management. <code>SmControl</code> allows an update session only while the vehicle stands still.</td>
+<td><a href="StateManagement.html#97-worked-example-updating-adascluster-to-110">SM</a>, UCM</td>
+</tr>
+<tr>
+<td>Rollback</td>
+<td>If the verification fails, UCM rolls back to <code>AdasCluster</code> 1.0.0</td>
+<td>UCM</td>
+</tr>
+</tbody>
+</table></div>
+<p>The update follows the three phases of UCM: preparation (transfer and processing), activation, and cleanup (<em>Platform Design</em>, Section 13.4). The UCM guide tells the whole story.</p>
+<h3 id="112-security">1.12 Security<a class="anchor" href="#112-security" aria-label="Link to this section">#</a></h3>
+<p><strong>Keys and certificates.</strong> All keys are stored in the HSM.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Name (illustrative)</th>
+<th>Kind</th>
+<th>Used by</th>
+<th>Purpose</th>
+<th>Owner guides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OemRootCa</code></td>
+<td>X.509 root certificate</td>
+<td>Communication Management, UCM</td>
+<td>Root of trust for all certificates</td>
+<td>Cryptography</td>
+</tr>
+<tr>
+<td><code>HpcDeviceCert</code>, <code>HpcDeviceKey</code></td>
+<td>X.509 certificate and private key of <code>HPC</code></td>
+<td>Communication Management</td>
+<td>TLS for the SOME/IP communication of <code>CameraService</code> with <code>Cockpit</code> and <code>Fusion</code> (<code>CameraTlsServer</code>; <code>HpcDeviceCert</code> is issued under <code>OemRootCa</code>)</td>
+<td><a href="SecureAndSafeCommunication.html#66-worked-example-cameraservice-secured-with-hpcdevicecert">Secure Communication</a>, Cryptography</td>
+</tr>
+<tr>
+<td><code>VehicleModeSecOcKey</code></td>
+<td>Symmetric AES-128 key, shared with <code>CentralGateway</code></td>
+<td>Communication Management (translation in <code>SmControl</code>)</td>
+<td>SecOC of <code>VehicleModeSecured</code></td>
+<td><a href="SecureAndSafeCommunication.html#710-worked-example-powermode-authenticated-by-centralgateway">Secure Communication</a>, Cryptography</td>
+</tr>
+<tr>
+<td><code>PackageVerificationKey</code></td>
+<td>Public key</td>
+<td>UCM</td>
+<td>Verifies the signature of Software Packages</td>
+<td>UCM, Cryptography</td>
+</tr>
+<tr>
+<td><code>CalibrationMacKey</code></td>
+<td>Symmetric key, in the key slot <code>CalibrationMacKeySlot</code></td>
+<td><code>Storage</code> (through Persistency)</td>
+<td>MAC over <code>CalibrationKvs</code></td>
+<td>Persistency, Cryptography</td>
+</tr>
+<tr>
+<td><code>PlatformVendorCert</code>, <code>AdasSupplierCert</code></td>
+<td>X.509 certificates (ECC) of the vendors of <code>HpcPlatformCore</code> and <code>AdasCluster</code>, issued under <code>OemRootCa</code></td>
+<td>UCM</td>
+<td>Vendor signature of each Software Cluster</td>
+<td><a href="Manifests.html#104-worked-example-adascluster-and-hpcplatformcore">Manifests</a>, UCM, Cryptography</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Freshness values.</strong> The OEM delivers the Freshness Value Manager plug-in <strong><code>HpcFreshnessManager</code></strong> for SecOC on <code>HPC</code>; it keeps the freshness counter of <code>VehicleModeSecured</code> synchronized with <code>CentralGateway</code> (the <a href="SecureAndSafeCommunication.html#78-the-freshness-value-manager-plug-in">Secure Communication guide, Section 7.8</a>). Service discovery, IPsec, MACsec and DDS Security are not used in <code>HPC</code>.</p>
+<p>The trust chain of the boot process starts at a Trust Anchor in protected memory, as the <a href="ExecutionManagement.html#121-trusted-platform-basics">EM guide</a> explains.</p>
+<p><strong>Access rights.</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Subject</th>
+<th>Is allowed to</th>
+<th>Enforced by</th>
+<th>Owner guides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Fusion</code></td>
+<td>Use <code>CameraService</code>. No other process on <code>HPC</code> may use it.</td>
+<td>IAM</td>
+<td>IAM</td>
+</tr>
+<tr>
+<td><code>CameraDriver</code></td>
+<td>Call <code>SetCalibration</code>. Other consumers may only call <code>GetCalibration</code>.</td>
+<td>IAM</td>
+<td>IAM</td>
+</tr>
+<tr>
+<td><code>StateManager</code></td>
+<td>Use <code>StateClient</code> for <code>MachineFG</code> and <code>ADAS</code> through the Function Group Port Mappings <code>StateManagerToMachineFG</code> and <code>StateManagerToADAS</code>. No other process may.</td>
+<td>EM</td>
+<td><a href="ExecutionManagement.html#126-function-group-access-control">EM</a></td>
+</tr>
+<tr>
+<td><code>SmControl</code></td>
+<td>Request transitions of <code>HpcController</code> and <code>AdasAgent</code> and set <code>UpdateAllowed</code>. No other process may.</td>
+<td>IAM</td>
+<td><a href="StateManagement.html#35-who-may-talk-to-state-management">SM</a>, IAM</td>
+</tr>
+</tbody>
+</table></div>
+<p><em>Denial scenario (the IAM guide):</em> <code>FusionLite</code> is misconfigured and tries to subscribe to <code>CameraService</code>. IAM denies the access and a security event is reported.</p>
+<p><strong>Security events.</strong> Security sensors report events to the Intrusion Detection System Manager (IdsM), which qualifies them. Qualified events are stored on <code>HPC</code> or forwarded towards the <code>Backend</code>.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Security event</th>
+<th>Reported by</th>
+<th>Occurs when</th>
+<th>Owner guides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SEV_EXEC_SW_COMPONENT_INTEGRITY_CHECK_FAILED</code></td>
+<td>Execution Management</td>
+<td>An executable or manifest fails the integrity or authenticity check</td>
+<td>EM, IDSM and Firewall</td>
+</tr>
+<tr>
+<td>Access denied (name defined in the IAM specification)</td>
+<td>IAM</td>
+<td><code>FusionLite</code> tries to use <code>CameraService</code></td>
+<td>IAM, IDSM and Firewall</td>
+</tr>
+<tr>
+<td>Packet dropped (name defined in the Firewall specification)</td>
+<td>Firewall</td>
+<td>A packet matches no allowing rule</td>
+<td>IDSM and Firewall</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Firewall.</strong> The rules are configured in the Machine Manifest. By default, the firewall drops every packet. It allows only the flows of <a href="#17-network-deployment">Section 1.7</a>: DoIP from the tester, SOME/IP-SD, <code>CameraService</code> and <code>AdasStatusService</code> for <code>Cockpit</code>, DDS domain 1 for <code>Cockpit</code>, the UCM service for <code>TelematicsUnit</code>, the radar stream from <code>FrontRadar</code>, and Network Management. The IDSM and Firewall guide writes the rule set.</p>
+<h3 id="113-safety">1.13 Safety<a class="anchor" href="#113-safety" aria-label="Link to this section">#</a></h3>
+<p>Platform Health Management supervises three processes. Each one reports the checkpoints of one Supervised Entity, and its supervisions form one Global Supervision. All values are illustrative.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Supervised process</th>
+<th>Supervised Entity: interface, namespace, checkpoints (ID)</th>
+<th>Supervisions</th>
+<th>Global Supervision, active in</th>
+<th>Owner guides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Fusion</code></td>
+<td><code>FusionCycle</code>, <code>hpc::fusion</code>: <code>CycleStart</code> (1), <code>InputsRead</code> (2), <code>ObjectsPublished</code> (3), <code>CycleEnd</code> (4)</td>
+<td>Alive supervision of <code>CycleStart</code>: reference cycle 200 ms, 4 expected indications, margins 1 and 1, tolerance 1 failed cycle. Deadline <code>ComputeDeadline</code>: <code>InputsRead</code> to <code>ObjectsPublished</code> within 25 ms. Deadline <code>CycleDeadline</code>: <code>CycleStart</code> to <code>CycleEnd</code> within 45 ms. Logical supervision <code>CycleOrder</code>: <code>CycleStart</code>, <code>InputsRead</code>, <code>ObjectsPublished</code>, <code>CycleEnd</code>, or <code>CycleStart</code> directly to <code>CycleEnd</code> when a cycle is skipped.</td>
+<td><code>FusionSupervision</code>, in <code>ADAS.Normal</code></td>
+<td><a href="PlatformHealthManagement.html#1415-the-running-example-complete-configuration">PHM</a></td>
+</tr>
+<tr>
+<td><code>CameraDriver</code></td>
+<td><code>CameraImageLoop</code>, <code>hpc::camera</code>: <code>ImageCaptured</code> (1)</td>
+<td>Alive supervision of the image loop (30 images per second): reference cycle 500 ms, 15 expected indications, margins 2 and 2, tolerance 2 failed cycles</td>
+<td><code>CameraDriverSupervision</code>, in <code>ADAS.Normal</code> and <code>ADAS.Degraded</code></td>
+<td><a href="PlatformHealthManagement.html#1415-the-running-example-complete-configuration">PHM</a></td>
+</tr>
+<tr>
+<td><code>StateManager</code></td>
+<td><code>StateManagerHeartbeat</code>, <code>hpc::sm</code>: <code>MainLoop</code> (1)</td>
+<td>Alive supervision of the main loop (every 100 ms): reference cycle 1 s, 10 expected indications, margins 2 and 2, tolerance 1 failed cycle; <code>expiredSupervisionTolerance</code> 200 ms</td>
+<td><code>StateManagerSupervision</code>, in every <code>MachineFG</code> state except <code>Off</code></td>
+<td><a href="PlatformHealthManagement.html#1415-the-running-example-complete-configuration">PHM</a></td>
+</tr>
+</tbody>
+</table></div>
+<p>The configuration is split into two PHM contributions. <code>AdasPhm</code> belongs to <code>AdasCluster</code>. It holds the supervisions of <code>Fusion</code> and <code>CameraDriver</code>, and it connects both Global Supervisions to the recovery notification <code>AdasRecovery</code> (timeout 6 s). The mapping <code>AdasRecoveryToStateManager</code> delivers that notification to the port <code>PhmRecoveryPort</code> of <code>StateManager</code>. <code>PlatformPhm</code> belongs to <code>HpcPlatformCore</code> and holds the supervision of <code>StateManager</code>. It has no recovery notification, because a failure of State Management ends in a watchdog reset. The mappings <code>AdasPhmToHpc</code> and <code>PlatformPhmToHpc</code> enable both contributions on <code>HPC</code>. In a real project, the platform vendor usually delivers the supervision of State Management.</p>
+<p>When a supervision of <code>Fusion</code> or <code>CameraDriver</code> fails, Platform Health Management informs State Management, which switches <code>ADAS</code> to <code>Degraded</code> through the error reactions of <code>AdasAgent</code>. PHM passes the <code>processExecutionError</code> of the failed process: 42 for <code>Fusion</code>, and the default value 1 for <code>CameraDriver</code>, which has none. When <code>Fusion</code> terminates, EM informs PHM, because <code>Fusion</code> is supervised (<a href="ExecutionManagement.html#59-synchronization-with-platform-health-management">EM guide, Section 5.9</a>). <code>PlatformHealth</code> also serves the hardware watchdog: if Execution Management or State Management fails, PHM lets the watchdog reset the machine (<em>Platform Design</em>, Section 17.3). End-to-end (E2E) protection (the <a href="SecureAndSafeCommunication.html">Secure Communication guide</a>) covers the signal group <code>ChassisDynamicsGroup</code> (<code>PROFILE_11</code>, safe translation for <code>Fusion</code>, <code>FusionLite</code> and <code>SmControl</code>), the method <code>SetExposureMode</code> of <code>CameraService</code> (<code>PROFILE_04m</code>) and the notifier of <code>AdasStatus</code> to <code>Cockpit</code> (<code>PROFILE_04</code>). <code>ObjectListService</code> uses DDS, where liveliness and deadline QoS take the role of E2E.</p>
+<h3 id="114-time-network-management-and-logging">1.14 Time, Network Management and Logging<a class="anchor" href="#114-time-network-management-and-logging" aria-label="Link to this section">#</a></h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Element (illustrative)</th>
+<th>Owner guides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Time synchronization</td>
+<td>Time base <code>VehicleTime</code>, synchronized with IEEE 802.1AS. <code>CentralGateway</code> is the time master; <code>HPC</code> follows it. <code>CameraDriver</code> time-stamps every image with <code>VehicleTime</code>, so that <code>Fusion</code> can align images and radar detections.</td>
+<td>NM/TSync/RDS</td>
+</tr>
+<tr>
+<td>Network Management</td>
+<td>Partial network <code>AdasPn</code>, with <code>HPC</code>, <code>FrontRadar</code> and <code>Cockpit</code>, controlled through the network handle <code>AdasPnHandle</code>. State Management requests it when <code>ADAS</code> leaves <code>Off</code> and releases it 2 s after <code>ADAS</code> has returned to <code>Off</code> (afterrun).</td>
+<td><a href="StateManagement.html#63-network-handle-items-and-afterrun">SM</a>, NM/TSync/RDS</td>
+</tr>
+<tr>
+<td>Log and Trace</td>
+<td>ECU ID <code>HPC1</code> (<code>DltEcu</code> <code>HpcDltEcu</code>). <code>Fusion</code>: application ID <code>FUSN</code>, contexts <code>MAIN</code> and <code>TRCK</code>. <code>CameraDriver</code>: application ID <code>CAMD</code>, contexts <code>MAIN</code> and <code>IMGS</code>. <code>FusionLite</code>: <code>FUSL</code> (<code>MAIN</code>). <code>SmControl</code>: <code>SMCT</code> (<code>MAIN</code>). One R-port per context, typed by the <code>LogAndTraceInterface</code>s <code>FusionLog</code> (<code>hpc::fusion</code>), <code>CameraLog</code> (<code>hpc::camera</code>) and <code>SmControlLog</code> (<code>hpc::smcontrol</code>): <code>MainLogPort</code> and <code>TrackLogPort</code> of <code>FusionSwc</code>, <code>MainLogPort</code> and <code>ImageLogPort</code> of <code>CameraDriverSwc</code>, <code>MainLogPort</code> of <code>FusionLiteSwc</code> and <code>SmControlSwc</code> (instance specifiers such as <code>/fusion/Root/MainLogPort</code>). Modeled messages (application range, bit 31 = 0): <code>FusionCycleOverrun</code> <code>0x00010001</code> (Warn), <code>TrackListSummary</code> <code>0x00010002</code> (Debug), trace points <code>FusionCycleBegin</code>/<code>FusionCycleEnd</code> <code>0x00010101</code>/<code>0x00010102</code>, <code>FusionLiteActive</code> <code>0x00011001</code>, <code>ImageDropped</code> <code>0x00020001</code> (Warn), <code>ExposureModeChanged</code> <code>0x00020002</code>, <code>AdasStatusChanged</code> <code>0x00030001</code>. Machine: <code>LogAndTraceInstantiation</code> <code>HpcLogAndTrace</code> (no session IDs, time base <code>VehicleTime</code>) with the DLT sink <code>HpcDltChannel</code> and the console sink <code>HpcConsole</code>; per-port REMOTE sinks <code>HpcRemoteInfo</code> (<code>info</code>, for the <code>MAIN</code> contexts) and <code>HpcRemoteWarn</code> (<code>warn</code>, for <code>TRCK</code> and <code>IMGS</code>). The application IDs of the platform daemons are vendor-specific.</td>
+<td><a href="LogAndTrace.html#57-worked-example-the-ids-of-hpc">Log and Trace</a>, <a href="LogAndTrace.html#1511-the-running-example-complete-configuration">Log and Trace, 15.11</a></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="115-scenario-index">1.15 Scenario Index<a class="anchor" href="#115-scenario-index" aria-label="Link to this section">#</a></h3>
+<p>Each guide tells one or more stories on the running example. Use this table to find them.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Guide</th>
+<th>Scenario on the running example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="PlatformOverview.html#9-the-running-example-on-the-architecture-map">Platform Overview</a></td>
+<td>Map every node and process of <code>HPC</code> to the architecture and to the clusters it relies on</td>
+</tr>
+<tr>
+<td><a href="Manifests.html#1216-the-running-example-complete-configuration">Manifests</a></td>
+<td>The manifests of <code>CameraDriver</code>, <code>Fusion</code> and <code>CameraService</code> as real ARXML</td>
+</tr>
+<tr>
+<td><a href="CoreAndGeneral.html#16-end-to-end-walkthrough-a-day-of-error-handling-in-fusion">Core</a></td>
+<td><code>Fusion</code> handles a failed service call with <code>Result</code> and <code>Future</code>; an application error, a late input and a configuration error that ends in a Violation</td>
+</tr>
+<tr>
+<td>EM</td>
+<td>Startup, the <code>ADAS</code> transitions, the <code>Fusion</code> crash and shutdown (<a href="ExecutionManagement.html#16-end-to-end-walkthrough-a-day-in-the-life-of-an-ecu">EM guide, Chapter 16</a>)</td>
+</tr>
+<tr>
+<td><a href="StateManagement.html#15-end-to-end-walkthrough-a-drive-cycle-of-the-hpc">SM</a></td>
+<td><code>SmControl</code> brings <code>MachineFG</code> from <code>Startup</code> to <code>Driving</code>; <code>ADAS</code> from <code>Normal</code> to <code>Degraded</code> after a PHM report; a stuck <code>CameraDriver</code>; an ECU reset; the State Management side of the <code>AdasCluster</code> update</td>
+</tr>
+<tr>
+<td><a href="PlatformHealthManagement.html#17-end-to-end-walkthrough-a-drive-under-supervision">PHM</a></td>
+<td>Supervision of <code>Fusion</code>, <code>CameraDriver</code> and <code>StateManager</code>; a failed supervision of <code>Fusion</code> leads to <code>ADAS.Degraded</code>, a hang of <code>StateManager</code> to a watchdog reset</td>
+</tr>
+<tr>
+<td><a href="CommunicationManagement.html#17-end-to-end-walkthrough-a-drive-seen-through-aracom">CM</a></td>
+<td>Proxy and skeleton code for <code>CameraService</code>, <code>ObjectListService</code> and <code>CalibrationDataService</code>; <code>Fusion</code> survives a restart of <code>CameraDriver</code>; <code>Storage</code> follows the switch from <code>Fusion</code> to <code>FusionLite</code></td>
+</tr>
+<tr>
+<td><a href="NetworkBindings.html">Network Bindings</a></td>
+<td><code>CameraService</code> and <code>AdasStatusService</code> over SOME/IP and <code>ObjectListService</code> over DDS to <code>Cockpit</code>; Signal-to-Service translation of the CAN signals</td>
+</tr>
+<tr>
+<td><a href="SecureAndSafeCommunication.html#18-end-to-end-walkthrough-a-protected-drive-cycle">Secure Communication</a></td>
+<td>TLS for <code>CameraService</code>; SecOC for <code>PowerMode</code>; E2E for <code>ChassisDynamics</code>, <code>SetExposureMode</code> and <code>AdasStatus</code>; DDS liveliness for <code>ObjectListService</code>; a forged <code>PowerMode Off</code> is discarded</td>
+</tr>
+<tr>
+<td>NM/TSync/RDS</td>
+<td><code>AdasPn</code> woken by State Management; images time-stamped with <code>VehicleTime</code>; the radar raw data stream</td>
+</tr>
+<tr>
+<td><a href="LogAndTrace.html#18-end-to-end-walkthrough-a-dlt-trace-of-an-adas-transition">Log and Trace</a></td>
+<td>Log IDs of <code>Fusion</code> and <code>CameraDriver</code>; <code>FusionCycleOverrun</code> from model to wire; a DLT trace of the <code>ADAS</code> transition from <code>Normal</code> to <code>Degraded</code></td>
+</tr>
+<tr>
+<td><a href="Persistency.html">Persistency</a></td>
+<td><code>CalibrationKvs</code>, <code>Recordings</code> and <code>FusionParams</code>, including the migration on update</td>
+</tr>
+<tr>
+<td><a href="DiagnosticsPart1.html#17-end-to-end-walkthrough-a-workshop-visit">Diagnostics Part 1</a></td>
+<td>The tester reads <code>FusionSoftwareVersion</code>, runs <code>CalibrateCamera</code> and requests an ECU reset</td>
+</tr>
+<tr>
+<td><a href="DiagnosticsPart2.html#17-end-to-end-walkthrough-a-blocked-camera-from-detection-to-repair">Diagnostics Part 2</a></td>
+<td><code>CameraBlocked</code> matures into a DTC with a snapshot; the tester reads and clears it over UDS and SOVD</td>
+</tr>
+<tr>
+<td>UCM</td>
+<td>The update of <code>AdasCluster</code> from 1.0.0 to 1.1.0, with activation through <code>Verify</code> and a rollback</td>
+</tr>
+<tr>
+<td>Cryptography</td>
+<td><code>HpcDeviceCert</code> for TLS, <code>PackageVerificationKey</code> for updates, <code>CalibrationMacKey</code> for the MAC</td>
+</tr>
+<tr>
+<td>IAM</td>
+<td>Access rights of <code>Fusion</code>, <code>CameraDriver</code> and <code>StateManager</code>; the denied <code>FusionLite</code></td>
+</tr>
+<tr>
+<td>IDSM and Firewall</td>
+<td>The integrity and access-denied events qualified by IdsM; the firewall rule set</td>
+</tr>
+<tr>
+<td>Integration</td>
+<td>A whole day of the <code>HPC</code>, using everything above</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p><strong>Key takeaways</strong></p>
+<ul>
+<li><code>HPC</code> is the only detailed node. The other nodes are black boxes that give the example realistic network traffic.</li>
+<li><code>HPC</code> has two Software Clusters: <code>HpcPlatformCore</code> with <code>MachineFG</code>, and <code>AdasCluster</code> with <code>ADAS</code>.</li>
+<li>The ten processes of the EM guide stay unchanged; the SM guide adds <code>SmControl</code>. Their roles now include services, storages, diagnostic functions and supervision.</li>
+<li>Every element names its owner guide. Illustrative values are invented for teaching.</li>
+<li>New elements are always added to this guide first.</li>
+</ul>
+</blockquote>
+<hr />
+<h2 id="appendix-a-running-example-quick-reference">Appendix A. Running Example Quick Reference<a class="anchor" href="#appendix-a-running-example-quick-reference" aria-label="Link to this section">#</a></h2>
+<p>All values are illustrative. <a href="#1-the-hpc-reference-system">Chapter 1</a> explains them.</p>
+<h3 id="a1-nodes-and-addresses">A.1 Nodes and Addresses<a class="anchor" href="#a1-nodes-and-addresses" aria-label="Link to this section">#</a></h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Node</th>
+<th>Address</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>HPC</code></td>
+<td><code>192.168.10.10</code>; DoIP <code>0x1010</code>; log ECU ID <code>HPC1</code></td>
+<td>Adaptive Platform; Software Clusters <code>HpcPlatformCore</code> 1.0.0, <code>AdasCluster</code> 1.0.0</td>
+</tr>
+<tr>
+<td><code>CentralGateway</code></td>
+<td><code>192.168.10.1</code></td>
+<td>Classic; switch, CAN gateway, time master</td>
+</tr>
+<tr>
+<td><code>Cockpit</code></td>
+<td><code>192.168.10.20</code></td>
+<td>Consumes <code>CameraService</code>, <code>ObjectListService</code>, <code>AdasStatusService</code></td>
+</tr>
+<tr>
+<td><code>FrontRadar</code></td>
+<td><code>192.168.10.30</code>, TCP 50001</td>
+<td>Raw radar detections</td>
+</tr>
+<tr>
+<td><code>TelematicsUnit</code></td>
+<td><code>192.168.10.40</code></td>
+<td>OTA Client, V-UCM</td>
+</tr>
+<tr>
+<td><code>ChassisECU</code>, <code>InstrumentCluster</code></td>
+<td>CAN only</td>
+<td>Classic</td>
+</tr>
+<tr>
+<td><code>DiagnosticTester</code></td>
+<td>DoIP tester address <code>0x0E80</code></td>
+<td>Off-board</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="a2-function-groups-and-processes">A.2 Function Groups and Processes<a class="anchor" href="#a2-function-groups-and-processes" aria-label="Link to this section">#</a></h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Function Group</th>
+<th>States</th>
+<th>Processes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MachineFG</code></td>
+<td><code>Off</code>, <code>Startup</code>, <code>Driving</code>, <code>Shutdown</code>, <code>Restart</code>, <code>Verify</code></td>
+<td><code>StateManager</code>, <code>SmControl</code>, <code>PlatformHealth</code>, <code>PowerControl</code></td>
+</tr>
+<tr>
+<td><code>ADAS</code></td>
+<td><code>Off</code>, <code>Normal</code>, <code>Degraded</code>, <code>Verify</code></td>
+<td><code>Storage</code>, <code>CameraDriver</code>, <code>CalibrationCheck</code> (Normal), <code>LegacyLogger</code>, <code>LoggerCompanion</code>, <code>Fusion</code> (Normal), <code>FusionLite</code> (Degraded)</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="a3-services-signals-and-streams">A.3 Services, Signals and Streams<a class="anchor" href="#a3-services-signals-and-streams" aria-label="Link to this section">#</a></h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Provider → consumers</th>
+<th>Binding and IDs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CameraService</code></td>
+<td><code>CameraDriver</code> → <code>Fusion</code>, <code>Cockpit</code></td>
+<td>SOME/IP <code>0x1001</code>/<code>0x0001</code>, TCP port 30501, TLS; namespace <code>hpc::camera</code>, version 1.0</td>
+</tr>
+<tr>
+<td><code>AdasStatusService</code></td>
+<td><code>SmControl</code> → <code>InstrumentCluster</code>, <code>Cockpit</code></td>
+<td>S2S (<code>AdasHmi</code>, <code>0x2A0</code>); SOME/IP <code>0x1002</code>/<code>0x0001</code></td>
+</tr>
+<tr>
+<td><code>ObjectListService</code></td>
+<td><code>Fusion</code> or <code>FusionLite</code> → <code>Storage</code>, <code>Cockpit</code></td>
+<td>DDS domain 1, topic <code>AdasObjectList</code></td>
+</tr>
+<tr>
+<td><code>CalibrationDataService</code></td>
+<td><code>Storage</code> → <code>CalibrationCheck</code>, <code>Fusion</code>, <code>FusionLite</code>; written by <code>CameraDriver</code></td>
+<td>Local IPC</td>
+</tr>
+<tr>
+<td><code>VehicleDynamicsService</code></td>
+<td>S2S → <code>Fusion</code>, <code>FusionLite</code>, <code>SmControl</code></td>
+<td><code>ChassisDynamics</code> (<code>0x101</code>, 10 ms)</td>
+</tr>
+<tr>
+<td><code>PowerModeService</code></td>
+<td>S2S → <code>SmControl</code></td>
+<td><code>VehicleMode</code> (<code>0x120</code>, 100 ms); values <code>Off</code>, <code>On</code></td>
+</tr>
+<tr>
+<td>SOME/IP-SD</td>
+<td>all SOME/IP nodes</td>
+<td>UDP 30490, <code>239.192.255.251</code></td>
+</tr>
+<tr>
+<td>Radar stream</td>
+<td><code>FrontRadar</code> → <code>Fusion</code>, <code>FusionLite</code></td>
+<td>Raw Data Stream, TCP 50001</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="a4-data-diagnostics-and-updates">A.4 Data, Diagnostics and Updates<a class="anchor" href="#a4-data-diagnostics-and-updates" aria-label="Link to this section">#</a></h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Elements</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Persistency</td>
+<td><code>Storage</code>: <code>CalibrationKvs</code> (<code>CameraExtrinsics</code>, <code>RadarAlignment</code>; port <code>CalibrationKvsPort</code>; 2 out of 3, MAC), <code>Recordings</code> (<code>RecordingsPort</code>; at most 64 files). <code>Fusion</code>: <code>FusionParams</code> (<code>TrackerTuning</code>, <code>TrackerTuningV1</code> → <code>TrackerTuningV2</code>; port <code>FusionParamsPort</code>; CRC per element)</td>
+</tr>
+<tr>
+<td>Error domains</td>
+<td><code>CameraErrors</code> <code>0x1001</code> (<code>ExposureModeNotSupported</code> 1); <code>AdasExecutionErrors</code> <code>0x1002</code> (<code>FusionFailed</code> 42, <code>AdasStateTimeout</code> 60, <code>AdasTransitionRequestFailed</code> 61); <code>FusionErrors</code> <code>0x1003</code>, hand-written in <code>Fusion</code> (<code>kInputTimeout</code> 1, <code>kCalibrationImplausible</code> 2)</td>
+</tr>
+<tr>
+<td>Diagnostics</td>
+<td>DID <code>0x0101</code> <code>FusionSoftwareVersion</code>; routine <code>0x0201</code> <code>CalibrateCamera</code>; ECU reset (<code>0x11</code>); event <code>CameraBlocked</code> → DTC <code>0x9A1011</code> in <code>HpcPrimaryMemory</code>, snapshot DID <code>0x0102</code> <code>VehicleSpeed</code>, cycle <code>IgnitionCycle</code>, conditions <code>PowerModeOn</code> and <code>VehicleStandstill</code>; <code>0x38</code> file transfer from <code>Storage</code>; SOVD server <code>HpcSovdServer</code> with <code>CameraStatus</code> and <code>CameraCalibration</code></td>
+</tr>
+<tr>
+<td>Update</td>
+<td><code>AdasCluster</code> 1.0.0 → 1.1.0 (<code>fusion</code> 1.1.0, migration of <code>FusionParams</code>); activation through <code>ADAS.Verify</code>; rollback to 1.0.0. Vendor IDs <code>0x1111</code> (<code>HpcPlatformCore</code>) and <code>0x1234</code> (<code>AdasCluster</code>)</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="a5-security-safety-time-and-logging">A.5 Security, Safety, Time and Logging<a class="anchor" href="#a5-security-safety-time-and-logging" aria-label="Link to this section">#</a></h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Elements</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Keys and certificates</td>
+<td><code>OemRootCa</code>, <code>HpcDeviceCert</code> and <code>HpcDeviceKey</code>, <code>PackageVerificationKey</code>, <code>CalibrationMacKey</code> (in the HSM); vendor certificates <code>PlatformVendorCert</code>, <code>AdasSupplierCert</code></td>
+</tr>
+<tr>
+<td>Access rights</td>
+<td>Only <code>Fusion</code> uses <code>CameraService</code>; only <code>CameraDriver</code> calls <code>SetCalibration</code>; only <code>StateManager</code> uses <code>StateClient</code>; only <code>SmControl</code> requests StateMachine transitions; <code>FusionLite</code> is denied</td>
+</tr>
+<tr>
+<td>State Management</td>
+<td>StateMachine approach: <code>HpcController</code> (Controller, <code>MachineFG</code>) and <code>AdasAgent</code> (Agent, <code>ADAS</code>, <code>AdasPnHandle</code>), run by <code>StateManager</code>; transitions requested by <code>SmControl</code></td>
+</tr>
+<tr>
+<td>Security events</td>
+<td>EM integrity check failed, IAM access denied, firewall packet dropped → IdsM</td>
+</tr>
+<tr>
+<td>Supervision</td>
+<td><code>Fusion</code> (<code>FusionCycle</code>): 50 ms cycle, checkpoints <code>CycleStart</code>, <code>InputsRead</code>, <code>ObjectsPublished</code>, <code>CycleEnd</code>, alive, deadline and logical supervision; <code>CameraDriver</code> (<code>CameraImageLoop</code>): <code>ImageCaptured</code>, alive supervision; <code>StateManager</code> (<code>StateManagerHeartbeat</code>): <code>MainLoop</code>, alive supervision; recovery notification <code>AdasRecovery</code> to <code>StateManager</code></td>
+</tr>
+<tr>
+<td>Time and NM</td>
+<td>Time base <code>VehicleTime</code> (gPTP, master <code>CentralGateway</code>); partial network <code>AdasPn</code></td>
+</tr>
+<tr>
+<td>Log IDs</td>
+<td>ECU <code>HPC1</code>; <code>Fusion</code>: <code>FUSN</code> (<code>MAIN</code>, <code>TRCK</code>); <code>CameraDriver</code>: <code>CAMD</code> (<code>MAIN</code>, <code>IMGS</code>); <code>FusionLite</code>: <code>FUSL</code> (<code>MAIN</code>); <code>SmControl</code>: <code>SMCT</code> (<code>MAIN</code>); DLT over TCP port 3490, log channel <code>HPCN</code></td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="appendix-b-references">Appendix B. References<a class="anchor" href="#appendix-b-references" aria-label="Link to this section">#</a></h2>
+<p><strong>AUTOSAR documents (R25-11):</strong></p>
+<ul>
+<li><em>Explanation of Adaptive Platform Design</em> (<code>AUTOSAR_AP_EXP_PlatformDesign</code>), Adaptive Platform</li>
+<li><em>Explanation of Adaptive Platform Software Architecture</em> (<code>AUTOSAR_AP_EXP_SWArchitecture</code>), Adaptive Platform</li>
+<li><em>Specification of Execution Management</em> (<code>AUTOSAR_AP_SWS_ExecutionManagement</code>), Adaptive Platform, through the <a href="ExecutionManagement.html">EM guide</a></li>
+</ul>
+<hr />
+
+</article>
+<nav class="pager" aria-label="Previous and next guide"><span></span><a class="pager-next" href="Glossary.html"><span class="pager-label">Next →</span><span class="pager-title">Series Glossary</span></a></nav>
+<footer class="site-footer"><p>Based on the AUTOSAR Adaptive Platform and Foundation specifications, release R25-11.</p><p>Training material, not a normative reference. Where a guide and an AUTOSAR specification differ, the specification applies. Specifications: <a href="https://www.autosar.org/standards" target="_blank" rel="noopener">autosar.org/standards</a>.</p></footer>
+</main>
+<aside class="toc" aria-label="On this page"><p class="toc-label">On this page</p><ul><li class="lvl2"><a href="#about-this-guide">About This Guide</a></li><li class="lvl3"><a href="#who-this-guide-is-for">Who This Guide Is For</a></li><li class="lvl3"><a href="#what-you-will-get-from-this-guide">What You Will Get From This Guide</a></li><li class="lvl3"><a href="#how-to-read-this-guide">How to Read This Guide</a></li><li class="lvl2"><a href="#table-of-contents">Table of Contents</a></li><li class="lvl2"><a href="#1-the-hpc-reference-system">1. The HPC Reference System</a></li><li class="lvl3"><a href="#11-purpose-and-rules">1.1 Purpose and Rules</a></li><li class="lvl3"><a href="#12-the-vehicle-context">1.2 The Vehicle Context</a></li><li class="lvl3"><a href="#13-the-hpc-machine">1.3 The HPC Machine</a></li><li class="lvl3"><a href="#14-function-groups-and-states">1.4 Function Groups and States</a></li><li class="lvl3"><a href="#15-processes">1.5 Processes</a></li><li class="lvl3"><a href="#16-services-and-their-consumers">1.6 Services and Their Consumers</a></li><li class="lvl3"><a href="#17-network-deployment">1.7 Network Deployment</a></li><li class="lvl3"><a href="#18-classic-ecus-and-signal-to-service-translation">1.8 Classic ECUs and Signal-to-Service Translation</a></li><li class="lvl3"><a href="#19-persistent-data">1.9 Persistent Data</a></li><li class="lvl3"><a href="#110-diagnostics">1.10 Diagnostics</a></li><li class="lvl3"><a href="#111-software-updates">1.11 Software Updates</a></li><li class="lvl3"><a href="#112-security">1.12 Security</a></li><li class="lvl3"><a href="#113-safety">1.13 Safety</a></li><li class="lvl3"><a href="#114-time-network-management-and-logging">1.14 Time, Network Management and Logging</a></li><li class="lvl3"><a href="#115-scenario-index">1.15 Scenario Index</a></li><li class="lvl2"><a href="#appendix-a-running-example-quick-reference">Appendix A. Running Example Quick Reference</a></li><li class="lvl3"><a href="#a1-nodes-and-addresses">A.1 Nodes and Addresses</a></li><li class="lvl3"><a href="#a2-function-groups-and-processes">A.2 Function Groups and Processes</a></li><li class="lvl3"><a href="#a3-services-signals-and-streams">A.3 Services, Signals and Streams</a></li><li class="lvl3"><a href="#a4-data-diagnostics-and-updates">A.4 Data, Diagnostics and Updates</a></li><li class="lvl3"><a href="#a5-security-safety-time-and-logging">A.5 Security, Safety, Time and Logging</a></li><li class="lvl2"><a href="#appendix-b-references">Appendix B. References</a></li></ul></aside>
+</div>
+<button class="to-top" id="to-top" aria-label="Back to top" hidden>↑</button>
+<script>window.MERMAID_URL="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs";</script>
+<script src="../assets/search-index.js" defer></script>
+<script src="../assets/app.js" defer></script>
+</body>
+</html>

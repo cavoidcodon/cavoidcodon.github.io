@@ -28,7 +28,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <nav class="sidebar" id="sidebar" aria-label="Guides">
   <a class="sidebar-home" href="../index.html">Home</a>
   <p class="sidebar-label">Guides</p>
-  <ol class="guide-list"><li><a href="../guides/00_LearningPath.html"><span class="num">00</span><span class="title">Learning Path, Series Glossary and Running Example</span></a></li><li><a href="../guides/01_PlatformOverview.html"><span class="num">01</span><span class="title">Adaptive Platform Overview and Architecture</span></a></li><li><a href="../guides/02_Manifests.html" class="active" aria-current="page"><span class="num">02</span><span class="title">Manifests and Methodology</span></a></li><li><a href="../guides/03_CoreAndGeneral.html"><span class="num">03</span><span class="title"><code>ara::core</code> and General Conventions</span></a></li><li><a href="../guides/04_ExecutionManagement.html"><span class="num">04</span><span class="title">Execution Management</span></a></li><li><a href="../guides/05_StateManagement.html"><span class="num">05</span><span class="title">State Management</span></a></li><li><a href="../guides/06_PlatformHealthManagement.html"><span class="num">06</span><span class="title">Platform Health Management</span></a></li><li><a href="../guides/07_CommunicationManagement.html"><span class="num">07</span><span class="title">Communication Management Part 1: <code>ara::com</code> Concepts and API</span></a></li><li><a href="../guides/08a_NetworkBindings.html"><span class="num">08a</span><span class="title">Communication Management Part 2: Network Bindings (SOME/IP, Signal-Based, DDS)</span></a></li><li><a href="../guides/08b_SecureAndSafeCommunication.html"><span class="num">08b</span><span class="title">Communication Management Part 3: Secure Communication and End-to-End Protection</span></a></li><li><a href="../guides/10_LogAndTrace.html"><span class="num">10</span><span class="title">Log and Trace</span></a></li><li><a href="../guides/11_Persistency.html"><span class="num">11</span><span class="title">Persistency</span></a></li><li><a href="../guides/12a_Diagnostics.html"><span class="num">12a</span><span class="title">Diagnostics Part 1</span></a></li><li><a href="../guides/12b_Diagnostics.html"><span class="num">12b</span><span class="title">Diagnostics Part 2</span></a></li></ol>
+  <ol class="guide-list"><li><a href="../guides/RunningExample.html"><span class="title">The Running Example</span></a></li><li><a href="../guides/Glossary.html"><span class="title">Series Glossary</span></a></li><li><a href="../guides/PlatformOverview.html"><span class="title">Adaptive Platform Overview and Architecture</span></a></li><li><a href="../guides/Manifests.html" class="active" aria-current="page"><span class="title">Manifests and Methodology</span></a></li><li><a href="../guides/CoreAndGeneral.html"><span class="title"><code>ara::core</code> and General Conventions</span></a></li><li><a href="../guides/ExecutionManagement.html"><span class="title">Execution Management</span></a></li><li><a href="../guides/StateManagement.html"><span class="title">State Management</span></a></li><li><a href="../guides/PlatformHealthManagement.html"><span class="title">Platform Health Management</span></a></li><li><a href="../guides/CommunicationManagement.html"><span class="title">Communication Management Part 1: <code>ara::com</code> Concepts and API</span></a></li><li><a href="../guides/NetworkBindings.html"><span class="title">Communication Management Part 2: Network Bindings (SOME/IP, Signal-Based, DDS)</span></a></li><li><a href="../guides/SecureAndSafeCommunication.html"><span class="title">Communication Management Part 3: Secure Communication and End-to-End Protection</span></a></li><li><a href="../guides/LogAndTrace.html"><span class="title">Log and Trace</span></a></li><li><a href="../guides/Persistency.html"><span class="title">Persistency</span></a></li><li><a href="../guides/DiagnosticsPart1.html"><span class="title">Diagnostics Part 1</span></a></li><li><a href="../guides/DiagnosticsPart2.html"><span class="title">Diagnostics Part 2</span></a></li></ol>
 </nav>
 <div class="scrim" id="scrim" hidden></div>
 <main class="content" id="content">
@@ -39,7 +39,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p><strong>Document type:</strong> training material.</p>
 <p><strong>Author:</strong> Hieu Do Minh/Claude</p>
 <p><strong>Version:</strong> 1.0 (draft, pending review)</p>
-<p><strong>Part of the series:</strong> <a href="00_LearningPath.html">AUTOSAR Adaptive Platform Training Guides</a>. Previous: <a href="01_PlatformOverview.html">01 Adaptive Platform Overview and Architecture</a>. Next: <a href="03_CoreAndGeneral.html">03 <code>ara::core</code> and General Conventions</a>.</p>
+<p><strong>Part of the series:</strong> <a href="../index.html">AUTOSAR Adaptive Platform Training Guides</a>. Previous: <a href="PlatformOverview.html">Adaptive Platform Overview and Architecture</a>. Next: <a href="CoreAndGeneral.html"><code>ara::core</code> and General Conventions</a>.</p>
 </blockquote>
 <h2 id="about-this-guide">About This Guide<a class="anchor" href="#about-this-guide" aria-label="Link to this section">#</a></h2>
 <p>The Adaptive Platform knows nothing about your system until you describe it. Which processes exist, in which Function Group States they run, which services they offer and use, on which port and with which IDs, and which files form an installable package: all of this is written down as a <em>model</em> in the AUTOSAR XML format (ARXML). The parts of that model that travel with the software onto the Machine are called <strong>manifests</strong>. This guide teaches you to read and write them. It explains the ARXML basics that you need to read a real file, the kinds of manifests and who writes each one, the core model elements that every later guide uses, and the methodology that leads from a system design to a software package installed on a Machine. Many integration problems, such as &quot;my process does not start&quot;, &quot;my proxy never finds the service&quot; or &quot;the tool rejects my model&quot;, come down to a manifest. Unlike the other guides of the series, this guide shows real ARXML: a part of the <code>HPC</code> running example is modeled completely and validated against the R25-11 XML Schema.</p>
@@ -50,7 +50,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <li><strong>Platform developers</strong> who read the configuration of their functional cluster from the model.</li>
 <li><strong>Tool and model engineers</strong> who generate, convert or check ARXML.</li>
 </ul>
-<p>Assumed background: modern C++ and basic XML. Read <a href="00_LearningPath.html">guide 00</a> (at least Chapters 1 and 6) and <a href="01_PlatformOverview.html">guide 01</a> first. The <a href="04_ExecutionManagement.html">EM guide</a> explains the behavior behind the Execution Manifest; this guide explains its structure.</p>
+<p>Assumed background: modern C++ and basic XML. Read the <a href="../index.html">main page</a> of the series, the <a href="RunningExample.html">Running Example guide</a> and the <a href="PlatformOverview.html">Platform Overview guide</a> first. The <a href="ExecutionManagement.html">EM guide</a> explains the behavior behind the Execution Manifest; this guide explains its structure.</p>
 <h3 id="learning-objectives">Learning Objectives<a class="anchor" href="#learning-objectives" aria-label="Link to this section">#</a></h3>
 <p>After working through this guide you will be able to:</p>
 <ol>
@@ -121,56 +121,56 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </table></div>
 <p>All ARXML in this guide is real ARXML. Each fragment is an excerpt of the complete model of <a href="#1216-the-running-example-complete-configuration">Section 12.16</a>. The complete model validates against the R25-11 XML Schema <code>AUTOSAR_00054.xsd</code>, all its references resolve, and it satisfies the constraints that this guide discusses. Simplifications, such as left-out processes, are stated in the text.</p>
 <h3 id="the-running-example">The Running Example<a class="anchor" href="#the-running-example" aria-label="Link to this section">#</a></h3>
-<p>This guide models a small but complete part of <code>HPC</code>, the running example of the series (<a href="00_LearningPath.html#6-the-running-example-the-hpc-reference-system">guide 00, Chapter 6</a>): the service <code>CameraService</code>, the process <code>CameraDriver</code> that provides it, the process <code>Fusion</code> that uses it, the Machine <code>HPC</code> with its Function Groups <code>MachineFG</code> and <code>ADAS</code>, and the two Software Clusters <code>HpcPlatformCore</code> and <code>AdasCluster</code>. The other processes and services of <code>HPC</code> are modeled in the same way; their owner guides add them when they need them.</p>
-<p>The model adds the following details to the running example. They are part of the master definition in guide 00.</p>
+<p>This guide models a small but complete part of <code>HPC</code>, the running example of the series (the <a href="RunningExample.html">Running Example guide</a>): the service <code>CameraService</code>, the process <code>CameraDriver</code> that provides it, the process <code>Fusion</code> that uses it, the Machine <code>HPC</code> with its Function Groups <code>MachineFG</code> and <code>ADAS</code>, and the two Software Clusters <code>HpcPlatformCore</code> and <code>AdasCluster</code>. The other processes and services of <code>HPC</code> are modeled in the same way; their owner guides add them when they need them.</p>
+<p>The model adds the following details to the running example. They are part of the master definition in the Running Example guide.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
 <th>Element</th>
 <th>Value (illustrative)</th>
-<th>Defined in guide 00</th>
+<th>Defined in the Running Example guide</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Package structure</td>
 <td>Top-level package <code>/HPC</code>, with sub-packages named after the recommended package of each element kind; standard types from <code>/AUTOSAR/StdTypes</code></td>
-<td><a href="00_LearningPath.html#61-purpose-and-rules">Section 6.1</a></td>
+<td><a href="RunningExample.html#11-purpose-and-rules">Section 1.1</a></td>
 </tr>
 <tr>
 <td><code>CameraService</code> contract</td>
 <td>Namespace <code>hpc::camera</code>, version 1.0; event <code>Image</code> (<code>CameraImage</code>), field <code>CameraStatus</code> (<code>CameraState</code>: <code>Ok</code>, <code>Blocked</code>, <code>NotAvailable</code>; getter and notifier; initial value <code>NotAvailable</code>), method <code>SetExposureMode(mode)</code> (<code>ExposureMode</code>: <code>Auto</code>, <code>Day</code>, <code>Night</code>) with the error <code>ExposureModeNotSupported</code></td>
-<td><a href="00_LearningPath.html#66-services-and-their-consumers">Section 6.6</a></td>
+<td><a href="RunningExample.html#16-services-and-their-consumers">Section 1.6</a></td>
 </tr>
 <tr>
 <td>SOME/IP IDs of <code>CameraService</code></td>
 <td>Service <code>0x1001</code>, instance <code>0x0001</code>, method <code>0x0001</code>, getter <code>0x0002</code>, event 1 and notifier 2 (<code>0x8001</code> and <code>0x8002</code> on the wire), event group <code>CameraEvents</code> 1; TCP port 30501</td>
-<td><a href="00_LearningPath.html#67-network-deployment">Section 6.7</a></td>
+<td><a href="RunningExample.html#17-network-deployment">Section 1.7</a></td>
 </tr>
 <tr>
 <td>Software components</td>
 <td><code>CameraDriverSwc</code> with the P-port <code>CameraPPort</code>, <code>FusionSwc</code> with the R-port <code>CameraRPort</code>; root prototype <code>Root</code>; instance specifiers <code>/camera_driver/Root/CameraPPort</code> and <code>/fusion/Root/CameraRPort</code></td>
-<td><a href="00_LearningPath.html#65-processes">Section 6.5</a></td>
+<td><a href="RunningExample.html#15-processes">Section 1.5</a></td>
 </tr>
 <tr>
 <td>Execution error of <code>Fusion</code></td>
 <td><code>processExecutionError</code> 42 is the application error <code>FusionFailed</code> of the error domain <code>AdasExecutionErrors</code></td>
-<td><a href="00_LearningPath.html#65-processes">Section 6.5</a></td>
+<td><a href="RunningExample.html#15-processes">Section 1.5</a></td>
 </tr>
 <tr>
 <td>Hardware and machine design</td>
 <td>Processor <code>Soc</code> with four cores <code>Core0</code> to <code>Core3</code>; machine design <code>HpcDesign</code></td>
-<td><a href="00_LearningPath.html#63-the-hpc-machine">Section 6.3</a></td>
+<td><a href="RunningExample.html#13-the-hpc-machine">Section 1.3</a></td>
 </tr>
 <tr>
 <td><code>ADAS.Verify</code></td>
 <td>The <code>Verify</code> state of <code>ADAS</code>, used while an update of <code>AdasCluster</code> is activated</td>
-<td><a href="00_LearningPath.html#64-function-groups-and-states">Section 6.4</a></td>
+<td><a href="RunningExample.html#14-function-groups-and-states">Section 1.4</a></td>
 </tr>
 <tr>
 <td>Software Cluster identity</td>
 <td>Vendor IDs <code>0x1111</code> (<code>HpcPlatformCore</code>) and <code>0x1234</code> (<code>AdasCluster</code>); vendor certificates <code>PlatformVendorCert</code> and <code>AdasSupplierCert</code></td>
-<td><a href="00_LearningPath.html#63-the-hpc-machine">Sections 6.3</a> and <a href="00_LearningPath.html#612-security">6.12</a></td>
+<td><a href="RunningExample.html#13-the-hpc-machine">Sections 1.3</a> and <a href="RunningExample.html#112-security">1.12</a></td>
 </tr>
 </tbody>
 </table></div>
@@ -374,12 +374,12 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <tr>
 <td>which processes exist, when they run and with which arguments, priorities and limits</td>
 <td>the Execution Manifest</td>
-<td><a href="#8-the-execution-manifest">Chapter 8</a>, <a href="04_ExecutionManagement.html#4-configuration-overview">EM guide</a></td>
+<td><a href="#8-the-execution-manifest">Chapter 8</a>, <a href="ExecutionManagement.html#4-configuration-overview">EM guide</a></td>
 </tr>
 <tr>
 <td>how each service is offered and found on the network, with which IDs and ports</td>
 <td>the Service Instance Manifest</td>
-<td><a href="#9-the-service-instance-manifest-and-the-instancespecifier">Chapter 9</a>, <a href="07_CommunicationManagement.html#6-service-discovery-offering-and-finding-services">guide 07</a>, <a href="08a_NetworkBindings.html">guide 08a</a></td>
+<td><a href="#9-the-service-instance-manifest-and-the-instancespecifier">Chapter 9</a>, the <a href="CommunicationManagement.html#6-service-discovery-offering-and-finding-services">CM guide</a>, the <a href="NetworkBindings.html">Network Bindings guide</a></td>
 </tr>
 <tr>
 <td>how the Machine itself is configured: timeouts, resource groups, processors, platform modules</td>
@@ -389,7 +389,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <tr>
 <td>which files form one installable unit, and in which version</td>
 <td>the Software Distribution content</td>
-<td><a href="#10-software-clusters-and-software-packages">Chapter 10</a>, guide 13</td>
+<td><a href="#10-software-clusters-and-software-packages">Chapter 10</a>, the UCM guide</td>
 </tr>
 </tbody>
 </table></div>
@@ -443,7 +443,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 <tr>
 <td>the format that the platform reads at run time</td>
-<td>Each implementation converts the ARXML into its own format, preserving the content ([TPS_MANI_01021]). The <a href="04_ExecutionManagement.html#22-manifests">EM guide</a> calls the result <em>Processed Manifests</em>.</td>
+<td>Each implementation converts the ARXML into its own format, preserving the content ([TPS_MANI_01021]). The <a href="ExecutionManagement.html#22-manifests">EM guide</a> calls the result <em>Processed Manifests</em>.</td>
 </tr>
 <tr>
 <td>a description of behavior</td>
@@ -516,7 +516,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <tr>
 <td><em>Specification of Adaptive Platform Core</em> (<code>AUTOSAR_AP_SWS_Core</code>)</td>
 <td>SWS Core</td>
-<td>The <code>ara::core::InstanceSpecifier</code> class (<a href="#132-the-instancespecifier-in-code">Section 13.2</a>); <a href="03_CoreAndGeneral.html">guide 03</a> covers the rest.</td>
+<td>The <code>ara::core::InstanceSpecifier</code> class (<a href="#132-the-instancespecifier-in-code">Section 13.2</a>); the <a href="CoreAndGeneral.html">Core guide</a> covers the rest.</td>
 </tr>
 </tbody>
 </table></div>
@@ -664,7 +664,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><strong>Raw Data Stream Manifest</strong></td>
 <td>Client and server of raw data streams</td>
 <td>The software that uses the stream</td>
-<td>guide 09</td>
+<td>NM/TSync/RDS guide</td>
 </tr>
 <tr>
 <td><strong>Software Distribution</strong></td>
@@ -674,7 +674,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 </tbody>
 </table></div>
-<p><em>Platform Design</em> (Section 4.4), and therefore <a href="01_PlatformOverview.html#82-manifests-in-one-table">guide 01, Section 8.2</a>, presents a shorter view: the <em>Application Design</em> plus three kinds of manifest (Execution, Service Instance and Machine). Both views fit together. The Application Design is design content that is not necessarily deployed to the Machine, so the TPS does not count it as a manifest; and the TPS adds the Raw Data Stream Manifest and the Software Distribution. The TPS is the normative view.</p>
+<p><em>Platform Design</em> (Section 4.4), and therefore the <a href="PlatformOverview.html#82-manifests-in-one-table">Platform Overview guide, Section 8.2</a>, presents a shorter view: the <em>Application Design</em> plus three kinds of manifest (Execution, Service Instance and Machine). Both views fit together. The Application Design is design content that is not necessarily deployed to the Machine, so the TPS does not count it as a manifest; and the TPS adds the Raw Data Stream Manifest and the Software Distribution. The TPS is the normative view.</p>
 <p>The following diagram shows which manifest travels with which software.</p>
 <pre class="mermaid">flowchart LR
     subgraph AC[&quot;AdasCluster (application software)&quot;]
@@ -1263,7 +1263,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p>Two kinds of further qualification can be attached to a port:</p>
 <ul>
 <li><strong>Port prototype props.</strong> An <code>RPortPrototype</code> may carry <code>RPortPrototypeProps.searchIntention</code> with the value <code>searchForAllInstances</code> or <code>searchForSpecificInstance</code>. It records the developer's intention; it creates no binding contract, because the actual search behavior is defined in the Service Instance Manifest ([TPS_MANI_01057]).</li>
-<li><strong>ComSpecs.</strong> A <code>ComSpec</code> qualifies the use of one element of the interface at one port. The Adaptive Platform supports only a limited selection of ComSpec attributes ([TPS_MANI_01053]). One of them you need in almost every model: a provided port with a field has a <code>FieldSenderComSpec</code>, whose <code>initValue</code> sets the value of the field before the service is offered ([TPS_MANI_03212]); if the ComSpec exists, the initial value must exist ([constr_10152]). The other ComSpec attributes, for example for E2E protection and for the declared intent to use an element, are covered in guides 07, 08 and 15.</li>
+<li><strong>ComSpecs.</strong> A <code>ComSpec</code> qualifies the use of one element of the interface at one port. The Adaptive Platform supports only a limited selection of ComSpec attributes ([TPS_MANI_01053]). One of them you need in almost every model: a provided port with a field has a <code>FieldSenderComSpec</code>, whose <code>initValue</code> sets the value of the field before the service is offered ([TPS_MANI_03212]); if the ComSpec exists, the initial value must exist ([constr_10152]). The other ComSpec attributes, for example for E2E protection and for the declared intent to use an element, are covered in the CM, Secure Communication and IAM guides.</li>
 </ul>
 <h3 id="53-the-executable-and-its-root-prototype">5.3 The Executable and Its Root Prototype<a class="anchor" href="#53-the-executable-and-its-root-prototype" aria-label="Link to this section">#</a></h3>
 <p>An <code>Executable</code> represents an executable program in the model (TPS, Section 3.2.2). It is a design element: it describes the program, not how it is started.</p>
@@ -1281,7 +1281,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 <tr>
 <td><code>reportingBehavior</code></td>
-<td>Whether the processes of the Executable report their Execution State to EM. If absent, they report ([TPS_MANI_01279]). See the <a href="04_ExecutionManagement.html#24-process-flavors">EM guide</a>.</td>
+<td>Whether the processes of the Executable report their Execution State to EM. If absent, they report ([TPS_MANI_01279]). See the <a href="ExecutionManagement.html#24-process-flavors">EM guide</a>.</td>
 </tr>
 <tr>
 <td><code>rootSwComponentPrototype</code></td>
@@ -1433,8 +1433,8 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <li>A method lists its possible errors in <code>possibleApError</code>, or refers to a reusable <code>ApApplicationErrorSet</code> in <code>possibleApErrorSet</code> ([TPS_MANI_01191], [TPS_MANI_01198]).</li>
 </ul>
 <p>Within one domain, the short names and the error codes of the errors must be unique ([constr_1664], [constr_1665]), because the C++ binding turns them into the enumerators of an enumeration of the domain. Within one method, no two referenced domains may share a domain value ([constr_10574]). If the service is used by a Classic Platform ECU over SOME/IP, error codes are limited to 1 to 63 and must be unique within the method ([constr_3772], [constr_3773]), because the Classic <code>Std_ReturnType</code> reserves only six bits for errors.</p>
-<p>The value of an error domain is a <code>PositiveUnlimitedInteger</code>. Its range is given by [constr_2637] of the <em>Generic Structure Template</em> ([TPS_MANI_01863]): from 0 to 18446744073709551615 (<code>0xffffffffffffffff</code>), that is, any unsigned 64-bit value. The running example uses small illustrative values; <a href="03_CoreAndGeneral.html#7-errorcode-and-errordomain">guide 03, Chapter 7</a> explains the error domains of <code>ara::core</code>.</p>
-<p>Application errors have a second use: a <code>StartupConfig</code> can reference one in the role <code>processExecutionError</code>, to tell State Management which error a failing process represents (status DRAFT, TPS, Table 10.4). That is how <code>Fusion</code> reports the value 42 in the <a href="04_ExecutionManagement.html#1311-the-running-example-complete-configuration">EM guide</a>.</p>
+<p>The value of an error domain is a <code>PositiveUnlimitedInteger</code>. Its range is given by [constr_2637] of the <em>Generic Structure Template</em> ([TPS_MANI_01863]): from 0 to 18446744073709551615 (<code>0xffffffffffffffff</code>), that is, any unsigned 64-bit value. The running example uses small illustrative values; the <a href="CoreAndGeneral.html#7-errorcode-and-errordomain">Core guide, Chapter 7</a> explains the error domains of <code>ara::core</code>.</p>
+<p>Application errors have a second use: a <code>StartupConfig</code> can reference one in the role <code>processExecutionError</code>, to tell State Management which error a failing process represents (status DRAFT, TPS, Table 10.4). That is how <code>Fusion</code> reports the value 42 in the <a href="ExecutionManagement.html#1311-the-running-example-complete-configuration">EM guide</a>.</p>
 <h3 id="64-data-types">6.4 Data Types<a class="anchor" href="#64-data-types" aria-label="Link to this section">#</a></h3>
 <p><strong>In plain words:</strong> AUTOSAR describes data on two levels. An <em>application data type</em> describes what the data means, for example a speed with a unit and a range. A <em>C++ implementation data type</em> describes how the data is represented in C++, for example a <code>std::uint16_t</code> or a vector.</p>
 <p><strong>Formally:</strong> the full modeling of <code>ApplicationDataType</code>s of the Classic Platform can be used on the Adaptive Platform (TPS, Section 3.3.2). For the language binding, the Adaptive Platform does not use the C-oriented <code>ImplementationDataType</code> of the Classic Platform, but the abstract <code>CppImplementationDataType</code> ([TPS_MANI_01166]) with two concrete forms:</p>
@@ -1529,78 +1529,78 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>StateClientInterface</code>, <code>StateManagementPortInterface</code> subclasses</td>
 <td>State Management requests and notifications</td>
 <td>4.5</td>
-<td>04, 05</td>
+<td>EM, SM</td>
 </tr>
 <tr>
 <td><code>PhmSupervisedEntityInterface</code></td>
 <td>Supervision checkpoints of a process</td>
 <td>4.8</td>
-<td>06</td>
+<td>PHM</td>
 </tr>
 <tr>
 <td><code>LogAndTraceInterface</code></td>
 <td>Modeled log messages</td>
 <td>4.13</td>
-<td>10</td>
+<td>Log and Trace</td>
 </tr>
 <tr>
 <td><code>PersistencyKeyValueStorageInterface</code>, <code>PersistencyFileStorageInterface</code></td>
 <td>Key-value storages and file storages</td>
 <td>4.6</td>
-<td><a href="11_Persistency.html#142-persistencyinterface-and-its-subclasses">11</a></td>
+<td><a href="Persistency.html#142-persistencyinterface-and-its-subclasses">Persistency</a></td>
 </tr>
 <tr>
 <td><code>DiagnosticDataIdentifierInterface</code>, <code>DiagnosticRoutineInterface</code>, <code>DiagnosticMonitorInterface</code> and others</td>
 <td>Diagnostic data, routines and events</td>
 <td>4.9</td>
-<td><a href="12a_Diagnostics.html#1410-diagnostic-port-interfaces">12a</a>, <a href="12b_Diagnostics.html#31-fault-memory-classes-and-their-port-interfaces">12b</a></td>
+<td><a href="DiagnosticsPart1.html#1410-diagnostic-port-interfaces">Diagnostics Part 1</a>, <a href="DiagnosticsPart2.html#31-fault-memory-classes-and-their-port-interfaces">Diagnostics Part 2</a></td>
 </tr>
 <tr>
 <td><code>CryptoKeySlotInterface</code>, <code>CryptoCertificateInterface</code>, <code>CryptoProviderInterface</code></td>
 <td>Access to keys, certificates and crypto providers</td>
 <td>4.10</td>
-<td>14</td>
+<td>Cryptography</td>
 </tr>
 <tr>
 <td><code>SecurityEventReportInterface</code></td>
 <td>Reporting of security events</td>
 <td>4.12</td>
-<td>16</td>
+<td>IDSM and Firewall</td>
 </tr>
 <tr>
 <td><code>FirewallStateSwitchInterface</code></td>
 <td>Switching firewall states</td>
 <td>4.14</td>
-<td>16</td>
+<td>IDSM and Firewall</td>
 </tr>
 <tr>
 <td><code>SynchronizedTimeBaseConsumerInterface</code>, <code>SynchronizedTimeBaseProviderInterface</code></td>
 <td>Time bases</td>
 <td>4.7</td>
-<td>09</td>
+<td>NM/TSync/RDS</td>
 </tr>
 <tr>
 <td><code>NetworkManagementPortInterface</code></td>
 <td>Network management</td>
 <td>4.15</td>
-<td>09</td>
+<td>NM/TSync/RDS</td>
 </tr>
 <tr>
 <td><code>RawDataStreamClientInterface</code>, <code>RawDataStreamServerInterface</code></td>
 <td>Raw data streams</td>
 <td>4.11</td>
-<td>09</td>
+<td>NM/TSync/RDS</td>
 </tr>
 <tr>
 <td><code>SuspendToRamSatelliteInterface</code>, <code>SuspendToRamHubInterface</code></td>
 <td>Suspend-to-RAM (new in R25-11)</td>
 <td>4.16</td>
-<td>05</td>
+<td>SM</td>
 </tr>
 </tbody>
 </table></div>
 <h3 id="66-worked-example-cameraservice-as-arxml">6.6 Worked Example: <code>CameraService</code> as ARXML<a class="anchor" href="#66-worked-example-cameraservice-as-arxml" aria-label="Link to this section">#</a></h3>
-<p>The contract of <code>CameraService</code> (<a href="00_LearningPath.html#66-services-and-their-consumers">guide 00, Section 6.6</a>) needs four data types: the structure <code>CameraImage</code>, the vector <code>PixelVector</code> for its pixels, and the two enumerations <code>ExposureMode</code> and <code>CameraState</code>. All four are placed in the namespace <code>hpc::camera</code>; the following excerpt shows the namespace once. The integer types come from <code>/AUTOSAR/StdTypes</code>.</p>
+<p>The contract of <code>CameraService</code> (the <a href="RunningExample.html#16-services-and-their-consumers">Running Example guide, Section 1.6</a>) needs four data types: the structure <code>CameraImage</code>, the vector <code>PixelVector</code> for its pixels, and the two enumerations <code>ExposureMode</code> and <code>CameraState</code>. All four are placed in the namespace <code>hpc::camera</code>; the following excerpt shows the namespace once. The integer types come from <code>/AUTOSAR/StdTypes</code>.</p>
 <div class="code-block" data-lang="xml"><pre class="highlight"><code><span class="nt">&lt;STD-CPP-IMPLEMENTATION-DATA-TYPE&gt;</span>
 <span class="w">  </span><span class="nt">&lt;SHORT-NAME&gt;</span>PixelVector<span class="nt">&lt;/SHORT-NAME&gt;</span>
 <span class="w">  </span><span class="nt">&lt;CATEGORY&gt;</span>VECTOR<span class="nt">&lt;/CATEGORY&gt;</span>
@@ -1738,7 +1738,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </code></pre></div>
 <p>Notice the details that the constraints require: the field has all three <code>HAS-...</code> attributes ([constr_1673]); the event has no initial value ([constr_1494]); the error has a code and a domain ([constr_10132], [constr_1625]). The short names of the <code>SYMBOL-PROPS</code> (<code>Ns1</code>, <code>Ns2</code>) are only identifiers; the namespace in the code comes from the <code>SYMBOL</code>s.</p>
 <blockquote>
-<p><strong>Note (implementation example):</strong> From these types, a generator could emit C++ declarations like the following sketch. The member names are the short names of the sub-elements ([TPS_MANI_03181]), and a <code>VECTOR</code> maps to <code>ara::core::Vector</code> ([TPS_MANI_03175]). The exact form of the generated code, including the form of enumerations, is defined by the language binding of Communication Management (<a href="07_CommunicationManagement.html#55-data-types">guide 07, Section 5.5</a>) and may differ in your tool.</p>
+<p><strong>Note (implementation example):</strong> From these types, a generator could emit C++ declarations like the following sketch. The member names are the short names of the sub-elements ([TPS_MANI_03181]), and a <code>VECTOR</code> maps to <code>ara::core::Vector</code> ([TPS_MANI_03175]). The exact form of the generated code, including the form of enumerations, is defined by the language binding of Communication Management (the <a href="CommunicationManagement.html#55-data-types">CM guide, Section 5.5</a>) and may differ in your tool.</p>
 <div class="code-block" data-lang="cpp"><pre class="highlight"><code><span class="c1">// Illustrative sketch of generated code. Not normative.</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdint&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">"ara/core/vector.h"</span>
@@ -1796,7 +1796,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tbody>
 </table></div>
 <p>A typical workflow is that the OEM strips everything that does not concern one Machine from the system design and hands the extract to the supplier who develops that Machine (TPS, Section 7.1), just as the Classic Platform uses ECU extracts.</p>
-<p>The communication designer describes the network: Ethernet clusters, their physical channels (VLANs) and the network endpoints with their IP addresses. The canonical way to give a Machine an IP address is a <code>NetworkEndpoint</code>, referenced from the Ethernet connector of its <code>MachineDesign</code> (TPS, Section 7.2.1). The <code>Machine</code> meta-class itself is not meant for system design (TPS, Section 7.2). <a href="08a_NetworkBindings.html">Guide 08a</a> covers the network topology in detail.</p>
+<p>The communication designer describes the network: Ethernet clusters, their physical channels (VLANs) and the network endpoints with their IP addresses. The canonical way to give a Machine an IP address is a <code>NetworkEndpoint</code>, referenced from the Ethernet connector of its <code>MachineDesign</code> (TPS, Section 7.2.1). The <code>Machine</code> meta-class itself is not meant for system design (TPS, Section 7.2). The <a href="NetworkBindings.html">Network Bindings guide</a> covers the network topology in detail.</p>
 <h3 id="72-machine-design">7.2 Machine Design<a class="anchor" href="#72-machine-design" aria-label="Link to this section">#</a></h3>
 <p><strong>In plain words:</strong> the <code>MachineDesign</code> is the placeholder for an Adaptive ECU in the system design, created early, before anybody writes a manifest. It is the Adaptive counterpart of the Classic <code>EcuInstance</code> (TPS, Section 6.1).</p>
 <p>Because the Adaptive Platform communicates over Ethernet, designing the communication of a Machine mainly means specifying its IP addresses and its service discovery configuration (TPS, Section 6.1). The main content of a <code>MachineDesign</code> is:</p>
@@ -1804,7 +1804,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <li><code>communicationConnector</code>: the connections to the network, typically an <code>EthernetCommunicationConnector</code>, which references its unicast <code>NetworkEndpoint</code>s and aggregates the <code>ApApplicationEndpoint</code>s. An <code>ApApplicationEndpoint</code> defines a UDP or TCP port; together with the network endpoint it forms a socket ([TPS_MANI_03280]). The port number <code>0</code> asks the middleware for an ephemeral port ([TPS_MANI_03227]).</li>
 <li><code>serviceDiscoveryConfig</code>: the SOME/IP service discovery settings per connector, such as the multicast address and the port (TPS, Section 6.5).</li>
 <li><code>processor</code>: processors and cores known at design time, so that design-level core affinity can refer to them (<a href="#54-process-design-a-stand-in-for-a-future-process">Section 5.4</a>).</li>
-<li>further settings, for example the partial network timers, the access control mode, and the design of the DoIP functional cluster (<a href="12a_Diagnostics.html#1412-doip-configuration">guide 12a, Section 14.12</a>).</li>
+<li>further settings, for example the partial network timers, the access control mode, and the design of the DoIP functional cluster (the <a href="DiagnosticsPart1.html#1412-doip-configuration">Diagnostics Part 1 guide, Section 14.12</a>).</li>
 </ul>
 <p>According to the Methodology TR, the communication structure of a prospective Machine is designed first, either by the OEM's communication designer or by a Tier 1 integrator on the basis of the network endpoints that the OEM shares. The result is the <code>MachineDesign</code>. The configuration of the Machine for a real ECU follows as the second step, in the Machine Manifest ([TR_AMETH_00003], [TR_AMETH_00021]).</p>
 <h3 id="73-the-machine">7.3 The Machine<a class="anchor" href="#73-the-machine" aria-label="Link to this section">#</a></h3>
@@ -1825,7 +1825,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 <tr>
 <td><code>trustedPlatformExecutableLaunchBehavior</code></td>
-<td><code>strictMode</code>, <code>monitorMode</code> or <code>noTrustedPlatformSupport</code> ([TPS_MANI_01273]). See the <a href="04_ExecutionManagement.html#123-launch-behavior-modes">EM guide</a>.</td>
+<td><code>strictMode</code>, <code>monitorMode</code> or <code>noTrustedPlatformSupport</code> ([TPS_MANI_01273]). See the <a href="ExecutionManagement.html#123-launch-behavior-modes">EM guide</a>.</td>
 <td>Shall exist ([constr_10170])</td>
 </tr>
 <tr>
@@ -1851,7 +1851,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <tr>
 <td><code>secureCommunicationDeployment</code></td>
 <td>The assignment of secure communication settings to crypto resources</td>
-<td>Guide 14</td>
+<td>Cryptography guide</td>
 </tr>
 </tbody>
 </table></div>
@@ -1864,7 +1864,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </ul>
 <p>Each cluster guide explains its own instantiation. Be aware that for two clusters the canonical target configuration has already moved to APMC in R25-11: Persistency and Update and Configuration Management (<a href="#119-looking-ahead-apmc">Section 11.9</a>).</p>
 <h3 id="75-function-groups-and-their-states">7.5 Function Groups and Their States<a class="anchor" href="#75-function-groups-and-their-states" aria-label="Link to this section">#</a></h3>
-<p><strong>In plain words:</strong> a Function Group is a named state machine that switches a set of processes on and off together (<a href="04_ExecutionManagement.html#72-function-groups-and-function-group-states">EM guide, Section 7.2</a>). In the model it is built from the same mode constructs that the Classic Platform uses for modes.</p>
+<p><strong>In plain words:</strong> a Function Group is a named state machine that switches a set of processes on and off together (<a href="ExecutionManagement.html#72-function-groups-and-function-group-states">EM guide, Section 7.2</a>). In the model it is built from the same mode constructs that the Classic Platform uses for modes.</p>
 <p><strong>Formally:</strong></p>
 <ul>
 <li>A <strong>Function Group</strong> is a <code>ModeDeclarationGroupPrototype</code> aggregated by a <code>FunctionGroupSet</code> in the role <code>functionGroup</code>. It is typed by a reusable <code>ModeDeclarationGroup</code>, which contains the states and designates the initial one ([TPS_MANI_03145]).</li>
@@ -1911,7 +1911,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <span class="nt">&lt;/MACHINE-DESIGN&gt;</span>
 </code></pre></div>
 <p>The network endpoint <code>HpcUnicast</code> (<code>192.168.10.10/24</code>) and the SD multicast endpoint (<code>239.192.255.251</code>) live in the Ethernet cluster <code>/HPC/Topology/Backbone</code>, and the system extract <code>/HPC/Systems/HpcMachineDesignExtract</code> of category <code>MACHINE_DESIGN_EXTRACT</code> references the cluster and the machine design (<a href="#1216-the-running-example-complete-configuration">Section 12.16</a>).</p>
-<p>The platform integrator writes the Machine Manifest. The values come from the <a href="04_ExecutionManagement.html#1311-the-running-example-complete-configuration">EM guide, Section 13.11</a> and from <a href="00_LearningPath.html#63-the-hpc-machine">guide 00, Section 6.3</a>:</p>
+<p>The platform integrator writes the Machine Manifest. The values come from the <a href="ExecutionManagement.html#1311-the-running-example-complete-configuration">EM guide, Section 13.11</a> and from the <a href="RunningExample.html#13-the-hpc-machine">Running Example guide, Section 1.3</a>:</p>
 <div class="code-block" data-lang="xml"><pre class="highlight"><code><span class="nt">&lt;MACHINE&gt;</span>
 <span class="w">  </span><span class="nt">&lt;SHORT-NAME&gt;</span>HPC<span class="nt">&lt;/SHORT-NAME&gt;</span>
 <span class="w">  </span><span class="nt">&lt;DEFAULT-APPLICATION-TIMEOUT&gt;</span>
@@ -2039,7 +2039,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <hr />
 <h2 id="8-the-execution-manifest">8. The Execution Manifest<a class="anchor" href="#8-the-execution-manifest" aria-label="Link to this section">#</a></h2>
 <blockquote>
-<p><strong>Why this matters:</strong> The Execution Manifest turns an Executable into running processes. The <a href="04_ExecutionManagement.html">EM guide</a> explains what Execution Management <em>does</em> with each setting; this chapter shows how the settings are <em>modeled</em>, so that you can read and write them as ARXML.</p>
+<p><strong>Why this matters:</strong> The Execution Manifest turns an Executable into running processes. The <a href="ExecutionManagement.html">EM guide</a> explains what Execution Management <em>does</em> with each setting; this chapter shows how the settings are <em>modeled</em>, so that you can read and write them as ARXML.</p>
 </blockquote>
 <h3 id="81-process-from-executable-to-os-process">8.1 Process: From Executable to OS Process<a class="anchor" href="#81-process-from-executable-to-os-process" aria-label="Link to this section">#</a></h3>
 <p><strong>In plain words:</strong> a <code>Process</code> says: &quot;run this Executable, on this Machine, in these Function Group States, with this configuration&quot;. The unit of target configuration on the Adaptive Platform is a binary that becomes a POSIX process at run time (TPS, Section 10.2).</p>
@@ -2071,7 +2071,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <tr>
 <td><code>numberOfRestartAttempts</code></td>
 <td>How often a failed start is retried</td>
-<td><a href="04_ExecutionManagement.html#133-process">EM guide, Section 13.3</a></td>
+<td><a href="ExecutionManagement.html#133-process">EM guide, Section 13.3</a></td>
 </tr>
 <tr>
 <td><code>preMapping</code></td>
@@ -2081,19 +2081,19 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <tr>
 <td><code>functionClusterAffiliation</code></td>
 <td>The functional cluster the process belongs to; standardized values <code>STATE_MANAGEMENT</code> and <code>PLATFORM_HEALTH_MANAGEMENT</code> ([TPS_MANI_01337])</td>
-<td>EM guide, guides 05 and 06</td>
+<td>EM guide, the SM and PHM guides</td>
 </tr>
 <tr>
 <td><code>processStateMachine</code></td>
 <td>The process states (<code>Running</code>, <code>Terminated</code>) that other processes can depend on; the supported states are standardized by EM</td>
-<td><a href="04_ExecutionManagement.html#6-execution-dependencies-startup-and-shutdown-ordering">EM guide, Chapter 6</a></td>
+<td><a href="ExecutionManagement.html#6-execution-dependencies-startup-and-shutdown-ordering">EM guide, Chapter 6</a></td>
 </tr>
 </tbody>
 </table></div>
 <h3 id="82-state-dependent-startup-configuration">8.2 State-Dependent Startup Configuration<a class="anchor" href="#82-state-dependent-startup-configuration" aria-label="Link to this section">#</a></h3>
 <p>The startup behavior is modeled by <code>StateDependentStartupConfig</code>s aggregated by the process ([TPS_MANI_01012]). Each one says: if the controlling Function Group is in <em>one of these</em> states, start the process with <em>this</em> <code>StartupConfig</code> ([TPS_MANI_01013], [TPS_MANI_01046]). It also references the <code>ResourceGroup</code> and may carry Execution Dependencies and resource consumption limits.</p>
 <p>The states are referenced through an instance reference, because a state (<code>ModeDeclaration</code>) belongs to a reusable group and is identified only together with the Function Group that uses the group (<a href="#35-instance-references--iref">Section 3.5</a>). Because these references point into one Machine's Function Groups, the Execution Manifest is specific to the Machine on which the binary is deployed (TPS, Section 10.3.1).</p>
-<p>The model enforces the structural rules that the <a href="04_ExecutionManagement.html#42-how-the-elements-relate">EM guide</a> relies on:</p>
+<p>The model enforces the structural rules that the <a href="ExecutionManagement.html#42-how-the-elements-relate">EM guide</a> relies on:</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -2128,7 +2128,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 </tbody>
 </table></div>
-<p>The <code>StartupConfig</code> itself is a separate, reusable element (recommended package <code>StartupConfigs</code>). It holds the arguments, the environment variables, the scheduling policy and priority, the timeouts, the termination behavior, the permission to create child processes and the execution error. The <a href="04_ExecutionManagement.html#135-startupconfig">EM guide, Section 13.5</a> explains each of them; <a href="#1211-process-statedependentstartupconfig-and-startupconfig">Section 12.11</a> lists them with their XML names.</p>
+<p>The <code>StartupConfig</code> itself is a separate, reusable element (recommended package <code>StartupConfigs</code>). It holds the arguments, the environment variables, the scheduling policy and priority, the timeouts, the termination behavior, the permission to create child processes and the execution error. The <a href="ExecutionManagement.html#135-startupconfig">EM guide, Section 13.5</a> explains each of them; <a href="#1211-process-statedependentstartupconfig-and-startupconfig">Section 12.11</a> lists them with their XML names.</p>
 <h3 id="83-mapping-processes-to-the-machine">8.3 Mapping Processes to the Machine<a class="anchor" href="#83-mapping-processes-to-the-machine" aria-label="Link to this section">#</a></h3>
 <p>Each process must be mapped to exactly one Machine by a <code>ProcessToMachineMapping</code>, and this mapping is part of the Execution Manifest ([TPS_MANI_03147], [constr_5004], [constr_1553]). It may seem redundant, because the manifest is uploaded to the Machine anyway, but it is useful for processing the model; and since the Execution Manifest is created on the basis of an existing Machine Manifest, the link can always be made (TPS, Section 11.3.1). The mappings are collected in a <code>ProcessToMachineMappingSet</code>.</p>
 <p>The mapping can also restrict the cores on which the process runs, with <code>shallRunOn</code> or <code>shallNotRunOn</code> (never both, [TPS_MANI_03148], [constr_1677]); it can override a design-level affinity of the <code>ProcessDesignToMachineDesignMapping</code>, if the project allows this (TPS, Section 11.3.2). For a platform module, it references the module instantiation (<a href="#74-platform-module-instantiations">Section 7.4</a>).</p>
@@ -2163,7 +2163,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <span class="w">  </span><span class="nt">&lt;/FUNCTION-GROUPS&gt;</span>
 <span class="nt">&lt;/FUNCTION-GROUP-SET&gt;</span>
 </code></pre></div>
-<p>The <a href="04_ExecutionManagement.html#1311-the-running-example-complete-configuration">EM guide, Section 13.11</a> shows <code>Fusion</code> as a conceptual view. Here is the real ARXML of its startup configuration and process:</p>
+<p>The <a href="ExecutionManagement.html#1311-the-running-example-complete-configuration">EM guide, Section 13.11</a> shows <code>Fusion</code> as a conceptual view. Here is the real ARXML of its startup configuration and process:</p>
 <div class="code-block" data-lang="xml"><pre class="highlight"><code><span class="nt">&lt;STARTUP-CONFIG&gt;</span>
 <span class="w">  </span><span class="nt">&lt;SHORT-NAME&gt;</span>fusion_cfg<span class="nt">&lt;/SHORT-NAME&gt;</span>
 <span class="w">  </span><span class="nt">&lt;ENVIRONMENT-VARIABLES&gt;</span>
@@ -2221,7 +2221,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <span class="w">  </span><span class="nt">&lt;/STATE-DEPENDENT-STARTUP-CONFIGS&gt;</span>
 <span class="nt">&lt;/PROCESS&gt;</span>
 </code></pre></div>
-<p><code>CameraDriver</code> runs in <code>Normal</code> <em>and</em> <code>Degraded</code> with one shared startup configuration, so its <code>STATE-DEPENDENT-STARTUP-CONFIG</code> contains two <code>FUNCTION-GROUP-STATE-IREF</code>s. That is how it keeps running when <code>ADAS</code> switches between the two states (<a href="04_ExecutionManagement.html#1311-the-running-example-complete-configuration">EM guide, Section 13.11</a>). Both processes are mapped to <code>HPC</code>:</p>
+<p><code>CameraDriver</code> runs in <code>Normal</code> <em>and</em> <code>Degraded</code> with one shared startup configuration, so its <code>STATE-DEPENDENT-STARTUP-CONFIG</code> contains two <code>FUNCTION-GROUP-STATE-IREF</code>s. That is how it keeps running when <code>ADAS</code> switches between the two states (<a href="ExecutionManagement.html#1311-the-running-example-complete-configuration">EM guide, Section 13.11</a>). Both processes are mapped to <code>HPC</code>:</p>
 <div class="code-block" data-lang="xml"><pre class="highlight"><code><span class="nt">&lt;PROCESS-TO-MACHINE-MAPPING-SET&gt;</span>
 <span class="w">  </span><span class="nt">&lt;SHORT-NAME&gt;</span>AdasProcessesOnHpc<span class="nt">&lt;/SHORT-NAME&gt;</span>
 <span class="w">  </span><span class="nt">&lt;PROCESS-TO-MACHINE-MAPPINGS&gt;</span>
@@ -2282,7 +2282,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tbody>
 </table></div>
 <blockquote>
-<p><strong>Note (simplification):</strong> The real <code>Fusion</code> also has two Execution Dependencies: <code>CalibrationCheck</code> <em>Terminated</em> and <code>LoggerCompanion</code> <em>Running</em> (<a href="04_ExecutionManagement.html#65-dependencies-in-the-running-example">EM guide, Section 6.5</a>). An <code>EXECUTION-DEPENDENCY</code> references, with the instance reference <code>PROCESS-STATE-IREF</code>, a process state in the <code>processStateMachine</code> of the other process. Because this guide does not model <code>CalibrationCheck</code> and <code>LoggerCompanion</code>, the dependencies are left out.</p>
+<p><strong>Note (simplification):</strong> The real <code>Fusion</code> also has two Execution Dependencies: <code>CalibrationCheck</code> <em>Terminated</em> and <code>LoggerCompanion</code> <em>Running</em> (<a href="ExecutionManagement.html#65-dependencies-in-the-running-example">EM guide, Section 6.5</a>). An <code>EXECUTION-DEPENDENCY</code> references, with the instance reference <code>PROCESS-STATE-IREF</code>, a process state in the <code>processStateMachine</code> of the other process. Because this guide does not model <code>CalibrationCheck</code> and <code>LoggerCompanion</code>, the dependencies are left out.</p>
 </blockquote>
 <blockquote>
 <p><strong>Key takeaways</strong></p>
@@ -2302,14 +2302,14 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p><strong>In plain words:</strong> a service interface deployment says how a service interface looks on one transport: for SOME/IP, its service ID, the IDs of its methods and events, and its event groups. Provider and consumers must use the same deployment.</p>
 <p><strong>Formally:</strong> a <code>ServiceInterfaceDeployment</code> maps a <code>ServiceInterface</code> to a middleware transport layer ([TPS_MANI_03036]). The concrete subclasses are <code>SomeipServiceInterfaceDeployment</code>, <code>DdsServiceInterfaceDeployment</code> and <code>UserDefinedServiceInterfaceDeployment</code>. A deployment holds one element deployment per event, field and method of the interface. With the exception of DDS, it must cover <em>all</em> elements of the interface ([constr_10029]); a partial deployment is not supported.</p>
 <p>For SOME/IP, the deployment assigns the service identifier <code>serviceInterfaceId</code> ([TPS_MANI_03040]), defines the event groups that clients subscribe to ([TPS_MANI_03041]) and the SOME/IP version ([TPS_MANI_03042]). It is the common configuration set that is shared between the server and all clients (TPS, Section 13.2.1). The contract version of the interface is mapped to a version of each deployment, and different deployments of the same interface may use different version numbers ([TPS_MANI_03617]).</p>
-<p>The methodology assigns the deployment to the software cluster responsible: the SOME/IP service ID must be unambiguous in the system, and the method IDs, event IDs and event groups unambiguous within the deployment ([TR_AMETH_00027]). <a href="08a_NetworkBindings.html">Guide 08a</a> explains all SOME/IP and DDS attributes.</p>
+<p>The methodology assigns the deployment to the software cluster responsible: the SOME/IP service ID must be unambiguous in the system, and the method IDs, event IDs and event groups unambiguous within the deployment ([TR_AMETH_00027]). The <a href="NetworkBindings.html">Network Bindings guide</a> explains all SOME/IP and DDS attributes.</p>
 <h3 id="92-provided-and-required-service-instances">9.2 Provided and Required Service Instances<a class="anchor" href="#92-provided-and-required-service-instances" aria-label="Link to this section">#</a></h3>
 <p>An <code>AdaptivePlatformServiceInstance</code> makes the functionality of a service interface available on the platform. There may be several instances of the same interface, for different purposes or users (TPS, Section 13.3).</p>
 <ul>
 <li>A <code>ProvidedApServiceInstance</code> represents a provider that offers the service with particular properties.</li>
 <li>A <code>RequiredApServiceInstance</code> represents a client that observes the offers and chooses a provider.</li>
 </ul>
-<p>Both are abstract. Their transport-specific subclasses are <code>ProvidedSomeipServiceInstance</code> and <code>RequiredSomeipServiceInstance</code>, the corresponding DDS classes, and user-defined classes. Every instance references the <code>ServiceInterfaceDeployment</code> that identifies its interface; it can also carry E2E protection and secure communication settings (TPS, Table 13.28; guides 08 and 14). For SOME/IP, a provided instance has a <code>serviceInstanceId</code>; a required instance has a <code>requiredServiceInstanceId</code> and a <code>requiredMinorVersion</code> (TPS, Section 13.3.1).</p>
+<p>Both are abstract. Their transport-specific subclasses are <code>ProvidedSomeipServiceInstance</code> and <code>RequiredSomeipServiceInstance</code>, the corresponding DDS classes, and user-defined classes. Every instance references the <code>ServiceInterfaceDeployment</code> that identifies its interface; it can also carry E2E protection and secure communication settings (TPS, Table 13.28; the Secure Communication and Cryptography guides). For SOME/IP, a provided instance has a <code>serviceInstanceId</code>; a required instance has a <code>requiredServiceInstanceId</code> and a <code>requiredMinorVersion</code> (TPS, Section 13.3.1).</p>
 <p>Service instances are <code>ARElement</code>s: they live in packages and can be used in several manifests (TPS, Section 13.3). The methodology lets the software cluster responsible define them during the design, and the integrator finalize their IDs according to the service topology of the system ([TR_AMETH_00005], [TR_AMETH_00028]).</p>
 <h3 id="93-connecting-a-port-to-a-service-instance">9.3 Connecting a Port to a Service Instance<a class="anchor" href="#93-connecting-a-port-to-a-service-instance" aria-label="Link to this section">#</a></h3>
 <p>The decisive link is the <code>ServiceInstanceToPortPrototypeMapping</code>. It assigns a service instance to a port of a component, so that it defines how that port is represented in the middleware ([TPS_MANI_03000]). In the words of the TPS, the &quot;outside&quot; appearance of a port, from the middleware's point of view, is the service instance.</p>
@@ -2498,9 +2498,9 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <span class="nt">&lt;/SOMEIP-SERVICE-INSTANCE-TO-MACHINE-MAPPING&gt;</span>
 </code></pre></div>
 <blockquote>
-<p><strong>Note:</strong> The guide models <code>Fusion</code> as a SOME/IP client of <code>CameraService</code>, although provider and consumer run on the same Machine. Whether a local consumer uses the SOME/IP instance or a local binding is decided in <a href="08a_NetworkBindings.html">guide 08a</a>. The transport protocol TCP, the event and method IDs and the service discovery timing are illustrative; <a href="08a_NetworkBindings.html">guide 08a</a> owns them.</p>
+<p><strong>Note:</strong> The guide models <code>Fusion</code> as a SOME/IP client of <code>CameraService</code>, although provider and consumer run on the same Machine. Whether a local consumer uses the SOME/IP instance or a local binding is decided in the <a href="NetworkBindings.html">Network Bindings guide</a>. The transport protocol TCP, the event and method IDs and the service discovery timing are illustrative; the <a href="NetworkBindings.html">Network Bindings guide</a> owns them.</p>
 </blockquote>
-<p>The following sequence diagram shows, conceptually, how this configuration is used when <code>Fusion</code> starts to look for the service. The exact API and the behavior of Communication Management are the topic of <a href="07_CommunicationManagement.html#69-worked-example-fusion-finds-cameraservice">guide 07</a> and <a href="08a_NetworkBindings.html">guide 08a</a>.</p>
+<p>The following sequence diagram shows, conceptually, how this configuration is used when <code>Fusion</code> starts to look for the service. The exact API and the behavior of Communication Management are the topic of the <a href="CommunicationManagement.html#69-worked-example-fusion-finds-cameraservice">CM guide</a> and the <a href="NetworkBindings.html">Network Bindings guide</a>.</p>
 <pre class="mermaid">sequenceDiagram
     participant FC as Fusion code
     participant CM as Communication Management
@@ -2611,8 +2611,8 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p>On each Machine, exactly one Software Cluster of category <code>PLATFORM_CORE</code> is deployed ([constr_1788]). This is required for methodology reasons even if the Machine does not use the AUTOSAR UCM; in that case, a single <code>PLATFORM_CORE</code> cluster may contain all software of the Machine (TPS, Section 16.3.1).</p>
 <h3 id="103-software-package-and-vehicle-package">10.3 Software Package and Vehicle Package<a class="anchor" href="#103-software-package-and-vehicle-package" aria-label="Link to this section">#</a></h3>
 <p>A Software Cluster alone cannot be installed. It is wrapped in a <code>SoftwarePackage</code>, which handles the <em>logistics</em> of the installation, while the Software Cluster describes the <em>structure</em> of the software ([TPS_MANI_01221]). The package says, for example, which action to take (<code>install</code>, <code>update</code>, <code>remove</code> or <code>updateConfiguration</code>), what to do after the installation (<code>reboot</code>, <code>restartApplication</code> or <code>nothing</code>), and who packaged and signed it ([TPS_MANI_01222], [TPS_MANI_01223]). The Methodology TR shows the result as nested manifests, each with its own signature: the Software Cluster manifest inside the Software Package manifest (Methodology TR, Figure 2.32). The format of the package and the update strategy, complete or delta, are implementation-specific ([TR_AMETH_00222]).</p>
-<p>A <code>VehiclePackage</code> describes an update campaign across several UCMs ([TPS_MANI_01290]). Guide 13 explains packages, campaigns and their processing.</p>
-<p>The following diagram shows the nesting for the update of <code>AdasCluster</code> described in <a href="00_LearningPath.html#611-software-updates">guide 00, Section 6.11</a>.</p>
+<p>A <code>VehiclePackage</code> describes an update campaign across several UCMs ([TPS_MANI_01290]). The UCM guide explains packages, campaigns and their processing.</p>
+<p>The following diagram shows the nesting for the update of <code>AdasCluster</code> described in the <a href="RunningExample.html#111-software-updates">Running Example guide, Section 1.11</a>.</p>
 <pre class="mermaid">flowchart TB
     VP[&quot;VehiclePackage&lt;br/&gt;(update campaign)&quot;] --&gt; SP[&quot;SoftwarePackage&lt;br/&gt;(logistics, packager signature)&quot;]
     SP --&gt; SC[&quot;SoftwareCluster AdasCluster&lt;br/&gt;version 1.1.0, vendor signature&quot;]
@@ -2808,10 +2808,10 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p>The Methodology TR marks its chapters on software cluster integration and packaging as not yet fully elaborated (Methodology TR, Section 1.6).</p>
 <h3 id="117-packaging-and-deployment">11.7 Packaging and Deployment<a class="anchor" href="#117-packaging-and-deployment" aria-label="Link to this section">#</a></h3>
 <p>A Software Cluster is wrapped into a Software Package, together with its binaries ([TR_AMETH_00006], [TR_AMETH_00206]). The installation instructions per Software Cluster, such as add, update or remove, are part of the package description ([TR_AMETH_00221]). The packages are stored on an OEM back-end and provided to the Machines in the field ([TR_AMETH_00224], [TR_AMETH_00225]). AUTOSAR does not specify the format of the package or whether updates are complete or delta updates ([TR_AMETH_00222]).</p>
-<p>Before any package can be installed, the Machine must be set up initially: the operating system and the platform modules, at least UCM and the modules it depends on, are installed with their Machine Manifest, Execution Manifests and Service Instance Manifests ([TR_AMETH_00031]). From then on, UCM installs further software as packages (<a href="#103-software-package-and-vehicle-package">Section 10.3</a>, guide 13).</p>
+<p>Before any package can be installed, the Machine must be set up initially: the operating system and the platform modules, at least UCM and the modules it depends on, are installed with their Machine Manifest, Execution Manifests and Service Instance Manifests ([TR_AMETH_00031]). From then on, UCM installs further software as packages (<a href="#103-software-package-and-vehicle-package">Section 10.3</a>, the UCM guide).</p>
 <h3 id="118-how-the-platform-consumes-manifests-at-run-time">11.8 How the Platform Consumes Manifests at Run Time<a class="anchor" href="#118-how-the-platform-consumes-manifests-at-run-time" aria-label="Link to this section">#</a></h3>
-<p>The ARXML stays in the development world. On the Machine, each platform implementation uses its own format, which must preserve the content and semantics of the ARXML ([TPS_MANI_01021]). The <a href="04_ExecutionManagement.html#41-where-the-configuration-lives">EM guide</a> calls the result <em>Processed Manifests</em>: the conversion happens off-board at integration or deployment time, or on the Machine by UCM at installation time, and, if a Trusted Platform is configured, EM checks their integrity and authenticity before it uses them (<a href="04_ExecutionManagement.html#122-what-em-verifies-and-why">EM guide, Section 12.2</a>).</p>
-<p>The functional clusters read their configuration through the <em>Registry</em>, an internal component of the platform, with its native interface <code>ManifestAccessor</code> (<em>SW Architecture</em>, Section 9.7.3; <a href="01_PlatformOverview.html#57-configuration">guide 01, Section 5.7</a>). The interface is not standardized in detail. The required-interface tables of the <em>SW Architecture</em> show what each cluster reads, for example:</p>
+<p>The ARXML stays in the development world. On the Machine, each platform implementation uses its own format, which must preserve the content and semantics of the ARXML ([TPS_MANI_01021]). The <a href="ExecutionManagement.html#41-where-the-configuration-lives">EM guide</a> calls the result <em>Processed Manifests</em>: the conversion happens off-board at integration or deployment time, or on the Machine by UCM at installation time, and, if a Trusted Platform is configured, EM checks their integrity and authenticity before it uses them (<a href="ExecutionManagement.html#122-what-em-verifies-and-why">EM guide, Section 12.2</a>).</p>
+<p>The functional clusters read their configuration through the <em>Registry</em>, an internal component of the platform, with its native interface <code>ManifestAccessor</code> (<em>SW Architecture</em>, Section 9.7.3; the <a href="PlatformOverview.html#57-configuration">Platform Overview guide, Section 5.7</a>). The interface is not standardized in detail. The required-interface tables of the <em>SW Architecture</em> show what each cluster reads, for example:</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -2859,7 +2859,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <li>The APMC collections and definitions are <code>UploadablePackageElement</code>s, so a Software Cluster can contain them (TPS, Table 16.1).</li>
 </ul>
 <p>The benefits that APMC names are a much simpler model structure, the ability to define default values, terminology specific to each functional cluster, arbitrary multiplicities, changes without a change of the XML Schema, vendor extensions as first-class citizens, and a clear separation between design workflow and configuration workflow (APMC, Section 2.3). APMC also describes how much of the design is copied into the configuration: nothing, everything, or a part, with flat references or instance references into the remaining design (APMC, Section 2.4).</p>
-<p><strong>Status in R25-11.</strong> For two functional clusters, APMC is already the canonical target configuration: Persistency and Update and Configuration Management. Their parameters are documented in Chapter 10.1 of their specifications; the M2 description in the TPS is still provided but may be discontinued (TPS, Sections 12.2 and 12.8). The TPS Appendix I describes how the APMC parameters of Persistency map to the manifest meta-classes. <a href="11_Persistency.html#14-configuration-reference-what-to-configure">Guide 11</a> and guide 13 explain these configurations. All other clusters are configured through the meta-model as described in this guide.</p>
+<p><strong>Status in R25-11.</strong> For two functional clusters, APMC is already the canonical target configuration: Persistency and Update and Configuration Management. Their parameters are documented in Chapter 10.1 of their specifications; the M2 description in the TPS is still provided but may be discontinued (TPS, Sections 12.2 and 12.8). The TPS Appendix I describes how the APMC parameters of Persistency map to the manifest meta-classes. The <a href="Persistency.html#14-configuration-reference-what-to-configure">Persistency guide</a> and the UCM guide explain these configurations. All other clusters are configured through the meta-model as described in this guide.</p>
 <blockquote>
 <p><strong>Key takeaways</strong></p>
 <ul>
@@ -2980,7 +2980,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>0..1</code></td>
 <td>not specified</td>
 <td>Shall exist if the ComSpec exists ([constr_10152], <code>IT_BefAraApiGen</code>)</td>
-<td>Can be used to set the field value before the offer ([TPS_MANI_03212]); <a href="07_CommunicationManagement.html#92-the-value-before-the-offer">guide 07, Section 9.2</a></td>
+<td>Can be used to set the field value before the offer ([TPS_MANI_03212]); the <a href="CommunicationManagement.html#92-the-value-before-the-offer">CM guide, Section 9.2</a></td>
 </tr>
 </tbody>
 </table></div>
@@ -3015,7 +3015,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>0..1</code></td>
 <td>Reports ([TPS_MANI_01279])</td>
 <td></td>
-<td><a href="04_ExecutionManagement.html#24-process-flavors">EM guide, Section 2.4</a></td>
+<td><a href="ExecutionManagement.html#24-process-flavors">EM guide, Section 2.4</a></td>
 </tr>
 <tr>
 <td><code>rootSwComponentPrototype</code></td>
@@ -3042,7 +3042,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>0..1</code></td>
 <td>not specified</td>
 <td></td>
-<td>Used for updates and diagnostics (guides 12a, 13)</td>
+<td>Used for updates and diagnostics (the Diagnostics Part 1 and UCM guides)</td>
 </tr>
 <tr>
 <td><code>minimumTimerGranularity</code></td>
@@ -3060,7 +3060,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>0..1</code></td>
 <td>not specified</td>
 <td>[TPS_MANI_01513]</td>
-<td>Guide 05</td>
+<td>SM guide</td>
 </tr>
 <tr>
 <td><code>implementationProps</code></td>
@@ -3069,7 +3069,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>*</code></td>
 <td>not specified</td>
 <td>Only for <code>PLATFORM_LEVEL</code> ([constr_10113])</td>
-<td><a href="10_LogAndTrace.html#159-traceswitchconfig-and-executableloggingimplementationprops">Guide 10, 15.9</a></td>
+<td><a href="LogAndTrace.html#159-traceswitchconfig-and-executableloggingimplementationprops">Log and Trace guide, 15.9</a></td>
 </tr>
 </tbody>
 </table></div>
@@ -3113,7 +3113,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>*</code></td>
 <td>not specified</td>
 <td>No <code>initValue</code> ([constr_1494])</td>
-<td>Event of proxy and skeleton (<a href="07_CommunicationManagement.html#7-events-and-triggers">guide 07</a>)</td>
+<td>Event of proxy and skeleton (the <a href="CommunicationManagement.html#7-events-and-triggers">CM guide</a>)</td>
 </tr>
 <tr>
 <td><code>ServiceInterface.field</code></td>
@@ -3167,7 +3167,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>*</code></td>
 <td>not specified</td>
 <td>Unique domain values per method ([constr_10574])</td>
-<td>Errors returned through <code>ara::core</code> (<a href="03_CoreAndGeneral.html#78-generated-error-domains">guide 03, 7.8</a>)</td>
+<td>Errors returned through <code>ara::core</code> (the <a href="CoreAndGeneral.html#78-generated-error-domains">Core guide, 7.8</a>)</td>
 </tr>
 <tr>
 <td><code>ServiceInterface.trigger</code></td>
@@ -3283,7 +3283,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>0..1</code></td>
 <td>not specified</td>
 <td>[constr_10566]</td>
-<td>Enumerators (<a href="07_CommunicationManagement.html#55-data-types">guide 07, Section 5.5</a>)</td>
+<td>Enumerators (the <a href="CommunicationManagement.html#55-data-types">CM guide, Section 5.5</a>)</td>
 </tr>
 </tbody>
 </table></div>
@@ -3327,7 +3327,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>0..1</code></td>
 <td>not specified</td>
 <td>Shall exist ([constr_10133]); 0 to <code>0xffffffffffffffff</code> ([TPS_MANI_01863], [constr_2637])</td>
-<td>Identifies the error domain in <code>ara::core</code> (<a href="03_CoreAndGeneral.html#74-error-domain-identifiers">guide 03, 7.4</a>)</td>
+<td>Identifies the error domain in <code>ara::core</code> (the <a href="CoreAndGeneral.html#74-error-domain-identifiers">Core guide, 7.4</a>)</td>
 </tr>
 <tr>
 <td><code>ApApplicationErrorDomain.namespace</code></td>
@@ -3394,7 +3394,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tbody>
 </table></div>
 <h3 id="128-machinedesign-ethernetcommunicationconnector-and-apapplicationendpoint">12.8 MachineDesign, EthernetCommunicationConnector and ApApplicationEndpoint<a class="anchor" href="#128-machinedesign-ethernetcommunicationconnector-and-apapplicationendpoint" aria-label="Link to this section">#</a></h3>
-<p><strong>Purpose:</strong> the design-time description of a Machine and its network connection. <strong>Lives in:</strong> system design. <strong>Configured by:</strong> OEM communication designer or Tier 1 integrator. <strong>Spec:</strong> TPS 6, 7.2.1, 13.1; Tables 6.8, 13.1, 13.37. <a href="08a_NetworkBindings.html">Guide 08a</a> covers all network attributes.</p>
+<p><strong>Purpose:</strong> the design-time description of a Machine and its network connection. <strong>Lives in:</strong> system design. <strong>Configured by:</strong> OEM communication designer or Tier 1 integrator. <strong>Spec:</strong> TPS 6, 7.2.1, 13.1; Tables 6.8, 13.1, 13.37. The <a href="NetworkBindings.html">Network Bindings guide</a> covers all network attributes.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -3486,7 +3486,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>0..1</code></td>
 <td>not specified</td>
 <td>Shall exist ([constr_10170])</td>
-<td><a href="04_ExecutionManagement.html#123-launch-behavior-modes">EM guide, Section 12.3</a></td>
+<td><a href="ExecutionManagement.html#123-launch-behavior-modes">EM guide, Section 12.3</a></td>
 </tr>
 <tr>
 <td><code>Machine.defaultApplicationTimeout</code></td>
@@ -3495,7 +3495,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>0..1</code></td>
 <td>not specified</td>
 <td>Both values shall exist ([constr_10430] to [constr_10432])</td>
-<td>Used when a <code>StartupConfig</code> defines no timeout (<a href="04_ExecutionManagement.html#135-startupconfig">EM guide, Section 13.5</a>)</td>
+<td>Used when a <code>StartupConfig</code> defines no timeout (<a href="ExecutionManagement.html#135-startupconfig">EM guide, Section 13.5</a>)</td>
 </tr>
 <tr>
 <td><code>Machine.environmentVariable</code></td>
@@ -3531,7 +3531,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>*</code></td>
 <td>not specified</td>
 <td>At least one ([constr_1661])</td>
-<td>Limits of the group (<a href="04_ExecutionManagement.html#11-resource-management">EM guide, Chapter 11</a>)</td>
+<td>Limits of the group (<a href="ExecutionManagement.html#11-resource-management">EM guide, Chapter 11</a>)</td>
 </tr>
 <tr>
 <td><code>OsModuleInstantiation.supportedTimerGranularity</code></td>
@@ -3549,7 +3549,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>*</code></td>
 <td>not specified</td>
 <td></td>
-<td>Guide 14</td>
+<td>Cryptography guide</td>
 </tr>
 </tbody>
 </table></div>
@@ -3584,7 +3584,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>*</code></td>
 <td>not specified</td>
 <td><code>Off</code> ([TPS_MANI_03195]) and <code>Verify</code> ([constr_10023]) mandatory</td>
-<td>The states that <code>SetState</code> can request (<a href="04_ExecutionManagement.html#144-functiongroup-and-functiongroupstate">EM guide, Section 14.4</a>)</td>
+<td>The states that <code>SetState</code> can request (<a href="ExecutionManagement.html#144-functiongroup-and-functiongroupstate">EM guide, Section 14.4</a>)</td>
 </tr>
 <tr>
 <td><code>ModeDeclarationGroup.initialMode</code></td>
@@ -3607,7 +3607,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tbody>
 </table></div>
 <h3 id="1211-process-statedependentstartupconfig-and-startupconfig">12.11 Process, StateDependentStartupConfig and StartupConfig<a class="anchor" href="#1211-process-statedependentstartupconfig-and-startupconfig" aria-label="Link to this section">#</a></h3>
-<p><strong>Purpose:</strong> how an Executable is started. <strong>Lives in:</strong> Execution Manifest. <strong>Configured by:</strong> integrator. <strong>Spec:</strong> TPS 10.2, 10.3; Tables 10.1, 10.3 to 10.7. The <a href="04_ExecutionManagement.html#13-configuration-reference-what-to-configure">EM guide, Chapter 13</a> gives the meaning, the behavior when an attribute is absent and the run-time effect of every attribute; this table gives the model structure.</p>
+<p><strong>Purpose:</strong> how an Executable is started. <strong>Lives in:</strong> Execution Manifest. <strong>Configured by:</strong> integrator. <strong>Spec:</strong> TPS 10.2, 10.3; Tables 10.1, 10.3 to 10.7. The <a href="ExecutionManagement.html#13-configuration-reference-what-to-configure">EM guide, Chapter 13</a> gives the meaning, the behavior when an attribute is absent and the run-time effect of every attribute; this table gives the model structure.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -3794,7 +3794,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>*</code> each</td>
 <td>All cores (EM guide)</td>
 <td>Cores of the referenced Machine and one processor; only one of the two ([constr_3393], [constr_1676], [constr_1677])</td>
-<td><a href="04_ExecutionManagement.html#115-cpu-core-affinity-and-scheduling">EM guide, Section 11.5</a></td>
+<td><a href="ExecutionManagement.html#115-cpu-core-affinity-and-scheduling">EM guide, Section 11.5</a></td>
 </tr>
 <tr>
 <td><code>ProcessToMachineMapping.nonOsModuleInstantiation</code></td>
@@ -3812,7 +3812,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>0..1</code></td>
 <td>not specified</td>
 <td>Shall exist if the process uses Persistency ([constr_10090])</td>
-<td><a href="11_Persistency.html#1412-the-legacy-m2-target-configuration">Guide 11, 14.12</a></td>
+<td><a href="Persistency.html#1412-the-legacy-m2-target-configuration">Persistency guide, 14.12</a></td>
 </tr>
 <tr>
 <td><code>ProcessToMachineMapping.design</code></td>
@@ -3826,7 +3826,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tbody>
 </table></div>
 <h3 id="1213-serviceinterfacedeployment-and-service-instances">12.13 ServiceInterfaceDeployment and Service Instances<a class="anchor" href="#1213-serviceinterfacedeployment-and-service-instances" aria-label="Link to this section">#</a></h3>
-<p><strong>Purpose:</strong> the transport-specific representation of a service interface and its instances. <strong>Lives in:</strong> Service Instance Manifest. <strong>Configured by:</strong> software cluster responsible, finalized by the integrator. <strong>Spec:</strong> TPS 13.2, 13.3; Tables 13.6 to 13.11, 13.28 to 13.30, 13.34, 13.49. <a href="08a_NetworkBindings.html">Guide 08a</a> covers the SOME/IP and DDS attributes.</p>
+<p><strong>Purpose:</strong> the transport-specific representation of a service interface and its instances. <strong>Lives in:</strong> Service Instance Manifest. <strong>Configured by:</strong> software cluster responsible, finalized by the integrator. <strong>Spec:</strong> TPS 13.2, 13.3; Tables 13.6 to 13.11, 13.28 to 13.30, 13.34, 13.49. The <a href="NetworkBindings.html">Network Bindings guide</a> covers the SOME/IP and DDS attributes.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -3874,7 +3874,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>0..1</code>, <code>0..1</code>, <code>*</code></td>
 <td>not specified</td>
 <td>ID and version shall exist ([constr_10212], [constr_10213])</td>
-<td><a href="08a_NetworkBindings.html">Guide 08a</a></td>
+<td><a href="NetworkBindings.html">Network Bindings guide</a></td>
 </tr>
 <tr>
 <td><code>AdaptivePlatformServiceInstance.serviceInterfaceDeployment</code></td>
@@ -3892,7 +3892,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>*</code> each</td>
 <td>not specified</td>
 <td></td>
-<td>Guides 08, 14</td>
+<td>Secure Communication and Cryptography guides</td>
 </tr>
 <tr>
 <td><code>ProvidedSomeipServiceInstance.serviceInstanceId</code>, <code>sdServerConfig</code>, <code>providedEventGroup</code></td>
@@ -3999,7 +3999,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>0..1</code>, <code>0..1</code>, <code>*</code></td>
 <td>not specified</td>
 <td></td>
-<td>Guide 14</td>
+<td>Cryptography guide</td>
 </tr>
 </tbody>
 </table></div>
@@ -4043,7 +4043,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>0..1</code></td>
 <td>not specified</td>
 <td>Shall be <code>cannotBeRemoved</code> for <code>PLATFORM_CORE</code> ([constr_10410])</td>
-<td>UCM accepts or rejects removal (guide 13)</td>
+<td>UCM accepts or rejects removal (the UCM guide)</td>
 </tr>
 <tr>
 <td><code>SoftwareClusterDesign.intendedTargetMachine</code></td>
@@ -4061,7 +4061,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>0..1</code> each</td>
 <td>not specified</td>
 <td>Design level only in R25-11 ([TPS_MANI_01480], [TPS_MANI_01482])</td>
-<td>Checked at installation (guide 13)</td>
+<td>Checked at installation (the UCM guide)</td>
 </tr>
 <tr>
 <td><code>SoftwareClusterDesign.requiredARElement</code>, <code>requiredDesignElement</code></td>
@@ -4115,7 +4115,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>0..1</code></td>
 <td>not specified</td>
 <td>Shall exist ([constr_10234]); major, minor, patch ([constr_1747])</td>
-<td>Compared by UCM (guide 13)</td>
+<td>Compared by UCM (the UCM guide)</td>
 </tr>
 <tr>
 <td><code>SoftwareCluster.vendorId</code></td>
@@ -4133,7 +4133,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>0..1</code></td>
 <td>not specified</td>
 <td>Shall exist ([constr_10233])</td>
-<td>Authenticity check (guides 13, 14)</td>
+<td>Authenticity check (the UCM and Cryptography guides)</td>
 </tr>
 <tr>
 <td><code>SoftwareCluster.design</code></td>
@@ -4151,7 +4151,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td>various</td>
 <td>not specified</td>
 <td>[TPS_MANI_01202], [TPS_MANI_01219], [TPS_MANI_01220], [TPS_MANI_01345], [TPS_MANI_01381]</td>
-<td>Guides 12a, 13</td>
+<td>Diagnostics Part 1 and UCM guides</td>
 </tr>
 </tbody>
 </table></div>
@@ -5242,67 +5242,67 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <tr>
 <td>Instance specifiers <code>/camera_driver/Root/CameraPPort</code> and <code>/fusion/Root/CameraRPort</code></td>
 <td>The code of <code>CameraDriver</code> and <code>Fusion</code>, Communication Management</td>
-<td>07</td>
+<td>CM</td>
 </tr>
 <tr>
 <td>Namespace <code>hpc::camera</code>, the types <code>CameraImage</code>, <code>PixelVector</code>, <code>ExposureMode</code>, <code>CameraState</code>, the initial value <code>NotAvailable</code></td>
 <td>Generated proxies and skeletons</td>
-<td>07</td>
+<td>CM</td>
 </tr>
 <tr>
 <td>Error <code>ExposureModeNotSupported</code> in domain <code>CameraErrors</code></td>
 <td>The result of <code>SetExposureMode</code> in <code>ara::core</code></td>
-<td><a href="03_CoreAndGeneral.html#97-worked-example-fusion-requests-the-night-exposure-mode">03</a>, 07</td>
+<td><a href="CoreAndGeneral.html#97-worked-example-fusion-requests-the-night-exposure-mode">Core</a>, CM</td>
 </tr>
 <tr>
 <td>Service ID <code>0x1001</code>, instance ID <code>0x0001</code>, method and event IDs, event group <code>CameraEvents</code>, TCP 30501, SD timing</td>
 <td>SOME/IP and SOME/IP-SD on the backbone</td>
-<td>08</td>
+<td>Network Bindings</td>
 </tr>
 <tr>
 <td><code>HpcUnicast</code>, <code>SdMulticast</code>, <code>BackboneConnector</code></td>
 <td>Network configuration, firewall rules</td>
-<td>08, 16</td>
+<td>Network Bindings, IDSM and Firewall</td>
 </tr>
 <tr>
 <td>States of <code>MachineFG</code> and <code>ADAS</code>, including <code>Verify</code></td>
 <td>State Management, EM, UCM</td>
-<td>04, 05, 13</td>
+<td>EM, SM, UCM</td>
 </tr>
 <tr>
 <td>StartupConfigs, ResourceGroups, <code>numberOfRestartAttempts</code>, memory limit</td>
 <td>Execution Management</td>
-<td>04</td>
+<td>EM</td>
 </tr>
 <tr>
 <td><code>FusionFailed</code> (42)</td>
 <td>EM reports it to State Management</td>
-<td>04, 05</td>
+<td>EM, SM</td>
 </tr>
 <tr>
 <td>Processor <code>Soc</code> and its cores</td>
 <td>Core affinity</td>
-<td>04</td>
+<td>EM</td>
 </tr>
 <tr>
 <td><code>timestamp</code> of <code>CameraImage</code></td>
 <td>Time stamps with <code>VehicleTime</code></td>
-<td>09</td>
+<td>NM/TSync/RDS</td>
 </tr>
 <tr>
 <td><code>version</code> of <code>fusion</code> (1.0.0, later 1.1.0)</td>
 <td>DID <code>FusionSoftwareVersion</code>, the update</td>
-<td>12a, 13</td>
+<td>Diagnostics Part 1, UCM</td>
 </tr>
 <tr>
 <td><code>AdasClusterDesign</code>, <code>AdasCluster</code>, <code>HpcPlatformCore</code>: categories, versions, vendor IDs, vendor certificates</td>
 <td>UCM, package verification</td>
-<td>13, 14</td>
+<td>UCM, Cryptography</td>
 </tr>
 <tr>
 <td>Strict mode of the trusted platform</td>
 <td>EM, IdsM</td>
-<td>04, 16</td>
+<td>EM, IDSM and Firewall</td>
 </tr>
 </tbody>
 </table></div>
@@ -5312,7 +5312,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <li>Follow the minimal configuration checklist; most mistakes are missing mandatory references, such as the ResourceGroup of a startup configuration or the service discovery configuration of a service instance.</li>
 <li>Many attributes are <code>0..1</code> in the class table and made mandatory by a constraint; the tables of this chapter list these constraints.</li>
 <li>Defaults exist only where the specifications state them, for example for <code>reportingBehavior</code>, <code>fireAndForget</code> and <code>numberOfRestartAttempts</code>.</li>
-<li>The behavior behind the Execution Manifest is explained in the EM guide, the behavior behind the Service Instance Manifest in <a href="07_CommunicationManagement.html">guide 07</a> and <a href="08a_NetworkBindings.html">guide 08a</a>.</li>
+<li>The behavior behind the Execution Manifest is explained in the EM guide, the behavior behind the Service Instance Manifest in the <a href="CommunicationManagement.html">CM guide</a> and the <a href="NetworkBindings.html">Network Bindings guide</a>.</li>
 <li>The complete model of <code>CameraService</code>, <code>CameraDriver</code>, <code>Fusion</code>, <code>HPC</code> and the two Software Clusters is about 1,000 lines of validated ARXML.</li>
 </ul>
 </blockquote>
@@ -5340,7 +5340,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <tr>
 <td><code>event</code>, <code>method</code>, <code>field</code> with <code>hasGetter</code>, <code>hasSetter</code>, <code>hasNotifier</code></td>
 <td>Members of proxy and skeleton</td>
-<td><a href="07_CommunicationManagement.html#5-from-service-interface-to-generated-code">Guide 07, Chapter 5</a></td>
+<td><a href="CommunicationManagement.html#5-from-service-interface-to-generated-code">CM guide, Chapter 5</a></td>
 </tr>
 <tr>
 <td><code>CppImplementationDataType</code> with <code>typeEmitter</code> <code>TYPE_EMITTER_ARA</code></td>
@@ -5366,7 +5366,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </table></div>
 <p>The software component types themselves need not appear in the code: the TPS notes that all components of an Executable may even be implemented in one <code>main()</code> function (TPS, Section 3.2.2.3). What the code needs from the application design are the names along the path of each port.</p>
 <h3 id="132-the-instancespecifier-in-code">13.2 The InstanceSpecifier in Code<a class="anchor" href="#132-the-instancespecifier-in-code" aria-label="Link to this section">#</a></h3>
-<p>The class <code>ara::core::InstanceSpecifier</code> represents an AUTOSAR instance specifier, &quot;basically an AUTOSAR shortName path wrapper&quot; ([SWS_CORE_08001]). <a href="03_CoreAndGeneral.html#1111-instancespecifier">Guide 03</a> covers <code>ara::core</code> in general; the following table lists the parts of the class that matter here.</p>
+<p>The class <code>ara::core::InstanceSpecifier</code> represents an AUTOSAR instance specifier, &quot;basically an AUTOSAR shortName path wrapper&quot; ([SWS_CORE_08001]). The <a href="CoreAndGeneral.html#1111-instancespecifier">Core guide</a> covers <code>ara::core</code> in general; the following table lists the parts of the class that matter here.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -5422,7 +5422,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <span class="w">    </span><span class="p">}</span>
 
 <span class="w">    </span><span class="c1">// Pass specifier.Value() to the find function of the generated CameraService</span>
-<span class="w">    </span><span class="c1">// proxy (guide 07). Communication Management resolves it with the mapping</span>
+<span class="w">    </span><span class="c1">// proxy (the CM guide). Communication Management resolves it with the mapping</span>
 <span class="w">    </span><span class="c1">// Fusion_CameraRPort of the Service Instance Manifest (Section 9.3).</span>
 
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">ara</span><span class="o">::</span><span class="n">core</span><span class="o">::</span><span class="n">Deinitialize</span><span class="p">().</span><span class="n">HasValue</span><span class="p">()</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">EXIT_SUCCESS</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">EXIT_FAILURE</span><span class="p">;</span>
@@ -5563,7 +5563,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
     CM-&gt;&gt;CM: resolve /camera_driver/Root/CameraPPort and /fusion/Root/CameraRPort
     CM--&gt;&gt;CM: CameraDriver offers, Fusion finds CameraService
 </pre>
-<p>Later, the update of <code>AdasCluster</code> to 1.1.0 (<a href="00_LearningPath.html#611-software-updates">guide 00, Section 6.11</a>) repeats steps 7 to 9 with a new Software Package. During its activation, State Management switches <code>ADAS</code> to <code>Off</code>, then to <code>Verify</code> and back to <code>Normal</code>, and the manifests are reparsed, unless the Machine is reset (<em>Platform Design</em>, Section 13.9 and Figure 13.10). Guide 13 tells this story.</p>
+<p>Later, the update of <code>AdasCluster</code> to 1.1.0 (the <a href="RunningExample.html#111-software-updates">Running Example guide, Section 1.11</a>) repeats steps 7 to 9 with a new Software Package. During its activation, State Management switches <code>ADAS</code> to <code>Off</code>, then to <code>Verify</code> and back to <code>Normal</code>, and the manifests are reparsed, unless the Machine is reset (<em>Platform Design</em>, Section 13.9 and Figure 13.10). The UCM guide tells this story.</p>
 <blockquote>
 <p><strong>Key takeaways</strong></p>
 <ul>
@@ -5638,7 +5638,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <tr>
 <td>A process never starts</td>
 <td>It references no state of the active Function Group, or it is not mapped to the Machine</td>
-<td><code>FUNCTION-GROUP-STATE-IREF</code>s and the <code>PROCESS-TO-MACHINE-MAPPING</code> (<a href="#8-the-execution-manifest">Chapter 8</a>); the <a href="04_ExecutionManagement.html#173-troubleshooting-guide">EM guide</a></td>
+<td><code>FUNCTION-GROUP-STATE-IREF</code>s and the <code>PROCESS-TO-MACHINE-MAPPING</code> (<a href="#8-the-execution-manifest">Chapter 8</a>); the <a href="ExecutionManagement.html#173-troubleshooting-guide">EM guide</a></td>
 </tr>
 <tr>
 <td><code>InstanceSpecifierMappingIntegrityViolation</code> at run time</td>
@@ -5648,12 +5648,12 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <tr>
 <td>A proxy never finds its service</td>
 <td>Different deployments, IDs or versions on the two sides, or no machine mapping</td>
-<td>Service ID, instance ID, major and minor version, event groups, <code>SERVICE-INSTANCE-TO-MACHINE-MAPPING</code> (<a href="#96-worked-example-cameraservice-between-cameradriver-and-fusion">Section 9.6</a>); <a href="08a_NetworkBindings.html">guide 08a</a></td>
+<td>Service ID, instance ID, major and minor version, event groups, <code>SERVICE-INSTANCE-TO-MACHINE-MAPPING</code> (<a href="#96-worked-example-cameraservice-between-cameradriver-and-fusion">Section 9.6</a>); the <a href="NetworkBindings.html">Network Bindings guide</a></td>
 </tr>
 <tr>
 <td>UCM rejects a package</td>
 <td>Missing version, vendor ID or signature, or a Function Group claimed twice</td>
-<td>The <code>SOFTWARE-CLUSTER</code> attributes (<a href="#102-software-cluster-the-uploadable-unit">Section 10.2</a>); guide 13</td>
+<td>The <code>SOFTWARE-CLUSTER</code> attributes (<a href="#102-software-cluster-the-uploadable-unit">Section 10.2</a>); the UCM guide</td>
 </tr>
 </tbody>
 </table></div>
@@ -5690,8 +5690,8 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p>References point from target configuration to design. This keeps the design independent of any deployment, while the target configuration is bound to one design ([TPS_MANI_01011]). The same Executable can then run in several processes and on several Machines. See <a href="#12-design-models-and-target-configuration">Section 1.2</a>.</p>
 </details>
 <details>
-<summary>3. Name the five kinds of manifest of the TPS. Why does guide 01 show only three?</summary>
-<p>Execution Manifest, Service Instance Manifest, Machine Manifest, Raw Data Stream Manifest and Software Distribution (TPS, Section 2.5). Guide 01 follows <em>Platform Design</em>, which shows the Application Design plus the first three; the Application Design is design content and not a manifest in the sense of the TPS. See <a href="#23-the-kinds-of-manifest">Section 2.3</a>.</p>
+<summary>3. Name the five kinds of manifest of the TPS. Why does the Platform Overview guide show only three?</summary>
+<p>Execution Manifest, Service Instance Manifest, Machine Manifest, Raw Data Stream Manifest and Software Distribution (TPS, Section 2.5). The Platform Overview guide follows <em>Platform Design</em>, which shows the Application Design plus the first three; the Application Design is design content and not a manifest in the sense of the TPS. See <a href="#23-the-kinds-of-manifest">Section 2.3</a>.</p>
 </details>
 <details>
 <summary>4. A tool reports that <code>/HPC/Processes/fusion</code> and <code>/HPC/Processes/Fusion</code> clash. Why?</summary>
@@ -5731,7 +5731,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </details>
 <details>
 <summary>13. <code>CameraDriver</code> keeps running when <code>ADAS</code> switches from <code>Normal</code> to <code>Degraded</code>. How is this modeled?</summary>
-<p>Its single <code>StateDependentStartupConfig</code> references both states with two <code>FUNCTION-GROUP-STATE-IREF</code>s; the states are or-ed ([TPS_MANI_01046]). See <a href="#84-worked-example-the-processes-cameradriver-and-fusion">Section 8.4</a> and the <a href="04_ExecutionManagement.html#1311-the-running-example-complete-configuration">EM guide</a>.</p>
+<p>Its single <code>StateDependentStartupConfig</code> references both states with two <code>FUNCTION-GROUP-STATE-IREF</code>s; the states are or-ed ([TPS_MANI_01046]). See <a href="#84-worked-example-the-processes-cameradriver-and-fusion">Section 8.4</a> and the <a href="ExecutionManagement.html#1311-the-running-example-complete-configuration">EM guide</a>.</p>
 </details>
 <details>
 <summary>14. What is the <code>InstanceSpecifier</code> of the camera port of <code>Fusion</code>, and how is it derived?</summary>
@@ -6067,7 +6067,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <tr>
 <td>Raw Data Stream Manifest</td>
 <td>Raw data stream mappings</td>
-<td>The code that streams (guide 09)</td>
+<td>The code that streams (the NM/TSync/RDS guide)</td>
 </tr>
 <tr>
 <td>Software Distribution</td>
@@ -6522,7 +6522,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <li><em>Methodology for Adaptive Platform</em> (<code>AUTOSAR_AP_TR_Methodology</code>), Adaptive Platform</li>
 <li><em>Adaptive Platform Machine Configuration</em> (<code>AUTOSAR_AP_TPS_MachineConfiguration</code>), Adaptive Platform</li>
 <li><em>Specification of Adaptive Platform Core</em> (<code>AUTOSAR_AP_SWS_Core</code>), Adaptive Platform</li>
-<li><em>Specification of Execution Management</em> (<code>AUTOSAR_AP_SWS_ExecutionManagement</code>), Adaptive Platform, through the <a href="04_ExecutionManagement.html">EM guide</a></li>
+<li><em>Specification of Execution Management</em> (<code>AUTOSAR_AP_SWS_ExecutionManagement</code>), Adaptive Platform, through the <a href="ExecutionManagement.html">EM guide</a></li>
 <li><em>Explanation of Adaptive Platform Design</em> (<code>AUTOSAR_AP_EXP_PlatformDesign</code>), Adaptive Platform</li>
 <li><em>Explanation of Adaptive Platform Software Architecture</em> (<code>AUTOSAR_AP_EXP_SWArchitecture</code>), Adaptive Platform</li>
 <li><em>Generic Structure Template</em> (<code>AUTOSAR_FO_TPS_GenericStructureTemplate</code>), Foundation</li>
@@ -6541,8 +6541,8 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p><em>End of the training guide. For normative details, always refer to <code>AUTOSAR_AP_TPS_ManifestSpecification</code> (R25-11) and to the specifications it references.</em></p>
 
 </article>
-<nav class="pager" aria-label="Previous and next guide"><a class="pager-prev" href="01_PlatformOverview.html"><span class="pager-label">← Previous</span><span class="pager-title">01 · Adaptive Platform Overview and Architecture</span></a><a class="pager-next" href="03_CoreAndGeneral.html"><span class="pager-label">Next →</span><span class="pager-title">03 · <code>ara::core</code> and General Conventions</span></a></nav>
-<footer class="site-footer"><p>Author: Hieu Do Minh/Claude · Based on the AUTOSAR Adaptive Platform and Foundation specifications, release R25-11.</p><p>Training material, not a normative reference. Where a guide and an AUTOSAR specification differ, the specification applies. Specifications: <a href="https://www.autosar.org/standards" target="_blank" rel="noopener">autosar.org/standards</a>.</p></footer>
+<nav class="pager" aria-label="Previous and next guide"><a class="pager-prev" href="PlatformOverview.html"><span class="pager-label">← Previous</span><span class="pager-title">Adaptive Platform Overview and Architecture</span></a><a class="pager-next" href="CoreAndGeneral.html"><span class="pager-label">Next →</span><span class="pager-title"><code>ara::core</code> and General Conventions</span></a></nav>
+<footer class="site-footer"><p>Based on the AUTOSAR Adaptive Platform and Foundation specifications, release R25-11.</p><p>Training material, not a normative reference. Where a guide and an AUTOSAR specification differ, the specification applies. Specifications: <a href="https://www.autosar.org/standards" target="_blank" rel="noopener">autosar.org/standards</a>.</p></footer>
 </main>
 <aside class="toc" aria-label="On this page"><p class="toc-label">On this page</p><ul><li class="lvl2"><a href="#about-this-guide">About This Guide</a></li><li class="lvl3"><a href="#who-this-guide-is-for">Who This Guide Is For</a></li><li class="lvl3"><a href="#learning-objectives">Learning Objectives</a></li><li class="lvl3"><a href="#how-to-read-this-guide">How to Read This Guide</a></li><li class="lvl3"><a href="#the-running-example">The Running Example</a></li><li class="lvl2"><a href="#table-of-contents">Table of Contents</a></li><li class="lvl2"><a href="#1-introduction-to-manifests-and-methodology">1. Introduction to Manifests and Methodology</a></li><li class="lvl3"><a href="#11-what-is-a-manifest">1.1 What Is a Manifest?</a></li><li class="lvl3"><a href="#12-design-models-and-target-configuration">1.2 Design Models and Target Configuration</a></li><li class="lvl3"><a href="#13-what-manifests-are-not">1.3 What Manifests Are Not</a></li><li class="lvl3"><a href="#14-analogies">1.4 Analogies</a></li><li class="lvl3"><a href="#15-the-documents-behind-this-guide">1.5 The Documents Behind This Guide</a></li><li class="lvl2"><a href="#2-core-concepts-and-terminology">2. Core Concepts and Terminology</a></li><li class="lvl3"><a href="#21-meta-levels-meta-model-model-and-xml-schema">2.1 Meta-Levels: Meta-Model, Model and XML Schema</a></li><li class="lvl3"><a href="#22-types-prototypes-and-instance-references">2.2 Types, Prototypes and Instance References</a></li><li class="lvl3"><a href="#23-the-kinds-of-manifest">2.3 The Kinds of Manifest</a></li><li class="lvl3"><a href="#24-design-elements-and-uploadable-elements">2.4 Design Elements and Uploadable Elements</a></li><li class="lvl3"><a href="#25-constraints-and-imposition-times">2.5 Constraints and Imposition Times</a></li><li class="lvl3"><a href="#26-other-key-terms">2.6 Other Key Terms</a></li><li class="lvl2"><a href="#3-reading-arxml">3. Reading ARXML</a></li><li class="lvl3"><a href="#31-the-anatomy-of-an-arxml-file">3.1 The Anatomy of an ARXML File</a></li><li class="lvl3"><a href="#32-packages-short-names-and-paths">3.2 Packages, Short Names and Paths</a></li><li class="lvl3"><a href="#33-from-meta-model-names-to-xml-tags">3.3 From Meta-Model Names to XML Tags</a></li><li class="lvl3"><a href="#34-references--ref--tref-and-dest">3.4 References: -REF, -TREF and DEST</a></li><li class="lvl3"><a href="#35-instance-references--iref">3.5 Instance References: -IREF</a></li><li class="lvl3"><a href="#36-variants-and-conditional-wrappers">3.6 Variants and Conditional Wrappers</a></li><li class="lvl3"><a href="#37-many-files-one-model">3.7 Many Files, One Model</a></li><li class="lvl3"><a href="#38-reading-a-class-table-of-the-tps">3.8 Reading a Class Table of the TPS</a></li><li class="lvl3"><a href="#39-validating-arxml">3.9 Validating ARXML</a></li><li class="lvl2"><a href="#4-configuration-overview">4. Configuration Overview</a></li><li class="lvl3"><a href="#41-where-the-configuration-lives">4.1 Where the Configuration Lives</a></li><li class="lvl3"><a href="#42-how-the-elements-relate">4.2 How the Elements Relate</a></li><li class="lvl2"><a href="#5-application-design-components-ports-and-executables">5. Application Design: Components, Ports and Executables</a></li><li class="lvl3"><a href="#51-adaptive-application-software-components">5.1 Adaptive Application Software Components</a></li><li class="lvl3"><a href="#52-ports-how-software-talks-to-the-outside">5.2 Ports: How Software Talks to the Outside</a></li><li class="lvl3"><a href="#53-the-executable-and-its-root-prototype">5.3 The Executable and Its Root Prototype</a></li><li class="lvl3"><a href="#54-process-design-a-stand-in-for-a-future-process">5.4 Process Design: A Stand-In for a Future Process</a></li><li class="lvl3"><a href="#55-worked-example-cameradriver-and-fusion">5.5 Worked Example: CameraDriver and Fusion</a></li><li class="lvl2"><a href="#6-service-interfaces-and-data-types">6. Service Interfaces and Data Types</a></li><li class="lvl3"><a href="#61-events-methods-fields-and-triggers">6.1 Events, Methods, Fields and Triggers</a></li><li class="lvl3"><a href="#62-namespaces-and-versions">6.2 Namespaces and Versions</a></li><li class="lvl3"><a href="#63-application-errors">6.3 Application Errors</a></li><li class="lvl3"><a href="#64-data-types">6.4 Data Types</a></li><li class="lvl3"><a href="#65-interfaces-to-functional-clusters">6.5 Interfaces to Functional Clusters</a></li><li class="lvl3"><a href="#66-worked-example-cameraservice-as-arxml">6.6 Worked Example: CameraService as ARXML</a></li><li class="lvl2"><a href="#7-system-design-machine-design-and-the-machine-manifest">7. System Design, Machine Design and the Machine Manifest</a></li><li class="lvl3"><a href="#71-the-system-and-its-extracts">7.1 The System and Its Extracts</a></li><li class="lvl3"><a href="#72-machine-design">7.2 Machine Design</a></li><li class="lvl3"><a href="#73-the-machine">7.3 The Machine</a></li><li class="lvl3"><a href="#74-platform-module-instantiations">7.4 Platform Module Instantiations</a></li><li class="lvl3"><a href="#75-function-groups-and-their-states">7.5 Function Groups and Their States</a></li><li class="lvl3"><a href="#76-worked-example-the-hpc-machine">7.6 Worked Example: The HPC Machine</a></li><li class="lvl2"><a href="#8-the-execution-manifest">8. The Execution Manifest</a></li><li class="lvl3"><a href="#81-process-from-executable-to-os-process">8.1 Process: From Executable to OS Process</a></li><li class="lvl3"><a href="#82-state-dependent-startup-configuration">8.2 State-Dependent Startup Configuration</a></li><li class="lvl3"><a href="#83-mapping-processes-to-the-machine">8.3 Mapping Processes to the Machine</a></li><li class="lvl3"><a href="#84-worked-example-the-processes-cameradriver-and-fusion">8.4 Worked Example: The Processes CameraDriver and Fusion</a></li><li class="lvl2"><a href="#9-the-service-instance-manifest-and-the-instancespecifier">9. The Service Instance Manifest and the InstanceSpecifier</a></li><li class="lvl3"><a href="#91-service-interface-deployment">9.1 Service Interface Deployment</a></li><li class="lvl3"><a href="#92-provided-and-required-service-instances">9.2 Provided and Required Service Instances</a></li><li class="lvl3"><a href="#93-connecting-a-port-to-a-service-instance">9.3 Connecting a Port to a Service Instance</a></li><li class="lvl3"><a href="#94-from-port-to-instancespecifier">9.4 From Port to InstanceSpecifier</a></li><li class="lvl3"><a href="#95-mapping-service-instances-to-the-machine">9.5 Mapping Service Instances to the Machine</a></li><li class="lvl3"><a href="#96-worked-example-cameraservice-between-cameradriver-and-fusion">9.6 Worked Example: CameraService Between CameraDriver and Fusion</a></li><li class="lvl2"><a href="#10-software-clusters-and-software-packages">10. Software Clusters and Software Packages</a></li><li class="lvl3"><a href="#101-software-cluster-design-the-oems-contract">10.1 Software Cluster Design: The OEM&#x27;s Contract</a></li><li class="lvl3"><a href="#102-software-cluster-the-uploadable-unit">10.2 Software Cluster: The Uploadable Unit</a></li><li class="lvl3"><a href="#103-software-package-and-vehicle-package">10.3 Software Package and Vehicle Package</a></li><li class="lvl3"><a href="#104-worked-example-adascluster-and-hpcplatformcore">10.4 Worked Example: AdasCluster and HpcPlatformCore</a></li><li class="lvl2"><a href="#11-the-methodology-from-design-to-a-running-machine">11. The Methodology: From Design to a Running Machine</a></li><li class="lvl3"><a href="#111-roles-and-work-products">11.1 Roles and Work Products</a></li><li class="lvl3"><a href="#112-the-methodology-at-a-glance">11.2 The Methodology at a Glance</a></li><li class="lvl3"><a href="#113-top-down-and-bottom-up">11.3 Top-Down and Bottom-Up</a></li><li class="lvl3"><a href="#114-design-system-service-interfaces-applications-and-the-machine">11.4 Design: System, Service Interfaces, Applications and the Machine</a></li><li class="lvl3"><a href="#115-implementation-and-code-generation">11.5 Implementation and Code Generation</a></li><li class="lvl3"><a href="#116-software-cluster-integration">11.6 Software Cluster Integration</a></li><li class="lvl3"><a href="#117-packaging-and-deployment">11.7 Packaging and Deployment</a></li><li class="lvl3"><a href="#118-how-the-platform-consumes-manifests-at-run-time">11.8 How the Platform Consumes Manifests at Run Time</a></li><li class="lvl3"><a href="#119-looking-ahead-apmc">11.9 Looking Ahead: APMC</a></li><li class="lvl2"><a href="#12-configuration-reference-what-to-configure">12. Configuration Reference: What to Configure</a></li><li class="lvl3"><a href="#121-minimal-configuration">12.1 Minimal Configuration</a></li><li class="lvl3"><a href="#122-adaptiveapplicationswcomponenttype-and-portprototype">12.2 AdaptiveApplicationSwComponentType and PortPrototype</a></li><li class="lvl3"><a href="#123-executable-and-rootswcomponentprototype">12.3 Executable and RootSwComponentPrototype</a></li><li class="lvl3"><a href="#124-serviceinterface-and-its-elements">12.4 ServiceInterface and Its Elements</a></li><li class="lvl3"><a href="#125-cppimplementationdatatype">12.5 CppImplementationDataType</a></li><li class="lvl3"><a href="#126-apapplicationerror-and-apapplicationerrordomain">12.6 ApApplicationError and ApApplicationErrorDomain</a></li><li class="lvl3"><a href="#127-processdesign-and-processdesigntomachinedesignmapping">12.7 ProcessDesign and ProcessDesignToMachineDesignMapping</a></li><li class="lvl3"><a href="#128-machinedesign-ethernetcommunicationconnector-and-apapplicationendpoint">12.8 MachineDesign, EthernetCommunicationConnector and ApApplicationEndpoint</a></li><li class="lvl3"><a href="#129-machine">12.9 Machine</a></li><li class="lvl3"><a href="#1210-functiongroupset-modedeclarationgroup-and-modedeclaration">12.10 FunctionGroupSet, ModeDeclarationGroup and ModeDeclaration</a></li><li class="lvl3"><a href="#1211-process-statedependentstartupconfig-and-startupconfig">12.11 Process, StateDependentStartupConfig and StartupConfig</a></li><li class="lvl3"><a href="#1212-processtomachinemapping">12.12 ProcessToMachineMapping</a></li><li class="lvl3"><a href="#1213-serviceinterfacedeployment-and-service-instances">12.13 ServiceInterfaceDeployment and Service Instances</a></li><li class="lvl3"><a href="#1214-serviceinstancetoportprototypemapping-and-serviceinstancetomachinemapping">12.14 ServiceInstanceToPortPrototypeMapping and ServiceInstanceToMachineMapping</a></li><li class="lvl3"><a href="#1215-softwareclusterdesign-and-softwarecluster">12.15 SoftwareClusterDesign and SoftwareCluster</a></li><li class="lvl3"><a href="#1216-the-running-example-complete-configuration">12.16 The Running Example: Complete Configuration</a></li><li class="lvl2"><a href="#13-where-code-meets-the-manifest">13. Where Code Meets the Manifest</a></li><li class="lvl3"><a href="#131-what-the-generator-takes-from-the-model">13.1 What the Generator Takes From the Model</a></li><li class="lvl3"><a href="#132-the-instancespecifier-in-code">13.2 The InstanceSpecifier in Code</a></li><li class="lvl3"><a href="#133-what-the-application-never-sees">13.3 What the Application Never Sees</a></li><li class="lvl2"><a href="#14-end-to-end-walkthrough-the-life-of-cameraservices-configuration">14. End-to-End Walkthrough: The Life of CameraService&#x27;s Configuration</a></li><li class="lvl2"><a href="#15-best-practices-pitfalls-and-troubleshooting">15. Best Practices, Pitfalls and Troubleshooting</a></li><li class="lvl3"><a href="#151-best-practices">15.1 Best Practices</a></li><li class="lvl3"><a href="#152-common-pitfalls">15.2 Common Pitfalls</a></li><li class="lvl3"><a href="#153-troubleshooting-guide">15.3 Troubleshooting Guide</a></li><li class="lvl2"><a href="#16-summary-and-self-check-quiz">16. Summary and Self-Check Quiz</a></li><li class="lvl3"><a href="#161-summary">16.1 Summary</a></li><li class="lvl3"><a href="#162-self-check-quiz">16.2 Self-Check Quiz</a></li><li class="lvl2"><a href="#appendix-a-glossary-and-acronyms">Appendix A. Glossary and Acronyms</a></li><li class="lvl3"><a href="#a1-acronyms">A.1 Acronyms</a></li><li class="lvl3"><a href="#a2-glossary">A.2 Glossary</a></li><li class="lvl2"><a href="#appendix-b-quick-reference-cheat-sheet">Appendix B. Quick Reference Cheat Sheet</a></li><li class="lvl2"><a href="#appendix-c-spec-traceability">Appendix C. Spec Traceability</a></li><li class="lvl2"><a href="#appendix-d-notable-changes-in-recent-releases">Appendix D. Notable Changes in Recent Releases</a></li><li class="lvl2"><a href="#appendix-e-references">Appendix E. References</a></li></ul></aside>
 </div>

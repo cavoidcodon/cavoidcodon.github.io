@@ -10,7 +10,7 @@
 >
 > **Version:** 1.0 (draft, pending review)
 >
-> **Part of the series:** [AUTOSAR Adaptive Platform Training Guides](00_LearningPath.md). Previous: [02 Manifests and Methodology](02_Manifests.md). Next: [04 Execution Management](04_ExecutionManagement.md).
+> **Part of the series:** [AUTOSAR Adaptive Platform Training Guides](../README.md). Previous: [Manifests and Methodology](Manifests.md). Next: [Execution Management](ExecutionManagement.md).
 
 ## About This Guide
 
@@ -22,7 +22,7 @@ Every `ara::` API in the Adaptive Platform speaks the same language. A function 
 - **Platform developers** who implement a functional cluster and must follow the general rules: error domains, violations, naming, `noexcept`, thread safety.
 - **Integrators** who read violation messages in logs and need to trace them back to a configuration or code problem.
 
-Assumed background: modern C++ (C++17), plus basic Linux/POSIX knowledge. Read [guide 00](00_LearningPath.md) (at least Chapters 1 and 6) and [guide 01](01_PlatformOverview.md) first. [Guide 02](02_Manifests.md) explains the model behind `InstanceSpecifier` and the application errors that this guide uses.
+Assumed background: modern C++ (C++17), plus basic Linux/POSIX knowledge. Read the [main page](../README.md) of the series, the [Running Example guide](RunningExample.md) and the [Platform Overview guide](PlatformOverview.md) first. The [Manifests guide](Manifests.md) explains the model behind `InstanceSpecifier` and the application errors that this guide uses.
 
 ### Learning Objectives
 
@@ -56,18 +56,18 @@ All code examples are illustrative. They use the names and signatures of the R25
 
 ### The Running Example
 
-This guide follows the process `Fusion` of `HPC`, the running example of the series ([guide 00, Section 6.5](00_LearningPath.md#65-processes)). `Fusion` runs the executable `fusion` in the Function Group State `ADAS.Normal`. Every 50 ms it fuses camera images, radar detections and vehicle dynamics into an object list. It uses `CameraService`, `CalibrationDataService` and `VehicleDynamicsService`, provides `ObjectListService`, and is supervised by Platform Health Management. Its port for `CameraService` is identified by the `InstanceSpecifier` `/fusion/Root/CameraRPort` ([guide 02, Section 13.2](02_Manifests.md#132-the-instancespecifier-in-code)).
+This guide follows the process `Fusion` of `HPC`, the running example of the series (the [Running Example guide, Section 1.5](RunningExample.md#15-processes)). `Fusion` runs the executable `fusion` in the Function Group State `ADAS.Normal`. Every 50 ms it fuses camera images, radar detections and vehicle dynamics into an object list. It uses `CameraService`, `CalibrationDataService` and `VehicleDynamicsService`, provides `ObjectListService`, and is supervised by Platform Health Management. Its port for `CameraService` is identified by the `InstanceSpecifier` `/fusion/Root/CameraRPort` (the [Manifests guide, Section 13.2](Manifests.md#132-the-instancespecifier-in-code)).
 
-The guide uses these elements of the example. The last two rows were added for this guide; they are part of the master definition in guide 00 ([Section 6.6](00_LearningPath.md#66-services-and-their-consumers)).
+The guide uses these elements of the example. The last two rows were added for this guide; they are part of the master definition in the Running Example guide ([Section 1.6](RunningExample.md#16-services-and-their-consumers)).
 
 | Element | Used for | Defined in |
 | --- | --- | --- |
-| `Fusion` and its 50 ms cycle | Initialization, timeouts with `SteadyClock`, the walkthrough | Guide 00, Sections 6.5 and 6.13 |
-| `/fusion/Root/CameraRPort` | `InstanceSpecifier` and the mapping violations | Guide 02, Section 13.2 |
-| Error domain `CameraErrors` (`0x1001`, namespace `hpc::camera`) with `ExposureModeNotSupported` (code 1) | A generated error domain | Guide 02, Section 6.3 |
-| Error domain `AdasExecutionErrors` (`0x1002`) with `FusionFailed` (42) | An application error that is not a method error | Guide 02, Section 6.3 |
-| `Fusion` calls `SetExposureMode(Night)` at dusk and keeps `Auto` if the camera answers `ExposureModeNotSupported` | `Future` and error handling of a service call | Guide 00, Section 6.6 (new) |
-| Error domain `FusionErrors` (`0x1003`, namespace `hpc::fusion`) with `kInputTimeout` (1) and `kCalibrationImplausible` (2), written by hand inside `Fusion` | Defining an error domain; `Result` | Guide 00, Section 6.6 (new) |
+| `Fusion` and its 50 ms cycle | Initialization, timeouts with `SteadyClock`, the walkthrough | Running Example guide, Sections 1.5 and 1.13 |
+| `/fusion/Root/CameraRPort` | `InstanceSpecifier` and the mapping violations | Manifests guide, Section 13.2 |
+| Error domain `CameraErrors` (`0x1001`, namespace `hpc::camera`) with `ExposureModeNotSupported` (code 1) | A generated error domain | Manifests guide, Section 6.3 |
+| Error domain `AdasExecutionErrors` (`0x1002`) with `FusionFailed` (42) | An application error that is not a method error | Manifests guide, Section 6.3 |
+| `Fusion` calls `SetExposureMode(Night)` at dusk and keeps `Auto` if the camera answers `ExposureModeNotSupported` | `Future` and error handling of a service call | Running Example guide, Section 1.6 (new) |
+| Error domain `FusionErrors` (`0x1003`, namespace `hpc::fusion`) with `kInputTimeout` (1) and `kCalibrationImplausible` (2), written by hand inside `Fusion` | Defining an error domain; `Result` | Running Example guide, Section 1.6 (new) |
 
 ## Table of Contents
 
@@ -254,8 +254,8 @@ The guide uses these elements of the example. The last two rows were added for t
 | --- | --- |
 | Run as a daemon or provide a service | Nobody: Core is a library in each process. It has no service interfaces (SWS Core, Chapter 9) and no interfaces to other clusters (Chapter 5). |
 | Read configuration from a manifest | Core has none (SWS Core, Chapter 10). The model elements that shape `ara::core` code are configured for other purposes ([Chapter 4](#4-configuration-overview)). |
-| Provide a logging API | Log and Trace (`ara::log`, [guide 10](10_LogAndTrace.md)). Core only defines the context IDs and message ID ranges of all clusters ([Section 12.5](#125-logging-and-tracing-conventions)). |
-| Restart a process after an abort | Execution Management detects the Abnormal Termination; State Management decides what to do ([EM guide, Section 10.3](04_ExecutionManagement.md#103-undefined-function-group-state)). |
+| Provide a logging API | Log and Trace (`ara::log`, the [Log and Trace guide](LogAndTrace.md)). Core only defines the context IDs and message ID ranges of all clusters ([Section 12.5](#125-logging-and-tracing-conventions)). |
+| Restart a process after an abort | Execution Management detects the Abnormal Termination; State Management decides what to do ([EM guide, Section 10.3](ExecutionManagement.md#103-undefined-function-group-state)). |
 | Define the API of a single cluster | Each cluster's own specification and guide. |
 
 ### 1.3 Analogies: The C++ Standard Library and AUTOSAR Classic
@@ -266,7 +266,7 @@ The guide uses these elements of the example. The last two rows were added for t
 
 ### 1.4 Core and ARA: Who Uses What
 
-ARA, the AUTOSAR Runtime for Adaptive Applications, is the set of C++ interfaces that the functional clusters provide ([guide 01, Section 3.2](01_PlatformOverview.md#32-ara-the-autosar-runtime-for-adaptive-applications)). Core is the part of ARA that the others build on.
+ARA, the AUTOSAR Runtime for Adaptive Applications, is the set of C++ interfaces that the functional clusters provide (the [Platform Overview guide, Section 3.2](PlatformOverview.md#32-ara-the-autosar-runtime-for-adaptive-applications)). Core is the part of ARA that the others build on.
 
 | Role | Uses from Core | Typical questions |
 | --- | --- | --- |
@@ -362,7 +362,7 @@ A function without any standardized errors is **failure transparent**: it always
 | `Executor` | An object that runs callables asynchronously in a thread-safe context | SWS Core, Section 7.4.1.2 |
 | Explicitly aborting an Operation | Immediately aborting an API call by calling `ara::core::Abort`, usually after a Violation | SWS Core, Table 2.1, Section 7.3 |
 | AbortHandler | A function that `ara::core::Abort` calls before it terminates the process | [SWS_CORE_12404] |
-| Abnormal Termination | A process ended with an exit status other than `0`, for example after a crash or after `ara::core::Abort` ([EM guide, Section 2.5](04_ExecutionManagement.md#25-termination-events)) | SWS EM |
+| Abnormal Termination | A process ended with an exit status other than `0`, for example after a crash or after `ara::core::Abort` ([EM guide, Section 2.5](ExecutionManagement.md#25-termination-events)) | SWS EM |
 | Resolution, precision, accuracy, epoch | Properties of a clock: the smallest representable step, the smallest measurable step, the closeness to the truth, and the starting point | SWS Core, Section 7.4.2.5.1.1 |
 
 > **Key takeaways**
@@ -380,7 +380,7 @@ A function without any standardized errors is **failure transparent**: it always
 
 ### 3.1 Where Core Sits in the Platform
 
-Core is a library that is linked into every process that uses ARA. It belongs to the platform software of `HPC` (the Software Cluster `HpcPlatformCore`, [guide 00, Section 6.3](00_LearningPath.md#63-the-hpc-machine)), but it runs inside the processes that use it, like Log and Trace and Persistency. The libraries of the other clusters in a process use `ara::core` types in their interfaces and are initialized through `ara::core::Initialize` ([Section 3.3](#33-interfaces-required-by-core)).
+Core is a library that is linked into every process that uses ARA. It belongs to the platform software of `HPC` (the Software Cluster `HpcPlatformCore`, the [Running Example guide, Section 1.3](RunningExample.md#13-the-hpc-machine)), but it runs inside the processes that use it, like Log and Trace and Persistency. The libraries of the other clusters in a process use `ara::core` types in their interfaces and are initialized through `ara::core::Initialize` ([Section 3.3](#33-interfaces-required-by-core)).
 
 > **Note (implementation example):** A platform vendor typically ships Core as a shared or static library plus headers. Some types may be thin aliases of `std` types: for example, a type alias to `std::chrono::steady_clock` is a conforming `ara::core::SteadyClock` if its period is nanoseconds and its representation is a 64-bit signed integer (SWS Core, Section 7.4.2.5.2).
 
@@ -445,7 +445,7 @@ The following diagram shows how these elements turn into code. The generator fol
 
 ```mermaid
 flowchart LR
-    subgraph MODEL["Model (ARXML, guide 02)"]
+    subgraph MODEL["Model (ARXML, the Manifests guide)"]
         AED["ApApplicationErrorDomain<br/>CameraErrors, value 0x1001"]
         AE["ApApplicationError<br/>ExposureModeNotSupported, code 1"]
         PATH["Executable fusion / Root /<br/>CameraRPort"]
@@ -466,7 +466,7 @@ flowchart LR
 >
 > - SWS Core defines no configuration, no defaults and no constraints.
 > - Error domains, `InstanceSpecifier` paths, cluster interaction mappings and C++ implementation data types shape `ara::core` code.
-> - Guide 02 owns these model elements; this guide shows their effect on the code.
+> - The Manifests guide owns these model elements; this guide shows their effect on the code.
 
 ---
 
@@ -569,7 +569,7 @@ Both functions are *not thread-safe* ([SWS_CORE_10003], [SWS_CORE_10002]). Call 
 
 ### 5.6 Worked Example: The `main` Function of `Fusion`
 
-The `main()` function of `Fusion` initializes ARA first and de-initializes it last. Everything else, including the `ExecutionClient` that reports `kRunning` ([EM guide, Section 14.3](04_ExecutionManagement.md#143-executionclient)), lives in between.
+The `main()` function of `Fusion` initializes ARA first and de-initializes it last. Everything else, including the `ExecutionClient` that reports `kRunning` ([EM guide, Section 14.3](ExecutionManagement.md#143-executionclient)), lives in between.
 
 ```cpp
 // main() of the executable fusion (illustrative).
@@ -730,7 +730,7 @@ sequenceDiagram
 
 > **Pitfall:** A Violation during start-up often looks like a crash loop: EM starts the process, it aborts within milliseconds, and the Function Group State transition fails. Look for the violation message in the log (or on the standard error stream) before you debug the code.
 
-The DLT message carries the modeled process, the location, the specifier and the class name ([Section 15.3](#153-violation-messages)). That is enough to find the cause: compare the specifier with the short names in the manifest. State Management handles the termination exactly as a crash of `Fusion` ([guide 00, Section 6.4](00_LearningPath.md#64-function-groups-and-states)); for EM, an abort is an Abnormal Termination like any other.
+The DLT message carries the modeled process, the location, the specifier and the class name ([Section 15.3](#153-violation-messages)). That is enough to find the cause: compare the specifier with the short names in the manifest. State Management handles the termination exactly as a crash of `Fusion` (the [Running Example guide, Section 1.4](RunningExample.md#14-function-groups-and-states)); for EM, an abort is an Abnormal Termination like any other.
 
 > **Key takeaways**
 >
@@ -814,7 +814,7 @@ According to SWS Core, the identifier of a new domain is generated randomly, in 
 
 [Appendix B](#appendix-b-quick-reference-cheat-sheet) lists all of them. Every standardized domain returns its identifier from `Id()` and its name from `Name()` ([SWS_CORE_00010], [SWS_CORE_00094]).
 
-> **Pitfall:** The model does not protect you from collisions. `ApApplicationErrorDomain.value` accepts any 64-bit value ([guide 02, Section 6.3](02_Manifests.md#63-application-errors)), including values in the AUTOSAR and vendor ranges. Keep a project-wide register of user-defined identifiers with the most significant bit 0, as guide 00 does for `HPC` ([guide 00, Section 6.6](00_LearningPath.md#66-services-and-their-consumers)).
+> **Pitfall:** The model does not protect you from collisions. `ApApplicationErrorDomain.value` accepts any 64-bit value (the [Manifests guide, Section 6.3](Manifests.md#63-application-errors)), including values in the AUTOSAR and vendor ranges. Keep a project-wide register of user-defined identifiers with the most significant bit 0, as the Running Example guide does for `HPC` (the [Running Example guide, Section 1.6](RunningExample.md#16-services-and-their-consumers)).
 
 ### 7.5 Core's Own Error Domains
 
@@ -859,7 +859,7 @@ Any software module with "significant logical separation" from the existing ones
 | Accessor | `Get<SN>ErrorDomain()` | Non-member, `constexpr`, returns `const ErrorDomain&` to a singleton ([SWS_CORE_10980] to [SWS_CORE_10982]) |
 | Factory | `MakeErrorCode(<SN>Errc, ErrorDomain::SupportDataType)` | Non-member, `constexpr`, `noexcept` ([SWS_CORE_10990], [SWS_CORE_10991]) |
 
-`Fusion` has errors of its own that never leave the process: a late input and an implausible calibration. Guide 00 registers the domain `FusionErrors` with the identifier `0x1003` for them. The following header is written by hand, following the rules above.
+`Fusion` has errors of its own that never leave the process: a late input and an implausible calibration. The Running Example guide registers the domain `FusionErrors` with the identifier `0x1003` for them. The following header is written by hand, following the rules above.
 
 ```cpp
 // hpc/fusion/fusion_errors.h: the error domain FusionErrors of Fusion (illustrative).
@@ -889,7 +889,7 @@ public:
     using Errc = FusionErrorsErrc;
     using Exception = FusionErrorsException;
 
-    // 0x1003: user-defined range (most significant bit 0), registered in guide 00.
+    // 0x1003: user-defined range (most significant bit 0), registered in the Running Example guide.
     constexpr FusionErrorsErrorDomain() noexcept : ara::core::ErrorDomain(0x1003U) {}
 
     const char* Name() const noexcept override { return "FusionErrors"; }
@@ -950,7 +950,7 @@ For the domain `CameraErrors` of `HPC` (value `0x1001`, namespace `hpc::camera`)
 Three consequences are worth knowing:
 
 - **Enumerator names are the short names.** The generated enumerators do not get the `k` prefix of RS General ([SWS_LBAP_00053]): it is `CameraErrorsErrc::ExposureModeNotSupported`, not `kExposureModeNotSupported`.
-- **Only method errors are generated.** The generator collects the errors referenced by `ClientServerOperation.possibleApError` or `possibleApErrorSet` (SWS LBAP, Section 7.2, step 1). `AdasExecutionErrors` with `FusionFailed` is referenced only by the `processExecutionError` of `Fusion` ([guide 02, Section 6.3](02_Manifests.md#63-application-errors)), so no C++ code is generated for it. Execution Management uses its code 42 as a number.
+- **Only method errors are generated.** The generator collects the errors referenced by `ClientServerOperation.possibleApError` or `possibleApErrorSet` (SWS LBAP, Section 7.2, step 1). `AdasExecutionErrors` with `FusionFailed` is referenced only by the `processExecutionError` of `Fusion` (the [Manifests guide, Section 6.3](Manifests.md#63-application-errors)), so no C++ code is generated for it. Execution Management uses its code 42 as a number.
 - **Error sets disappear.** `ApApplicationErrorSet`s are flattened; an error that appears more than once is generated only once (SWS LBAP, Section 7.2, step 3).
 
 > **Key takeaways**
@@ -1083,7 +1083,7 @@ void OnCycle(const Calibration& calibration, ara::core::SteadyClock::time_point 
     if (objects.HasValue()) {
         Publish(objects.Value());
     } else if (objects.CheckError(FusionErrorsErrc::kInputTimeout)) {
-        // A late input: skip this cycle. PHM supervises the cycle timing (guide 06).
+        // A late input: skip this cycle. PHM supervises the cycle timing (the PHM guide).
     } else {
         // Any other error, including vendor-specific ones: log it and degrade.
     }
@@ -1171,7 +1171,7 @@ Both `GetResult()` and `get()` consume the result: afterwards the `Future` is in
 
 All four raise `FutureInvalidViolation` on an invalid `Future`. The numeric values of the `FutureStatus` enumerators are implementation-defined ([SWS_CORE_00361]), so compare with the enumerators, never with numbers.
 
-`wait_until` accepts a time point of any clock; in the Adaptive Platform, use `ara::core::SteadyClock` ([Section 11.10](#1110-steadyclock)). In a cyclic process such as `Fusion`, never call `wait()` without a limit: a reply that never comes would stop the cycle, and Platform Health Management would detect a missed deadline ([guide 06, Chapter 7](06_PlatformHealthManagement.md#7-deadline-supervision)).
+`wait_until` accepts a time point of any clock; in the Adaptive Platform, use `ara::core::SteadyClock` ([Section 11.10](#1110-steadyclock)). In a cyclic process such as `Fusion`, never call `wait()` without a limit: a reply that never comes would stop the cycle, and Platform Health Management would detect a missed deadline (the [PHM guide, Chapter 7](PlatformHealthManagement.md#7-deadline-supervision)).
 
 ### 9.5 Continuations with then
 
@@ -1234,7 +1234,7 @@ ara::core::Future<ObjectList> FuseAsync(CycleInputs inputs) {
 
 ### 9.7 Worked Example: Fusion Requests the Night Exposure Mode
 
-At dusk the camera images of `HPC` get dark. `Fusion` then asks `CameraDriver`, through `CameraService`, to switch to the exposure mode `Night`. If the camera hardware does not support it, `CameraDriver` answers with the application error `ExposureModeNotSupported` (code 1 of `CameraErrors`), and `Fusion` keeps the mode `Auto` ([guide 00, Section 6.6](00_LearningPath.md#66-services-and-their-consumers)). The call is asynchronous, and the 50 ms cycle must not block while the reply travels. The following sequence diagram shows the exchange over two cycles.
+At dusk the camera images of `HPC` get dark. `Fusion` then asks `CameraDriver`, through `CameraService`, to switch to the exposure mode `Night`. If the camera hardware does not support it, `CameraDriver` answers with the application error `ExposureModeNotSupported` (code 1 of `CameraErrors`), and `Fusion` keeps the mode `Auto` (the [Running Example guide, Section 1.6](RunningExample.md#16-services-and-their-consumers)). The call is asynchronous, and the 50 ms cycle must not block while the reply travels. The following sequence diagram shows the exchange over two cycles.
 
 ```mermaid
 sequenceDiagram
@@ -1245,7 +1245,7 @@ sequenceDiagram
 
     FU->>PX: SetExposureMode(Night)
     PX-->>FU: Future (not ready)
-    PX->>CD: request (local IPC or SOME/IP, guide 08a)
+    PX->>CD: request (local IPC or SOME/IP, the Network Bindings guide)
     Note over FU: cycle n, is_ready() is false, continue
     CD-->>PX: error ExposureModeNotSupported
     PX->>PX: SetError on the Promise
@@ -1255,7 +1255,7 @@ sequenceDiagram
     FU->>FU: keep Auto, do not ask again
 ```
 
-The following code polls the `Future` once per cycle. The generated proxy API belongs to [guide 07](07_CommunicationManagement.md#89-worked-example-setexposuremode-from-fusion-to-cameradriver). There, the call returns `ara::core::Future<Output>`, where `Output` holds the out arguments of the method ([guide 07, Section 5.4](07_CommunicationManagement.md#54-how-arguments-are-passed)); here a stand-in function that returns `ara::core::Future<void>` represents the call.
+The following code polls the `Future` once per cycle. The generated proxy API belongs to the [CM guide](CommunicationManagement.md#89-worked-example-setexposuremode-from-fusion-to-cameradriver). There, the call returns `ara::core::Future<Output>`, where `Output` holds the out arguments of the method (the [CM guide, Section 5.4](CommunicationManagement.md#54-how-arguments-are-passed)); here a stand-in function that returns `ara::core::Future<void>` represents the call.
 
 ```cpp
 // Fusion asks for the Night exposure mode at dusk (illustrative).
@@ -1267,7 +1267,7 @@ The following code polls the `Future` once per cycle. The generated proxy API be
 namespace hpc {
 namespace fusion {
 
-// Stand-in for the proxy call CameraService::SetExposureMode(Night). Guide 07 shows the
+// Stand-in for the proxy call CameraService::SetExposureMode(Night). The CM guide shows the
 // generated proxy; this example only assumes that the call returns ara::core::Future<void>.
 ara::core::Future<void> RequestNightExposure();
 
@@ -1295,7 +1295,7 @@ private:
         } else if (error == ara::core::FutureErrc::kBrokenPromise) {
             // The request was abandoned without an answer: ask again in a later cycle.
         } else {
-            // A communication error of ara::com (guide 07) or a vendor-specific error:
+            // A communication error of ara::com (the CM guide) or a vendor-specific error:
             // log error.Domain().Name(), error.Value() and error.Message(); ask again later.
         }
     }
@@ -1577,7 +1577,7 @@ Unlike `std::byte`, whether `ara::core::Byte` may be used for type aliasing is i
 
 **In plain words:** `ara::core::SteadyClock` is the platform's stopwatch: it never jumps, it counts nanoseconds, and it starts at zero when the ECU powers up.
 
-**Formally:** `ara::core::SteadyClock` is a `std::chrono`-compatible monotonic clock with nanosecond resolution and the representation `std::int64_t` ([SWS_CORE_06401], [SWS_CORE_06412], [SWS_CORE_06413]). It meets the *TrivialClock* requirements ([SWS_CORE_11800]), its epoch is the system start-up ([SWS_CORE_11801]), and it will not overflow for 292 years. Its precision and accuracy are implementation-defined. It "is the standard clock of the Adaptive Platform and should be used for most timekeeping purposes" (SWS Core, Section 7.4.2.5.2). Use it for timeouts, deadlines and durations. It is not a calendar clock and not the synchronized vehicle time; that is Time Synchronization (guide 09).
+**Formally:** `ara::core::SteadyClock` is a `std::chrono`-compatible monotonic clock with nanosecond resolution and the representation `std::int64_t` ([SWS_CORE_06401], [SWS_CORE_06412], [SWS_CORE_06413]). It meets the *TrivialClock* requirements ([SWS_CORE_11800]), its epoch is the system start-up ([SWS_CORE_11801]), and it will not overflow for 292 years. Its precision and accuracy are implementation-defined. It "is the standard clock of the Adaptive Platform and should be used for most timekeeping purposes" (SWS Core, Section 7.4.2.5.2). Use it for timeouts, deadlines and durations. It is not a calendar clock and not the synchronized vehicle time; that is Time Synchronization (the NM/TSync/RDS guide).
 
 The 50 ms cycle of `Fusion` uses `SteadyClock` for its period and its input deadline:
 
@@ -1615,7 +1615,7 @@ void CycleLoop(const Calibration& calibration) {
 
 You create one with the named constructor `Create`, which returns a `Result` with `kInvalidMetaModelShortname` or `kInvalidMetaModelPath`, or with the constructor that throws `CoreException` ([SWS_CORE_08032], [SWS_CORE_08021], [SWS_CORE_10202]). Both check only the *syntax* ([SWS_CORE_10201]). Whether the path exists in the model shows when a cluster uses it: an unresolvable or wrong specifier is a Violation ([Section 6.7](#67-worked-example-a-wrong-instancespecifier-in-fusion)). Specifiers can be compared with each other and with a `StringView`, and ordered with `<`, for example as keys of a `Map` ([SWS_CORE_08042] to [SWS_CORE_08046]).
 
-Cluster classes that are constructed from an `InstanceSpecifier` are not copyable, at most movable ([RS_AP_00147]), and using the same specifier twice in one process can raise `InstanceSpecifierAlreadyInUseViolation` ([SWS_CORE_13006]). [Guide 02, Section 13.2](02_Manifests.md#132-the-instancespecifier-in-code) shows how the path follows from the model, and the typical mistakes.
+Cluster classes that are constructed from an `InstanceSpecifier` are not copyable, at most movable ([RS_AP_00147]), and using the same specifier twice in one process can raise `InstanceSpecifierAlreadyInUseViolation` ([SWS_CORE_13006]). The [Manifests guide, Section 13.2](Manifests.md#132-the-instancespecifier-in-code) shows how the path follows from the model, and the typical mistakes.
 
 > **Pitfall:** `InstanceSpecifier` is not among the types that work without initialization ([SWS_CORE_15002]). Create specifiers after `ara::core::Initialize`, not as global constants.
 
@@ -1632,7 +1632,7 @@ An `Executor` can be passed to `Future::then` to choose where a continuation run
 
 ### 11.13 How Model Types Become ara::core Types
 
-When a service interface uses C++ implementation data types, the generator maps them to `ara::core` types (SWS LBAP; [guide 02, Section 6.4](02_Manifests.md#64-data-types)):
+When a service interface uses C++ implementation data types, the generator maps them to `ara::core` types (SWS LBAP; the [Manifests guide, Section 6.4](Manifests.md#64-data-types)):
 
 | `StdCppImplementationDataType.category` | Generated C++ | Spec |
 | --- | --- | --- |
@@ -1643,7 +1643,7 @@ When a service interface uses C++ implementation data types, the generator maps 
 | `VARIANT` | `using X = ara::core::Variant<...>;` | [SWS_LBAP_00013] |
 | `STRUCTURE` | `struct X { ... };`, optional elements as `ara::core::Optional` | [SWS_LBAP_00010], [SWS_LBAP_00012] |
 
-For `CameraService`, the pixels of a `CameraImage` therefore arrive as an `ara::core::Vector` of `uint8_t` (the vector type `PixelVector` of guide 02).
+For `CameraService`, the pixels of a `CameraImage` therefore arrive as an `ara::core::Vector` of `uint8_t` (the vector type `PixelVector` of the Manifests guide).
 
 > **Key takeaways**
 >
@@ -1765,7 +1765,7 @@ The library of each cluster inside an application process logs with its own stan
 | per | `#PER` | `0x8000'8000` to `0x8000'8fff` |
 | phm | `#PHM` | `0x8000'9000` to `0x8000'9fff` |
 
-[Appendix B](#appendix-b-quick-reference-cheat-sheet) has the full table. The message IDs of Core's own messages lie in its range ([Section 15.2](#152-log-messages)). How logging works is the subject of [guide 10](10_LogAndTrace.md).
+[Appendix B](#appendix-b-quick-reference-cheat-sheet) has the full table. The message IDs of Core's own messages lie in its range ([Section 15.2](#152-log-messages)). How logging works is the subject of the [Log and Trace guide](LogAndTrace.md).
 
 > **Note:** One entry of the table does not follow the four-character rule: Safe Hardware Acceleration has the context ID `#SHWA`, five characters ([SWS_CORE_90024]). The table has the status DRAFT; check the final value in your stack.
 
@@ -1789,7 +1789,7 @@ The library of each cluster inside an application process logs with its own stan
 
 A POSIX signal handler may only call *async-signal-safe* functions, which POSIX lists explicitly [EXT-020]. No ARA function is on that list, because nobody can know which functions it calls internally. Using any ARA API in a signal handler is therefore undefined behavior, unless the specification says otherwise ([SWS_CORE_13210]).
 
-> **Note (implementation example):** If your process needs to react to a signal, let the handler only set a `volatile std::sig_atomic_t` flag or write a byte to a pipe, and do the ARA work in a normal thread that watches the flag or the pipe. For the termination request of Execution Management you do not need a signal handler at all: `ara::exec::ExecutionClient` calls your termination handler in a normal thread ([EM guide, Section 14.3](04_ExecutionManagement.md#143-executionclient)).
+> **Note (implementation example):** If your process needs to react to a signal, let the handler only set a `volatile std::sig_atomic_t` flag or write a byte to a pipe, and do the ARA work in a normal thread that watches the flag or the pipe. For the termination request of Execution Management you do not need a signal handler at all: `ara::exec::ExecutionClient` calls your termination handler in a normal thread ([EM guide, Section 14.3](ExecutionManagement.md#143-executionclient)).
 
 ### 12.8 How to Read an API Table
 
@@ -1822,7 +1822,7 @@ Further rows appear when needed: *Forwarding header file*, *Symbol*, *Template p
 
 ## 13. Configuration Reference: What to Configure
 
-> **Why this matters:** Core itself needs no configuration, but your `ara::core` code depends on four kinds of model elements. When a generated error enumerator has an unexpected name, or an `InstanceSpecifier` does not resolve, the cause is in one of them. This chapter lists them from the point of view of `ara::core`; [guide 02, Chapter 12](02_Manifests.md#12-configuration-reference-what-to-configure) is the full reference.
+> **Why this matters:** Core itself needs no configuration, but your `ara::core` code depends on four kinds of model elements. When a generated error enumerator has an unexpected name, or an `InstanceSpecifier` does not resolve, the cause is in one of them. This chapter lists them from the point of view of `ara::core`; the [Manifests guide, Chapter 12](Manifests.md#12-configuration-reference-what-to-configure) is the full reference.
 
 ### 13.1 Minimal Configuration
 
@@ -1830,11 +1830,11 @@ Further rows appear when needed: *Forwarding header file*, *Symbol*, *Template p
 2. **For each application error that your code handles** (mandatory if a method can fail with it): an `ApApplicationErrorDomain` with a short name, a unique `value` in the user range and its namespace; an `ApApplicationError` with a short name, an `errorCode` and its `errorDomain`; and a reference from the method (`possibleApError` or `possibleApErrorSet`). Configured by the service designer during application design. Without the method reference, no C++ code is generated ([Section 7.8](#78-generated-error-domains)).
 3. **For each `InstanceSpecifier` that your code creates** (mandatory): the short names along the path from the `Executable` through its `RootSwComponentPrototype` to the `PortPrototype`. Configured by the application designer.
 4. **For each specifier between clusters** (only for platform developers): the concrete `FunctionalClusterInteractsWithFunctionalClusterMapping`. Configured by the integrator during deployment.
-5. **For each data type of a service interface** (mandatory for code generation): a `StdCppImplementationDataType` with its `category`, and `typeEmitter` `TYPE_EMITTER_ARA` if the `ara` generator shall generate it ([guide 02, Section 6.4](02_Manifests.md#64-data-types)).
+5. **For each data type of a service interface** (mandatory for code generation): a `StdCppImplementationDataType` with its `category`, and `typeEmitter` `TYPE_EMITTER_ARA` if the `ara` generator shall generate it (the [Manifests guide, Section 6.4](Manifests.md#64-data-types)).
 
 ### 13.2 ApApplicationErrorDomain and ApApplicationError
 
-**Purpose:** the application errors of methods and the domains they belong to. **Lives in:** application design (service interface design). **Configured by:** service designer. **Spec:** TPS Section 4.2.8; SWS LBAP Section 7.2; SWS Core Section 7.2.5.3; [guide 02, Section 12.6](02_Manifests.md#126-apapplicationerror-and-apapplicationerrordomain).
+**Purpose:** the application errors of methods and the domains they belong to. **Lives in:** application design (service interface design). **Configured by:** service designer. **Spec:** TPS Section 4.2.8; SWS LBAP Section 7.2; SWS Core Section 7.2.5.3; the [Manifests guide, Section 12.6](Manifests.md#126-apapplicationerror-and-apapplicationerrordomain).
 
 | Element.attribute | Meaning | Type and values | Mult. | Default | Rules | Effect on `ara::core` code |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -1846,11 +1846,11 @@ Further rows appear when needed: *Forwarding header file*, *Symbol*, *Template p
 | `ApApplicationError.errorDomain` | Domain of the error | `ApApplicationErrorDomain` (reference) | `0..1` | not specified | Shall exist ([constr_1625]) | Which `<SN>Errc` contains the enumerator |
 | `ClientServerOperation.possibleApError`, `possibleApErrorSet` | Errors that a method can return | `ApApplicationError`, `ApApplicationErrorSet` (references) | `*` | not specified | No two referenced domains of one method share a value ([constr_10574]) | Only referenced errors are generated; sets are flattened (SWS LBAP, Section 7.2) |
 
-> **Pitfall:** Renaming an `ApApplicationError` in the model renames the enumerator in the generated code and breaks every comparison in the application. Changing its `errorCode` breaks nothing at compile time, but a provider and a consumer built from different model versions then disagree about the meaning of the code. Treat both as interface changes ([guide 02, Section 6.2](02_Manifests.md#62-namespaces-and-versions)).
+> **Pitfall:** Renaming an `ApApplicationError` in the model renames the enumerator in the generated code and breaks every comparison in the application. Changing its `errorCode` breaks nothing at compile time, but a provider and a consumer built from different model versions then disagree about the meaning of the code. Treat both as interface changes (the [Manifests guide, Section 6.2](Manifests.md#62-namespaces-and-versions)).
 
 ### 13.3 The InstanceSpecifier Path Elements
 
-**Purpose:** the model elements whose short names form the path of an application `InstanceSpecifier`. **Lives in:** application design. **Configured by:** application designer. **Spec:** [SWS_CORE_10200], [SWS_CORE_10201]; SWS Core Tables A.2, A.4, A.8 to A.10, A.12; [guide 02, Section 9.4](02_Manifests.md#94-from-port-to-instancespecifier).
+**Purpose:** the model elements whose short names form the path of an application `InstanceSpecifier`. **Lives in:** application design. **Configured by:** application designer. **Spec:** [SWS_CORE_10200], [SWS_CORE_10201]; SWS Core Tables A.2, A.4, A.8 to A.10, A.12; the [Manifests guide, Section 9.4](Manifests.md#94-from-port-to-instancespecifier).
 
 | Element.attribute | Meaning | Type | Mult. | Rules | Effect on `ara::core` code |
 | --- | --- | --- | --- | --- | --- |
@@ -1870,7 +1870,7 @@ The meta-class is abstract and has no attributes of its own. Its concrete sub-cl
 
 ### 13.5 StdCppImplementationDataType Categories
 
-**Purpose:** the C++ form of a data type. **Lives in:** application design. **Configured by:** application designer. **Spec:** TPS Section 3.3, [constr_1578]; SWS LBAP Chapter 8; [guide 02, Section 12.5](02_Manifests.md#125-cppimplementationdatatype).
+**Purpose:** the C++ form of a data type. **Lives in:** application design. **Configured by:** application designer. **Spec:** TPS Section 3.3, [constr_1578]; SWS LBAP Chapter 8; the [Manifests guide, Section 12.5](Manifests.md#125-cppimplementationdatatype).
 
 | `category` | `ara::core` type in the generated code | Spec |
 | --- | --- | --- |
@@ -1885,10 +1885,10 @@ The meta-class is abstract and has no attributes of its own. Its concrete sub-cl
 
 ### 13.6 The Running Example: Complete Configuration
 
-`HPC` needs no configuration for Core. The following excerpt of the complete model of `HPC` ([guide 02, Section 12.16](02_Manifests.md#1216-the-running-example-complete-configuration), where the full model is validated against the R25-11 XML schema) shows the model elements behind the `ara::core` code of this guide: the domain `CameraErrors`, its error, and the method that references it.
+`HPC` needs no configuration for Core. The following excerpt of the complete model of `HPC` (the [Manifests guide, Section 12.16](Manifests.md#1216-the-running-example-complete-configuration), where the full model is validated against the R25-11 XML schema) shows the model elements behind the `ara::core` code of this guide: the domain `CameraErrors`, its error, and the method that references it.
 
 ```xml
-<!-- Excerpt of the HPC model (guide 02, Section 12.16). Package /HPC/ApplicationErrorDomains -->
+<!-- Excerpt of the HPC model (the Manifests guide, Section 12.16). Package /HPC/ApplicationErrorDomains -->
 <AP-APPLICATION-ERROR-DOMAIN>
   <SHORT-NAME>CameraErrors</SHORT-NAME>
   <NAMESPACES>
@@ -1965,13 +1965,13 @@ constexpr ara::core::ErrorCode MakeErrorCode (hpc::camera::CameraErrorsErrc code
 | Value | Where it comes from | Why it was chosen |
 | --- | --- | --- |
 | `CameraErrors` | `ApApplicationErrorDomain.shortName` | Names the domain after the service; becomes `CameraErrorsErrorDomain` and the file `cameraerrors_error_domain.h` |
-| `4097` (`0x1001`) | `ApApplicationErrorDomain.value` | User range (most significant bit 0); registered in guide 00 next to `0x1002` and `0x1003` |
+| `4097` (`0x1001`) | `ApApplicationErrorDomain.value` | User range (most significant bit 0); registered in the Running Example guide next to `0x1002` and `0x1003` |
 | `hpc`, `camera` | `ApApplicationErrorDomain.namespace` | Same namespace as `CameraService`, so the error and the interface live together |
 | `ExposureModeNotSupported` | `ApApplicationError.shortName` | Becomes the enumerator, verbatim |
 | `1` | `ApApplicationError.errorCode` | First code; 0 is unassigned; within 1 to 63 in case Classic ECUs ever use the service |
 | `POSSIBLE-AP-ERROR-REF` | `ClientServerOperation.possibleApError` | Without it, no C++ code would be generated for the domain |
-| `/fusion/Root/CameraRPort` | Short names of `fusion`, `Root` and `CameraRPort` ([guide 02, Section 5.5](02_Manifests.md#55-worked-example-cameradriver-and-fusion)) | The `InstanceSpecifier` of `Fusion`'s port for `CameraService` |
-| `FusionErrors`, `0x1003` | Not modeled; written by hand in `Fusion` ([Section 7.7](#77-defining-a-new-error-domain)) | Errors that never leave the process; the identifier is registered in guide 00 to stay unique |
+| `/fusion/Root/CameraRPort` | Short names of `fusion`, `Root` and `CameraRPort` (the [Manifests guide, Section 5.5](Manifests.md#55-worked-example-cameradriver-and-fusion)) | The `InstanceSpecifier` of `Fusion`'s port for `CameraService` |
+| `FusionErrors`, `0x1003` | Not modeled; written by hand in `Fusion` ([Section 7.7](#77-defining-a-new-error-domain)) | Errors that never leave the process; the identifier is registered in the Running Example guide to stay unique |
 
 > **Key takeaways**
 >
@@ -2439,7 +2439,7 @@ Every Standardized Violation has a DLT message with at least two arguments ([RS_
 
 | Violation message | Message ID | Further arguments | Typical cause | Spec |
 | --- | --- | --- | --- | --- |
-| `InsufficientPermissionsViolation` | `0x80001fff` | `message` | The caller lacks the permission for the operation (IAM, guide 15) | [SWS_CORE_13000] |
+| `InsufficientPermissionsViolation` | `0x80001fff` | `message` | The caller lacks the permission for the operation (IAM, the IAM guide) | [SWS_CORE_13000] |
 | `IsoStdBadVariantAccessViolation` | `0x80001ffe` | | `get` on a `Variant` with another alternative | [SWS_CORE_13001] |
 | `InstanceSpecifierMappingIntegrityViolation` | `0x80001ffc` | `instanceSpecifier`, `className` | Specifier not resolvable in the executable, or not a port | [SWS_CORE_13003] |
 | `PortInterfaceMappingViolation` | `0x80001ffb` | `instanceSpecifier`, `className` | The port's interface type does not match the class | [SWS_CORE_13004] |
@@ -2462,13 +2462,13 @@ Every Standardized Violation has a DLT message with at least two arguments ([RS_
 | `IsoStdOverflowErrorViolation` | `0x80001fea` | | `Bitset::to_ulong` and similar overflow | [SWS_CORE_13023] |
 | `IsoStdLengthErrorViolation` | `0x80001fe9` | | As `std::length_error`, for example a container that would exceed its maximum size | [SWS_CORE_13024] |
 
-Other clusters define their own violation messages in their own message ID ranges, for example the four violations of Execution Management ([EM guide, Section 15.4](04_ExecutionManagement.md#154-violation-messages)).
+Other clusters define their own violation messages in their own message ID ranges, for example the four violations of Execution Management ([EM guide, Section 15.4](ExecutionManagement.md#154-violation-messages)).
 
 ### 15.4 Using the Messages in Practice
 
 When a process ends unexpectedly:
 
-1. **Check how it ended.** A termination by `SIGABRT` points to `Abort`, either from a Violation or from the application. Execution Management reports the Abnormal Termination ([EM guide, Section 15.2](04_ExecutionManagement.md#152-process-lifecycle-trace-messages)).
+1. **Check how it ended.** A termination by `SIGABRT` points to `Abort`, either from a Violation or from the application. Execution Management reports the Abnormal Termination ([EM guide, Section 15.2](ExecutionManagement.md#152-process-lifecycle-trace-messages)).
 2. **Find the fatal message.** Search the DLT log of the ECU for fatal messages in the time before the termination, and the standard error output of the process if your platform captures it. The message ID tells you which Violation it was, even if the text is not decoded.
 3. **Read the arguments.** `modeledProcessId` tells you which modeled process, `location` where in the code, and the further arguments what exactly: the specifier and class for mapping violations, the method for `FutureInvalidViolation`, the index for `IsoStdOutOfRangeViolation`.
 4. **Decide whether it is a code or a configuration problem.** The four mapping and in-use violations, `AraNotInitializedViolation` and `InsufficientPermissionsViolation` usually point to the manifest, the start-up order or the access rights. The `Result`, `Future`, `Promise` and `IsoStd...` violations point to the code.
@@ -2488,7 +2488,7 @@ When a process ends unexpectedly:
 
 ### 16.1 Start-Up
 
-Execution Management starts `fusion` when `ADAS` enters `Normal` ([EM guide, Section 5.2](04_ExecutionManagement.md#52-starting-a-process)), possibly with vendor options on the command line. `main()` installs the abort handler first, because `AddAbortHandler` works without initialization, and then calls `ara::core::Initialize(argc, argv)`, which removes the vendor options ([Section 5.6](#56-worked-example-the-main-function-of-fusion), [Section 10.4](#104-abort-handlers)). `Fusion` creates its `InstanceSpecifier`s with `Create`, constructs its cluster objects, reads its calibration once through `CalibrationDataService` and checks it with `CheckCalibration` ([Section 8.8](#88-worked-example-fusion-checks-its-cycle-inputs)). Finally it reports `kRunning` to Execution Management through `ExecutionClient` ([EM guide, Section 14.3](04_ExecutionManagement.md#143-executionclient)).
+Execution Management starts `fusion` when `ADAS` enters `Normal` ([EM guide, Section 5.2](ExecutionManagement.md#52-starting-a-process)), possibly with vendor options on the command line. `main()` installs the abort handler first, because `AddAbortHandler` works without initialization, and then calls `ara::core::Initialize(argc, argv)`, which removes the vendor options ([Section 5.6](#56-worked-example-the-main-function-of-fusion), [Section 10.4](#104-abort-handlers)). `Fusion` creates its `InstanceSpecifier`s with `Create`, constructs its cluster objects, reads its calibration once through `CalibrationDataService` and checks it with `CheckCalibration` ([Section 8.8](#88-worked-example-fusion-checks-its-cycle-inputs)). Finally it reports `kRunning` to Execution Management through `ExecutionClient` ([EM guide, Section 14.3](ExecutionManagement.md#143-executionclient)).
 
 ### 16.2 A Normal Cycle
 
@@ -2500,7 +2500,7 @@ The camera image gets dark. `ExposureControl::OnCycle` sends `SetExposureMode(Ni
 
 ### 16.4 A Late Input
 
-One cycle, a radar frame arrives too late. `CollectInputs` returns `FusionErrorsErrc::kInputTimeout`, `Bind` skips `Fuse`, and `OnCycle` skips the cycle ([Section 8.8](#88-worked-example-fusion-checks-its-cycle-inputs)). If inputs stay late, this becomes a matter of supervision: Platform Health Management watches the cycle of `Fusion` ([guide 06, Section 17.4](06_PlatformHealthManagement.md#174-a-late-input-is-not-a-failure)).
+One cycle, a radar frame arrives too late. `CollectInputs` returns `FusionErrorsErrc::kInputTimeout`, `Bind` skips `Fuse`, and `OnCycle` skips the cycle ([Section 8.8](#88-worked-example-fusion-checks-its-cycle-inputs)). If inputs stay late, this becomes a matter of supervision: Platform Health Management watches the cycle of `Fusion` (the [PHM guide, Section 17.4](PlatformHealthManagement.md#174-a-late-input-is-not-a-failure)).
 
 ### 16.5 A Configuration Error During Integration
 
@@ -2508,7 +2508,7 @@ In an integration build, the port `CameraRPort` was renamed in the model, but no
 
 ### 16.6 Shutdown
 
-When the vehicle is switched off, State Management switches `ADAS` to `Off`, and Execution Management asks `Fusion` to terminate. `Fusion` leaves its cycle, destroys all cluster objects, calls `ara::core::Deinitialize()` and returns from `main()` with `EXIT_SUCCESS` ([EM guide, Section 5.5](04_ExecutionManagement.md#55-terminating-a-process)). If `Deinitialize` reported an error, for example because an object was still alive, `Fusion` would return `EXIT_FAILURE`.
+When the vehicle is switched off, State Management switches `ADAS` to `Off`, and Execution Management asks `Fusion` to terminate. `Fusion` leaves its cycle, destroys all cluster objects, calls `ara::core::Deinitialize()` and returns from `main()` with `EXIT_SUCCESS` ([EM guide, Section 5.5](ExecutionManagement.md#55-terminating-a-process)). If `Deinitialize` reported an error, for example because an object was still alive, `Fusion` would return `EXIT_FAILURE`.
 
 The following sequence diagram shows the day in one picture.
 

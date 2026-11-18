@@ -10,7 +10,7 @@
 >
 > **Version:** 1.0 (draft, pending review)
 >
-> **Part of the series:** [AUTOSAR Adaptive Platform Training Guides](00_LearningPath.md). Previous: [08b Secure and Safe Communication](08b_SecureAndSafeCommunication.md). Next: [11 Persistency](11_Persistency.md).
+> **Part of the series:** [AUTOSAR Adaptive Platform Training Guides](../README.md). Previous: [Secure and Safe Communication](SecureAndSafeCommunication.md). Next: [Persistency](Persistency.md).
 
 ## About This Guide
 
@@ -22,7 +22,7 @@ Every engineer who has debugged an embedded system knows the moment: something w
 - **Integrators** who configure application IDs, context IDs, sinks and network endpoints, and who analyze traces of a whole machine.
 - **Tool and platform developers** who implement a logging backend, a trace tool or a viewer, and who need the exact protocol layout.
 
-Assumed background: modern C++ (C++17: templates, move semantics, `std::chrono`), plus basic Linux/POSIX knowledge (processes, sockets, `stdout`). You do not need prior AUTOSAR Adaptive knowledge. Two guides of the series make this one easier: [02 Manifests and Methodology](02_Manifests.md) for ports, processes and machine configuration, and [03 `ara::core` and General Conventions](03_CoreAndGeneral.md) for `Initialize`, `InstanceSpecifier`, `ErrorCode` and violations.
+Assumed background: modern C++ (C++17: templates, move semantics, `std::chrono`), plus basic Linux/POSIX knowledge (processes, sockets, `stdout`). You do not need prior AUTOSAR Adaptive knowledge. Two guides of the series make this one easier: [Manifests and Methodology](Manifests.md) for ports, processes and machine configuration, and [`ara::core` and General Conventions](CoreAndGeneral.md) for `Initialize`, `InstanceSpecifier`, `ErrorCode` and violations.
 
 ### Learning Objectives
 
@@ -61,7 +61,7 @@ If you write application code, read Chapters 1, 2, 6 to 9 and 16 first. If you i
 
 ### The Running Example
 
-All guides of the series use the same invented system. A high-performance ECU called **`HPC`** runs an ADAS feature. [Guide 00, Chapter 6](00_LearningPath.md#6-the-running-example-the-hpc-reference-system) defines the complete example; this section recaps the part that Log and Trace needs.
+All guides of the series use the same invented system. A high-performance ECU called **`HPC`** runs an ADAS feature. The [Running Example guide](RunningExample.md) defines the complete example; this section recaps the part that Log and Trace needs.
 
 - **`Fusion`** fuses camera, radar and vehicle data in a 50 ms cycle and runs in `ADAS.Normal`. **`FusionLite`** replaces it in `ADAS.Degraded`.
 - **`CameraDriver`** drives the front camera and provides `CameraService`, with the exposure modes `Auto`, `Day` and `Night`.
@@ -69,11 +69,11 @@ All guides of the series use the same invented system. A high-performance ECU ca
 - The platform daemons of Execution Management, State Management and Platform Health Management log their standardized messages.
 - `HPC` has the log ECU ID **`HPC1`** and sends its log messages over the Ethernet backbone to a logging client.
 
-This guide adds the following elements to the running example (guide 00 lists them as well):
+This guide adds the following elements to the running example (the Running Example guide lists them as well):
 
 | Element | What it is | Used in |
 | --- | --- | --- |
-| Application and context IDs | `FUSN` (`MAIN`, `TRCK`), `CAMD` (`MAIN`, `IMGS`) from guide 00, plus `FUSL` (`MAIN`) for `FusionLite` and `SMCT` (`MAIN`) for `SmControl` | [Section 5.7](#57-worked-example-the-ids-of-hpc) |
+| Application and context IDs | `FUSN` (`MAIN`, `TRCK`), `CAMD` (`MAIN`, `IMGS`) from the Running Example guide, plus `FUSL` (`MAIN`) for `FusionLite` and `SMCT` (`MAIN`) for `SmControl` | [Section 5.7](#57-worked-example-the-ids-of-hpc) |
 | Log ports | R-ports typed by the `LogAndTraceInterface`s `FusionLog`, `CameraLog` and `SmControlLog`: `MainLogPort` and `TrackLogPort` of `FusionSwc`, `MainLogPort` and `ImageLogPort` of `CameraDriverSwc`, `MainLogPort` of `FusionLiteSwc` and `SmControlSwc` | [Section 6.9](#69-worked-example-fusion-sets-up-its-loggers) |
 | Modeled messages | `FusionCycleOverrun`, `TrackListSummary`, `FusionCycleBegin`, `FusionCycleEnd`, `FusionLiteActive`, `ImageDropped`, `ExposureModeChanged`, `AdasStatusChanged`, with message IDs `0x00010001` to `0x00030001` | [Section 8.10](#810-worked-example-fusioncycleoverrun-from-model-to-wire) |
 | Machine configuration | `LogAndTraceInstantiation` `HpcLogAndTrace` with the DLT sink `HpcDltChannel` (log channel `HPCN`, TCP port 3490), the console sink `HpcConsole`, and the per-port sinks `HpcRemoteInfo` and `HpcRemoteWarn`; time base `VehicleTime` | [Section 15.11](#1511-the-running-example-complete-configuration) |
@@ -274,7 +274,7 @@ Knowing the limits saves time when you look for something the standard does not 
 - **No standardized daemon.** How messages travel from the process to the network, for example through a log daemon, is up to the implementation. The SWS only says that messages must be queued while that path is not ready ([Section 6.5](#65-before-the-backend-is-ready-the-queue)).
 - **No file rotation, retention or compression**, and no rules for storing logs on the ECU.
 - **No security.** The protocol has no authentication or encryption. The PRS recommends to deactivate DLT after development and to protect its activation with a security mechanism (PRS, Section 1.2.1).
-- **No diagnostic event memory.** A logged error is not a diagnostic trouble code. Diagnostic events and DTCs belong to Diagnostic Management (guide 12a, `12a_Diagnostics.md`, planned).
+- **No diagnostic event memory.** A logged error is not a diagnostic trouble code. Diagnostic events and DTCs belong to Diagnostic Management (the Diagnostics Part 1 guide, `DiagnosticsPart1.md`, planned).
 - **No security events.** Log and Trace defines no security events, no production errors and no violation messages of its own (SWS, Section 7.9).
 
 ### 1.3 Analogies
@@ -382,7 +382,7 @@ The **logging client** is the external tool that receives and stores the message
 
 ### 3.1 Where Log and Trace Sits in the Platform
 
-Log and Trace is a library-based cluster: `ara::log` runs inside each process that uses it ([guide 00, Section 6.3](00_LearningPath.md#63-the-hpc-machine)). Adaptive Applications, the libraries of other clusters inside those applications, and the platform daemons all use the same API. What happens behind the library is not standardized. A typical design has a log daemon that collects the messages of all processes, adds the ECU ID, applies the thresholds and sends the result to the network.
+Log and Trace is a library-based cluster: `ara::log` runs inside each process that uses it (the [Running Example guide, Section 1.3](RunningExample.md#13-the-hpc-machine)). Adaptive Applications, the libraries of other clusters inside those applications, and the platform daemons all use the same API. What happens behind the library is not standardized. A typical design has a log daemon that collects the messages of all processes, adds the ECU ID, applies the thresholds and sends the result to the network.
 
 > **Note (implementation example):** The open-source COVESA `dlt-daemon` is one such design. Its user library sends messages to the daemon through named pipes (FIFOs), UNIX sockets or VSOCK sockets, selected at compile time, and keeps a ring buffer for messages that cannot be sent yet [EXT-049]. The daemon serves logging clients over TCP; its tools use port 3490 by default [EXT-048]. `dlt-daemon` implements version 1 of the protocol completely and version 2 only as a partial "minimum viable product" ([Section 11.10](#1110-version-1-and-version-2)) [EXT-046].
 
@@ -420,12 +420,12 @@ flowchart LR
 
 ### 3.5 How Platform Clusters Log
 
-The libraries and daemons of the platform clusters log with standardized context IDs and message ID ranges. AUTOSAR reserves the prefix `#` for context IDs of messages standardized by AUTOSAR ([PRS_Dlt_01054]), and SWS Core assigns one context ID and one range of message IDs to each cluster ([SWS_CORE_90024], status DRAFT): for example `#EXE` with `0x8000'4000` to `0x8000'4fff` for Execution Management and `#LOG` with `0x8000'6000` to `0x8000'6fff` for Log and Trace itself. [Guide 03, Section 12.5](03_CoreAndGeneral.md#125-logging-and-tracing-conventions) has the table; Appendix B of this guide repeats it.
+The libraries and daemons of the platform clusters log with standardized context IDs and message ID ranges. AUTOSAR reserves the prefix `#` for context IDs of messages standardized by AUTOSAR ([PRS_Dlt_01054]), and SWS Core assigns one context ID and one range of message IDs to each cluster ([SWS_CORE_90024], status DRAFT): for example `#EXE` with `0x8000'4000` to `0x8000'4fff` for Execution Management and `#LOG` with `0x8000'6000` to `0x8000'6fff` for Log and Trace itself. The [Core guide, Section 12.5](CoreAndGeneral.md#125-logging-and-tracing-conventions) has the table; Appendix B of this guide repeats it.
 
 Two meta-classes connect a cluster to a sink in the model ([Section 15.10](#1510-mappings-for-functional-clusters)):
 
 - `FunctionalClusterToDltLogSinkMapping` maps a functional cluster, represented by its module instantiation, to a `DltLogSink` and a `DltContext` ([TPS_MANI_01476], new in R25-11).
-- `PersistencyDeploymentToDltLogSinkMapping` maps a Persistency deployment to a sink ([TPS_MANI_03276]); [guide 11, Section 14.11](11_Persistency.md#1411-persistencylogging) covers it.
+- `PersistencyDeploymentToDltLogSinkMapping` maps a Persistency deployment to a sink ([TPS_MANI_03276]); the [Persistency guide, Section 14.11](Persistency.md#1411-persistencylogging) covers it.
 
 > **Key takeaways**
 >
@@ -552,7 +552,7 @@ Application developers should therefore not start their context IDs with `#` or 
 
 In version 1 of the protocol, application and context IDs had exactly four characters. Version 2 transports each ID with a length byte, so longer IDs are possible (PRS, Section 1 and [PRS_Dlt_01022]). The SWS notes that length limits apply only to version 1 (SWS, Sections 7.1.1 and 7.1.4).
 
-> **Pitfall:** Long IDs are legal in version 2, but many tools, filters and habits still assume four characters. The running example keeps four-character IDs. The AUTOSAR context IDs themselves have four characters, with one DRAFT exception, `#SHWA` ([guide 03, Section 12.5](03_CoreAndGeneral.md#125-logging-and-tracing-conventions)).
+> **Pitfall:** Long IDs are legal in version 2, but many tools, filters and habits still assume four characters. The running example keeps four-character IDs. The AUTOSAR context IDs themselves have four characters, with one DRAFT exception, `#SHWA` (the [Core guide, Section 12.5](CoreAndGeneral.md#125-logging-and-tracing-conventions)).
 
 ### 5.7 Worked Example: the IDs of HPC
 
@@ -599,7 +599,7 @@ flowchart TB
 
 ### 6.1 Initializing the Framework
 
-`ara::log` is initialized together with the other clusters by `ara::core::Initialize(argc, argv)`, and its use before that is not allowed (SWS, Section 7.8.1; [guide 03, Section 5.2](03_CoreAndGeneral.md#52-initialize)). The framework shall be initialized if the executable has a port typed by a `LogAndTraceInterface` ([SWS_LOG_00004]). From the application's point of view, a logger instance is created when the application registers a context (SWS, Section 7.1.6).
+`ara::log` is initialized together with the other clusters by `ara::core::Initialize(argc, argv)`, and its use before that is not allowed (SWS, Section 7.8.1; the [Core guide, Section 5.2](CoreAndGeneral.md#52-initialize)). The framework shall be initialized if the executable has a port typed by a `LogAndTraceInterface` ([SWS_LOG_00004]). From the application's point of view, a logger instance is created when the application registers a context (SWS, Section 7.1.6).
 
 ### 6.2 Creating Loggers
 
@@ -611,7 +611,7 @@ All three `CreateLogger` functions return a reference to a `Logger` that the fra
 | `CreateLogger(ctxId, ctxDescription)` ([SWS_LOG_00263]) | Context ID and description from the arguments | `defaultLogThreshold` of the corresponding sink, else `kWarn` ([SWS_LOG_00253]) | No | Console, if no model is available |
 | `CreateLogger(ctxId, ctxDescription, ctxDefLogLevel)` ([SWS_LOG_00021]) | Context ID and description from the arguments | The given level ([SWS_LOG_00006]) | No | Console, if no model is available |
 
-The `InstanceSpecifier` must name a port typed by a `LogAndTraceInterface` or by a `ServiceInterface` ([SWS_LOG_00251], [constr_5286], [constr_5287]). If it cannot be resolved, refers to the wrong kind of element, or is already in use in the process, `CreateLogger` raises a violation and the process is terminated ([SWS_LOG_00256]; [guide 03, Section 6.3](03_CoreAndGeneral.md#63-violations-fail-early)).
+The `InstanceSpecifier` must name a port typed by a `LogAndTraceInterface` or by a `ServiceInterface` ([SWS_LOG_00251], [constr_5286], [constr_5287]). If it cannot be resolved, refers to the wrong kind of element, or is already in use in the process, `CreateLogger` raises a violation and the process is terminated ([SWS_LOG_00256]; the [Core guide, Section 6.3](CoreAndGeneral.md#63-violations-fail-early)).
 
 ### 6.3 Where the Threshold Comes From
 
@@ -655,7 +655,7 @@ sequenceDiagram
 
 ### 6.6 Shutdown and Daemon Crash
 
-When `ara::core::Deinitialize()` is called, the framework passes all queued messages to the configured sinks ([SWS_LOG_00123]). After that, the application must not use the logging API any more (SWS, Section 7.8.2). [Guide 03, Section 5.4](03_CoreAndGeneral.md#54-what-works-before-initialize-and-after-deinitialize) explains why the return value of `Deinitialize` is the only error report you can still rely on at that point.
+When `ara::core::Deinitialize()` is called, the framework passes all queued messages to the configured sinks ([SWS_LOG_00123]). After that, the application must not use the logging API any more (SWS, Section 7.8.2). The [Core guide, Section 5.4](CoreAndGeneral.md#54-what-works-before-initialize-and-after-deinitialize) explains why the return value of `Deinitialize` is the only error report you can still rely on at that point.
 
 ### 6.7 Knowing Whether Someone Listens
 
@@ -700,7 +700,7 @@ int main(int argc, char* argv[]) {
         ara::log::CreateLogger(ara::core::InstanceSpecifier{"/fusion/Root/TrackLogPort"});
 
     mainLog.LogInfo() << "Fusion started, cycle" << std::uint32_t{50} << "ms";
-    // ... report kRunning to EM, run the 50 ms cycle (guides 04 and 07) ...
+    // ... report kRunning to EM, run the 50 ms cycle (the EM and CM guides) ...
     (void)ara::core::Deinitialize();  // flushes queued messages [SWS_LOG_00123]
     return EXIT_SUCCESS;
 }
@@ -1627,7 +1627,7 @@ Because the change is not stored (no `StoreConfiguration`), `TRCK` falls back to
 
 Log and Trace takes its time from the Time Synchronization cluster (SWS, Section 5.2). The machine configuration names the time base: the attribute `timeBaseResource` of `LogAndTraceInstantiation` identifies it ([SWS_LOG_00082]; [TPS_MANI_03162]), and at most one may be referenced ([constr_3729]). If the time base is referenced, the current timestamp is included in each DLT message; otherwise, it is not ([SWS_LOG_00083]).
 
-In `HPC`, `HpcLogAndTrace` references the synchronized time base consumer `VehicleTime`, the time base that `CentralGateway` provides over gPTP ([guide 00, Section 6.14](00_LearningPath.md#614-time-network-management-and-logging)). Guide 09 (`09_NM_TimeSync_RawDataStream.md`, planned) completes its configuration.
+In `HPC`, `HpcLogAndTrace` references the synchronized time base consumer `VehicleTime`, the time base that `CentralGateway` provides over gPTP (the [Running Example guide, Section 1.14](RunningExample.md#114-time-network-management-and-logging)). The NM/TSync/RDS guide (`NM_TimeSync_RawDataStream.md`, planned) completes its configuration.
 
 > **Note:** Executables that implement (a part of) the logging cluster on the platform side can declare, with `ExecutableLoggingImplementationProps.usesTimeBaseResource`, that they need access to the time base ([TPS_MANI_01383]). These properties are allowed only for executables of category `PLATFORM_LEVEL` ([constr_10113]).
 
@@ -1731,7 +1731,7 @@ A `DltLogSink` of category `DLT_LOGSINK_ARTI` forwards all modeled messages with
 
 ### 14.6 Operating System Traces
 
-The operating system has its own trace events, for example task switches. An *OS/ara::log adapter* maps them to `ara::log` messages, typically in a separate daemon; this costs run-time resources but gives the full flexibility of `ara::log` (SWS, Section 7.6.1). The adapter and the OS/ARTI interface are described in the *Technical Report on Operating System Tracing Interface* (AP R25-11, Chapter 4.1). [Guide 01, Section 7.10](01_PlatformOverview.md#710-os-tracing-with-arti) covers OS tracing and its standardized messages.
+The operating system has its own trace events, for example task switches. An *OS/ara::log adapter* maps them to `ara::log` messages, typically in a separate daemon; this costs run-time resources but gives the full flexibility of `ara::log` (SWS, Section 7.6.1). The adapter and the OS/ARTI interface are described in the *Technical Report on Operating System Tracing Interface* (AP R25-11, Chapter 4.1). The [Platform Overview guide, Section 7.10](PlatformOverview.md#710-os-tracing-with-arti) covers OS tracing and its standardized messages.
 
 ### 14.7 `TraceMetaInfo`
 
@@ -1748,7 +1748,7 @@ namespace msg = hpc::fusion::fusionmessages;
 
 void FusionCycle(ara::log::Logger& mainLog, std::uint32_t cycleCounter) {
     mainLog.Log(msg::FusionCycleBegin, cycleCounter);
-    // ... read inputs, fuse, publish ObjectList (guide 07) ...
+    // ... read inputs, fuse, publish ObjectList (the CM guide) ...
     mainLog.Log(msg::FusionCycleEnd, cycleCounter);
 }
 ```
@@ -1788,7 +1788,7 @@ A second `TraceSwitchConfig`, `FusionCycleEndSwitch`, does the same for `FusionC
 
 ## 15. Configuration Reference: What to Configure
 
-> **Why this matters:** This chapter answers the question "what do I have to configure for Log and Trace, and what does each setting mean?". It covers every element and attribute that Log and Trace reads, from the Log and Trace Extract and from the machine manifest. The general manifest structure is in [guide 02, Chapter 12](02_Manifests.md#12-configuration-reference-what-to-configure).
+> **Why this matters:** This chapter answers the question "what do I have to configure for Log and Trace, and what does each setting mean?". It covers every element and attribute that Log and Trace reads, from the Log and Trace Extract and from the machine manifest. The general manifest structure is in the [Manifests guide, Chapter 12](Manifests.md#12-configuration-reference-what-to-configure).
 
 The tables use the column *Default* only for values that a specification states. SWS Log and Trace defines no default values (SWS, Section 10.1); the only specified behaviors for absent settings are the `kWarn` threshold ([SWS_LOG_00253]) and the missing timestamp ([SWS_LOG_00083]). Enumeration literals are given in the meta-model spelling; in ARXML they are written in upper case with hyphens, for example `traceSwitchNone` as `TRACE-SWITCH-NONE`.
 
@@ -1899,7 +1899,7 @@ The network endpoint:
 | --- | --- | --- | --- | --- | --- | --- |
 | `PlatformModuleEthernetEndpointConfiguration.communicationConnector` | The VLAN | `EthernetCommunicationConnector` (ref) | `0..1` | not specified | – | IP address from the connector's `NetworkEndpoint` ([TPS_MANI_03163]) |
 | `tcpPort`, `udpPort` | Transport and port | `ApApplicationEndpoint` (ref) | `0..1` each | not specified | – | TCP or UDP port of the DLT channel ([TPS_MANI_03163]) |
-| `remoteConfig`, `secureComPropsForTcp`, `secureComPropsForUdp` | Peers and security settings | `RemoteEndpointConfiguration` (aggr), `SecureComProps` (ref) | `*`, `0..1`, `0..1` | not specified | – | Secure communication, see [guide 08b](08b_SecureAndSafeCommunication.md) |
+| `remoteConfig`, `secureComPropsForTcp`, `secureComPropsForUdp` | Peers and security settings | `RemoteEndpointConfiguration` (aggr), `SecureComProps` (ref) | `*`, `0..1`, `0..1` | not specified | – | Secure communication, see the [Secure Communication guide](SecureAndSafeCommunication.md) |
 
 ### 15.8 DltApplicationToProcessMapping and DltLogSinkToPortPrototypeMapping
 
@@ -1936,7 +1936,7 @@ The network endpoint:
 | `FunctionalClusterToDltLogSinkMapping.functionalCluster` | The cluster that logs | `NonOsModuleInstantiation` (ref) | `0..1` | not specified | New in R25-11 ([TPS_MANI_01476]) | – |
 | `FunctionalClusterToDltLogSinkMapping.logSink` | Its sink | `DltLogSink` (ref) | `0..1` | not specified | – | Output path of the cluster's messages |
 | `FunctionalClusterToDltLogSinkMapping.dltContext` | Its context | `DltContext` (ref) | `0..1` | not specified | – | CTID of the cluster's messages |
-| `PersistencyDeploymentToDltLogSinkMapping.persistencyDeployment`, `logSink`, `dltContext` | The same for a Persistency deployment | refs | `0..1` each | not specified | [TPS_MANI_03276] | See [guide 11, Section 14.11](11_Persistency.md#1411-persistencylogging) |
+| `PersistencyDeploymentToDltLogSinkMapping.persistencyDeployment`, `logSink`, `dltContext` | The same for a Persistency deployment | refs | `0..1` each | not specified | [TPS_MANI_03276] | See the [Persistency guide, Section 14.11](Persistency.md#1411-persistencylogging) |
 
 `HPC` leaves the platform clusters to the vendor's default configuration and does not model these mappings.
 
@@ -2051,7 +2051,7 @@ Trace switches: FusionCycleBegin, FusionCycleEnd in fusion -> traceSwitchNone (p
 </DLT-CONTEXT>
 ```
 
-**The interface and the machine.** The `LogAndTraceInterface` carries the namespace; the `Machine` gets the `LogAndTraceInstantiation` and, until guide 09 completes it, a minimal Time Synchronization instantiation with the consumer `VehicleTime`:
+**The interface and the machine.** The `LogAndTraceInterface` carries the namespace; the `Machine` gets the `LogAndTraceInstantiation` and, until the NM/TSync/RDS guide completes it, a minimal Time Synchronization instantiation with the consumer `VehicleTime`:
 
 ```xml
 <LOG-AND-TRACE-INTERFACE>
@@ -2345,11 +2345,11 @@ Applications do not call it. The logging framework calls it for messages routed 
 | `RegisterConnectionStateHandler` | not thread-safe | exception safe |
 | `TraceArti` | thread-safe | exception safe |
 
-[Guide 03, Section 12.6](03_CoreAndGeneral.md#126-thread-safety) explains what "thread-safe" means in AUTOSAR: you may call a thread-safe member concurrently on the *same* object. A `Logger` can therefore be shared between threads, a `LogStream` cannot.
+The [Core guide, Section 12.6](CoreAndGeneral.md#126-thread-safety) explains what "thread-safe" means in AUTOSAR: you may call a thread-safe member concurrently on the *same* object. A `Logger` can therefore be shared between threads, a `LogStream` cannot.
 
 ### 16.11 Complete Example: Fusion
 
-The program puts the pieces together: two connected loggers, modeled and non-modeled messages, `IsEnabled`, a trace point pair and the connection state. Execution Management and `ara::com` details are shortened; see [guide 04, Section 14.3](04_ExecutionManagement.md#143-executionclient) and [guide 07](07_CommunicationManagement.md).
+The program puts the pieces together: two connected loggers, modeled and non-modeled messages, `IsEnabled`, a trace point pair and the connection state. Execution Management and `ara::com` details are shortened; see the [EM guide, Section 14.3](ExecutionManagement.md#143-executionclient) and the [CM guide](CommunicationManagement.md).
 
 ```cpp
 #include <atomic>
@@ -2385,7 +2385,7 @@ int main(int argc, char* argv[]) {
     });
 
     mainLog.LogInfo() << "Fusion started, budget" << Arg(kBudgetUs, "budget", "us");
-    // ... ExecutionClient: report kRunning (guide 04); create proxies and the skeleton (guide 07) ...
+    // ... ExecutionClient: report kRunning (the EM guide); create proxies and the skeleton (the CM guide) ...
 
     for (std::uint32_t cycle = 0U; /* until termination is requested */; ++cycle) {
         const auto start = std::chrono::steady_clock::now();
@@ -2431,7 +2431,7 @@ int main(int argc, char* argv[]) {
 | Log messages | `TraceMetaInfo` (`0x80006000`, `DLT_TRACE_STATE`, DRAFT), written by the tracing tool only ([Section 14.7](#147-tracemetainfo)) | [SWS_LOG_01001] |
 | Other messages | "local time base used" or "global time base used" at `CreateLogger` | [SWS_LOG_00091] |
 | Violation messages | None of its own; implementations may add non-standardized violations | SWS, Section 7.9.3 |
-| Violations raised | The four Core violations of `CreateLogger(InstanceSpecifier)`, with their standardized DLT messages | [SWS_LOG_00256]; [guide 03, Section 15.3](03_CoreAndGeneral.md#153-violation-messages) |
+| Violations raised | The four Core violations of `CreateLogger(InstanceSpecifier)`, with their standardized DLT messages | [SWS_LOG_00256]; the [Core guide, Section 15.3](CoreAndGeneral.md#153-violation-messages) |
 | Production errors | None | SWS, Section 7.9.4 |
 | Protocol-level reports | `BufferOverflowNotification` control messages | [PRS_Dlt_00769] |
 
@@ -2457,7 +2457,7 @@ The developer connects a laptop to the backbone and points the logging client to
 
 ### 18.2 The Trace
 
-Twenty minutes into the drive, `Fusion` starts to miss its 50 ms budget, and its deadline supervision expires ([guide 06, Section 12.6](06_PlatformHealthManagement.md#126-worked-example-fusion-stalls-and-adas-goes-to-degraded); [guide 05, Section 8.7](05_StateManagement.md#87-worked-example-fusion-fails-and-adas-goes-to-degraded)). The illustrative trace below is sorted by timestamp. The layout depends on the viewer; the application IDs of the platform daemons are vendor-specific placeholders, and all values are invented.
+Twenty minutes into the drive, `Fusion` starts to miss its 50 ms budget, and its deadline supervision expires (the [PHM guide, Section 12.6](PlatformHealthManagement.md#126-worked-example-fusion-stalls-and-adas-goes-to-degraded); the [SM guide, Section 8.7](StateManagement.md#87-worked-example-fusion-fails-and-adas-goes-to-degraded)). The illustrative trace below is sorted by timestamp. The layout depends on the viewer; the application IDs of the platform daemons are vendor-specific placeholders, and all values are invented.
 
 ```text
 # Illustrative DLT trace of HPC1, decoded with the Log and Trace Extract (layout simplified)
@@ -2480,7 +2480,7 @@ time (VehicleTime)  apid  ctid  type        msg id      message
 
 The messages of `Fusion`, `FusionLite` and `SmControl` with application-range IDs are sent non-verbose without application and context IDs: their message IDs are unique on `HPC1`, so the viewer finds `FUSN`/`MAIN` in the Extract ([PRS_Dlt_01052]). The messages of the platform clusters are different. Their IDs come from the AUTOSAR standard model, which does not assign them to an application of `HPC`, so the sender must include the application ID and the `#` context ID in the extension header ([PRS_Dlt_01052]). [Section 11.8](#118-byte-by-byte-two-messages-of-hpc) computed the header of such a message: `ProcessTerminationRequest` with `EXEM`/`#EXE` needs 35 header bytes instead of 25.
 
-The verbose lines, such as "late radar input", are non-modeled messages of the developers; they carry their IDs and their text themselves. The line of State Management is vendor-specific: SM defines no modeled log messages ([guide 05, Chapter 14](05_StateManagement.md#14-logging-security-events-and-violations)).
+The verbose lines, such as "late radar input", are non-modeled messages of the developers; they carry their IDs and their text themselves. The line of State Management is vendor-specific: SM defines no modeled log messages (the [SM guide, Chapter 14](StateManagement.md#14-logging-security-events-and-violations)).
 
 ### 18.4 Reading the Trace
 
@@ -2489,10 +2489,10 @@ Read such a trace in five steps:
 1. **Start at the error.** `RecoveryInitiated` of PHM names the process whose supervision expired: `Fusion`.
 2. **Look backwards in the same application.** The `FusionCycleOverrun` warnings show the cause: cycles of 59 to 61 ms against a budget of 50 ms. The verbose line hints at late radar input. If `TRCK` is needed, raise it to Debug with a control message on the next drive ([Section 12.8](#128-worked-example-debugging-trck-for-one-drive)).
 3. **Look forwards for the reaction.** State Management decides `Degraded`; Execution Management terminates `Fusion` (request and termination 64 ms apart) and creates `FusionLite`.
-4. **Measure the recovery.** From `RecoveryInitiated` to `FusionLiteActive` takes 303 ms; `FusionLite` needed 236 ms from creation to `kRunning`. Compare these times with the recovery timeout of 6 s of `AdasRecovery` ([guide 00, Section 6.13](00_LearningPath.md#613-safety)).
+4. **Measure the recovery.** From `RecoveryInitiated` to `FusionLiteActive` takes 303 ms; `FusionLite` needed 236 ms from creation to `kRunning`. Compare these times with the recovery timeout of 6 s of `AdasRecovery` (the [Running Example guide, Section 1.13](RunningExample.md#113-safety)).
 5. **Check the visible result.** `AdasStatusChanged` `Degraded` from `SmControl` is what the driver sees in the instrument cluster.
 
-> **Pitfall:** Lines from different processes can reach the client out of timestamp order, because each process and the backend buffer messages ([Section 13.3](#133-buffering-and-loss)). Sort by the timestamp, not by the order of arrival, and compare timestamps only if they come from the same time base. A line whose order looks wrong, for example an `AdasStatusChanged` `Degraded` before EM has created `FusionLite`, is either a sorting effect or a real bug in the application logic: `SmControl` must publish the new status only after `AdasAgent` reports `CurrentState` `Degraded` ([guide 05, Section 8.7](05_StateManagement.md#87-worked-example-fusion-fails-and-adas-goes-to-degraded)).
+> **Pitfall:** Lines from different processes can reach the client out of timestamp order, because each process and the backend buffer messages ([Section 13.3](#133-buffering-and-loss)). Sort by the timestamp, not by the order of arrival, and compare timestamps only if they come from the same time base. A line whose order looks wrong, for example an `AdasStatusChanged` `Degraded` before EM has created `FusionLite`, is either a sorting effect or a real bug in the application logic: `SmControl` must publish the new status only after `AdasAgent` reports `CurrentState` `Degraded` (the [SM guide, Section 8.7](StateManagement.md#87-worked-example-fusion-fails-and-adas-goes-to-degraded)).
 
 The sequence of the transition:
 

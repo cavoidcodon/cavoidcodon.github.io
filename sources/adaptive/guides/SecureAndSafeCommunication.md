@@ -10,13 +10,13 @@
 >
 > **Version:** 1.0 (draft, pending review)
 >
-> **Part of the series:** [AUTOSAR Adaptive Platform Training Guides](00_LearningPath.md). Previous: [08a Communication Management Part 2: Network Bindings](08a_NetworkBindings.md). Next: 09 Network Management, Time Synchronization and Raw Data Stream (`09_NM_TimeSync_RawDataStream.md`, planned).
+> **Part of the series:** [AUTOSAR Adaptive Platform Training Guides](../README.md). Previous: [Communication Management Part 2: Network Bindings](NetworkBindings.md). Next: Network Management, Time Synchronization and Raw Data Stream (`NM_TimeSync_RawDataStream.md`, planned).
 
 ## About This Guide
 
-[Guide 08a](08a_NetworkBindings.md) showed how service communication travels over SOME/IP, the Signal-Based binding and DDS. It showed the traffic without any protection. Real vehicles need two kinds of protection. An **attacker** on the network must not be able to read confidential data, inject a forged `PowerMode Off` or replay an old command. And a **fault** in a controller, a gateway or a cable must not make a braking function use a corrupted, repeated or stale vehicle speed.
+The [Network Bindings guide](NetworkBindings.md) showed how service communication travels over SOME/IP, the Signal-Based binding and DDS. It showed the traffic without any protection. Real vehicles need two kinds of protection. An **attacker** on the network must not be able to read confidential data, inject a forged `PowerMode Off` or replay an old command. And a **fault** in a controller, a gateway or a cable must not make a braking function use a corrupted, repeated or stale vehicle speed.
 
-Communication Management (CM) answers the first need with **secure communication**: TLS, DTLS, SecOC, IPsec, MACsec and DDS Security. It answers the second with **end-to-end (E2E) protection**. This guide explains both as R25-11 specifies them: what each mechanism protects, where it sits, how it looks on the wire, what CM does at run time, what you configure, and which parts of the specification are still DRAFT or silent. It also covers the only API that this part of CM defines: the `ara::com::secoc` services and the Freshness Value Manager extension interface. How an application reads E2E results was already shown in [guide 07, Chapter 12](07_CommunicationManagement.md#12-end-to-end-protection-the-api-side).
+Communication Management (CM) answers the first need with **secure communication**: TLS, DTLS, SecOC, IPsec, MACsec and DDS Security. It answers the second with **end-to-end (E2E) protection**. This guide explains both as R25-11 specifies them: what each mechanism protects, where it sits, how it looks on the wire, what CM does at run time, what you configure, and which parts of the specification are still DRAFT or silent. It also covers the only API that this part of CM defines: the `ara::com::secoc` services and the Freshness Value Manager extension interface. How an application reads E2E results was already shown in the [CM guide, Chapter 12](CommunicationManagement.md#12-end-to-end-protection-the-api-side).
 
 ### Who This Guide Is For
 
@@ -25,7 +25,7 @@ Communication Management (CM) answers the first need with **secure communication
 - **Safety engineers** who choose E2E profiles, Data IDs and state machine settings, and who must argue that faults are detected in time.
 - **Application developers** who use protected services and want to understand the errors and states they see.
 
-Assumed background: [guide 07](07_CommunicationManagement.md) (`ara::com`, events, methods, fields, the E2E API) and [guide 08a](08a_NetworkBindings.md) (SOME/IP header, service discovery, the Signal-Based binding, DDS). Basic knowledge of what a checksum, a message authentication code and a certificate are helps; this guide explains the rest.
+Assumed background: the [CM guide](CommunicationManagement.md) (`ara::com`, events, methods, fields, the E2E API) and the [Network Bindings guide](NetworkBindings.md) (SOME/IP header, service discovery, the Signal-Based binding, DDS). Basic knowledge of what a checksum, a message authentication code and a certificate are helps; this guide explains the rest.
 
 ### Learning Objectives
 
@@ -65,7 +65,7 @@ If you only secure a SOME/IP service, read Chapters 1 to 6 and 15.3. If you are 
 
 ### The Running Example
 
-All guides of the series use the same invented system. [Guide 00, Chapter 6](00_LearningPath.md#6-the-running-example-the-hpc-reference-system) defines it; [guide 08a](08a_NetworkBindings.md#the-running-example) deployed its communication without protection. This guide protects it:
+All guides of the series use the same invented system. The [Running Example guide](RunningExample.md) defines it; the [Network Bindings guide](NetworkBindings.md#the-running-example) deployed its communication without protection. This guide protects it:
 
 | Communication | Threat | Protection in this guide | Section |
 | --- | --- | --- | --- |
@@ -76,15 +76,15 @@ All guides of the series use the same invented system. [Guide 00, Chapter 6](00_
 | `VehicleMode` (signal `PowerMode`) from `CentralGateway` | A forged `PowerMode Off` that shuts the HPC down while driving | SecOC Profile 1 on `VehicleModeSecured`, secure translation | [7.10](#710-worked-example-powermode-authenticated-by-centralgateway) |
 | `ObjectListService` over DDS | Lost or stale object lists | DDS liveliness instead of an E2E profile; DDS Security only as a concept | [13.3](#133-worked-example-what-storage-sees-for-objectlist) |
 
-This guide adds the following elements to the running example (guide 00 lists them as well):
+This guide adds the following elements to the running example (the Running Example guide lists them as well):
 
 | Element | What it is | Used in |
 | --- | --- | --- |
 | `CameraTlsServer`, `CameraTlsClient` | TLS configurations (`TlsSecureComProps`) of the TCP endpoints of `CameraService` on `HPC`; one cipher suite `TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256`, TLS 1.2 | [Chapter 6](#6-tls-and-dtls) |
-| `HpcDeviceCert`, `HpcDeviceKey`, `OemRootCa` | Existing certificates and key of guide 00, modeled here as crypto stubs; `HpcDeviceCert` is issued under `OemRootCa` | [Section 6.4](#64-cipher-suites-certificates-and-pre-shared-keys) |
+| `HpcDeviceCert`, `HpcDeviceKey`, `OemRootCa` | Existing certificates and key of the Running Example guide, modeled here as crypto stubs; `HpcDeviceCert` is issued under `OemRootCa` | [Section 6.4](#64-cipher-suites-certificates-and-pre-shared-keys) |
 | `ChassisDynamicsGroup` | Signal group of `ChassisDynamics` with the E2E header signals `ChassisDynamicsCrc`, `ChassisDynamicsCounter`, `ChassisDynamicsDataIdNibble` in bytes 6 and 7; `PROFILE_11`, data ID `0x101` | [Section 14.6](#146-worked-example-chassisdynamics-with-profile_11-becomes-vehicledynamicsservice) |
 | `VehicleModeSecured` | Secured PDU of `VehicleMode` (5 bytes, SecOC Profile 1, SecOC data ID `0x0120`, freshness value ID 1) | [Section 7.10](#710-worked-example-powermode-authenticated-by-centralgateway) |
-| `VehicleModeSecOcKey` | Symmetric AES-128 key shared by `CentralGateway` and `HPC`, stored in the HSM (owner guide 14) | [Section 7.10](#710-worked-example-powermode-authenticated-by-centralgateway) |
+| `VehicleModeSecOcKey` | Symmetric AES-128 key shared by `CentralGateway` and `HPC`, stored in the HSM (owner the Cryptography guide) | [Section 7.10](#710-worked-example-powermode-authenticated-by-centralgateway) |
 | `HpcFreshnessManager` | The Freshness Value Manager plug-in library of the OEM on `HPC` | [Section 7.8](#78-the-freshness-value-manager-plug-in) |
 | E2E profiles `AdasStatusP04`, `CameraMethodsP04mServer`, `CameraMethodsP04mClient` and `HpcE2eCompat` | E2E profile configurations of the SOME/IP services | [Chapter 15](#15-configuration-reference-what-to-configure) |
 | Cyclic `AdasStatus` | `SmControl` publishes `AdasStatus` on every change and at least every 100 ms (`dataUpdatePeriod` 0.1 s), so that E2E can detect loss | [Section 11.6](#116-worked-example-the-state-of-adasstatus-through-a-burst-of-lost-messages) |
@@ -230,7 +230,7 @@ This guide adds the following elements to the running example (guide 00 lists th
 ---
 ## 1. Introduction to Protected Communication
 
-> **Why this matters:** Every service of guide 08a can be read, forged or corrupted on its way. Whether that matters depends on the data: a camera image to a display may leak private information, a forged power mode may shut down the HPC while driving, and a corrupted vehicle speed may make a driver assistance function brake. This chapter sorts the threats and the mechanisms that R25-11 offers against them.
+> **Why this matters:** Every service of the Network Bindings guide can be read, forged or corrupted on its way. Whether that matters depends on the data: a camera image to a display may leak private information, a forged power mode may shut down the HPC while driving, and a corrupted vehicle speed may make a driver assistance function brake. This chapter sorts the threats and the mechanisms that R25-11 offers against them.
 
 ### 1.1 Two Threats: Attackers and Faults
 
@@ -252,12 +252,12 @@ This guide adds the following elements to the running example (guide 00 lists th
 
 | Not covered here | Where instead |
 | --- | --- |
-| How an application reads E2E results (`ProfileCheckStatus`, `SMState`, `E2EErrorHandler`) | [Guide 07, Chapter 12](07_CommunicationManagement.md#12-end-to-end-protection-the-api-side) (this guide only recaps it) |
-| The bindings themselves: SOME/IP header, service discovery, signal mapping, DDS topics | [Guide 08a](08a_NetworkBindings.md) |
-| Keys, certificates, key slots and the crypto API | Guide 14 (Cryptography, `14_Cryptography.md`, planned) |
-| Who may use which service; remote subjects | Guide 15 (Identity and Access Management, `15_IdentityAndAccessManagement.md`, planned) |
-| Security events, intrusion detection and firewall | Guide 16 (IdsM and Firewall, `16_IDSM_Firewall.md`, planned) |
-| Supervision of method timeouts | [Guide 06](06_PlatformHealthManagement.md) (Platform Health Management) |
+| How an application reads E2E results (`ProfileCheckStatus`, `SMState`, `E2EErrorHandler`) | [CM guide, Chapter 12](CommunicationManagement.md#12-end-to-end-protection-the-api-side) (this guide only recaps it) |
+| The bindings themselves: SOME/IP header, service discovery, signal mapping, DDS topics | [Network Bindings guide](NetworkBindings.md) |
+| Keys, certificates, key slots and the crypto API | Cryptography guide (Cryptography, `Cryptography.md`, planned) |
+| Who may use which service; remote subjects | IAM guide (Identity and Access Management, `IdentityAndAccessManagement.md`, planned) |
+| Security events, intrusion detection and firewall | IDSM and Firewall guide (IdsM and Firewall, `IDSM_Firewall.md`, planned) |
+| Supervision of method timeouts | [PHM guide](PlatformHealthManagement.md) (Platform Health Management) |
 
 ### 1.3 The Mechanisms at a Glance
 
@@ -286,7 +286,7 @@ The analogies break down in one important place: CM applies the protections auto
 > - Secure communication defends against attackers; E2E protection defends against random faults. Some data needs both.
 > - R25-11 supports TLS 1.2, DTLS 1.2, SecOC, IPsec, MACsec and DDS Security, plus the AUTOSAR E2E protocol.
 > - Only SecOC (and DDS Security) can protect multicast; no protocol except DDS Security gives confidentiality to multicast events.
-> - Keys and certificates (guide 14), access control (guide 15) and IDS (guide 16) are separate topics.
+> - Keys and certificates (the Cryptography guide), access control (the IAM guide) and IDS (the IDSM and Firewall guide) are separate topics.
 
 ---
 
@@ -340,7 +340,7 @@ The PRS E2E lists these mechanisms in Section 6.2. [Chapter 10](#10-e2e-profiles
 
 ### 2.5 Check Status and State Machine
 
-[Guide 07, Sections 12.1 and 12.2](07_CommunicationManagement.md#121-e2e-in-plain-words) introduced the two results that an application sees: the *check status* of one sample (`ara::com::e2e::ProfileCheckStatus`) and the *state* of the communication channel (`ara::com::e2e::SMState`). The check function looks at one message; the state machine looks at the recent history of checks ([PRS_E2E_00322], [PRS_E2E_00853]). [Chapter 11](#11-the-e2e-state-machine) explains how the state machine decides.
+The [CM guide, Sections 12.1 and 12.2](CommunicationManagement.md#121-e2e-in-plain-words) introduced the two results that an application sees: the *check status* of one sample (`ara::com::e2e::ProfileCheckStatus`) and the *state* of the communication channel (`ara::com::e2e::SMState`). The check function looks at one message; the state machine looks at the recent history of checks ([PRS_E2E_00322], [PRS_E2E_00853]). [Chapter 11](#11-the-e2e-state-machine) explains how the state machine decides.
 
 ### 2.6 Other Key Terms
 
@@ -376,7 +376,7 @@ The following diagram shows the protection layers on the sending side of `HPC`. 
 ```mermaid
 flowchart TB
     APP["Application: Send(), method call, Update()"]
-    SER["Binding: serialization (guide 08a)"]
+    SER["Binding: serialization (the Network Bindings guide)"]
     E2E["E2E protect: E2E header"]
     SOC["SecOC: freshness value and MAC"]
     TLS["TLS or DTLS (per socket)"]
@@ -399,8 +399,8 @@ A protection ends where its endpoint ends. TLS between `Cockpit` and `HPC` ends 
 | Provided by CM | Service `VerificationStatus` (namespace `ara::com::secoc`) | The result of every SecOC verification | [SWS_CM_11278], [SWS_CM_11280] |
 | Provided by CM | Services `VerificationStatusConfigurationByDataId`, `VerificationStatusConfigurationByFreshnessId` | Override of the verification behavior | [SWS_CM_11279], [SWS_CM_11281], [SWS_CM_11282] |
 | Required by CM | Platform extension interface `apext::com::secoc::FVM` | Freshness values for SecOC, implemented by the OEM or stack vendor | [SWS_CM_11272], [SWS_CM_11287] |
-| Required by CM | Keys, certificates, crypto primitives | Not as an API: the model references `CryptoServiceKey`, `CryptoServiceCertificate` and key slots (guide 14) | TPS 13.5.1, 9.9.2.2 |
-| Used by IAM | Identity of remote peers from TLS or IPsec | Remote subjects for access control (guide 15) | [SWS_CM_10495] |
+| Required by CM | Keys, certificates, crypto primitives | Not as an API: the model references `CryptoServiceKey`, `CryptoServiceCertificate` and key slots (the Cryptography guide) | TPS 13.5.1, 9.9.2.2 |
+| Used by IAM | Identity of remote peers from TLS or IPsec | Remote subjects for access control (the IAM guide) | [SWS_CM_10495] |
 
 All `ara::com::secoc` services are DRAFT in R25-11. [Chapter 16](#16-api-reference-aracomsecoc-and-the-fvm-extension-interface) lists them.
 
@@ -410,13 +410,13 @@ All `ara::com::secoc` services are DRAFT in R25-11. [Chapter 16](#16-api-referen
 flowchart LR
     APP["Applications<br/>(Fusion, SmControl, Cockpit)"] --> CM["Communication Management<br/>(bindings, E2E, SecOC, TLS)"]
     CM --> FVM["FVM plug-in<br/>HpcFreshnessManager"]
-    CM -.-> CRY["Keys and certificates<br/>(HSM, guide 14)"]
-    CM -.-> IAM["IAM: remote subjects<br/>(guide 15)"]
-    MON["Security monitor<br/>(guide 16)"] -. "VerificationStatus" .-> CM
+    CM -.-> CRY["Keys and certificates<br/>(HSM, the Cryptography guide)"]
+    CM -.-> IAM["IAM: remote subjects<br/>(the IAM guide)"]
+    MON["Security monitor<br/>(the IDSM and Firewall guide)"] -. "VerificationStatus" .-> CM
     CM --> NET["IP stack: IPsec<br/>Ethernet: MACsec"]
     NET --> GW["CentralGateway<br/>(SecOC, E2E peer)"]
     NET --> CK["Cockpit<br/>(TLS peer, E2E peer)"]
-    APP -.-> PHM["PHM: timeout supervision<br/>(guide 06)"]
+    APP -.-> PHM["PHM: timeout supervision<br/>(the PHM guide)"]
 ```
 
 > **Key takeaways**
@@ -424,7 +424,7 @@ flowchart LR
 > - The sender applies E2E first, then SecOC; the receiver verifies SecOC first, then checks E2E.
 > - TLS, IPsec and MACsec work below the binding; each protection ends at its endpoint.
 > - CM provides three SecOC services (DRAFT) and requires one platform extension, the Freshness Value Manager.
-> - Keys and certificates are referenced in the model; the crypto side belongs to guide 14.
+> - Keys and certificates are referenced in the model; the crypto side belongs to the Cryptography guide.
 
 ---
 
@@ -440,8 +440,8 @@ flowchart LR
 | Packages of the deployment | Same | Deployment | `TlsSecureComProps`, `SecOcSecureComProps`, `DdsSecureComProps`, `DdsSecureGovernance`, `DdsTopicAccessRule`, `E2EProfileConfigurationSet`, `E2EProfileCompatibilityProps` |
 | Machine design and Machine Manifest | Machine integrator | Integration | `SomeipServiceDiscovery` secure props, `NetworkEndpoint.ipSecConfig`, `CouplingPort.macSecProps`, `CmModuleInstantiation.secOCIgnoreVerificationResult` |
 | System Description (communication matrix) | System designer, shared with the Classic ECUs | System design | `SecuredIPdu` and its props, E2E transformer of `ISignalGroup`s, `SignalServiceTranslationEventProps` |
-| Crypto design | Security engineer (guide 14) | Design and deployment | `CryptoServiceCertificate`, `CryptoServiceKey`, `CryptoServicePrimitive`, key slot mappings |
-| Port ComSpecs | Application developer | Application design | `disableEndToEndCheck`, `disableEndToEndStateMachine` ([guide 07, Section 14.6](07_CommunicationManagement.md#146-endtoendtransformationcomspecprops)); `dataUpdatePeriod` |
+| Crypto design | Security engineer (the Cryptography guide) | Design and deployment | `CryptoServiceCertificate`, `CryptoServiceKey`, `CryptoServicePrimitive`, key slot mappings |
+| Port ComSpecs | Application developer | Application design | `disableEndToEndCheck`, `disableEndToEndStateMachine` (the [CM guide, Section 14.6](CommunicationManagement.md#146-endtoendtransformationcomspecprops)); `dataUpdatePeriod` |
 
 ### 4.2 How the Elements Relate
 
@@ -471,7 +471,7 @@ Two rules shape the model. First, E2E and SecOC settings are aggregated by the *
 ### 4.3 Who Configures What, and When
 
 - The **safety engineer** decides which elements need E2E, chooses profile and Data IDs together with the partner ECUs, and sets the state machine thresholds from the timing requirements.
-- The **security engineer** decides which communication needs which protocol, chooses cipher suites and SecOC profiles, and owns keys and certificates (guide 14).
+- The **security engineer** decides which communication needs which protocol, chooses cipher suites and SecOC profiles, and owns keys and certificates (the Cryptography guide).
 - The **system designer** writes the Classic side (`SecuredIPdu`, E2E transformer) once for all ECUs of the communication matrix.
 - The **integrator** puts it together in the Service Instance Manifest and the machine design, and checks the constraints of [Chapter 15](#15-configuration-reference-what-to-configure).
 
@@ -480,7 +480,7 @@ Two rules shape the model. First, E2E and SecOC settings are aggregated by the *
 > - E2E and SecOC element settings belong to the service instance; the protocol of an endpoint belongs to the machine mapping.
 > - Signal-based protection comes from the System Description: `SecuredIPdu` and the E2E transformer.
 > - IPsec, MACsec and SD protection belong to the machine network configuration.
-> - Keys and certificates are only referenced; guide 14 owns them.
+> - Keys and certificates are only referenced; the Cryptography guide owns them.
 
 ---
 ## 5. Secure Channels: The Common Rules
@@ -501,7 +501,7 @@ SWS CM, Section 7.3.2 says that the configuration of SecOC and TLS "has a depend
 
 ### 5.2 Selecting the Channel
 
-The `ServiceInstanceToMachineMapping` connects service instances to an endpoint: a connector, an IP address and a TCP or UDP port (guide 08a, Section 14.7). It references a security configuration per transport:
+The `ServiceInstanceToMachineMapping` connects service instances to an endpoint: a connector, an IP address and a TCP or UDP port (the Network Bindings guide, Section 14.7). It references a security configuration per transport:
 
 - `secureComPropsForTcp`: the protection of the TCP endpoint;
 - `secureComPropsForUdp`: the protection of the UDP endpoint;
@@ -513,7 +513,7 @@ CM creates one secure channel for each `SecureComProps` referenced in these role
 
 ### 5.3 Multicast Cannot Be Confidential
 
-SOME/IP events may switch between unicast and multicast at run time, depending on `multicastThreshold` (guide 08a, Section 2.4). TLS and DTLS are point-to-point. Only SecOC can protect multicast, and SecOC has no encryption. SWS CM, Section 7.3.2 therefore states that UDP events that may be sent by multicast "cannot be guaranteed confidential". The restriction "does not apply to DDS Security".
+SOME/IP events may switch between unicast and multicast at run time, depending on `multicastThreshold` (the Network Bindings guide, Section 2.4). TLS and DTLS are point-to-point. Only SecOC can protect multicast, and SecOC has no encryption. SWS CM, Section 7.3.2 therefore states that UDP events that may be sent by multicast "cannot be guaranteed confidential". The restriction "does not apply to DDS Security".
 
 The TPS adds an advisory: a provided SOME/IP instance with a multicast-capable UDP event group should either use no secure props at all, or use SecOC both in `secureComPropsForUdp` and in `secOcComPropsForMulticast`, so that unicast and multicast are protected consistently ([advisory_03003]). The TPS also notes that the Classic Platform does not support a switch between TLS for unicast and SecOC for multicast.
 
@@ -535,13 +535,13 @@ The SWS explains the difference between TCP and UDP: plain UDP "would also silen
 
 ### 5.5 Protecting Service Discovery
 
-SOME/IP-SD messages are UDP datagrams, partly multicast (guide 08a, Chapter 6). The machine design can reference security props for them: `SomeipServiceDiscovery.unicastSecureComProps` (a list, because different ECU pairs may use different credentials) and `multicastSecureComProps` (TPS, Section 6.4).
+SOME/IP-SD messages are UDP datagrams, partly multicast (the Network Bindings guide, Chapter 6). The machine design can reference security props for them: `SomeipServiceDiscovery.unicastSecureComProps` (a list, because different ECU pairs may use different credentials) and `multicastSecureComProps` (TPS, Section 6.4).
 
 > **Note (interpretation):** R25-11 specifies no behavior for these two references: no SWS item reads them. SecOC would need a data ID and a freshness value ID, but `ServiceInterfaceElementSecureComConfig` provides them only for elements of a service interface. [SWS_CM_00231] and [SWS_CM_00233] only say "in case the chosen security protocol is able to protect Service Discovery". In practice, SD protection is therefore implementation-specific. The running example leaves SD unprotected and relies on the protection of the service data itself.
 
 ### 5.6 Secure Channels and Remote Subjects
 
-A secure channel also tells who the peer is. Identity and Access Management (IAM) uses this: CM associates a peer of an established TLS or DTLS connection with a `TlsIamRemoteSubject` ([SWS_CM_10495]), which is identified by an accepted certificate or a pre-shared key ([TPS_MANI_03240], DRAFT). IPsec and plain IP information can identify remote subjects too (TPS, Section 3.5.2). SecOC is deliberately not used for IAM, because "the existing association between SecOC keys and DataIDs already provides a fine grained access control mechanism" (SWS CM, Section 7.3.1). Guide 15 explains remote access control.
+A secure channel also tells who the peer is. Identity and Access Management (IAM) uses this: CM associates a peer of an established TLS or DTLS connection with a `TlsIamRemoteSubject` ([SWS_CM_10495]), which is identified by an accepted certificate or a pre-shared key ([TPS_MANI_03240], DRAFT). IPsec and plain IP information can identify remote subjects too (TPS, Section 3.5.2). SecOC is deliberately not used for IAM, because "the existing association between SecOC keys and DataIDs already provides a fine grained access control mechanism" (SWS CM, Section 7.3.1). The IAM guide explains remote access control.
 
 > **Key takeaways**
 >
@@ -636,7 +636,7 @@ DDS is built on RTPS, which defines a UDP mapping; TCP and shared-memory transpo
 </TLS-SECURE-COM-PROPS>
 ```
 
-The cipher suite `0xC02B` is `TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256` in the IANA registry: ECDHE key exchange, ECDSA server authentication with `HpcDeviceCert`, AES-128-GCM encryption. The certificate and its key are stubs here; guide 14 creates them. `HpcDeviceCert` points to `OemRootCa` as `nextHigherCertificate`.
+The cipher suite `0xC02B` is `TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256` in the IANA registry: ECDHE key exchange, ECDSA server authentication with `HpcDeviceCert`, AES-128-GCM encryption. The certificate and its key are stubs here; the Cryptography guide creates them. `HpcDeviceCert` points to `OemRootCa` as `nextHigherCertificate`.
 
 `Fusion` reaches `CameraDriver` through the same TCP server endpoint as `Cockpit`. A TLS server cannot talk to a plain-TCP client, so `Fusion`'s required instance gets the client configuration `CameraTlsClient`. It has no certificate of its own and names `HpcDeviceCert` as `remoteCertificate`:
 
@@ -671,7 +671,7 @@ The two machine mappings reference the props in the role `secureComPropsForTcp`:
 </SOMEIP-SERVICE-INSTANCE-TO-MACHINE-MAPPING>
 ```
 
-> **Note (interpretation):** The TPS describes `remoteCertificate` only as "the applicable remote certificate". The running example reads it as the expected server certificate, and its chain (`nextHigherCertificate` up to `OemRootCa`) as the trust path. How a client validates the chain is not specified in CM; it is the job of the crypto stack (guide 14).
+> **Note (interpretation):** The TPS describes `remoteCertificate` only as "the applicable remote certificate". The running example reads it as the expected server certificate, and its chain (`nextHigherCertificate` up to `OemRootCa`) as the trust path. How a client validates the chain is not specified in CM; it is the job of the crypto stack (the Cryptography guide).
 
 `Cockpit` uses an equivalent `TLS_CLIENT` configuration in its own manifest. The sequence below shows how `Cockpit` gets its first image. SD itself stays unprotected ([Section 5.5](#55-protecting-service-discovery)).
 
@@ -695,7 +695,7 @@ sequenceDiagram
 
 On `Cockpit`, a `SetExposureMode()` call made before the handshake is finished does not fail: its future becomes ready only after the channel is established, or with `kCommunicationFailure` if it cannot be established ([SWS_CM_00231]).
 
-> **Note (implementation example):** `Fusion` and `CameraDriver` run on the same machine, so their TLS connection costs CPU for nothing an attacker could see on the network. Projects that care use a local IPC binding for local consumers (guide 07, Chapter 13). The running example keeps SOME/IP for `Fusion` so that the models of guides 02 and 07 stay unchanged.
+> **Note (implementation example):** `Fusion` and `CameraDriver` run on the same machine, so their TLS connection costs CPU for nothing an attacker could see on the network. Projects that care use a local IPC binding for local consumers (the CM guide, Chapter 13). The running example keeps SOME/IP for `Fusion` so that the models of the Manifests and CM guides stay unchanged.
 
 > **Key takeaways**
 >
@@ -777,7 +777,7 @@ The receiver behavior depends on two switches ([SWS_CM_11276], [SWS_CM_11372]):
 | `true` or not defined | `true` | Verify once, but ignore the result and proceed as if it were a success |
 | `false` | any | No verification: extract the Authentic message and process it; the verification status is `kSecOcNoVerification` |
 
-`securedRxVerification` is an attribute of `ServiceInterfaceElementSecureComConfig` ([TPS_MANI_03664]). It may only be defined for received elements: events, notifiers and returns in a required instance, and calls in a provided instance ([constr_3691]). `secOCIgnoreVerificationResult` is a machine-wide attribute of `CmModuleInstantiation`, tagged *candidate* in the TPS ([guide 07, Section 14.10](07_CommunicationManagement.md#1410-cmmoduleinstantiation)).
+`securedRxVerification` is an attribute of `ServiceInterfaceElementSecureComConfig` ([TPS_MANI_03664]). It may only be defined for received elements: events, notifiers and returns in a required instance, and calls in a provided instance ([constr_3691]). `secOCIgnoreVerificationResult` is a machine-wide attribute of `CmModuleInstantiation`, tagged *candidate* in the TPS (the [CM guide, Section 14.10](CommunicationManagement.md#1410-cmmoduleinstantiation)).
 
 If `GetRxFreshness` returns `kFVNotAvailable` or the MAC calculation fails, CM increments an Authentication Build Counter, retries in an implementation-specific way and discards the message at the configured number of attempts. If the MAC was calculated but did not match for the configured number of attempts, the message is discarded too ([SWS_CM_11277]; [PRS_SecOc_00306], [PRS_SecOc_00309]). A discarded message never reaches the application: on `GetNewSamples` it simply does not exist.
 
@@ -803,17 +803,17 @@ Freshness values must stay synchronized between sender and receiver, and every O
 
 In the running example, the OEM delivers the plug-in library **`HpcFreshnessManager`**. It keeps a freshness counter for freshness value ID 1 that `CentralGateway` and `HPC` keep synchronized by an OEM-specific protocol. [Section 16.5](#165-apextcomsecocfvm-and-fvcontainer) lists the functions.
 
-> **Note:** The specification describes the FVM class as having "a single instance in the CM". CM may run partly inside every application process (guide 07, Section 3.1), and the translation that verifies `VehicleModeSecured` runs inside `SmControl` (guide 08a, Section 10.5). Whether "single instance" means one per process or one per machine is not specified; a per-machine counter needs inter-process synchronization inside the plug-in.
+> **Note:** The specification describes the FVM class as having "a single instance in the CM". CM may run partly inside every application process (the CM guide, Section 3.1), and the translation that verifies `VehicleModeSecured` runs inside `SmControl` (the Network Bindings guide, Section 10.5). Whether "single instance" means one per process or one per machine is not specified; a per-machine counter needs inter-process synchronization inside the plug-in.
 
 ### 7.9 Verification Status and Overrides
 
 CM makes each verification result available through the service `VerificationStatus` ([SWS_CM_11278]). An application can use it to "continuously monitor the number of failed verification attempts" and react to an attack flood (SWS CM, Section 7.3.2.3.1). Two further services let an application override the verification for a Data ID or a freshness value ID, for example to keep a function running while a key is being renewed. An override by Data ID wins over an override by freshness ID ([SWS_CM_11279]). The `OverrideStatus` values decide whether the MAC is checked, whether the message is passed on or dropped, and for how long (until further notice or for a number of messages). All three services are DRAFT; [Section 16.4](#164-services-verificationstatusconfigurationbydataid-and-byfreshnessid) lists them.
 
-> **Pitfall:** An override such as `kSecOcOverridePassUntilNotice` passes unauthenticated data to the application until someone cancels it. Treat access to the override services like a key: restrict it with IAM (guide 15).
+> **Pitfall:** An override such as `kSecOcOverridePassUntilNotice` passes unauthenticated data to the application until someone cancels it. Treat access to the override services like a key: restrict it with IAM (the IAM guide).
 
 ### 7.10 Worked Example: `PowerMode` Authenticated by `CentralGateway`
 
-`PowerMode Off` makes `SmControl` request `PowerOff` (guide 05). A forged `Off` from the network could shut `HPC` down while driving. `CentralGateway`, which produces `VehicleMode`, therefore sends it as the secured PDU `VehicleModeSecured`, with SecOC Profile 1 and the key `VehicleModeSecOcKey`:
+`PowerMode Off` makes `SmControl` request `PowerOff` (the SM guide). A forged `Off` from the network could shut `HPC` down while driving. `CentralGateway`, which produces `VehicleMode`, therefore sends it as the secured PDU `VehicleModeSecured`, with SecOC Profile 1 and the key `VehicleModeSecOcKey`:
 
 ```xml
 <SECURED-I-PDU>
@@ -843,13 +843,13 @@ The authentication and freshness props carry the Profile 1 lengths: `authInfoTxL
 </I-PDU-PORT>
 ```
 
-On the backbone, `CentralGateway` sends `VehicleModeSecured` as an event of `PowerModeService` over the Signal-Based SOME/IP binding (guide 08a, Section 11.2). With `PowerMode` = `On` and an illustrative freshness value whose 8 least significant bits are `0x2A`:
+On the backbone, `CentralGateway` sends `VehicleModeSecured` as an event of `PowerModeService` over the Signal-Based SOME/IP binding (the Network Bindings guide, Section 11.2). With `PowerMode` = `On` and an illustrative freshness value whose 8 least significant bits are `0x2A`:
 
 | Bytes | Value | Meaning | Covered by SecOC |
 | --- | --- | --- | --- |
 | `20 02` | Service ID `0x2002` | `PowerModeService` (Partial SOME/IP Header, Part I) | No |
 | `80 01` | Method ID `0x8001` | Notifier of `PowerMode`, event ID 1 plus `0x8000` | No |
-| `00 00 00 05` | Length 5 | Signal-based message: length of the payload only (guide 08a, Section 11.2) | No |
+| `00 00 00 05` | Length 5 | Signal-based message: length of the payload only (the Network Bindings guide, Section 11.2) | No |
 | `01` | Authentic PDU `VehicleMode` | `PowerMode` = 1 (`On`) in bits 0 and 1 | Yes |
 | `2A` | Truncated freshness value | 8 least significant bits | Enters as the complete value |
 | `xx xx xx` | Truncated authenticator | 24 most significant bits of the AES-128 CMAC | (result) |
@@ -967,7 +967,7 @@ The technical report describes a workflow: integrators do not edit DDS Security 
 | `dds.sec.auth.permissions_ca` | `permissionCertificateAuthority` | [TR_DDSS_00005] |
 | `dds.sec.access.governance`, `dds.sec.access.permissions` | The generated documents | [TR_DDSS_00006], [TR_DDSS_00007] |
 
-The governance document gets a domain rule with the governance attributes ([TR_DDSS_00101]), a catch-all topic rule `ara.com://services/*` ([TR_DDSS_00102]), a rule for the discovery topic `ara.com://services/discovery` ([TR_DDSS_00103]) and, optionally, one rule per event, method and field topic ([TR_DDSS_00104]). The permissions document comes from the IAM grants ([TR_DDSS_00201] to [TR_DDSS_00205]; guide 15). All items of the report are DRAFT.
+The governance document gets a domain rule with the governance attributes ([TR_DDSS_00101]), a catch-all topic rule `ara.com://services/*` ([TR_DDSS_00102]), a rule for the discovery topic `ara.com://services/discovery` ([TR_DDSS_00103]) and, optionally, one rule per event, method and field topic ([TR_DDSS_00104]). The permissions document comes from the IAM grants ([TR_DDSS_00201] to [TR_DDSS_00205]; the IAM guide). All items of the report are DRAFT.
 
 ### 9.6 Worked Example: Securing `ObjectListService` to `Cockpit`
 
@@ -978,7 +978,7 @@ The running example does not configure DDS Security, because the TPS items are D
 DdsServiceInstanceToMachineMapping ObjectListDdsOnHpc:
   secureComPropsForDds: ObjectListDdsSecurity
 DdsSecureComProps ObjectListDdsSecurity:
-  identity: a CryptoCertificate of HPC for DDS   # guide 14
+  identity: a CryptoCertificate of HPC for DDS   # the Cryptography guide
   governance: AdasDomainGovernance
 DdsSecureGovernance AdasDomainGovernance:
   domainId: { min: 1, max: 1 }
@@ -1115,7 +1115,7 @@ In a multi-binding, two instances of the same port may use the same Data ID (and
 
 ### 11.1 From Check Status to State
 
-The check function returns a profile-independent status per message: OK, REPEATED, WRONGCRC, WRONGSEQUENCE or NONEWDATA ([PRS_E2E_00322], [PRS_E2E_00921]). If the state machine is enabled, the result also contains the state of the channel: VALID, DEINIT, NODATA, INIT or INVALID ([PRS_E2E_00853], [PRS_E2E_00922]). `ara::com` maps both to `ProfileCheckStatus` and `SMState` ([SWS_CM_12021], [SWS_CM_12022]; [guide 07, Section 12.2](07_CommunicationManagement.md#122-events-check-status-per-sample-state-per-event)).
+The check function returns a profile-independent status per message: OK, REPEATED, WRONGCRC, WRONGSEQUENCE or NONEWDATA ([PRS_E2E_00322], [PRS_E2E_00921]). If the state machine is enabled, the result also contains the state of the channel: VALID, DEINIT, NODATA, INIT or INVALID ([PRS_E2E_00853], [PRS_E2E_00922]). `ara::com` maps both to `ProfileCheckStatus` and `SMState` ([SWS_CM_12021], [SWS_CM_12022]; the [CM guide, Section 12.2](CommunicationManagement.md#122-events-check-status-per-sample-state-per-event)).
 
 ### 11.2 States and Transitions
 
@@ -1157,7 +1157,7 @@ The decisions use three windows and six thresholds of `E2EProfileConfiguration` 
 
 The PRS requires consistent values ([PRS_E2E_01457] to [PRS_E2E_01464]): every window is at least as large as the sum of its OK minimum and error maximum, `windowSizeInit` and `windowSizeInvalid` are not larger than `windowSizeValid`, and 1 ≤ `minOkStateValid` ≤ `minOkStateInit` ≤ `minOkStateInvalid`, `maxErrorStateValid` ≥ `maxErrorStateInit` ≥ `maxErrorStateInvalid` ≥ 0.
 
-> **Note:** For service instances, only the instance-level `E2EProfileConfiguration` is used. The port-level attributes of `EndToEndTransformationComSpecProps` that would override windows and thresholds are not supported by CM in R25-11; only `disableEndToEndCheck` and `disableEndToEndStateMachine` are (SWS CM, Section 7.4.1.1.1; [guide 07, Section 14.6](07_CommunicationManagement.md#146-endtoendtransformationcomspecprops)).
+> **Note:** For service instances, only the instance-level `E2EProfileConfiguration` is used. The port-level attributes of `EndToEndTransformationComSpecProps` that would override windows and thresholds are not supported by CM in R25-11; only `disableEndToEndCheck` and `disableEndToEndStateMachine` are (SWS CM, Section 7.4.1.1.1; the [CM guide, Section 14.6](CommunicationManagement.md#146-endtoendtransformationcomspecprops)).
 
 ### 11.4 Compatibility Switches
 
@@ -1207,7 +1207,7 @@ The table is a simplification: the exact counting is defined in PRS E2E, Section
 
 ### 12.1 Events: Protect in `Send`, Check in `GetNewSamples`
 
-An E2E-protected event is configured by `End2EndEventProtectionProps` and `E2EProfileConfiguration` ([SWS_CM_90402]); the E2E functions comply with PRS E2E ([SWS_CM_90433]). On the publisher, `Send()` serializes the sample and adds the SOME/IP header, calls `E2E_protect` with `End2EndEventProtectionProps.dataId` on the protected part, and inserts the E2E header where the binding requires it ([SWS_CM_00046], [SWS_CM_90430], [SWS_CM_90401], [SWS_CM_90403], [SWS_CM_90404]). On the subscriber, `GetNewSamples()` processes the non-protected header, calls `E2E_check` with the same Data ID, removes the header, deserializes, and stores the check status in the `SamplePtr` and the state in the event ([SWS_CM_90406], [SWS_CM_90408], [SWS_CM_90410], [SWS_CM_00045], [SWS_CM_90411], [SWS_CM_00044]). If no new sample arrived, `E2E_check` runs with a null sample, so the state machine sees the loss ([SWS_CM_90415] to [SWS_CM_90417]). Guide 07, Section 12.2 shows the API.
+An E2E-protected event is configured by `End2EndEventProtectionProps` and `E2EProfileConfiguration` ([SWS_CM_90402]); the E2E functions comply with PRS E2E ([SWS_CM_90433]). On the publisher, `Send()` serializes the sample and adds the SOME/IP header, calls `E2E_protect` with `End2EndEventProtectionProps.dataId` on the protected part, and inserts the E2E header where the binding requires it ([SWS_CM_00046], [SWS_CM_90430], [SWS_CM_90401], [SWS_CM_90403], [SWS_CM_90404]). On the subscriber, `GetNewSamples()` processes the non-protected header, calls `E2E_check` with the same Data ID, removes the header, deserializes, and stores the check status in the `SamplePtr` and the state in the event ([SWS_CM_90406], [SWS_CM_90408], [SWS_CM_90410], [SWS_CM_00045], [SWS_CM_90411], [SWS_CM_00044]). If no new sample arrived, `E2E_check` runs with a null sample, so the state machine sees the loss ([SWS_CM_90415] to [SWS_CM_90417]). The CM guide, Section 12.2 shows the API.
 
 ### 12.2 Methods: Request, Response and E2E Error Response
 
@@ -1239,7 +1239,7 @@ Fire-and-forget methods are E2E-protected on the server side: the request is che
 ### 12.5 Limitations
 
 - **N:1 only:** method protection assumes "exactly one server per system" (PRS E2E, Section 4.1.4).
-- **No timeout supervision:** "`ara::com` does not support any timeout supervision for method calls". A lost response can block `wait()` forever; use PHM checkpoints or `wait_for()` (SWS CM, Section 7.4.1.2.6; guide 06).
+- **No timeout supervision:** "`ara::com` does not support any timeout supervision for method calls". A lost response can block `wait()` forever; use PHM checkpoints or `wait_for()` (SWS CM, Section 7.4.1.2.6; the PHM guide).
 - **Processing mode:** `kEvent` is not supported for skeletons with E2E-protected methods (SWS CM, Section 7.4.1.2.1).
 - **No triggers:** triggers cannot be E2E-protected ([SWS_CM_CONSTR_00007]).
 - **Port overrides:** only `disableEndToEndCheck` and `disableEndToEndStateMachine` are supported ([Section 11.3](#113-windows-and-thresholds)).
@@ -1247,11 +1247,11 @@ Fire-and-forget methods are E2E-protected on the server side: the request is che
 
 ### 12.6 Transport Fault Conditions
 
-E2E is not the only source of fault information. Bindings may report transport fault conditions (sample rejected, deadline missed, sample lost) through the `TransportFaultConditionHandler` of an event, trigger or notifier; CM serializes the calls of each handler ([SWS_CM_00089]). Method calls and field `Get`/`Set` report transport faults as `ComErrc::kCommunicationFailure` in their future ([SWS_CM_00090]). Support for these APIs is optional per binding (SWS CM, Section 7.4.2). Guide 07, Section 15.10 lists the types.
+E2E is not the only source of fault information. Bindings may report transport fault conditions (sample rejected, deadline missed, sample lost) through the `TransportFaultConditionHandler` of an event, trigger or notifier; CM serializes the calls of each handler ([SWS_CM_00089]). Method calls and field `Get`/`Set` report transport faults as `ComErrc::kCommunicationFailure` in their future ([SWS_CM_00090]). Support for these APIs is optional per binding (SWS CM, Section 7.4.2). The CM guide, Section 15.10 lists the types.
 
 ### 12.7 Worked Example: `SetExposureMode` With `PROFILE_04m`
 
-`Fusion` calls `SetExposureMode(Night)` of `CameraDriver` when the image gets dark ([guide 03, Section 9.7](03_CoreAndGeneral.md#97-worked-example-fusion-requests-the-night-exposure-mode)); `Cockpit`, as a consumer of `CameraService`, may call it too. A corrupted or replayed command would degrade the camera image, so the method is protected with `PROFILE_04m`, data ID `0x10010001`. `Fusion`'s required instance configures its Source ID `0x0000001` and the client profile configuration (`maxDeltaCounter` 1):
+`Fusion` calls `SetExposureMode(Night)` of `CameraDriver` when the image gets dark (the [Core guide, Section 9.7](CoreAndGeneral.md#97-worked-example-fusion-requests-the-night-exposure-mode)); `Cockpit`, as a consumer of `CameraService`, may call it too. A corrupted or replayed command would degrade the camera image, so the method is protected with `PROFILE_04m`, data ID `0x10010001`. `Fusion`'s required instance configures its Source ID `0x0000001` and the client profile configuration (`maxDeltaCounter` 1):
 
 ```xml
 <REQUIRED-SOMEIP-SERVICE-INSTANCE>
@@ -1283,7 +1283,7 @@ E2E is not the only source of fault information. Bindings may report transport f
 </REQUIRED-SOMEIP-SERVICE-INSTANCE>
 ```
 
-The provided instance of `CameraDriver` references `CameraMethodsP04mServer` with `maxDeltaCounter` 65535 and has no Source ID ([Section 11.5](#115-choosing-values-cycle-time-ftti-and-counter-delta)). `CameraDriver` already uses the processing mode `kEventSingleThread` (guide 00, Section 6.6), which E2E-protected methods need. The request `SetExposureMode(Night)` (`ExposureMode` `Night` = 2) with E2E counter 5, from a client with an illustrative Client ID `0x0010`:
+The provided instance of `CameraDriver` references `CameraMethodsP04mServer` with `maxDeltaCounter` 65535 and has no Source ID ([Section 11.5](#115-choosing-values-cycle-time-ftti-and-counter-delta)). `CameraDriver` already uses the processing mode `kEventSingleThread` (the Running Example guide, Section 1.6), which E2E-protected methods need. The request `SetExposureMode(Night)` (`ExposureMode` `Night` = 2) with E2E counter 5, from a client with an illustrative Client ID `0x0010`:
 
 | Bytes | Value | Meaning |
 | --- | --- | --- |
@@ -1303,13 +1303,13 @@ The provided instance of `CameraDriver` references `CameraMethodsP04mServer` wit
 If the request arrives with a wrong CRC, `CameraDriver`'s handler runs instead of the method:
 
 ```cpp
-// Illustrative: E2E error handler of CameraDriver (signature as in guide 07, Section 12.3).
+// Illustrative: E2E error handler of CameraDriver (signature as in the CM guide, Section 12.3).
 class CameraServiceImpl final : public hpc::camera::skeleton::CameraServiceSkeleton {
     void E2EErrorHandler(ara::com::e2e::ComE2EErrc errorCode,
                          ara::com::e2e::DataID dataID,
                          ara::com::e2e::MessageCounter messageCounter) override {
         // Called from a separate thread ([SWS_CM_00034]). dataID may be corrupt after a CRC error.
-        // Log errorCode and messageCounter, for example with ara::log (guide 10).
+        // Log errorCode and messageCounter, for example with ara::log (the Log and Trace guide).
         static_cast<void>(errorCode);
         static_cast<void>(dataID);
         static_cast<void>(messageCounter);
@@ -1358,12 +1358,12 @@ All mappings are **DRAFT**:
 
 ### 13.3 Worked Example: What `Storage` Sees for `ObjectList`
 
-Guide 07, Section 12.5 left open whether `ObjectListService` is E2E-protected. The answer in `HPC`: not with an E2E profile, because the instance uses the DDS binding. The QoS profile `AdasReliable` (its content is vendor-specific; guide 08a, Section 13.9) should define a finite LIVELINESS lease duration and a DEADLINE, so that the reader of `Storage` (and of `Cockpit`) gets a meaningful state.
+The CM guide, Section 12.5 left open whether `ObjectListService` is E2E-protected. The answer in `HPC`: not with an E2E profile, because the instance uses the DDS binding. The QoS profile `AdasReliable` (its content is vendor-specific; the Network Bindings guide, Section 13.9) should define a finite LIVELINESS lease duration and a DEADLINE, so that the reader of `Storage` (and of `Cockpit`) gets a meaningful state.
 
-The code of `Storage` in guide 07 still works unchanged:
+The code of `Storage` in the CM guide still works unchanged:
 
 - With a finite lease duration, `GetE2EStateMachineState()` returns `kValid` while `Fusion` (or `FusionLite`) is alive, and `kInvalid` when it is not. `Storage` marks recordings as not trustworthy in that case.
-- With an infinite lease duration, it returns `kStateMDisabled`, which `Storage` treats as trusted, as in guide 07.
+- With an infinite lease duration, it returns `kStateMDisabled`, which `Storage` treats as trusted, as in the CM guide.
 - Lost samples and missed deadlines arrive through the `TransportFaultConditionHandler`, if the DDS binding of the vendor supports it.
 
 > **Pitfall:** `kInit` and `kNoData` do not exist on DDS ([SWS_CM_00210]). Code that waits for `kNoData` to detect "never received anything" never sees it; use `kInvalid` before the first liveliness change instead.
@@ -1383,7 +1383,7 @@ The code of `Storage` in guide 07 still works unchanged:
 
 ### 14.1 `safeTranslation` and `secureTranslation`
 
-Each `SignalServiceTranslationEventProps` states for its mappings whether the translation must be safe and secure; both Booleans are mandatory ([constr_10230], [constr_10231]; guide 08a, Section 12.5).
+Each `SignalServiceTranslationEventProps` states for its mappings whether the translation must be safe and secure; both Booleans are mandatory ([constr_10230], [constr_10231]; the Network Bindings guide, Section 12.5).
 
 - `safeTranslation` = `true` requires "a safe transport" and a translation that handles the data "in an end-to-end preserving way" (TPS, Section 9.9.1). The signal-based payload must have an E2E profile ([constr_3554]), and the translation software must fulfill a sufficient ASIL ([TPS_MANI_03612]).
 - `secureTranslation` = `true` means that "the translation shall happen in a secure way". No constraint connects it to a `SecuredIPdu`; the SecOC configuration comes from the `SecuredIPdu` anyway ([SWS_CM_11346]). The running example sets it where the PDU is secured.
@@ -1424,11 +1424,11 @@ The TPS requires end-to-end preserving behavior in both directions ([TPS_MANI_03
 
 The PRS provides the *forward* function for this purpose: it creates a header like protect, but replicates a received E2E state (PRS E2E, Section 6.2.3).
 
-> **Note (interpretation):** SWS CM, Section 7.4 specifies E2E for the SOME/IP and DDS bindings only, and its Signal-Based sections contain no E2E item. [TPS_MANI_03602] requires the service message to "reflect" an E2E error, but no SWS item says how the events of `VehicleDynamicsService` deliver it. This guide assumes the natural reading: a consumer of a translated event sees `ProfileCheckStatus` and `SMState` as for a SOME/IP event (guide 07, Section 12.2), derived from the check of the signal group. Check this with your CM vendor.
+> **Note (interpretation):** SWS CM, Section 7.4 specifies E2E for the SOME/IP and DDS bindings only, and its Signal-Based sections contain no E2E item. [TPS_MANI_03602] requires the service message to "reflect" an E2E error, but no SWS item says how the events of `VehicleDynamicsService` deliver it. This guide assumes the natural reading: a consumer of a translated event sees `ProfileCheckStatus` and `SMState` as for a SOME/IP event (the CM guide, Section 12.2), derived from the check of the signal group. Check this with your CM vendor.
 
 ### 14.4 One PDU, Several Events: E2E Status per Event
 
-The `ara::com` E2E status exists per event. If a PDU contains several signal groups, of which some are E2E-protected, its content must be distributed over several events, so that each protected group has its own status (TPS, Section 9.6.6; [TPS_MANI_03667]). In `ChassisDynamics` all three signals are in the one group `ChassisDynamicsGroup`, and `VehicleDynamicsService` has three events from the same PDU (guide 08a, Section 12.4). All three events receive the same E2E result.
+The `ara::com` E2E status exists per event. If a PDU contains several signal groups, of which some are E2E-protected, its content must be distributed over several events, so that each protected group has its own status (TPS, Section 9.6.6; [TPS_MANI_03667]). In `ChassisDynamics` all three signals are in the one group `ChassisDynamicsGroup`, and `VehicleDynamicsService` has three events from the same PDU (the Network Bindings guide, Section 12.4). All three events receive the same E2E result.
 
 ### 14.5 Periods the Application Must Keep
 
@@ -1436,7 +1436,7 @@ Classic E2E relies on periodic communication. The TPS therefore asks the applica
 
 ### 14.6 Worked Example: `ChassisDynamics` With `PROFILE_11` Becomes `VehicleDynamicsService`
 
-`ChassisECU` protects `VehicleSpeed`, `SteeringAngle` and `YawRate` with `PROFILE_11`. The first six bytes are fixed by guide 00 (`VehicleSpeed` from bit 0), so the 16-bit header goes into the free bytes 6 and 7, with `crcOffset` 48, `counterOffset` 56 and `dataIdNibbleOffset` 60. These are not the recommended P11 offsets (0, 8 and 12, [TPS_SYST_02155]), but [TPS_SYST_02155] is a recommendation and the CP constraints only require the offsets to exist ([constr_3187], [constr_3189], [constr_3191]). `PROFILE_01` cannot be used: it is excluded on the Adaptive Platform ([TPS_MANI_03131]); P11 is bus-compatible with it (PRS E2E, Section 6.12).
+`ChassisECU` protects `VehicleSpeed`, `SteeringAngle` and `YawRate` with `PROFILE_11`. The first six bytes are fixed by the Running Example guide (`VehicleSpeed` from bit 0), so the 16-bit header goes into the free bytes 6 and 7, with `crcOffset` 48, `counterOffset` 56 and `dataIdNibbleOffset` 60. These are not the recommended P11 offsets (0, 8 and 12, [TPS_SYST_02155]), but [TPS_SYST_02155] is a recommendation and the CP constraints only require the offsets to exist ([constr_3187], [constr_3189], [constr_3191]). `PROFILE_01` cannot be used: it is excluded on the Adaptive Platform ([TPS_MANI_03131]); P11 is bus-compatible with it (PRS E2E, Section 6.12).
 
 The signal group:
 
@@ -1511,7 +1511,7 @@ The E2E transformer with the state machine values of configuration setting C of 
 </TRANSFORMATION-TECHNOLOGY>
 ```
 
-With 50 km/h (raw 5000), -2.5 degrees (raw -25), 1.00 degree/s (raw 100) and counter 3, the 8 bytes of `ChassisDynamics` are (little endian, as in guide 00):
+With 50 km/h (raw 5000), -2.5 degrees (raw -25), 1.00 degree/s (raw 100) and counter 3, the 8 bytes of `ChassisDynamics` are (little endian, as in the Running Example guide):
 
 | Byte | Value | Content |
 | --- | --- | --- |
@@ -1531,7 +1531,7 @@ flowchart LR
     CHK -- "timeout" --> NONE["Nothing forwarded<br/>[TPS_MANI_03601]"]
 ```
 
-`CentralGateway` must route the PDU without changing it; otherwise the protection would end in the gateway. `Fusion` then reads the E2E status of `VehicleSpeed` as in guide 07, Section 12.5, with the reading of [Section 14.3](#143-checking-and-forwarding-across-the-translation).
+`CentralGateway` must route the PDU without changing it; otherwise the protection would end in the gateway. `Fusion` then reads the E2E status of `VehicleSpeed` as in the CM guide, Section 12.5, with the reading of [Section 14.3](#143-checking-and-forwarding-across-the-translation).
 
 > **Key takeaways**
 >
@@ -1555,13 +1555,13 @@ The tables use the meta-model names of the TPS (and, for Classic elements, of th
 1. Mandatory: a `TlsSecureComProps` with `category` `TLS_SERVER` and at least one `TlsCryptoCipherSuite` with `certificate` and `authenticationKey` (or a PSK identity) ([constr_5047], [constr_5048]).
 2. Mandatory: reference it as `secureComPropsForTcp` from the machine mapping of the provided instance; all provided instances on that endpoint use the same props ([constr_9351]).
 3. Mandatory: a `TLS_CLIENT` props on the machine mapping of every required instance that connects to this endpoint, on `HPC` and on the remote ECUs ([constr_5261]).
-4. Mandatory (guide 14): the certificate, key and trust chain in the crypto configuration.
+4. Mandatory (the Cryptography guide): the certificate, key and trust chain in the crypto configuration.
 
 **SecOC for a SOME/IP element:**
 
 1. Mandatory: a `SecOcSecureComProps` (profile in `category`, lengths, attempts) in `secureComPropsForUdp` or `ForTcp` (and `secOcComPropsForMulticast` for multicast events).
 2. Mandatory: one `ServiceInterfaceElementSecureComConfig` per protected element in each instance, with `dataId` and `freshnessValueId` ([constr_3391], [constr_3392]).
-3. Mandatory: the FVM plug-in on the machine, and the key (guide 14).
+3. Mandatory: the FVM plug-in on the machine, and the key (the Cryptography guide).
 
 **SecOC for a translated PDU (`VehicleModeSecured`):**
 
@@ -1613,8 +1613,8 @@ For a translated instance whose PDU is secured, these references are ignored ([T
 | `TlsCryptoCipherSuite.pskIdentity` | PSK identity and hint | `TlsPskIdentity` (`pskIdentity`, `pskIdentityHint`: `String`) | `0..1` | not specified | | PSK handshake |
 | `TlsCryptoCipherSuite.keyExchange`, `keyExchangeAuthentication`, `authentication`, `encryption`, `ellipticCurve`, `signatureScheme` | Cryptographic steps and parameters | refs to `CryptoServicePrimitive`, `CryptoEllipticCurveProps`, `CryptoSignatureScheme` | `*` or `0..1` | not specified | [TPS_MANI_03134] | Handshake and record protection |
 | `TlsCryptoCipherSuite.props.tcpIpTlsUseSecurityExtensionForceEncryptThenMac` | RFC 7366 extension, useful for CBC suites | `Boolean` | `0..1` | not specified | | Encrypt-then-MAC |
-| `CryptoServiceCertificate.format`, `algorithmFamily`, `maximumLength`, `nextHigherCertificate`, `serverNameIdentification` | Certificate description and chain | `X-509`/`CVC`; `ECC`/`RSA`; `PositiveInteger`; ref; `String` | `0..1` each | not specified | [TPS_MANI_03215] | Guide 14 |
-| `CryptoServicePrimitive.algorithmFamily`, `algorithmMode`, `algorithmSecondaryFamily` | Algorithm description | `String` | `0..1` each | not specified | | Guide 14 |
+| `CryptoServiceCertificate.format`, `algorithmFamily`, `maximumLength`, `nextHigherCertificate`, `serverNameIdentification` | Certificate description and chain | `X-509`/`CVC`; `ECC`/`RSA`; `PositiveInteger`; ref; `String` | `0..1` each | not specified | [TPS_MANI_03215] | Cryptography guide |
+| `CryptoServicePrimitive.algorithmFamily`, `algorithmMode`, `algorithmSecondaryFamily` | Algorithm description | `String` | `0..1` each | not specified | | Cryptography guide |
 
 ### 15.4 SecOC for Service Instances
 
@@ -1628,7 +1628,7 @@ For a translated instance whose PDU is secured, these references are ignored ([T
 | `SecOcSecureComProps.freshnessValueTxLength` | Bits of the freshness value that are sent | `PositiveInteger` (bits) | `0..1` | not specified | | Truncation; selects `GetRxFreshness` with the truncated value ([SWS_CM_11276]) |
 | `SecOcSecureComProps.authenticationBuildAttempts` | Additional build attempts when the authentication information cannot be generated; 0 = one attempt | `PositiveInteger` | `0..1` | not specified | Name mismatch with SWS ([Section 7.5](#75-sending-freshness-mac-truncation-and-build-attempts)) | Discard after the attempts ([SWS_CM_11275]) |
 | `SecOcSecureComProps.authenticationVerifyAttempts` | Additional verification attempts; 0 = one attempt | `PositiveInteger`, 0..65535 | `0..1` | not specified | [constr_5347] | Discard after the attempts ([SWS_CM_11277]) |
-| `SecOcSecureComProps.authentication` | MAC algorithm | `CryptoServicePrimitive` (ref) | `0..1` | not specified | | Guide 14 |
+| `SecOcSecureComProps.authentication` | MAC algorithm | `CryptoServicePrimitive` (ref) | `0..1` | not specified | | Cryptography guide |
 | `SecOcSecureComProps.jobRequirement.secOcJobSemantic` | Required crypto routine | `authenticate` (MAC), `verify` (signature) | `*` / mandatory attribute | not specified | [constr_10227] | Crypto job selection |
 | `ServiceInterfaceElementSecureComConfig.event`, `fieldNotifier`, `getterCall`, `getterReturn`, `setterCall`, `setterReturn`, `methodCall`, `methodReturn` | The protected element | refs to deployment elements | exactly one ([constr_3391]) | not specified | [SWS_CM_11270] | Element selected for SecOC |
 | `ServiceInterfaceElementSecureComConfig.dataId` | SecOC Data ID of the element | `PositiveInteger` | `0..1` | not specified | Mandatory for SecOC ([constr_3392]) | Enters the MAC |
@@ -1653,7 +1653,7 @@ For a translated instance whose PDU is secured, these references are ignored ([T
 | `SecuredIPdu.dynamicRuntimeLengthHandling` | Dynamic length of the authentic PDU | `Boolean` | `0..1` | not specified | | |
 | `IPduPort.rxSecurityVerification` | Verify on this port | `Boolean` | `0..1` | not specified | Condition of [TPS_MANI_03636] | Verification of received secured PDUs |
 | `IPduPort.useAuthDataFreshness`, `timestampRxAcceptanceWindow` | Freshness from the payload; timestamp window | `Boolean`; `TimeValue` | `0..1` | not specified | | [PRS_SecOc_00104] |
-| `SecOcCryptoServiceMapping`, `ComSecOcToCryptoKeySlotMapping` | Algorithm, key, crypto queue; key slot of the SecOC key | refs | `0..1` | not specified | TPS 9.9.2.2 | Guide 14 |
+| `SecOcCryptoServiceMapping`, `ComSecOcToCryptoKeySlotMapping` | Algorithm, key, crypto queue; key slot of the SecOC key | refs | `0..1` | not specified | TPS 9.9.2.2 | Cryptography guide |
 
 ### 15.6 IPsec
 
@@ -1722,7 +1722,7 @@ For a translated instance whose PDU is secured, these references are ignored ([T
 | `E2EProfileCompatibilityProps.combinedNoDataInitCount` | Combined counting in NODATA and INIT | `Boolean` | `0..1` | `false` or not defined: R23-11 behavior | | [Section 11.4](#114-compatibility-switches) |
 | `E2EProfileConfigurationSet.e2eProfileConfiguration` | Collection | `E2EProfileConfiguration` (aggr) | `*` | not specified | | |
 
-Port-level settings: `EndToEndTransformationComSpecProps.disableEndToEndCheck` and `disableEndToEndStateMachine` are supported; all other attributes are not ([guide 07, Section 14.6](07_CommunicationManagement.md#146-endtoendtransformationcomspecprops)).
+Port-level settings: `EndToEndTransformationComSpecProps.disableEndToEndCheck` and `disableEndToEndStateMachine` are supported; all other attributes are not (the [CM guide, Section 14.6](CommunicationManagement.md#146-endtoendtransformationcomspecprops)).
 
 ### 15.10 E2E and SecOC for Signals
 
@@ -1743,7 +1743,7 @@ Port-level settings: `EndToEndTransformationComSpecProps.disableEndToEndCheck` a
 
 ### 15.11 The Running Example: Complete Configuration
 
-The following conceptual view summarizes the protection of `HPC`. The ARXML excerpts below it come from the validated model (`14_SecureAndSafe.arxml` and the updated files of guide 08a).
+The following conceptual view summarizes the protection of `HPC`. The ARXML excerpts below it come from the validated model (`14_SecureAndSafe.arxml` and the updated files of the Network Bindings guide).
 
 ```yaml
 # Conceptual view of the protection of HPC. NOT real ARXML syntax.
@@ -1754,7 +1754,7 @@ TLS:
 SecOC:
   VehicleModeSecured: payload VehicleModeTriggering, 5 bytes, dataId 0x0120, freshnessValueId 1
   props: authInfoTxLength 24, freshnessValueTxLength 8 (Profile 1)
-  key: VehicleModeSecOcKey (guide 14); FVM plug-in: HpcFreshnessManager
+  key: VehicleModeSecOcKey (the Cryptography guide); FVM plug-in: HpcFreshnessManager
   IPduPort VehicleModeSecuredIn: rxSecurityVerification true
 E2E (SOME/IP):
   AdasStatus_ToCockpit: notifier, PROFILE_04, dataId 0x10020001, 168 bits fixed
@@ -1893,7 +1893,7 @@ The SecOC props of `VehicleModeSecured` and the certificate stub:
 | `ara::com::secoc` (modeled service interfaces; generated code) | Data types `OverrideStatus`, `VerificationStatusContainer`, `VerificationStatusResult`; services `VerificationStatus`, `VerificationStatusConfigurationByDataId`, `VerificationStatusConfigurationByFreshnessId` | Security monitoring application | All DRAFT |
 | `apext/com/secoc/fvm.h` (forwarding header `apext/com/com_fwd.h`) | `FVContainer`, class `FVM` with `VerificationStatus`, `Initialize`, `GetTxFreshness`, `GetRxFreshness`, `SetVerificationStatus` | OEM or stack vendor (implementer); CM (caller) | `SetVerificationStatus` DRAFT |
 | `apext/com/secoc/fvm_error_domain.h` | `ComSecOcFvmErrc`, `ComSecOcFvmErrorDomain`, `ComSecOcFvmException`, `GetComSecOcFvmErrorDomain`, `MakeErrorCode` | FVM implementer | |
-| E2E API (`ara::com::e2e`) | `ProfileCheckStatus`, `SMState`, `ComE2EErrc`, `E2EErrorHandler`, transport faults | Applications | [Guide 07, Chapter 12](07_CommunicationManagement.md#12-end-to-end-protection-the-api-side) and [Section 15.10](07_CommunicationManagement.md#1510-e2e-status-types-and-transport-fault-types) |
+| E2E API (`ara::com::e2e`) | `ProfileCheckStatus`, `SMState`, `ComE2EErrc`, `E2EErrorHandler`, transport faults | Applications | [CM guide, Chapter 12](CommunicationManagement.md#12-end-to-end-protection-the-api-side) and [Section 15.10](CommunicationManagement.md#1510-e2e-status-types-and-transport-fault-types) |
 
 Platform extension interfaces "are intended to be used/provided by an OEM or Integrator to extend the functionality of the AUTOSAR Adaptive Platform" (SWS CM, Appendix C).
 
@@ -1934,7 +1934,7 @@ All three types are in the namespace `ara::com::secoc` (SWS CM, Section 9.1).
 | Service interface | `VerificationStatus`, namespace `ara::com::secoc`, version 1.0, one event | [SWS_CM_11280] |
 | Event | `VerificationStatus` of type `VerificationStatusContainer` | [SWS_CM_10048] |
 
-CM sends one event for each verification result ([SWS_CM_11278]). A consumer uses it like any other `ara::com` event (guide 07, Chapter 7).
+CM sends one event for each verification result ([SWS_CM_11278]). A consumer uses it like any other `ara::com` event (the CM guide, Chapter 7).
 
 > **Note:** SWS CM lists the three SecOC services under the heading "Client-Server Interfaces", although `VerificationStatus` consists of an event only. The service definitions themselves are unambiguous.
 
@@ -2000,7 +2000,7 @@ public:
 | `constexpr ara::core::ErrorCode MakeErrorCode (apext::com::secoc::ComSecOcFvmErrc errorCode, ara::core::ErrorDomain::SupportDataType data) noexcept;` | [SWS_CM_12522] |
 | `class ComSecOcFvmException : public ara::core::Exception {...};` with `explicit ComSecOcFvmException (ara::core::ErrorCode errorCode) noexcept;` | [SWS_CM_12512], [SWS_CM_12513] |
 
-The domain has the identifier `0x8000'0000'0000'1271` and the name `ComSecOcFvm` ([SWS_CORE_90023]). Error domains are explained in [guide 03, Chapter 7](03_CoreAndGeneral.md#7-errorcode-and-errordomain).
+The domain has the identifier `0x8000'0000'0000'1271` and the name `ComSecOcFvm` ([SWS_CORE_90023]). Error domains are explained in the [Core guide, Chapter 7](CoreAndGeneral.md#7-errorcode-and-errordomain).
 
 ### 16.7 Usage Sketches
 
@@ -2042,7 +2042,7 @@ ara::core::Result<FVContainer> FVM::GetRxFreshness(std::uint16_t id, const FVCon
 }  // namespace apext::com::secoc
 ```
 
-**A monitor that counts failed verifications.** A security monitor (in a real project, a sensor of guide 16) subscribes to `VerificationStatus`. Proxy names follow the generated-code rules of guide 07; they are tool-specific.
+**A monitor that counts failed verifications.** A security monitor (in a real project, a sensor of the IDSM and Firewall guide) subscribes to `VerificationStatus`. Proxy names follow the generated-code rules of the CM guide; they are tool-specific.
 
 ```cpp
 // Illustrative: count SecOC failures per Data ID.
@@ -2071,19 +2071,19 @@ void Monitor::OnVerificationStatus(ara::com::secoc::proxy::VerificationStatusPro
 
 ### 17.1 What Is Reported, and What Is Not
 
-CM defines one security event in R25-11, `SEV_ACCESS_CONTROL_COM_IAM_ACCESS_DENIED` for IAM ([SWS_CM_00601] to [SWS_CM_00603]; [guide 07, Section 16.1](07_CommunicationManagement.md#161-security-event)). It defines **no** security event, log message or production error for failed TLS handshakes, SecOC verification failures or E2E errors (SWS CM, Sections 7.7.1 to 7.7.4).
+CM defines one security event in R25-11, `SEV_ACCESS_CONTROL_COM_IAM_ACCESS_DENIED` for IAM ([SWS_CM_00601] to [SWS_CM_00603]; the [CM guide, Section 16.1](CommunicationManagement.md#161-security-event)). It defines **no** security event, log message or production error for failed TLS handshakes, SecOC verification failures or E2E errors (SWS CM, Sections 7.7.1 to 7.7.4).
 
 | Failure | Where it becomes visible |
 | --- | --- |
 | TLS or DTLS channel cannot be established | `kCommunicationFailure` in proxy futures; no data from skeletons ([SWS_CM_00231] to [SWS_CM_00234]) |
 | SecOC verification fails | Message discarded; `VerificationStatus` event; `FVM::SetVerificationStatus` |
-| E2E check fails | `ProfileCheckStatus`, `SMState`, `ComE2EErrc` in futures, `E2EErrorHandler` (guide 07) |
+| E2E check fails | `ProfileCheckStatus`, `SMState`, `ComE2EErrc` in futures, `E2EErrorHandler` (the CM guide) |
 | DDS liveliness lost, deadline missed | `SMState` `kInvalid`, transport fault handler ([SWS_CM_00210], [SWS_CM_00211]) |
 | IPsec or MACsec failure | Not reported by CM; packets do not arrive |
 
 ### 17.2 Using `VerificationStatus` for Attack Detection
 
-The SWS suggests using the verification status to "continuously monitor the number of failed verification attempts" and to set up "a security management system/intrusion detection system that is able to detect an attack flood and react with adequate dynamic countermeasures" (SWS CM, Section 7.3.2.3.1). On the Adaptive Platform, such a monitor reports to the Intrusion Detection System Manager through its own security sensor; guide 16 shows how.
+The SWS suggests using the verification status to "continuously monitor the number of failed verification attempts" and to set up "a security management system/intrusion detection system that is able to detect an attack flood and react with adequate dynamic countermeasures" (SWS CM, Section 7.3.2.3.1). On the Adaptive Platform, such a monitor reports to the Intrusion Detection System Manager through its own security sensor; the IDSM and Firewall guide shows how.
 
 ### 17.3 Seeing Protection on the Wire
 
@@ -2126,12 +2126,12 @@ sequenceDiagram
 
 ### 18.2 Step by Step
 
-1. **Power on.** `CentralGateway` sends `VehicleModeSecured` with `PowerMode` `On`. Inside `SmControl`, the translation asks `HpcFreshnessManager` for the complete freshness value, verifies the 24-bit MAC and forwards `On`; `SmControl` requests `Drive` (guide 05). The `VerificationStatus` service reports `kSecOcVerificationSuccess` ([Section 7.10](#710-worked-example-powermode-authenticated-by-centralgateway)).
+1. **Power on.** `CentralGateway` sends `VehicleModeSecured` with `PowerMode` `On`. Inside `SmControl`, the translation asks `HpcFreshnessManager` for the complete freshness value, verifies the 24-bit MAC and forwards `On`; `SmControl` requests `Drive` (the SM guide). The `VerificationStatus` service reports `kSecOcVerificationSuccess` ([Section 7.10](#710-worked-example-powermode-authenticated-by-centralgateway)).
 2. **Vehicle dynamics.** `ChassisECU` sends `ChassisDynamics` every 10 ms with a P11 header; `CentralGateway` routes it unchanged. The translations in `Fusion`, `FusionLite` and `SmControl` check it; after the first good messages the state is `kValid` ([Section 14.6](#146-worked-example-chassisdynamics-with-profile_11-becomes-vehicledynamicsservice)).
 3. **Cockpit connects.** `Cockpit` finds `CameraService` by unprotected SD, opens TCP to port 30501 and runs the TLS handshake with `HpcDeviceCert`. Until the handshake is finished, `CameraDriver`'s `Image.Send()` sends nothing to `Cockpit` ([SWS_CM_00233], DRAFT). `Fusion`, a TLS client on the same machine, has connected the same way ([Section 6.6](#66-worked-example-cameraservice-secured-with-hpcdevicecert)).
 4. **Night mode.** It gets dark. `Fusion` calls `SetExposureMode(Night)`. The request carries a P04m header with `Fusion`'s Source ID inside a TLS record; the response echoes the counter ([Section 12.7](#127-worked-example-setexposuremode-with-profile_04m)).
 5. **Status to the driver.** `SmControl` publishes `AdasStatus` `Active` to `Cockpit` with Profile 4, at least every 100 ms ([Section 11.6](#116-worked-example-the-state-of-adasstatus-through-a-burst-of-lost-messages)). `ObjectListService` reaches `Cockpit` and `Storage` over DDS; their `SMState` follows DDS liveliness ([Section 13.3](#133-worked-example-what-storage-sees-for-objectlist)).
-6. **Attack.** A device on the backbone sends a `VehicleMode` frame with `PowerMode` `Off`. It cannot compute the MAC without `VehicleModeSecOcKey`. Verification fails for all attempts, the frame is discarded and `SmControl` keeps `On`. The monitor of guide 16 sees `kSecOcVerificationFailure` for SecOC Data ID `0x0120`.
+6. **Attack.** A device on the backbone sends a `VehicleMode` frame with `PowerMode` `Off`. It cannot compute the MAC without `VehicleModeSecOcKey`. Verification fails for all attempts, the frame is discarded and `SmControl` keeps `On`. The monitor of the IDSM and Firewall guide sees `kSecOcVerificationFailure` for SecOC Data ID `0x0120`.
 7. **Fault.** A loose connector on `ChassisECU` corrupts some frames. The P11 CRC fails; the translation reflects the error, and the state of `VehicleSpeed` becomes `kInvalid` after more errors than the VALID window tolerates. `Fusion` stops using the vehicle speed and degrades, as its safety concept requires.
 
 > **Key takeaways**
@@ -2152,7 +2152,7 @@ sequenceDiagram
 - **Choose E2E profiles by size and paradigm:** P04 or P08 for Ethernet events, P07 for large data, an `m` profile for methods, P11 or P22 for CAN.
 - **Send E2E-protected data periodically**, or the counter cannot detect loss ([Section 10.1](#101-what-e2e-detects)).
 - **Apply SecOC after E2E**, as CM does; do not try to compute E2E over a secured message.
-- **Use separate keys per purpose**: TLS keys, SecOC keys and DDS identities are different assets (guide 14).
+- **Use separate keys per purpose**: TLS keys, SecOC keys and DDS identities are different assets (the Cryptography guide).
 - **Test the "no channel yet" phase**: start the client before the server, disconnect the network, and check that the application handles `kCommunicationFailure` and missing events ([Section 5.4](#54-before-the-channel-exists-proxy-and-skeleton-behavior)).
 - **Supervise method timeouts** with `wait_for()` or PHM checkpoints; CM does not ([Section 12.5](#125-limitations)).
 
@@ -2182,7 +2182,7 @@ sequenceDiagram
 | Remote proxy calls end with `kCommunicationFailure`, plain TCP works | TLS handshake fails | Cipher suite and version on both sides, certificate chain, client role on the client endpoint |
 | Events from a TLS server never arrive at one client | Client endpoint without TLS props, or handshake not finished | Machine mapping of the client ([Section 6.6](#66-worked-example-cameraservice-secured-with-hpcdevicecert)) |
 | A SecOC-protected event never arrives, `VerificationStatus` shows `kSecOcFreshnessFailure` | Freshness values out of sync | FVM synchronization, `freshnessValueTxLength`, freshness value ID |
-| `kSecOcVerificationFailure` for every message | Different key, Data ID or profile | SecOC Data ID, key slot (guide 14), profile lengths on both sides |
+| `kSecOcVerificationFailure` for every message | Different key, Data ID or profile | SecOC Data ID, key slot (the Cryptography guide), profile lengths on both sides |
 | Every E2E sample is `kError` | Data ID, profile or length mismatch | `dataId`, `profileName`, `min/maxDataLength` on both sides |
 | `kWrongSequence` now and then on a method server | Several clients share the server | `maxDeltaCounter` of the server ([Section 11.5](#115-choosing-values-cycle-time-ftti-and-counter-delta)) |
 | State stays `kInit` or goes `kInvalid` after a pause | Sender not periodic, or windows too strict | `dataUpdatePeriod`, windows and thresholds |
@@ -2315,7 +2315,7 @@ An E2E profile on the signal-based payload ([constr_3554]) and translation softw
 <details>
 <summary>15. Why is the P11 header of <code>ChassisDynamics</code> in bytes 6 and 7, and not at the recommended offsets?</summary>
 
-The signal layout of guide 00 starts `VehicleSpeed` at bit 0, so only bytes 6 and 7 are free; the offsets are configurable on the Classic side, and the recommended values are only a recommendation ([TPS_SYST_02155]; [Section 14.6](#146-worked-example-chassisdynamics-with-profile_11-becomes-vehicledynamicsservice)).
+The signal layout of the Running Example guide starts `VehicleSpeed` at bit 0, so only bytes 6 and 7 are free; the offsets are configurable on the Classic side, and the recommended values are only a recommendation ([TPS_SYST_02155]; [Section 14.6](#146-worked-example-chassisdynamics-with-profile_11-becomes-vehicledynamicsservice)).
 
 </details>
 

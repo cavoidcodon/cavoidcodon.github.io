@@ -136,7 +136,7 @@
     sel = hits.length ? 0 : -1;
     list.innerHTML = hits.length ? hits.map(function (h, k) {
       return '<li><a href="' + root + h.e[2] + '"' + (k === 0 ? ' class="selected"' : "") + ">" +
-        mark(h.e[0], terms) + '<span class="sr-guide">' + esc(h.e[1] + " · " + (guides[h.e[1]] || "")) + "</span></a></li>";
+        mark(h.e[0], terms) + '<span class="sr-guide">' + esc(guides[h.e[1]] || h.e[1]) + "</span></a></li>";
     }).join("") : '<li class="sr-empty">No matching section</li>';
     list.hidden = false;
   }

@@ -10,11 +10,11 @@
 >
 > **Version:** 1.0 (draft, pending review)
 >
-> **Part of the series:** [AUTOSAR Adaptive Platform Training Guides](00_LearningPath.md). Previous: [06 Platform Health Management](06_PlatformHealthManagement.md). Next: [08a Communication Management Part 2: Network Bindings (SOME/IP, Signal-Based, DDS)](08a_NetworkBindings.md).
+> **Part of the series:** [AUTOSAR Adaptive Platform Training Guides](../README.md). Previous: [Platform Health Management](PlatformHealthManagement.md). Next: [Communication Management Part 2: Network Bindings (SOME/IP, Signal-Based, DDS)](NetworkBindings.md).
 
 ## About This Guide
 
-Adaptive applications rarely work alone. A camera driver delivers images, a fusion algorithm turns them into objects, a recorder stores the objects, and a display shows them. On the Adaptive Platform, all of these exchanges are *services*: a provider offers a service, consumers find it and use its events, methods and fields. The functional cluster that makes this work is Communication Management (CM), and its C++ API is `ara::com`. Questions like "why does my proxy never see the service?", "why do I lose samples?", "why does `OfferService` fail with a field error?" or "is this handler called from another thread?" are all questions about `ara::com`. This guide explains the service model, the generated proxy and skeleton classes, every part of the `ara::com` API, and the configuration behind them. It stays independent of the network protocol: SOME/IP, DDS and signal-to-service translation are the topic of [guide 08a](08a_NetworkBindings.md), end-to-end protection and secure communication of [guide 08b](08b_SecureAndSafeCommunication.md).
+Adaptive applications rarely work alone. A camera driver delivers images, a fusion algorithm turns them into objects, a recorder stores the objects, and a display shows them. On the Adaptive Platform, all of these exchanges are *services*: a provider offers a service, consumers find it and use its events, methods and fields. The functional cluster that makes this work is Communication Management (CM), and its C++ API is `ara::com`. Questions like "why does my proxy never see the service?", "why do I lose samples?", "why does `OfferService` fail with a field error?" or "is this handler called from another thread?" are all questions about `ara::com`. This guide explains the service model, the generated proxy and skeleton classes, every part of the `ara::com` API, and the configuration behind them. It stays independent of the network protocol: SOME/IP, DDS and signal-to-service translation are the topic of the [Network Bindings guide](NetworkBindings.md), end-to-end protection and secure communication of the [Secure Communication guide](SecureAndSafeCommunication.md).
 
 ### Who This Guide Is For
 
@@ -22,7 +22,7 @@ Adaptive applications rarely work alone. A camera driver delivers images, a fusi
 - **Integrators** who connect ports to service instances, choose bindings and analyze communication problems.
 - **Platform developers** who implement or adapt a Communication Management stack, or who need to know exactly what the API promises.
 
-Assumed background: modern C++ (C++17: smart pointers, `std::function`, move semantics), plus basic Linux/POSIX knowledge (processes, threads, sockets). You do not need prior AUTOSAR Adaptive knowledge. Three guides of the series make this one easier: [02 Manifests and Methodology](02_Manifests.md) for service interfaces and their deployment in the model, [03 `ara::core` and General Conventions](03_CoreAndGeneral.md) for `Result`, `Future`, `ErrorCode`, `InstanceSpecifier` and violations, and [04 Execution Management](04_ExecutionManagement.md) for the process lifecycle in which services are offered.
+Assumed background: modern C++ (C++17: smart pointers, `std::function`, move semantics), plus basic Linux/POSIX knowledge (processes, threads, sockets). You do not need prior AUTOSAR Adaptive knowledge. Three guides of the series make this one easier: [Manifests and Methodology](Manifests.md) for service interfaces and their deployment in the model, [`ara::core` and General Conventions](CoreAndGeneral.md) for `Result`, `Future`, `ErrorCode`, `InstanceSpecifier` and violations, and [Execution Management](ExecutionManagement.md) for the process lifecycle in which services are offered.
 
 ### Learning Objectives
 
@@ -62,7 +62,7 @@ If you write application code, read Chapters 1, 2, 5 to 11 and 15. If you integr
 
 ### The Running Example
 
-All guides of the series use the same invented system. A high-performance ECU called **`HPC`** runs an ADAS feature. [Guide 00, Chapter 6](00_LearningPath.md#6-the-running-example-the-hpc-reference-system) defines the complete example; this section recaps the part that `ara::com` needs. All values are illustrative.
+All guides of the series use the same invented system. A high-performance ECU called **`HPC`** runs an ADAS feature. The [Running Example guide](RunningExample.md) defines the complete example; this section recaps the part that `ara::com` needs. All values are illustrative.
 
 - **`CameraDriver`** drives the front camera and provides **`CameraService`**: the event `Image` (30 images per second), the method `SetExposureMode` and the field `CameraStatus`.
 - **`Fusion`** fuses camera, radar and vehicle data in a **50 ms cycle**. It uses `CameraService` and `CalibrationDataService` and provides **`ObjectListService`**. It runs only in `ADAS.Normal`.
@@ -70,7 +70,7 @@ All guides of the series use the same invented system. A high-performance ECU ca
 - **`Storage`** keeps the calibration, provides **`CalibrationDataService`**, and records the object lists of `ObjectListService`.
 - **`CalibrationCheck`** reads the calibration once at the start of `ADAS` and terminates.
 
-This guide adds the following elements to the running example (guide 00 lists them as well):
+This guide adds the following elements to the running example (the Running Example guide lists them as well):
 
 | Element | What it is | Used in |
 | --- | --- | --- |
@@ -275,11 +275,11 @@ flowchart TB
 Knowing the limits saves time when something does not work:
 
 - **No component model.** `ara::com` does not create objects for you, call your code cyclically or manage program flow. It only provides the communication API, on top of which such frameworks could be built (EXP, Section 3.2).
-- **No wire protocol in the API.** The same application code runs over SOME/IP, DDS or a local binding. The integrator chooses the binding in the manifest ([Section 4.3](#43-what-you-can-change-without-recompiling)); [guide 08a](08a_NetworkBindings.md) explains the bindings.
+- **No wire protocol in the API.** The same application code runs over SOME/IP, DDS or a local binding. The integrator chooses the binding in the manifest ([Section 4.3](#43-what-you-can-change-without-recompiling)); the [Network Bindings guide](NetworkBindings.md) explains the bindings.
 - **No timeout supervision of method calls.** A lost response can block a waiting `Future` forever. Protecting the caller is the application's job ([Section 8.3](#83-no-timeout-supervision)).
 - **No thread-safety guarantee.** R25-11 does not define the thread safety of the `ara::com` API (SWS CM, Section 4.1.7). Only some handler calls are serialized ([Chapter 10](#10-threading-execution-context-and-handlers)).
 - **No standardized local IPC.** Communication between processes on one machine is implementation-specific ([Chapter 13](#13-local-communication-and-multi-binding)).
-- **No access policy.** Communication Management *enforces* access rights, but the policy and its configuration belong to Identity and Access Management (guide 15).
+- **No access policy.** Communication Management *enforces* access rights, but the policy and its configuration belong to Identity and Access Management (the IAM guide).
 
 ### 1.3 Why AUTOSAR Defined Its Own API
 
@@ -342,7 +342,7 @@ Several code listings in the EXP are older than the API tables of the SWS. The g
 
 **In plain words:** a *service interface* is the contract: which events, methods, fields and triggers a service has, and their data types. A *service instance* is one concrete provider of that contract. There can be several instances of the same interface, for example one per camera.
 
-**Formally:** a `ServiceInterface` is a model element that aggregates events (`VariableDataPrototype`), methods (`ClientServerOperation`), fields (`Field`) and triggers (`Trigger`) ([guide 02, Section 6.1](02_Manifests.md#61-events-methods-fields-and-triggers)). An `AdaptivePlatformServiceInstance` "makes the functionality of a `ServiceInterface` available" on the platform; several instances may exist for the same interface, for different purposes or users (TPS, Section 13.3).
+**Formally:** a `ServiceInterface` is a model element that aggregates events (`VariableDataPrototype`), methods (`ClientServerOperation`), fields (`Field`) and triggers (`Trigger`) (the [Manifests guide, Section 6.1](Manifests.md#61-events-methods-fields-and-triggers)). An `AdaptivePlatformServiceInstance` "makes the functionality of a `ServiceInterface` available" on the platform; several instances may exist for the same interface, for different purposes or users (TPS, Section 13.3).
 
 - The **service provider** (server) implements the interface and *offers* an instance.
 - The **service consumer** (client) *finds* an instance and *uses* it.
@@ -400,9 +400,9 @@ flowchart LR
 
 **Formally:**
 
-- `ara::core::InstanceSpecifier` is defined in SWS Core. For application ports, it is the path of short names `/Executable/RootSwComponentPrototype/.../PortPrototype` ([SWS_CORE_10200]); [guide 03, Section 11.11](03_CoreAndGeneral.md#1111-instancespecifier) explains it.
+- `ara::core::InstanceSpecifier` is defined in SWS Core. For application ports, it is the path of short names `/Executable/RootSwComponentPrototype/.../PortPrototype` ([SWS_CORE_10200]); the [Core guide, Section 11.11](CoreAndGeneral.md#1111-instancespecifier) explains it.
 - `ara::com::InstanceIdentifier` is the "unique identifier of a specific instance of a service, needed to distinguish different instances of exactly the same service in the system" ([SWS_CM_00302], SWS CM, Section 7.5.22.1). Its string form is vendor-specific ([SWS_CM_00088]).
-- Communication Management translates a specifier into zero, one or several identifiers ([SWS_CM_10452]), through the `ServiceInstanceToPortPrototypeMapping` of the process ([guide 02, Section 9.4](02_Manifests.md#94-from-port-to-instancespecifier)).
+- Communication Management translates a specifier into zero, one or several identifiers ([SWS_CM_10452]), through the `ServiceInstanceToPortPrototypeMapping` of the process (the [Manifests guide, Section 9.4](Manifests.md#94-from-port-to-instancespecifier)).
 
 > **Note:** SWS CM still describes the specifier of an abstract network binding as `<port context>::<port name>` ([SWS_CM_10590]). SWS Core and the EXP use the `/`-separated path ([SWS_CORE_10200]; EXP, Section 4.8.1). The series uses the SWS Core form.
 
@@ -457,23 +457,23 @@ Communication Management is a *daemon-based* functional cluster (SWS CM, Figure 
 | `ara::com` API (proxies, skeletons, types) | Application process | Yes: the C++ API (SWS CM, Chapter 8) |
 | Serialization, E2E check, binding logic | Application process | Behavior yes, implementation no |
 | Service registry and local discovery | Daemon, or distributed over the applications | No ([Section 3.3](#33-service-discovery-inside-the-machine)) |
-| Network discovery (SOME/IP-SD, DDS discovery) | Daemon or binding library | Yes, the protocols ([guide 08a](08a_NetworkBindings.md)) |
+| Network discovery (SOME/IP-SD, DDS discovery) | Daemon or binding library | Yes, the protocols (the [Network Bindings guide](NetworkBindings.md)) |
 
 ### 3.2 Interfaces Provided and Required
 
-Communication Management provides **no interfaces to other functional clusters** (SWS CM, Table 5.1). Other clusters use it like applications do: through `ara::com` service interfaces. For example, the services of State Management ([guide 05, Section 13](05_StateManagement.md#13-api-reference-and-usage-guide-arasm)) are ordinary `ara::com` services. The only services that Communication Management itself defines are three SecOC services in the namespace `ara::com::secoc` (SWS CM, Chapter 9), which [guide 08b](08b_SecureAndSafeCommunication.md) covers.
+Communication Management provides **no interfaces to other functional clusters** (SWS CM, Table 5.1). Other clusters use it like applications do: through `ara::com` service interfaces. For example, the services of State Management (the [SM guide, Section 13](StateManagement.md#13-api-reference-and-usage-guide-arasm)) are ordinary `ara::com` services. The only services that Communication Management itself defines are three SecOC services in the namespace `ara::com::secoc` (SWS CM, Chapter 9), which the [Secure Communication guide](SecureAndSafeCommunication.md) covers.
 
 Communication Management requires the following interfaces (SWS CM, Table 5.2):
 
 | Functional cluster | Interface | Purpose |
 | --- | --- | --- |
 | Cryptography | `CryptoStack` | Encrypted connections, checksums such as message authentication codes |
-| Execution Management | `ExecutionClient` | No purpose stated; it is the interface with which a process reports its execution state ([EM guide, Section 14.3](04_ExecutionManagement.md#143-executionclient)) |
+| Execution Management | `ExecutionClient` | No purpose stated; it is the interface with which a process reports its execution state ([EM guide, Section 14.3](ExecutionManagement.md#143-executionclient)) |
 | Intrusion Detection System Manager | `EventReporter` | Report security events ([Section 16.1](#161-security-event)) |
 | Log and Trace | `Logger` | Log standardized messages, such as violation messages |
 | Operating System Interface | `OperatingSystemInterface` | Create and control the threads of the implementation |
 
-In addition, Communication Management depends on the E2E protocol (SWS CM, Section 5.3), and it enforces the access rights that Identity and Access Management configures (SWS CM, Section 7.3.1; guide 15).
+In addition, Communication Management depends on the E2E protocol (SWS CM, Section 5.3), and it enforces the access rights that Identity and Access Management configures (SWS CM, Section 7.3.1; the IAM guide).
 
 ### 3.3 Service Discovery Inside the Machine
 
@@ -488,9 +488,9 @@ Communication Management provides the communication infrastructure that State Ma
 - **Startup.** No special handling is needed, but it is recommended to start Communication Management in parallel with or after Execution Management, and before State Management. Once both are running, they "should take control of the Communication Management lifecycle" (SWS CM, Section 7.6.1).
 - **Shutdown.** Communication Management should keep the functions that State Management needs for as long as necessary. The integrator decides when its parts terminate, and "should provide a concept how to notify application processes still holding `ara::com::SamplePtr`'s to memory elements of communication management" (SWS CM, Section 7.6.2).
 
-On `HPC`, the Communication Management daemon is one of the platform daemons of `HpcPlatformCore` that Execution Management starts in `MachineFG.Startup` ([guide 00, Section 6.3](00_LearningPath.md#63-the-hpc-machine)).
+On `HPC`, the Communication Management daemon is one of the platform daemons of `HpcPlatformCore` that Execution Management starts in `MachineFG.Startup` (the [Running Example guide, Section 1.3](RunningExample.md#13-the-hpc-machine)).
 
-> **Pitfall:** An application process that reports `kRunning` to Execution Management before it has offered its services makes the Execution Dependencies of others meaningless. Offer first, then report `kRunning` ([EM guide, Section 6.6](04_ExecutionManagement.md#66-prefer-service-discovery-for-applications)).
+> **Pitfall:** An application process that reports `kRunning` to Execution Management before it has offered its services makes the Execution Dependencies of others meaningless. Offer first, then report `kRunning` ([EM guide, Section 6.6](ExecutionManagement.md#66-prefer-service-discovery-for-applications)).
 
 ### 3.5 Interaction Map
 
@@ -532,7 +532,7 @@ flowchart LR
 
 ### 4.1 Where the Configuration Lives
 
-The configuration that `ara::com` reads is spread over three kinds of work products. [Guide 02](02_Manifests.md#4-configuration-overview) explains the manifests in general; the table shows the `ara::com` view.
+The configuration that `ara::com` reads is spread over three kinds of work products. The [Manifests guide](Manifests.md#4-configuration-overview) explains the manifests in general; the table shows the `ara::com` view.
 
 | Level | Elements | Who configures, when | What it decides |
 | --- | --- | --- | --- |
@@ -561,7 +561,7 @@ flowchart TB
     MM -->|"communicationConnector"| CONN["Communication connector<br/>of the machine"]
 ```
 
-At run time, a constructor or `FindService` call with an `InstanceSpecifier` makes Communication Management look up the mapping of the *current process* for that port, take the service instance it points to, and use that instance's deployment and connector ([SWS_CM_10452]; [guide 02, Section 9.3](02_Manifests.md#93-connecting-a-port-to-a-service-instance)). If one of these links is missing or wrong, the call raises a violation ([Section 11.3](#113-violations-in-aracom)).
+At run time, a constructor or `FindService` call with an `InstanceSpecifier` makes Communication Management look up the mapping of the *current process* for that port, take the service instance it points to, and use that instance's deployment and connector ([SWS_CM_10452]; the [Manifests guide, Section 9.3](Manifests.md#93-connecting-a-port-to-a-service-instance)). If one of these links is missing or wrong, the call raises a violation ([Section 11.3](#113-violations-in-aracom)).
 
 ### 4.3 What You Can Change Without Recompiling
 
@@ -602,7 +602,7 @@ The `ara::com` header files are "either statically defined or generated by proce
 | `{ns-path}/{si}_proxy.h` | Generated | The proxy class and its event, field, method and trigger classes | [SWS_CM_11503] |
 | `{ns-path}/{si}_skeleton.h` | Generated | The skeleton class and its event, field and trigger classes | [SWS_CM_01002] |
 | `{ns-path}/impl_type_{type}.h` | Generated, one per data type | The C++ data types of the interface | [SWS_LBAP_00033] |
-| `{ns-path}/{domain}_error_domain.h` | Generated, one per application error domain | The error domain of the methods' application errors ([guide 03, Section 7.8](03_CoreAndGeneral.md#78-generated-error-domains)) | SWS LBAP |
+| `{ns-path}/{domain}_error_domain.h` | Generated, one per application error domain | The error domain of the methods' application errors (the [Core guide, Section 7.8](CoreAndGeneral.md#78-generated-error-domains)) | SWS LBAP |
 
 Each generated header has a forward-declaration variant, for example `{si}_proxy/{si}_proxy_fwd.h`. The common header includes `ara/com/types.h`, the data type headers, `ara/com/com_error_domain.h` and the application error headers ([SWS_CM_01012]); the proxy and skeleton headers include the common header. The following diagram shows the include structure for `CameraService`.
 
@@ -671,11 +671,11 @@ In and inout arguments become parameters of the method call; out and inout argum
 | `GetCalibration(in key, out record)` | `Future<methods::GetCalibration::Output> operator()(CalibrationKey key)`; `Output` has `record` | `Future<GetCalibrationOutput> GetCalibration(CalibrationKey key)` |
 | `SetCalibration(in key, in record)` | `Future<methods::SetCalibration::Output> operator()(CalibrationKey key, const CalibrationRecord& record)` | `Future<SetCalibrationOutput> SetCalibration(CalibrationKey key, const CalibrationRecord& record)` |
 
-> **Note:** The specification does not say what `Output` contains when a method has no out argument, such as `SetCalibration` or `SetExposureMode`. The return type is still `ara::core::Future<Output>`; the structure is typically empty. Check your generator. ([Guide 03, Section 9.7](03_CoreAndGeneral.md#97-worked-example-fusion-requests-the-night-exposure-mode) simplified this to `Future<void>`.)
+> **Note:** The specification does not say what `Output` contains when a method has no out argument, such as `SetCalibration` or `SetExposureMode`. The return type is still `ara::core::Future<Output>`; the structure is typically empty. Check your generator. (The [Core guide, Section 9.7](CoreAndGeneral.md#97-worked-example-fusion-requests-the-night-exposure-mode) simplified this to `Future<void>`.)
 
 ### 5.5 Data Types
 
-The data types of a service interface are generated by the *ARA language binding generator* according to SWS LBAP (SWS CM, Section 7.5.23.1). The category of each `CppImplementationDataType` selects the C++ form ([guide 02, Section 6.4](02_Manifests.md#64-data-types)):
+The data types of a service interface are generated by the *ARA language binding generator* according to SWS LBAP (SWS CM, Section 7.5.23.1). The category of each `CppImplementationDataType` selects the C++ form (the [Manifests guide, Section 6.4](Manifests.md#64-data-types)):
 
 | Category | Generated C++ | Example in `HPC` | ID |
 | --- | --- | --- | --- |
@@ -695,7 +695,7 @@ Two more features matter for service data:
 
 ### 5.6 Worked Example: The Generated API of `CameraService`
 
-The following sketch shows the shape of the two generated headers for `CameraService` ([guide 02, Section 6.6](02_Manifests.md#66-worked-example-cameraservice-as-arxml) gives its model). It shows only what this chapter discussed; [Chapter 15](#15-api-reference-and-usage-guide-aracom) lists every member.
+The following sketch shows the shape of the two generated headers for `CameraService` (the [Manifests guide, Section 6.6](Manifests.md#66-worked-example-cameraservice-as-arxml) gives its model). It shows only what this chapter discussed; [Chapter 15](#15-api-reference-and-usage-guide-aracom) lists every member.
 
 ```cpp
 // hpc/camera/cameraservice_proxy.h: shape of the generated proxy header (illustrative).
@@ -997,7 +997,7 @@ ResolveInstanceIDs(ara::core::InstanceSpecifier metaModelIdentifier) noexcept;
 
 When would you use identifiers? Because an identifier contains all binding information, it can be passed to another process and used there without a manifest lookup (EXP, Section 4.8.2). This is risky: the binding may no longer exist, or another vendor's stack may interpret the string differently (EXP, Section 4.8.2.1). Use identifiers only for logging and for rare power-user cases.
 
-Because the mapping is per process, the same executable can be started several times, each process with a different mapping of the same specifier (EXP, Section 4.8.1; [guide 02, Section 9.3](02_Manifests.md#93-connecting-a-port-to-a-service-instance)).
+Because the mapping is per process, the same executable can be started several times, each process with a different mapping of the same specifier (EXP, Section 4.8.1; the [Manifests guide, Section 9.3](Manifests.md#93-connecting-a-port-to-a-service-instance)).
 
 ### 6.8 Service Contract Versioning
 
@@ -1006,11 +1006,11 @@ The contract between provider and consumer can evolve. A service interface carri
 - A **backwards-incompatible** change increases the major version and resets the minor version to 0.
 - A **backwards-compatible** change increases the minor version.
 
-The contract version is mapped, manually, to a version of each service interface deployment; one interface may have several deployments with different versions. Service discovery evaluates the version of the deployment for backwards compatibility, according to the binding ([SWS_CM_99003]). As a result, a proxy finds only compatible instances (EXP, Listing 5.2). With a static SOME/IP connection, service discovery is bypassed, and versions are not checked at run time ([SWS_CM_02203]; [guide 08a](08a_NetworkBindings.md)).
+The contract version is mapped, manually, to a version of each service interface deployment; one interface may have several deployments with different versions. Service discovery evaluates the version of the deployment for backwards compatibility, according to the binding ([SWS_CM_99003]). As a result, a proxy finds only compatible instances (EXP, Listing 5.2). With a static SOME/IP connection, service discovery is bypassed, and versions are not checked at run time ([SWS_CM_02203]; the [Network Bindings guide](NetworkBindings.md)).
 
 ### 6.9 Worked Example: `Fusion` Finds `CameraService`
 
-`Fusion` does not have an Execution Dependency on `CameraDriver` ([guide 00, Section 6.5](00_LearningPath.md#65-processes)). It searches continuously, creates its proxy when the first instance appears, and subscribes. Later availability changes need no action, because the proxy updates itself. The following sequence diagram shows the startup.
+`Fusion` does not have an Execution Dependency on `CameraDriver` (the [Running Example guide, Section 1.5](RunningExample.md#15-processes)). It searches continuously, creates its proxy when the first instance appears, and subscribes. Later availability changes need no action, because the proxy updates itself. The following sequence diagram shows the startup.
 
 ```mermaid
 sequenceDiagram
@@ -1303,7 +1303,7 @@ void CameraServiceImpl::Publish(const Frame& frame) {
         return;  // no active subscriber: nothing to send
     }
     ara::com::SampleAllocateePtr<hpc::camera::CameraImage> sample = Image.Allocate();
-    sample->timestamp = frame.vehicleTimeNs;  // VehicleTime, guide 09
+    sample->timestamp = frame.vehicleTimeNs;  // VehicleTime, the NM/TSync/RDS guide
     sample->width = frame.width;
     sample->height = frame.height;
     sample->pixels.assign(frame.data, frame.data + frame.size);
@@ -1386,7 +1386,7 @@ A call to a service that the process may not use raises `InsufficientPermissions
 
 ### 8.2 Getting the Result
 
-The returned `ara::core::Future` is the AUTOSAR version of `std::future`, with `GetResult()`, `then()` and `is_ready()` added ([guide 03, Chapter 9](03_CoreAndGeneral.md#9-future-and-promise-asynchronous-results)). Your choice of function decides the style of the call:
+The returned `ara::core::Future` is the AUTOSAR version of `std::future`, with `GetResult()`, `then()` and `is_ready()` added (the [Core guide, Chapter 9](CoreAndGeneral.md#9-future-and-promise-asynchronous-results)). Your choice of function decides the style of the call:
 
 | Style | Functions | Behavior | ID |
 | --- | --- | --- | --- |
@@ -1402,7 +1402,7 @@ The returned `ara::core::Future` is the AUTOSAR version of `std::future`, with `
 
 - A cyclic application polls with `is_ready()` and counts cycles.
 - A blocking caller uses `wait_for()` or `wait_until()` instead of `get()`.
-- A safety-relevant caller can supervise the call with a checkpoint of Platform Health Management ([guide 06](06_PlatformHealthManagement.md#5-supervised-entities-and-checkpoints-in-practice)); the specification recommends this for E2E-protected methods (SWS CM, Section 7.4.1.2.6).
+- A safety-relevant caller can supervise the call with a checkpoint of Platform Health Management (the [PHM guide](PlatformHealthManagement.md#5-supervised-entities-and-checkpoints-in-practice)); the specification recommends this for E2E-protected methods (SWS CM, Section 7.4.1.2.6).
 
 The client does get an error, `kCommunicationFailure`, when the implementation *knows* that the call cannot succeed: when sending failed locally, or when a response arrived that is malformed but can still be assigned to the call ([SWS_CM_10440]).
 
@@ -1420,7 +1420,7 @@ When the proxy itself is destroyed, it destroys the promises of all pending call
 
 **In plain words:** a fire-and-forget method is a one-way call. The consumer does not get an answer, not even an error. It is light-weight, and it is enough when "best effort" is acceptable.
 
-**Formally:** when `ClientServerOperation.fireAndForget` is `true`, the method has only in arguments and no possible errors ([constr_3374], [constr_3375]; guide 02). The generated API is ([SWS_CM_90435], [SWS_CM_90434]):
+**Formally:** when `ClientServerOperation.fireAndForget` is `true`, the method has only in arguments and no possible errors ([constr_3374], [constr_3375]; the Manifests guide). The generated API is ([SWS_CM_90435], [SWS_CM_90434]):
 
 ```cpp
 // Proxy: proxy::methods::{<fnfmethod>}
@@ -1460,7 +1460,7 @@ Arguments passed by reference are provided by Communication Management only unti
 ara::core::Future<CalibrationService::GetCalibrationOutput>
 CalibrationService::GetCalibration(hpc::storage::CalibrationKey key) noexcept {
     ara::core::Promise<GetCalibrationOutput> promise;
-    auto record = store_.Read(key);  // reads CalibrationKvs (guide 11, Section 6.7)
+    auto record = store_.Read(key);  // reads CalibrationKvs (the Persistency guide, Section 6.7)
     if (record.HasValue()) {
         promise.set_value(GetCalibrationOutput{std::move(record).Value()});
     } else {
@@ -1517,7 +1517,7 @@ for (int i = 0; i < 2; ++i) {
 
 **In plain words:** a method can fail for a reason that belongs to the service itself, such as "this exposure mode is not supported". Such *application errors* are modeled with the interface and reach the caller as ordinary error codes.
 
-**Formally:** the model lists the possible errors of a method in `ClientServerOperation.possibleApError` and `possibleApErrorSet`. Each `ApApplicationError` belongs to an error domain, for which the generator creates a C++ error domain ([guide 03, Section 7.8](03_CoreAndGeneral.md#78-generated-error-domains)). To report one, the provider stores the corresponding `ara::core::ErrorCode` in the promise with `SetError`; the binding transports it in the response (SWS CM, Section 7.5.19). An application error that is not configured for the method reaches the caller as `kUnknownApplicationError` ([SWS_CM_00048]). Errors of `ara::com` itself are in `ComErrorDomain` ([Section 11.2](#112-comerrordomain-and-comerrc)).
+**Formally:** the model lists the possible errors of a method in `ClientServerOperation.possibleApError` and `possibleApErrorSet`. Each `ApApplicationError` belongs to an error domain, for which the generator creates a C++ error domain (the [Core guide, Section 7.8](CoreAndGeneral.md#78-generated-error-domains)). To report one, the provider stores the corresponding `ara::core::ErrorCode` in the promise with `SetError`; the binding transports it in the response (SWS CM, Section 7.5.19). An application error that is not configured for the method reaches the caller as `kUnknownApplicationError` ([SWS_CM_00048]). Errors of `ara::com` itself are in `ComErrorDomain` ([Section 11.2](#112-comerrordomain-and-comerrc)).
 
 `HPC` has two modeled application error domains for its services:
 
@@ -1528,10 +1528,10 @@ for (int i = 0; i < 2; ++i) {
 
 ### 8.9 Worked Example: `SetExposureMode` From `Fusion` to `CameraDriver`
 
-[Guide 03, Section 9.7](03_CoreAndGeneral.md#97-worked-example-fusion-requests-the-night-exposure-mode) showed how `Fusion` polls the future of `SetExposureMode(Night)` once per cycle, with a stand-in function. With the generated proxy, the call and the type of the future become:
+The [Core guide, Section 9.7](CoreAndGeneral.md#97-worked-example-fusion-requests-the-night-exposure-mode) showed how `Fusion` polls the future of `SetExposureMode(Night)` once per cycle, with a stand-in function. With the generated proxy, the call and the type of the future become:
 
 ```cpp
-// Fusion: request the Night exposure mode (illustrative; HandleReply as in guide 03, Section 9.7).
+// Fusion: request the Night exposure mode (illustrative; HandleReply as in the Core guide, Section 9.7).
 using ExposureFuture = ara::core::Future<hpc::camera::proxy::methods::SetExposureMode::Output>;
 
 void ExposureControl::OnCycle(CameraProxy& camera, bool imageIsDark) {
@@ -1696,7 +1696,7 @@ Register the receive handler **before** calling `Subscribe()`. Otherwise the ini
 
 ### 9.6 Worked Example: `CameraStatus` and `FusionMode`
 
-**`CameraStatus`** has a getter and a notifier. `CameraDriver` gives it the initial value `NotAvailable` before the offer, sets `Ok` when the first image is captured, and `Blocked` when its monitor detects a dark or frozen image (guide 12b):
+**`CameraStatus`** has a getter and a notifier. `CameraDriver` gives it the initial value `NotAvailable` before the offer, sets `Ok` when the first image is captured, and `Blocked` when its monitor detects a dark or frozen image (the Diagnostics Part 2 guide):
 
 ```cpp
 // CameraDriver (illustrative).
@@ -1775,7 +1775,7 @@ The following table lists every callback that `ara::com` calls, and what the spe
 | GetHandler, SetHandler | `RegisterGetHandler`, `RegisterSetHandler` | A `Get()` or `Set()` arrived | Not specified | [SWS_CM_10412], [SWS_CM_10413] |
 | Method implementation | Virtual function of the skeleton | A call arrived (or `ProcessNextMethodCall()`) | By processing mode: concurrent, sequential or polled | [SWS_CM_10411] |
 | E2E error handler | Virtual `E2EErrorHandler` of the skeleton | The E2E check of a method request failed | Invoked from a separate thread; need not be re-entrant | [SWS_CM_00034], [SWS_CM_10470] |
-| Continuation | `Future::then` | The method result is ready | May run in another thread ([guide 03, Section 9.5](03_CoreAndGeneral.md#95-continuations-with-then)) | SWS Core |
+| Continuation | `Future::then` | The method result is ready | May run in another thread (the [Core guide, Section 9.5](CoreAndGeneral.md#95-continuations-with-then)) | SWS Core |
 
 Rules that apply to all registration functions:
 
@@ -1802,7 +1802,7 @@ Most registration functions have a second overload with an additional `executor`
 | Skeleton: `RegisterGetHandler`, `RegisterSetHandler` | [SWS_CM_11360], [SWS_CM_11362] |
 | `SetTransportFaultConditionHandler` (proxy event, field, trigger; skeleton field, skeleton) | [SWS_CM_00100], [SWS_CM_00110], [SWS_CM_00107], [SWS_CM_00097], [SWS_CM_00094] |
 
-[Guide 03, Section 11.12](03_CoreAndGeneral.md#1112-executor) explains `ara::core::Executor`. SWS Core gives it no public constructor besides copy and move, so how an application obtains one depends on the API that hands it out or on the vendor.
+The [Core guide, Section 11.12](CoreAndGeneral.md#1112-executor) explains `ara::core::Executor`. SWS Core gives it no public constructor besides copy and move, so how an application obtains one depends on the API that hands it out or on the vendor.
 
 ```cpp
 // Run Storage's receive handler in an executor that the application controls (illustrative;
@@ -1835,7 +1835,7 @@ objects.ObjectList.SetReceiveHandler([this, &objects]() { ReadObjectLists(object
 
 ### 11.1 Three Kinds of Errors
 
-`ara::com` follows the error model of SWS Core ([guide 03, Chapter 6](03_CoreAndGeneral.md#6-the-error-handling-model)): recoverable errors are returned as an `ara::core::ErrorCode` inside a `Result` or a `Future` ([SWS_CM_11265]); broken contracts are violations that end the process. There are three kinds of errors (SWS CM, Section 7.5.22.6):
+`ara::com` follows the error model of SWS Core (the [Core guide, Chapter 6](CoreAndGeneral.md#6-the-error-handling-model)): recoverable errors are returned as an `ara::core::ErrorCode` inside a `Result` or a `Future` ([SWS_CM_11265]); broken contracts are violations that end the process. There are three kinds of errors (SWS CM, Section 7.5.22.6):
 
 | Kind | Error domain | Defined by | Example |
 | --- | --- | --- | --- |
@@ -1862,13 +1862,13 @@ Vendors may add their own error codes to any function (SWS CM, Table 8.1). Excep
 | 22 | `kUnknownApplicationError` | A remote service returned an unconfigured application error | Method calls |
 | 23 | `kMinimumSendIntervalViolationError` | The element was sent or called faster than its Minimum Send Interval allows | `Send`, `Update`, trigger `Send`, method calls, `Get`, `Set` |
 
-The API tables also mark each error with its recoverability class ([RS_AP_00160]; [guide 03, Section 6.6](03_CoreAndGeneral.md#66-recoverability-classes)). Most `ara::com` errors have rollback semantics: nothing happened, and you can retry. `kCommunicationFailure` of a method call or of `Set` has **no** rollback semantics: "In case of a communication timeout this could lead to an uncertain state on the remote server side" ([SWS_CM_00196], [SWS_CM_00113]). Do not blindly retry non-idempotent calls after it.
+The API tables also mark each error with its recoverability class ([RS_AP_00160]; the [Core guide, Section 6.6](CoreAndGeneral.md#66-recoverability-classes)). Most `ara::com` errors have rollback semantics: nothing happened, and you can retry. `kCommunicationFailure` of a method call or of `Set` has **no** rollback semantics: "In case of a communication timeout this could lead to an uncertain state on the remote server side" ([SWS_CM_00196], [SWS_CM_00113]). Do not blindly retry non-idempotent calls after it.
 
 The domain class follows the pattern of all error domains: `Errc` and `Exception` aliases, `Name()`, `Message()`, `ThrowAsException()`, and the free functions `GetComErrorDomain()` and `MakeErrorCode()` ([SWS_CM_11329] to [SWS_CM_11337]). Its exception class is `ara::com::ComException` ([SWS_CM_11327]).
 
 ### 11.3 Violations in ara::com
 
-A violation is a broken rule that the caller cannot handle sensibly; the platform logs a message and terminates the process ([guide 03, Section 6.3](03_CoreAndGeneral.md#63-violations-fail-early)). `ara::com` raises the following violations. The first group has a standardized log message (SWS CM, Section 7.7.3).
+A violation is a broken rule that the caller cannot handle sensibly; the platform logs a message and terminates the process (the [Core guide, Section 6.3](CoreAndGeneral.md#63-violations-fail-early)). `ara::com` raises the following violations. The first group has a standardized log message (SWS CM, Section 7.7.3).
 
 | Violation | Raised when | Message ID | ID |
 | --- | --- | --- | --- |
@@ -1941,7 +1941,7 @@ using TransportFaultConditionHandler = std::function<void(TransportFaultConditio
 
 The second argument is the number of fault conditions detected. Handlers can be set on proxy events, fields and triggers, on the skeleton for all methods, and on skeleton fields for their getter and setter (`SetTransportFaultConditionHandler`, `UnsetTransportFaultConditionHandler`; [Section 15.3](#153-proxy-events-fields-methods-and-triggers)). Calls are serialized per element ([SWS_CM_00089]). On the client side, methods, `Get` and `Set` report transport faults as `kCommunicationFailure` in their future ([SWS_CM_00090]).
 
-R25-11 defines the mapping of the three conditions only for the DDS binding, as DRAFT: `kSampleRejected` for the DDS status `SAMPLE_REJECTED`, `kDeadlineMissed` for `REQUESTED_DEADLINE_MISSED`, and `kSampleLost` for `SAMPLE_LOST` ([SWS_CM_00211]; [guide 08a](08a_NetworkBindings.md)). For other bindings, it is not specified when the handler is called.
+R25-11 defines the mapping of the three conditions only for the DDS binding, as DRAFT: `kSampleRejected` for the DDS status `SAMPLE_REJECTED`, `kDeadlineMissed` for `REQUESTED_DEADLINE_MISSED`, and `kSampleLost` for `SAMPLE_LOST` ([SWS_CM_00211]; the [Network Bindings guide](NetworkBindings.md)). For other bindings, it is not specified when the handler is called.
 
 ### 11.6 Worked Example: Every Error `Fusion` Can See From `CameraService`
 
@@ -1949,8 +1949,8 @@ The following table lists what `Fusion` can meet when it uses `CameraService`, a
 
 | Situation | What `Fusion` sees | Reaction |
 | --- | --- | --- |
-| Port path wrong in the code or the model | `InstanceSpecifierMappingIntegrityViolation` at `StartFindService` | None at run time: the process ends; fix the model or the code ([guide 03, Section 6.7](03_CoreAndGeneral.md#67-worked-example-a-wrong-instancespecifier-in-fusion)) |
-| `Fusion` not allowed to use the service | `InsufficientPermissionsViolation` | None at run time: fix the IAM configuration (guide 15) |
+| Port path wrong in the code or the model | `InstanceSpecifierMappingIntegrityViolation` at `StartFindService` | None at run time: the process ends; fix the model or the code (the [Core guide, Section 6.7](CoreAndGeneral.md#67-worked-example-a-wrong-instancespecifier-in-fusion)) |
+| `Fusion` not allowed to use the service | `InsufficientPermissionsViolation` | None at run time: fix the IAM configuration (the IAM guide) |
 | `CameraDriver` not yet offered | Find service handler with an empty list | Wait; no proxy yet |
 | `CameraDriver` restarts | Subscription state `kSubscriptionPending`; method futures with `kServiceNotAvailable` | Treat the camera as unavailable; retry the method later |
 | Network or binding problem | `kCommunicationFailure` | Log; retry later; do not assume the method was not executed |
@@ -1959,7 +1959,7 @@ The following table lists what `Fusion` can meet when it uses `CameraService`, a
 | Proxy destroyed with a pending call | `FutureErrc::kBrokenPromise` | Ignore during shutdown |
 
 ```cpp
-// Fusion: reaction to the result of SetExposureMode (illustrative; extends guide 03, Section 9.7).
+// Fusion: reaction to the result of SetExposureMode (illustrative; extends the Core guide, Section 9.7).
 void ExposureControl::HandleReply(
         const ara::core::Result<hpc::camera::proxy::methods::SetExposureMode::Output>& reply) {
     if (reply.HasValue()) {
@@ -1975,7 +1975,7 @@ void ExposureControl::HandleReply(
     } else if (error == ara::com::ComErrc::kCommunicationFailure) {
         // no rollback semantics: the camera may have switched; log and re-check CameraStatus first
     } else if (error.Domain() == ara::com::e2e::GetComE2EErrorDomain()) {
-        // E2E check failed (if guide 08b protects the method): log and retry
+        // E2E check failed (if the Secure Communication guide protects the method): log and retry
     } else {
         // kUnknownApplicationError, kBrokenPromise or a vendor-specific error: log
     }
@@ -1994,13 +1994,13 @@ void ExposureControl::HandleReply(
 
 ## 12. End-to-End Protection: The API Side
 
-> **Why this matters:** Safety-relevant data, such as object lists that a braking function relies on, must not be used when it is corrupted, repeated or stale. End-to-end (E2E) protection detects this, and `ara::com` reports the result to the application. This chapter shows how to read and use these results. How E2E works on the wire, which profiles exist and how they are configured are covered in [guide 08b](08b_SecureAndSafeCommunication.md).
+> **Why this matters:** Safety-relevant data, such as object lists that a braking function relies on, must not be used when it is corrupted, repeated or stale. End-to-end (E2E) protection detects this, and `ara::com` reports the result to the application. This chapter shows how to read and use these results. How E2E works on the wire, which profiles exist and how they are configured are covered in the [Secure Communication guide](SecureAndSafeCommunication.md).
 
 ### 12.1 E2E in Plain Words
 
 **In plain words:** the sender adds a small header to each message: a counter, a checksum (CRC) and an identifier of the data. The receiver checks the header. A *check status* says what happened to one message; a *state machine* looks at the recent history of checks and says whether the communication as a whole can be trusted right now.
 
-**Formally:** Communication Management provides "a built-in safety mechanism (E2E protection), which can be used for all levels of communication for events and methods" (SWS CM, Chapter 1). The E2E functions follow the AUTOSAR E2E protocol ([SWS_CM_90433], [SWS_CM_90485]). The protection of an event is configured in `End2EndEventProtectionProps` and `E2EProfileConfiguration`, that of a method in `End2EndMethodProtectionProps` and `E2EProfileConfiguration` ([SWS_CM_90402], [SWS_CM_10460]); these elements belong to the service instance ([guide 08b](08b_SecureAndSafeCommunication.md)).
+**Formally:** Communication Management provides "a built-in safety mechanism (E2E protection), which can be used for all levels of communication for events and methods" (SWS CM, Chapter 1). The E2E functions follow the AUTOSAR E2E protocol ([SWS_CM_90433], [SWS_CM_90485]). The protection of an event is configured in `End2EndEventProtectionProps` and `E2EProfileConfiguration`, that of a method in `End2EndMethodProtectionProps` and `E2EProfileConfiguration` ([SWS_CM_90402], [SWS_CM_10460]); these elements belong to the service instance (the [Secure Communication guide](SecureAndSafeCommunication.md)).
 
 For the application, the checks are invisible until it asks for the result:
 
@@ -2088,7 +2088,7 @@ The other attributes of `EndToEndTransformationComSpecProps`, such as window siz
 
 ### 12.5 Worked Example: `Storage` Checks the E2E Status of `ObjectList`
 
-Whether `ObjectListService` is E2E-protected in `HPC` is decided in [guide 08b, Section 13.3](08b_SecureAndSafeCommunication.md#133-worked-example-what-storage-sees-for-objectlist): `ObjectListService` uses the DDS binding, which has no E2E profile, and its `SMState` follows DDS liveliness. The following code shows how `Storage` uses the results. It collects the new object lists, drops samples that failed the check, and marks the recording as not trustworthy while the state machine is not `kValid`.
+Whether `ObjectListService` is E2E-protected in `HPC` is decided in the [Secure Communication guide, Section 13.3](SecureAndSafeCommunication.md#133-worked-example-what-storage-sees-for-objectlist): `ObjectListService` uses the DDS binding, which has no E2E profile, and its `SMState` follows DDS liveliness. The following code shows how `Storage` uses the results. It collects the new object lists, drops samples that failed the check, and marks the recording as not trustworthy while the state machine is not `kValid`.
 
 ```cpp
 // Storage: read ObjectList with E2E status (illustrative; called from the receive handler).
@@ -2165,7 +2165,7 @@ The EXP distinguishes three cases (Section 7.3):
 2. **Local and network.** Instance 1 is local and reached over IPC; instance 2 runs on another ECU and is reached over SOME/IP. The handles of the two instances look completely different inside.
 3. **SOME/IP through a daemon.** Applications usually do not open network sockets themselves; a daemon owns them, and applications reach it over local IPC.
 
-The following diagram shows how `CameraService` *could* be deployed with multi-binding: `Fusion` on `HPC` over local IPC, `Cockpit` over SOME/IP. Whether `HPC` does this is decided in [guide 08a](08a_NetworkBindings.md); guide 02 models only the SOME/IP binding.
+The following diagram shows how `CameraService` *could* be deployed with multi-binding: `Fusion` on `HPC` over local IPC, `Cockpit` over SOME/IP. Whether `HPC` does this is decided in the [Network Bindings guide](NetworkBindings.md); the Manifests guide models only the SOME/IP binding.
 
 ```mermaid
 flowchart LR
@@ -2231,7 +2231,7 @@ CalibrationService::SetCalibration(hpc::storage::CalibrationKey key,
 }
 ```
 
-`CameraDriver` calls `SetCalibration` at the end of the diagnostic routine `CalibrateCamera` ([guide 12a, Section 11.4](12a_Diagnostics.md#114-worked-example-calibratecamera)). The routine waits for the result with a timeout, because `ara::com` does not time out calls ([Section 8.3](#83-no-timeout-supervision)):
+`CameraDriver` calls `SetCalibration` at the end of the diagnostic routine `CalibrateCamera` (the [Diagnostics Part 1 guide, Section 11.4](DiagnosticsPart1.md#114-worked-example-calibratecamera)). The routine waits for the result with a timeout, because `ara::com` does not time out calls ([Section 8.3](#83-no-timeout-supervision)):
 
 ```cpp
 // CameraDriver: store a new camera calibration (illustrative).
@@ -2258,7 +2258,7 @@ return RoutineResult::kOk;
 
 ## 14. Configuration Reference: What to Configure
 
-> **Why this matters:** This chapter answers the question "what do I have to configure for `ara::com`, and what does each setting mean?". It covers the binding-independent elements that Communication Management reads. The SOME/IP, DDS and signal-based settings of the deployment are covered in [guide 08a, Chapter 14](08a_NetworkBindings.md#14-configuration-reference-what-to-configure), the E2E protection and secure communication settings in [guide 08b](08b_SecureAndSafeCommunication.md); the general manifest structure is in [guide 02, Chapter 12](02_Manifests.md#12-configuration-reference-what-to-configure).
+> **Why this matters:** This chapter answers the question "what do I have to configure for `ara::com`, and what does each setting mean?". It covers the binding-independent elements that Communication Management reads. The SOME/IP, DDS and signal-based settings of the deployment are covered in the [Network Bindings guide, Chapter 14](NetworkBindings.md#14-configuration-reference-what-to-configure), the E2E protection and secure communication settings in the [Secure Communication guide](SecureAndSafeCommunication.md); the general manifest structure is in the [Manifests guide, Chapter 12](Manifests.md#12-configuration-reference-what-to-configure).
 
 The tables use the column *Default* only for values that a specification states. SWS CM itself defines no default values (SWS CM, Section 10.1); the only defaults below come from individual requirements and from the TPS.
 
@@ -2269,19 +2269,19 @@ To make one service work between a provider process and a consumer process, conf
 | # | What | Who | Section |
 | --- | --- | --- | --- |
 | 1 | A `ServiceInterface` with a `namespace`, `majorVersion` and `minorVersion`, and its events, fields, methods and triggers | Service designer | [14.2](#142-serviceinterface-and-its-elements) |
-| 2 | The C++ implementation data types and application errors that the interface uses | Service designer | [Guide 02, 12.5 and 12.6](02_Manifests.md#125-cppimplementationdatatype) |
+| 2 | The C++ implementation data types and application errors that the interface uses | Service designer | [Manifests guide, 12.5 and 12.6](Manifests.md#125-cppimplementationdatatype) |
 | 3 | A provider component with a `PPortPrototype` typed by the interface, and a `FieldSenderComSpec` with `initValue` for each field | Application developer | [14.3](#143-portprototype-and-rportprototypeprops), [14.4](#144-sender-and-receiver-comspecs) |
 | 4 | A consumer component with an `RPortPrototype` typed by the interface | Application developer | [14.3](#143-portprototype-and-rportprototypeprops) |
-| 5 | An `Executable` for each component, with the component in its root prototype; a `Process` for each executable, mapped to the machine | Application developer, integrator | [Guide 02, Chapter 8](02_Manifests.md#8-the-execution-manifest) |
+| 5 | An `Executable` for each component, with the component in its root prototype; a `Process` for each executable, mapped to the machine | Application developer, integrator | [Manifests guide, Chapter 8](Manifests.md#8-the-execution-manifest) |
 | 6 | A `ServiceInterfaceDeployment` that covers every element of the interface, for the chosen binding | Software cluster integrator | [14.7](#147-serviceinterfacedeployment-and-minimumsendinterval), [14.8](#148-user-defined-deployment-for-local-ipc) |
 | 7 | A provided and a required service instance that reference the deployment | Software cluster integrator | [14.9](#149-service-instances-and-their-mappings) |
 | 8 | A `ServiceInstanceToPortPrototypeMapping` for each port in each process | Integrator | [14.9](#149-service-instances-and-their-mappings) |
 | 9 | A `ServiceInstanceToMachineMapping` that maps the instances to a communication connector of the machine | Machine integrator | [14.9](#149-service-instances-and-their-mappings) |
-| 10 | If access control is enabled: grants for the processes | Integrator | [14.10](#1410-cmmoduleinstantiation), guide 15 |
+| 10 | If access control is enabled: grants for the processes | Integrator | [14.10](#1410-cmmoduleinstantiation), the IAM guide |
 
 ### 14.2 ServiceInterface and Its Elements
 
-**Purpose:** the contract of the service; it determines the generated C++ API. **Lives in:** service interface design. **Configured by:** service designer. **Spec:** TPS 4.2; [guide 02, Section 12.4](02_Manifests.md#124-serviceinterface-and-its-elements) has the complete attribute table. The table below adds the effect on `ara::com`.
+**Purpose:** the contract of the service; it determines the generated C++ API. **Lives in:** service interface design. **Configured by:** service designer. **Spec:** TPS 4.2; the [Manifests guide, Section 12.4](Manifests.md#124-serviceinterface-and-its-elements) has the complete attribute table. The table below adds the effect on `ara::com`.
 
 | Element.attribute | Meaning | Type and values | Mult. | Default | Rules | Effect at run time |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -2318,7 +2318,7 @@ To make one service work between a provider process and a consumer process, conf
 | `QueuedSenderComSpec` | Sender settings of an event | (class) | | | For events ([TPS_MANI_03210]) | |
 | `FieldSenderComSpec.initValue` | Initial value of a field | `ValueSpecification` | `0..1` | not specified | Shall exist for each `FieldSenderComSpec` ([constr_10152]) | Not applied automatically; the application calls `Update()` with it before `OfferService()` ([TPS_MANI_03212], [Section 9.2](#92-the-value-before-the-offer)) |
 | `SenderComSpec.senderIntent` | Whether the software intends to send the element | `willSend`, `wontSend` | `0..1` | not specified | DRAFT ([TPS_MANI_01107]) | An expressed intent, relevant for IAM |
-| `SenderComSpec.usesEndToEndProtection` | The element is transmitted with E2E protection | `Boolean` (variation point) | `0..1` | not specified | | [Guide 08b](08b_SecureAndSafeCommunication.md) |
+| `SenderComSpec.usesEndToEndProtection` | The element is transmitted with E2E protection | `Boolean` (variation point) | `0..1` | not specified | | [Secure Communication guide](SecureAndSafeCommunication.md) |
 | `SenderComSpec.transmissionProps` (`TransmissionComSpecProps`: `dataUpdatePeriod`, `minimumSendInterval`, `transmissionMode`, `onChangeDataPrototype`) | How often the *application* sends | `TimeValue`; `cyclic`, `triggered`, `onChange`, `cyclicAndOnChange` | `0..1` | not specified | Behavior to be implemented by the application (TPS, Section 3.2.5.1.5) | None by Communication Management; a contract for the application and for test tools |
 | `ReceiverComSpec.dataElement` | The event or field the settings apply to | `AutosarDataPrototype` (ref) | `0..1` | not specified | | Identifies the element |
 | `QueuedReceiverComSpec` | Receiver settings of an event | (class) | | | | |
@@ -2350,11 +2350,11 @@ To make one service work between a provider process and a consumer process, conf
 | --- | --- | --- | --- | --- | --- | --- |
 | `disableEndToEndCheck` | Switch the E2E check off | `Boolean` | `0..1` | not specified | If `true`, `disableEndToEndStateMachine` is ignored ([TPS_MANI_01327]) | `ProfileCheckStatus::kCheckDisabled`; the E2E header is still removed ([Section 12.4](#124-what-you-can-switch-off-and-other-limits)) |
 | `disableEndToEndStateMachine` | Switch only the state machine off | `Boolean` | `0..1` | not specified | | `SMState::kStateMDisabled` |
-| `maxDeltaCounter`, `maxErrorStateInit`, `maxErrorStateInvalid`, `maxErrorStateValid`, `minOkStateInit`, `minOkStateInvalid`, `minOkStateValid`, `windowSizeInit`, `windowSizeInvalid`, `windowSizeValid`, `clearFromValidToInvalid`, `e2eProfileCompatibilityProps` | Port-specific parameters of the E2E check and state machine | `PositiveInteger`, `Boolean`, ref | `0..1` each | not specified | **Not supported** by Communication Management in R25-11 (SWS CM, Sections 7.4.1.1.1, 7.4.1.2.1) | None; the instance-level E2E configuration applies ([guide 08b, Section 15.9](08b_SecureAndSafeCommunication.md#159-e2e-for-service-instances)) |
+| `maxDeltaCounter`, `maxErrorStateInit`, `maxErrorStateInvalid`, `maxErrorStateValid`, `minOkStateInit`, `minOkStateInvalid`, `minOkStateValid`, `windowSizeInit`, `windowSizeInvalid`, `windowSizeValid`, `clearFromValidToInvalid`, `e2eProfileCompatibilityProps` | Port-specific parameters of the E2E check and state machine | `PositiveInteger`, `Boolean`, ref | `0..1` each | not specified | **Not supported** by Communication Management in R25-11 (SWS CM, Sections 7.4.1.1.1, 7.4.1.2.1) | None; the instance-level E2E configuration applies (the [Secure Communication guide, Section 15.9](SecureAndSafeCommunication.md#159-e2e-for-service-instances)) |
 
 ### 14.7 ServiceInterfaceDeployment and minimumSendInterval
 
-**Purpose:** the transport-specific form of a service interface. **Lives in:** Service Instance Manifest. **Configured by:** software cluster integrator. **Spec:** TPS 13.2, Tables 13.6 to 13.10; [guide 02, Section 12.13](02_Manifests.md#1213-serviceinterfacedeployment-and-service-instances).
+**Purpose:** the transport-specific form of a service interface. **Lives in:** Service Instance Manifest. **Configured by:** software cluster integrator. **Spec:** TPS 13.2, Tables 13.6 to 13.10; the [Manifests guide, Section 12.13](Manifests.md#1213-serviceinterfacedeployment-and-service-instances).
 
 | Element.attribute | Meaning | Type and values | Mult. | Default | Rules | Effect at run time |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -2383,12 +2383,12 @@ To make one service work between a provider process and a consumer process, conf
 
 ### 14.9 Service Instances and Their Mappings
 
-**Purpose:** connect ports to instances, and instances to the machine. **Lives in:** Service Instance Manifest. **Configured by:** integrators. **Spec:** TPS 13.3, Tables 13.28 to 13.32; [guide 02, Section 12.14](02_Manifests.md#1214-serviceinstancetoportprototypemapping-and-serviceinstancetomachinemapping) gives the binding-specific attributes.
+**Purpose:** connect ports to instances, and instances to the machine. **Lives in:** Service Instance Manifest. **Configured by:** integrators. **Spec:** TPS 13.3, Tables 13.28 to 13.32; the [Manifests guide, Section 12.14](Manifests.md#1214-serviceinstancetoportprototypemapping-and-serviceinstancetomachinemapping) gives the binding-specific attributes.
 
 | Element.attribute | Meaning | Type and values | Mult. | Default | Rules | Effect at run time |
 | --- | --- | --- | --- | --- | --- | --- |
 | `AdaptivePlatformServiceInstance.serviceInterfaceDeployment` | The deployment the instance uses | `ServiceInterfaceDeployment` (ref) | `0..1` | not specified | | Binding and IDs of the instance |
-| `AdaptivePlatformServiceInstance.e2eEventProtectionProps`, `e2eMethodProtectionProps`, `secureComConfig` | E2E protection and secure communication of the instance | (aggr) | `*` each | not specified | [SWS_CM_90402], [SWS_CM_10460] | [Guide 08b, Section 15.9](08b_SecureAndSafeCommunication.md#159-e2e-for-service-instances) |
+| `AdaptivePlatformServiceInstance.e2eEventProtectionProps`, `e2eMethodProtectionProps`, `secureComConfig` | E2E protection and secure communication of the instance | (aggr) | `*` each | not specified | [SWS_CM_90402], [SWS_CM_10460] | [Secure Communication guide, Section 15.9](SecureAndSafeCommunication.md#159-e2e-for-service-instances) |
 | `ProvidedApServiceInstance`, `RequiredApServiceInstance` | Provider side, consumer side | (abstract classes) | | | Subclasses per binding | A provided instance is offered by a skeleton (P-port); a required instance is what a proxy searches (R-port) |
 | `ServiceInstanceToPortPrototypeMapping.portPrototype` | The port in the executable | `PortPrototype` (iref `PortPrototypeInExecutableInstanceRef`) | `0..1` | not specified | [TPS_MANI_03000] | Resolves the `InstanceSpecifier` ([SWS_CM_10452]) |
 | `ServiceInstanceToPortPrototypeMapping.serviceInstance` | The instance of the port | `AdaptivePlatformServiceInstance` (ref) | `0..1` | not specified | | What the skeleton offers or the proxy searches |
@@ -2396,7 +2396,7 @@ To make one service work between a provider process and a consumer process, conf
 | `ServiceInstanceToPortPrototypeMapping.processDesign` | Design-level pre-assignment | `ProcessDesign` (ref) | `0..1` | not specified | Design level only ([TPS_MANI_01316]) | |
 | `ServiceInstanceToMachineMapping.communicationConnector` | The connector of the machine | `CommunicationConnector` (ref) | `0..1` | not specified | | Network interface, or IPC domain |
 | `ServiceInstanceToMachineMapping.serviceInstance` | The mapped instances | `AdaptivePlatformServiceInstance` (ref) | `*` | not specified | A TCP endpoint serves either provided or required instances ([constr_3487]) | |
-| `ServiceInstanceToMachineMapping.secureComPropsForTcp`, `secureComPropsForUdp`, `secOcComPropsForMulticast` | Security of the endpoints | (ref) | `0..1`, `0..1`, `*` | not specified | | Guides 08, 14 |
+| `ServiceInstanceToMachineMapping.secureComPropsForTcp`, `secureComPropsForUdp`, `secOcComPropsForMulticast` | Security of the endpoints | (ref) | `0..1`, `0..1`, `*` | not specified | | Secure Communication and Cryptography guides |
 
 ### 14.10 CmModuleInstantiation
 
@@ -2404,19 +2404,19 @@ To make one service work between a provider process and a consumer process, conf
 
 | Element.attribute | Meaning | Type and values | Mult. | Default | Rules | Effect at run time |
 | --- | --- | --- | --- | --- | --- | --- |
-| `CmModuleInstantiation.grant` | The grants that Communication Management enforces | `Grant` (ref) | `*` | not specified | Candidate | Access control (guide 15); a refused operation raises `InsufficientPermissionsViolation` |
-| `CmModuleInstantiation.localComAccessControlEnabled` | Enforce policies for local applications | `Boolean` | `0..1` | not specified | Candidate | Guide 15 |
-| `CmModuleInstantiation.remoteAccessControlEnabled` | Enforce policies for remote access | `Boolean` | `0..1` | not specified | Candidate | Guide 15 |
-| `CmModuleInstantiation.secOCIgnoreVerificationResult` | Ignore the SecOC verification result | `Boolean` | `0..1` | not specified | Candidate | [Guide 08b, Section 7.6](08b_SecureAndSafeCommunication.md#76-receiving-verification-retries-bypass-and-ignore) |
+| `CmModuleInstantiation.grant` | The grants that Communication Management enforces | `Grant` (ref) | `*` | not specified | Candidate | Access control (the IAM guide); a refused operation raises `InsufficientPermissionsViolation` |
+| `CmModuleInstantiation.localComAccessControlEnabled` | Enforce policies for local applications | `Boolean` | `0..1` | not specified | Candidate | IAM guide |
+| `CmModuleInstantiation.remoteAccessControlEnabled` | Enforce policies for remote access | `Boolean` | `0..1` | not specified | Candidate | IAM guide |
+| `CmModuleInstantiation.secOCIgnoreVerificationResult` | Ignore the SecOC verification result | `Boolean` | `0..1` | not specified | Candidate | [Secure Communication guide, Section 7.6](SecureAndSafeCommunication.md#76-receiving-verification-retries-bypass-and-ignore) |
 
 ### 14.11 The Running Example: Complete Configuration
 
-The following conceptual view shows every `ara::com`-relevant element of `HPC` in one place. The SOME/IP deployment of `CameraService` is in [guide 02, Section 9.6](02_Manifests.md#96-worked-example-cameraservice-between-cameradriver-and-fusion); the DDS deployment of `ObjectListService` is added in [guide 08a](08a_NetworkBindings.md).
+The following conceptual view shows every `ara::com`-relevant element of `HPC` in one place. The SOME/IP deployment of `CameraService` is in the [Manifests guide, Section 9.6](Manifests.md#96-worked-example-cameraservice-between-cameradriver-and-fusion); the DDS deployment of `ObjectListService` is added in the [Network Bindings guide](NetworkBindings.md).
 
 ```yaml
 # Conceptual view of the ara::com configuration of HPC. NOT real ARXML syntax.
 ServiceInterfaces:
-  CameraService:          {namespace: hpc::camera,  version: 1.0,       # guide 02
+  CameraService:          {namespace: hpc::camera,  version: 1.0,       # the Manifests guide
                            event: Image (CameraImage), method: SetExposureMode(in mode),
                            field: CameraStatus (CameraState; getter, notifier)}
   ObjectListService:      {namespace: hpc::fusion,  version: 1.0,
@@ -2438,8 +2438,8 @@ Ports (executable/Root/port):
   /storage/Root/ObjectListRPort         R ObjectListService
   /calib_check/Root/CalibrationRPort    R CalibrationDataService
 Deployments:
-  CameraService_Someip:       SOME/IP (guide 02, guide 08a)
-  ObjectListService:          DDS (guide 08a)
+  CameraService_Someip:       SOME/IP (the Manifests guide, the Network Bindings guide)
+  ObjectListService:          DDS (the Network Bindings guide)
   CalibrationDataService_Ipc: user-defined, SERVICE_INTERFACE_DEPLOYMENT_IPC; SetCalibration minimumSendInterval 1.0 s
 Instances and mappings (CalibrationDataService):
   CalibrationDataProvided  <- /storage/Root/CalibrationPPort in Storage
@@ -2473,7 +2473,7 @@ flowchart LR
     MM --> CON
 ```
 
-The new elements are written as ARXML in the file `12_Communication.arxml` of the series model. It continues the files of guides 02, 05 and 06, and it validates against the R25-11 schema (`AUTOSAR_00054.xsd`). The following excerpts are copied from it. [Guide 02, Chapter 3](02_Manifests.md#3-reading-arxml) explains how to read ARXML.
+The new elements are written as ARXML in the file `12_Communication.arxml` of the series model. It continues the files of the Manifests, SM and PHM guides, and it validates against the R25-11 schema (`AUTOSAR_00054.xsd`). The following excerpts are copied from it. The [Manifests guide, Chapter 3](Manifests.md#3-reading-arxml) explains how to read ARXML.
 
 The service interface `CalibrationDataService`, with two methods, their application errors and the trigger:
 
@@ -2573,7 +2573,7 @@ The service interface `ObjectListService`:
 </SERVICE-INTERFACE>
 ```
 
-The ports that this guide adds to `FusionSwc`. The component is split over several files, which the model merges ([guide 02, Section 3.7](02_Manifests.md#37-many-files-one-model)); the `FieldSenderComSpec` gives `FusionMode` its initial value 0 (`Full`):
+The ports that this guide adds to `FusionSwc`. The component is split over several files, which the model merges (the [Manifests guide, Section 3.7](Manifests.md#37-many-files-one-model)); the `FieldSenderComSpec` gives `FusionMode` its initial value 0 (`Full`):
 
 ```xml
 <ADAPTIVE-APPLICATION-SW-COMPONENT-TYPE>
@@ -2900,7 +2900,7 @@ The handler types are "general purpose function aliases"; `std::function` is the
 
 ### 15.11 Complete Example: `CameraDriver`
 
-The three programs of this and the next two sections form one consistent sample. They follow the R25-11 signatures; types such as `Sensor`, `Frame`, `RadarInput` and `RecordingFile` stand for the application's own code. Supervision checkpoints (guide 06) and logging ([guide 10](10_LogAndTrace.md)) are left out. All programs initialize ARA first, offer their services before they report `kRunning`, and stop their offers before they end ([guide 03, Section 5.6](03_CoreAndGeneral.md#56-worked-example-the-main-function-of-fusion); [EM guide, Section 14.3](04_ExecutionManagement.md#143-executionclient)).
+The three programs of this and the next two sections form one consistent sample. They follow the R25-11 signatures; types such as `Sensor`, `Frame`, `RadarInput` and `RecordingFile` stand for the application's own code. Supervision checkpoints (the PHM guide) and logging (the [Log and Trace guide](LogAndTrace.md)) are left out. All programs initialize ARA first, offer their services before they report `kRunning`, and stop their offers before they end (the [Core guide, Section 5.6](CoreAndGeneral.md#56-worked-example-the-main-function-of-fusion); [EM guide, Section 14.3](ExecutionManagement.md#143-executionclient)).
 
 ```cpp
 // camera_driver: provider of CameraService (illustrative, simplified).
@@ -3086,7 +3086,7 @@ static int Run() {
 
     FusionCycle cycle;
     ExposureControl exposure;
-    RadarInput radar;  // raw data stream from FrontRadar (guide 09)
+    RadarInput radar;  // raw data stream from FrontRadar (the NM/TSync/RDS guide)
     auto next = std::chrono::steady_clock::now();
     while (!stop) {
         next += 50ms;
@@ -3224,7 +3224,7 @@ static int Run() {
     auto objectsSpec = ara::core::InstanceSpecifier::Create("/storage/Root/ObjectListRPort");
     if (!client.HasValue() || !calibSpec.HasValue() || !objectsSpec.HasValue()) { return EXIT_FAILURE; }
 
-    CalibrationStore store;  // CalibrationKvs (guide 11, Section 6.7)
+    CalibrationStore store;  // CalibrationKvs (the Persistency guide, Section 6.7)
     CalibrationService calibration{calibSpec.Value(), store};
     if (!calibration.OfferService().HasValue()) { return EXIT_FAILURE; }
     client.Value().ReportExecutionState(ara::exec::ExecutionState::kRunning);  // CalibrationCheck may start
@@ -3236,7 +3236,7 @@ static int Run() {
         objectsSpec.Value());
     if (!search.HasValue()) { return EXIT_FAILURE; }
 
-    RecordingFile file;  // Recordings (guide 11, Section 7.9)
+    RecordingFile file;  // Recordings (the Persistency guide, Section 7.9)
     while (!stop) {
         recorder.Flush(file);
         file.WaitShortly();  // for example 100 ms
@@ -3276,7 +3276,7 @@ Communication Management defines one security event (SWS CM, Section 7.7.1). It 
 | --- | --- | --- | --- | --- |
 | `SEV_ACCESS_CONTROL_COM_IAM_ACCESS_DENIED` | 135 | Access of an application to a resource provided by Communication Management was denied by the access control checks | `UserId` (`uint32`), context data version 1 | [SWS_CM_00601], [SWS_CM_00602], [SWS_CM_00603] |
 
-Communication Management reports it through the `EventReporter` interface of the Intrusion Detection System Manager (SWS CM, Table 5.2). In `HPC`, this is the event that appears when the misconfigured `FusionLite` tries to subscribe to `CameraService` ([guide 00, Section 6.12](00_LearningPath.md#612-security)); guide 15 configures the rights and guide 16 shows how IdsM qualifies the event.
+Communication Management reports it through the `EventReporter` interface of the Intrusion Detection System Manager (SWS CM, Table 5.2). In `HPC`, this is the event that appears when the misconfigured `FusionLite` tries to subscribe to `CameraService` (the [Running Example guide, Section 1.12](RunningExample.md#112-security)); the IAM guide configures the rights and the IDSM and Firewall guide shows how IdsM qualifies the event.
 
 ### 16.2 Log Messages and Violation Messages
 
@@ -3296,7 +3296,7 @@ Communication Management defines no non-verbose (modeled) log messages and no pr
 
 ### 16.3 What an Integrator Sees When an InstanceSpecifier Is Wrong
 
-Suppose the model renames the port `CameraRPort` of `FusionSwc`, but the code of `fusion` still uses `/fusion/Root/CameraRPort`. `InstanceSpecifier::Create` succeeds, because the syntax is valid. The call `CameraProxy::StartFindService(handler, spec)` then cannot resolve the path and raises `InstanceSpecifierMappingIntegrityViolation` ([SWS_CM_00623]). The DLT log of `HPC` shows one fatal message with the ID `0x80001ffc`, the process `/HPC/Processes/Fusion`, the specifier `/fusion/Root/CameraRPort` and the class name, and Execution Management reports the abnormal termination of `Fusion`. [Guide 03, Section 6.7](03_CoreAndGeneral.md#67-worked-example-a-wrong-instancespecifier-in-fusion) follows the same failure through State Management and Platform Health Management.
+Suppose the model renames the port `CameraRPort` of `FusionSwc`, but the code of `fusion` still uses `/fusion/Root/CameraRPort`. `InstanceSpecifier::Create` succeeds, because the syntax is valid. The call `CameraProxy::StartFindService(handler, spec)` then cannot resolve the path and raises `InstanceSpecifierMappingIntegrityViolation` ([SWS_CM_00623]). The DLT log of `HPC` shows one fatal message with the ID `0x80001ffc`, the process `/HPC/Processes/Fusion`, the specifier `/fusion/Root/CameraRPort` and the class name, and Execution Management reports the abnormal termination of `Fusion`. The [Core guide, Section 6.7](CoreAndGeneral.md#67-worked-example-a-wrong-instancespecifier-in-fusion) follows the same failure through State Management and Platform Health Management.
 
 > **Key takeaways**
 >
@@ -3312,7 +3312,7 @@ Suppose the model renames the port `CameraRPort` of `FusionSwc`, but the code of
 
 ### 17.1 The Sequence
 
-The following sequence diagram shows the main steps. Execution Management starts and stops the processes as guide 04 describes; State Management requests the `ADAS` states as guide 05 describes.
+The following sequence diagram shows the main steps. Execution Management starts and stops the processes as the EM guide describes; State Management requests the `ADAS` states as the SM guide describes.
 
 ```mermaid
 sequenceDiagram
@@ -3356,9 +3356,9 @@ sequenceDiagram
 | 6 | `Storage` finds `ObjectListService` | Creates the proxy, registers receive handlers, subscribes to `FusionMode` and `ObjectList` | [15.13](#1513-complete-example-storage) |
 | 7 | Driving | Every 50 ms, `Fusion` polls images and status and sends an object list with `Allocate` and `Send`; `Storage`'s handler queues the lists | [7.8](#78-worked-example-images-for-fusion-object-lists-for-storage) |
 | 8 | Dusk | `Fusion` calls `SetExposureMode(Night)` and polls the future; the camera does not support it, so `Fusion` keeps `Auto` | [8.9](#89-worked-example-setexposuremode-from-fusion-to-cameradriver) |
-| 9 | Workshop recalibrates the camera ([guide 12a](12a_Diagnostics.md#114-worked-example-calibratecamera)) | `CameraDriver` calls `SetCalibration`; `Storage` writes the key and sends `CalibrationUpdated`; `Fusion` sees the trigger and re-reads the calibration | [7.7](#77-triggers), [13.5](#135-worked-example-calibrationdataservice-over-local-ipc) |
+| 9 | Workshop recalibrates the camera (the [Diagnostics Part 1 guide](DiagnosticsPart1.md#114-worked-example-calibratecamera)) | `CameraDriver` calls `SetCalibration`; `Storage` writes the key and sends `CalibrationUpdated`; `Fusion` sees the trigger and re-reads the calibration | [7.7](#77-triggers), [13.5](#135-worked-example-calibrationdataservice-over-local-ipc) |
 | 10 | `CameraDriver` crashes and is restarted by Execution Management | `Fusion`'s subscription goes to `kSubscriptionPending`; method calls fail with `kServiceNotAvailable`; after the new offer, the proxy reconnects and re-subscribes by itself | [6.6](#66-when-the-service-goes-away) |
-| 11 | A supervision of `Fusion` fails; `ADAS` goes to `Degraded` (guides 05, 06) | `Fusion` is stopped: its skeleton destructor stops the offer; `FusionLite` offers the same `ObjectListService` instance with `FusionMode` `RadarOnly`; `Storage`'s proxy reconnects and receives the new initial value | [9.6](#96-worked-example-camerastatus-and-fusionmode) |
+| 11 | A supervision of `Fusion` fails; `ADAS` goes to `Degraded` (the SM and PHM guides) | `Fusion` is stopped: its skeleton destructor stops the offer; `FusionLite` offers the same `ObjectListService` instance with `FusionMode` `RadarOnly`; `Storage`'s proxy reconnects and receives the new initial value | [9.6](#96-worked-example-camerastatus-and-fusionmode) |
 | 12 | The vehicle is switched off | Applications stop their offers and release their samples; the daemon stays until State Management has finished `MachineFG.Shutdown` | [3.4](#34-lifecycle-of-communication-management) |
 
 > **Pitfall:** Step 11 works only because `Fusion` and `FusionLite` never offer at the same time. If a faulty configuration ran both, the second offer would return success but not start ([SWS_CM_00102]), and `Storage` would keep receiving from the first.
@@ -3379,7 +3379,7 @@ sequenceDiagram
 ### 18.1 Best Practices
 
 1. **Use `InstanceSpecifier`s everywhere.** Keep binding-specific identifiers out of the code; let the manifest decide ([Section 6.7](#67-instancespecifier-instanceidentifier-and-resolveinstanceids)).
-2. **Prefer service discovery to start-up order.** Search with `StartFindService` and let proxies reconnect, instead of relying on Execution Dependencies for services ([EM guide, Section 6.6](04_ExecutionManagement.md#66-prefer-service-discovery-for-applications)).
+2. **Prefer service discovery to start-up order.** Search with `StartFindService` and let proxies reconnect, instead of relying on Execution Dependencies for services ([EM guide, Section 6.6](ExecutionManagement.md#66-prefer-service-discovery-for-applications)).
 3. **Prepare, then offer, then report `kRunning`.** Give every field a value and register every SetHandler before `OfferService()`; report `kRunning` after it ([Section 6.2](#62-offering-and-stopping-an-offer)).
 4. **Use the exception-free API.** Create proxies with `Create`, and read results with `GetResult()` ([Section 6.5](#65-from-handle-to-proxy)).
 5. **Size `maxSampleCount` deliberately:** the number of samples you keep, plus the ones you want to receive per read ([Section 7.4](#74-sampleptr-who-owns-a-sample)).
@@ -3420,7 +3420,7 @@ sequenceDiagram
 | The find handler only ever gets empty lists | Provider not running, different binding or version, missing machine mapping, IAM refusal | Provider's offer; both deployments; `ServiceInstanceToMachineMapping`; IdsM event 135 |
 | `OfferService()` returns an error | Field without value or SetHandler; binding failure | `kFieldValueNotInitialized`, `kFieldSetHandlerNotSet`, `kCommunicationFailure` ([Section 6.2](#62-offering-and-stopping-an-offer)) |
 | Offer succeeds but nobody finds the service | Duplicate instance already offered | Other providers of the same instance on the machine ([SWS_CM_00102]) |
-| Subscription stays `kSubscriptionPending` | Provider not reachable, or not offering | Provider state; network; for SOME/IP, event group configuration ([guide 08a](08a_NetworkBindings.md)) |
+| Subscription stays `kSubscriptionPending` | Provider not reachable, or not offering | Provider state; network; for SOME/IP, event group configuration (the [Network Bindings guide](NetworkBindings.md)) |
 | `GetNewSamples` returns 0 although data is sent | All slots held by the application; not subscribed | `GetFreeSampleCount()`; `GetSubscriptionState()` |
 | `kMaxSamplesExceeded` | The application holds more samples than committed | Where `SamplePtr`s are stored |
 | Samples are missing | Reader too slow (buffer behavior unspecified), Minimum Send Interval at the provider, E2E drops | Reading rate; `kMinimumSendIntervalViolationError` at the provider; `ProfileCheckStatus` |
@@ -3734,7 +3734,7 @@ This summary is based on the change history of SWS CM and EXP ARAComAPI. It list
 | R20-11 | Standardized error codes and unique error domain identifiers; the named constructor approach; an optional execution context (executor) parameter for asynchronous callbacks; `kCapabilityEnforcementError` renamed `kGrantEnforcementError`. | (change history) |
 | R21-11 | New service interface element *trigger*; E2E protection for fields. | (change history) |
 | R22-11 | Static service connections (SOME/IP); the service state API (`GetServiceState`, `SetServiceStateChangeHandler`); `SampleType` and `FieldType`; shutdown behavior clarified. EXP fully reworked. | (change history) |
-| R23-11 | **Communication Groups declared obsolete**; Raw Data Stream removed from `ara::com` (guide 09 covers the Raw Data Stream); subscription state on the skeleton side; harmonized error codes; access management grants reworked; lifetime requirements for sample data. | (change history) |
+| R23-11 | **Communication Groups declared obsolete**; Raw Data Stream removed from `ara::com` (the NM/TSync/RDS guide covers the Raw Data Stream); subscription state on the skeleton side; harmonized error codes; access management grants reworked; lifetime requirements for sample data. | (change history) |
 | R24-11 | Transport fault conditions; API descriptions reworked from header files, with generated API tables; harmonized errors and violations. All explicit re-entrancy and thread-safety requirements were deleted; thread safety is now undefined. | Added: [SWS_CM_00085] to [SWS_CM_00087] (sample lifetime preconditions), [SWS_CM_00089] to [SWS_CM_00092]. Deleted: [SWS_CM_00009] to [SWS_CM_00032], [SWS_CM_00035], [SWS_CM_00714] |
 | R25-11 | **Minimum Send Interval** for events, triggers, fields and methods; `kNetworkBindingFailure` renamed `kCommunicationFailure`; security event for denied IAM access; no automatic conversion of names to upper camel case; E2E for fire-and-forget methods; behavior of `StopOfferService` and `Unsubscribe` specified; subscription state of triggers on the skeleton side; violation messages for wrong processing mode and erroneous handle. EXP: obsolete Communication Groups content removed. | Added: [SWS_CM_00127], [SWS_CM_00138], [SWS_CM_00601], [SWS_CM_00811] to [SWS_CM_00815], [SWS_CM_00822] to [SWS_CM_00827], [SWS_CM_01101] to [SWS_CM_01112], [SWS_CM_12100], [SWS_CM_12101] |
 

@@ -10,7 +10,7 @@
 >
 > **Version:** 1.0 (draft, pending review)
 >
-> **Part of the series:** [AUTOSAR Adaptive Platform Training Guides](00_LearningPath.md). Previous: [05 State Management](05_StateManagement.md). Next: [07 Communication Management Part 1: `ara::com` Concepts and API](07_CommunicationManagement.md).
+> **Part of the series:** [AUTOSAR Adaptive Platform Training Guides](../README.md). Previous: [State Management](StateManagement.md). Next: [Communication Management Part 1: `ara::com` Concepts and API](CommunicationManagement.md).
 
 ## About This Guide
 
@@ -23,7 +23,7 @@ Platform Health Management (PHM) is the functional cluster of the AUTOSAR Adapti
 - **Platform developers**, in particular of State Management, which receives PHM's recovery notifications, and of the platform layer that connects PHM to the hardware watchdog.
 - **Safety engineers** who need to know what PHM detects and what it does not.
 
-Assumed background: modern C++, plus basic Linux/POSIX knowledge (processes, signals, monotonic clocks). You do not need prior AUTOSAR Adaptive knowledge. Four guides of the series make this one easier: [01 Adaptive Platform Overview and Architecture](01_PlatformOverview.md) for the big picture, [02 Manifests and Methodology](02_Manifests.md) for how the model is written, [03 `ara::core` and General Conventions](03_CoreAndGeneral.md) for `Result`, `Future` and violations, and [04 Execution Management](04_ExecutionManagement.md) for the process lifecycle that PHM follows.
+Assumed background: modern C++, plus basic Linux/POSIX knowledge (processes, signals, monotonic clocks). You do not need prior AUTOSAR Adaptive knowledge. Four guides of the series make this one easier: [Adaptive Platform Overview and Architecture](PlatformOverview.md) for the big picture, [Manifests and Methodology](Manifests.md) for how the model is written, [`ara::core` and General Conventions](CoreAndGeneral.md) for `Result`, `Future` and violations, and [Execution Management](ExecutionManagement.md) for the process lifecycle that PHM follows.
 
 ### Learning Objectives
 
@@ -55,14 +55,14 @@ The chapters build on each other. Chapters 1 and 2 introduce the concepts. Chapt
 
 ### The Running Example
 
-All guides of the series use the same invented system. A high-performance ECU called **`HPC`** runs an ADAS feature. [Guide 00, Chapter 6](00_LearningPath.md#6-the-running-example-the-hpc-reference-system) defines the complete example; this section recaps the part that PHM needs.
+All guides of the series use the same invented system. A high-performance ECU called **`HPC`** runs an ADAS feature. The [Running Example guide](RunningExample.md) defines the complete example; this section recaps the part that PHM needs.
 
 - **`PlatformHealth`** is the PHM daemon. It belongs to the Software Cluster `HpcPlatformCore` and runs in every `MachineFG` state except `Off`. `HPC` has a hardware watchdog.
 - **`Fusion`** fuses camera, radar and vehicle data in a **50 ms cycle**. It runs only in `ADAS.Normal`. Its `processExecutionError` is 42 (`FusionFailed`).
 - **`CameraDriver`** delivers 30 images per second. It runs in `ADAS.Normal` and `ADAS.Degraded` with one shared startup configuration, so it keeps running when `ADAS` switches between the two states.
 - **`StateManager`** is the State Management daemon (`functionClusterAffiliation = STATE_MANAGEMENT`). When a supervision of `Fusion` or `CameraDriver` fails, it switches `ADAS` from `Normal` to `Degraded`, where `FusionLite` replaces `Fusion`.
 
-This guide uses the supervisions that guide 00 defines in [Section 6.13](00_LearningPath.md#613-safety). All values are illustrative.
+This guide uses the supervisions that the Running Example guide defines in [Section 1.13](RunningExample.md#113-safety). All values are illustrative.
 
 | Element | What it is | Used in |
 | --- | --- | --- |
@@ -253,12 +253,12 @@ This guide uses the supervisions that guide 00 defines in [Section 6.13](00_Lear
 
 | Not PHM's job | Who does it instead |
 | --- | --- |
-| Deciding how to recover from a failure | State Management ([guide 05, Chapter 8](05_StateManagement.md#8-error-handling-and-recovery)). PHM only reports. |
-| Starting, stopping or restarting processes | Execution Management, on request of State Management ([EM guide, Chapter 8](04_ExecutionManagement.md#8-function-group-state-transitions-step-by-step)) |
+| Deciding how to recover from a failure | State Management (the [SM guide, Chapter 8](StateManagement.md#8-error-handling-and-recovery)). PHM only reports. |
+| Starting, stopping or restarting processes | Execution Management, on request of State Management ([EM guide, Chapter 8](ExecutionManagement.md#8-function-group-state-transitions-step-by-step)) |
 | Detecting that a process crashed or exited | Execution Management. PHM learns it from EM ([Section 10.1](#101-what-phm-learns-from-em)). |
 | Supervising processes that do not report their Execution State | Nobody: such processes cannot be supervised (SWS, Section 4.1; [constr_3795]) |
-| Checking the content of data or the integrity of messages | End-to-end protection in Communication Management ([guide 08b](08b_SecureAndSafeCommunication.md)) |
-| Limiting CPU time or memory | The operating system, configured by EM through ResourceGroups ([EM guide, Chapter 11](04_ExecutionManagement.md#11-resource-management)) |
+| Checking the content of data or the integrity of messages | End-to-end protection in Communication Management (the [Secure Communication guide](SecureAndSafeCommunication.md)) |
+| Limiting CPU time or memory | The operating system, configured by EM through ResourceGroups ([EM guide, Chapter 11](ExecutionManagement.md#11-resource-management)) |
 | Storing diagnostic trouble codes | Diagnostic Management. The interface between PHM and Diagnostic Management is not specified in R25-11 (SWS, Section 4.1). |
 | Forwarding results to another health monitor ("daisy chaining") | Not supported in R25-11 (SWS, Section 4.1) |
 
@@ -396,7 +396,7 @@ This guide cites both. Requirement IDs that start with `ASWS_HM` come from the F
 
 ### 3.1 Where PHM Sits in the Platform
 
-PHM is daemon-based (*SW Architecture*, Section 9.6.1). In the running example, its daemon is the process `PlatformHealth` in the Software Cluster `HpcPlatformCore`. Its `functionClusterAffiliation` is `PLATFORM_HEALTH_MANAGEMENT`, one of the two standardized values ([TPS_MANI_01337]), and it runs in every `MachineFG` state except `Off` ([EM guide, Section 13.11](04_ExecutionManagement.md#1311-the-running-example-complete-configuration)).
+PHM is daemon-based (*SW Architecture*, Section 9.6.1). In the running example, its daemon is the process `PlatformHealth` in the Software Cluster `HpcPlatformCore`. Its `functionClusterAffiliation` is `PLATFORM_HEALTH_MANAGEMENT`, one of the two standardized values ([TPS_MANI_01337]), and it runs in every `MachineFG` state except `Off` ([EM guide, Section 13.11](ExecutionManagement.md#1311-the-running-example-complete-configuration)).
 
 The order of startup and shutdown matters. Because PHM may supervise State Management, PHM may need to run before State Management during the Machine State `Startup`, and PHM should terminate only after State Management has received `SIGTERM` (SWS SM, Sections 7.8.1 and 7.8.2). PHM itself takes over the hardware watchdog before it reports `kRunning` ([SWS_PHM_01252]; [Section 13.5](#135-phms-own-startup-and-shutdown)).
 
@@ -413,7 +413,7 @@ The order of startup and shutdown matters. Because PHM may supervise State Manag
 | Interface | Provided by | Purpose | Spec |
 | --- | --- | --- | --- |
 | `ExecutionClient` | Execution Management | The PHM daemon reports its own Execution State | SWS, Table 5.2 |
-| Process state information | Execution Management | "kRunning reported", "about to be told to terminate", "terminated" for every supervised process. The interface is vendor-specific. | SWS, Section 5.3; [EM guide, Section 5.9](04_ExecutionManagement.md#59-synchronization-with-platform-health-management) |
+| Process state information | Execution Management | "kRunning reported", "about to be told to terminate", "terminated" for every supervised process. The interface is vendor-specific. | SWS, Section 5.3; [EM guide, Section 5.9](ExecutionManagement.md#59-synchronization-with-platform-health-management) |
 | `Logger` | Log and Trace | Standardized log messages | SWS, Table 5.2 |
 | `WatchdogInterface` | The platform vendor | Serve and fire the hardware watchdog | [SWS_PHM_01257] |
 | Security event reporting | Intrusion Detection System Manager | Report a checkpoint from the wrong process | [SWS_PHM_01339] |
@@ -580,7 +580,7 @@ explicit SupervisedEntity (const ara::core::InstanceSpecifier &instance) noexcep
 void ReportCheckpoint (EnumT checkpointId) noexcept;                                 // [SWS_PHM_01127]
 ```
 
-The constructor checks the model. If something is wrong, it raises a **violation**, which terminates the process ([guide 03, Section 6.3](03_CoreAndGeneral.md#63-violations-fail-early)):
+The constructor checks the model. If something is wrong, it raises a **violation**, which terminates the process (the [Core guide, Section 6.3](CoreAndGeneral.md#63-violations-fail-early)):
 
 | Violation | Cause |
 | --- | --- |
@@ -618,13 +618,13 @@ The upstream requirements also allow a supervision that spans several threads of
 
 ### 5.6 Time Source
 
-All timing of PHM is measured "in the context of the reporting process using the same time source" ([SWS_PHM_01334]). The reason is the delay of the inter-process communication to the PHM daemon: if the daemon took the time stamp when a report arrives, jitter in the communication would distort deadlines. The specification suggests `ara::core::SteadyClock` as the time source ([guide 03, Section 11.10](03_CoreAndGeneral.md#1110-steadyclock)). The same time base should be used to synchronize the start of alive supervision with `kRunning` (hint to [SWS_PHM_01332]).
+All timing of PHM is measured "in the context of the reporting process using the same time source" ([SWS_PHM_01334]). The reason is the delay of the inter-process communication to the PHM daemon: if the daemon took the time stamp when a report arrives, jitter in the communication would distort deadlines. The specification suggests `ara::core::SteadyClock` as the time source (the [Core guide, Section 11.10](CoreAndGeneral.md#1110-steadyclock)). The same time base should be used to synchronize the start of alive supervision with `kRunning` (hint to [SWS_PHM_01332]).
 
 > **Note (implementation example):** A typical implementation takes a `SteadyClock` time stamp inside `ReportCheckpoint`, in the calling process, and passes the checkpoint ID with the time stamp to the PHM daemon, for example through shared memory. This is why `ReportCheckpoint` returns immediately and has no error result.
 
 ### 5.7 Worked Example: Instrumenting Fusion and CameraDriver
 
-The cycle of `Fusion` from [guide 03, Section 8.8](03_CoreAndGeneral.md#88-worked-example-fusion-checks-its-cycle-inputs) gets four checkpoints. When an input is late, `Fusion` skips the cycle; the checkpoints then go directly from `CycleStart` to `CycleEnd`, which the logical supervision allows ([Section 8.5](#85-worked-example-the-fusion-cycle-graph)).
+The cycle of `Fusion` from the [Core guide, Section 8.8](CoreAndGeneral.md#88-worked-example-fusion-checks-its-cycle-inputs) gets four checkpoints. When an input is late, `Fusion` skips the cycle; the checkpoints then go directly from `CycleStart` to `CycleEnd`, which the logical supervision allows ([Section 8.5](#85-worked-example-the-fusion-cycle-graph)).
 
 ```cpp
 // Illustrative. Vendor headers may differ in detail.
@@ -641,7 +641,7 @@ class SupervisedCycle {
 public:
     explicit SupervisedCycle(const ara::core::InstanceSpecifier& port) : se_{port} {}
 
-    // Called every 50 ms by the cycle thread (see guide 03, Section 8.8).
+    // Called every 50 ms by the cycle thread (see the Core guide, Section 8.8).
     void Run(const Calibration& calibration, ara::core::SteadyClock::time_point inputDeadline) {
         se_.ReportCheckpoint(Checkpoint::CycleStart);
         ara::core::Result<CycleInputs> inputs = CollectInputs(inputDeadline);
@@ -784,7 +784,7 @@ The specification gives no rules for choosing the values. The following points f
 - **Make the reference cycle a multiple of the period** and long enough to contain several indications. The window is not synchronized with the cycle of the process, so jitter near a window boundary can move an indication into the next window.
 - **Use margins of at least 1.** Even a perfect 50 ms loop can produce 3 or 5 indications in a 200 ms window when one indication falls on the boundary.
 - **Compute the detection time.** A process that stops completely is detected after about (tolerance + 1) reference cycles, plus the evaluation delay of the implementation, which may be periodic or event-triggered ([SWS_PHM_00219]). For `Fusion`, this is about 400 ms. The project's safety concept must accept this time.
-- **Think about startup.** Alive supervision starts when the process reports `kRunning` ([SWS_PHM_01331]; [Section 10.2](#102-when-supervision-starts)). The EM guide recommends reporting `kRunning` before waiting for other services ([EM guide, Section 5.3](04_ExecutionManagement.md#53-reporting-krunning)). The cycle must therefore run from that moment on. `Fusion` does this: while `CameraService` is not yet available, its cycles take the skip path.
+- **Think about startup.** Alive supervision starts when the process reports `kRunning` ([SWS_PHM_01331]; [Section 10.2](#102-when-supervision-starts)). The EM guide recommends reporting `kRunning` before waiting for other services ([EM guide, Section 5.3](ExecutionManagement.md#53-reporting-krunning)). The cycle must therefore run from that moment on. `Fusion` does this: while `CameraService` is not yet available, its cycles take the skip path.
 
 > **Key takeaways**
 >
@@ -1099,7 +1099,7 @@ For every process with a configured supervision, PHM needs three pieces of infor
 - the process is about to be told to terminate, that is, EM is about to send `SIGTERM`;
 - the process has terminated.
 
-EM provides them through a vendor-specific inter-cluster interface ([EM guide, Section 5.9](04_ExecutionManagement.md#59-synchronization-with-platform-health-management)). The last event also covers processes that terminate abruptly, without `SIGTERM`.
+EM provides them through a vendor-specific inter-cluster interface ([EM guide, Section 5.9](ExecutionManagement.md#59-synchronization-with-platform-health-management)). The last event also covers processes that terminate abruptly, without `SIGTERM`.
 
 ### 10.2 When Supervision Starts
 
@@ -1174,7 +1174,7 @@ If `CalibrationCheck` hung after `CheckDone`, PHM would notify State Management 
 
 ### 10.5 Processes That Cannot or Need Not Be Supervised
 
-- **Non-reporting processes.** Supervision depends on process states, and a non-reporting process does not report its Execution State, so EM cannot inform PHM (SWS, Section 4.1). The TPS forbids a supervised entity port in such an executable ([constr_3795]). In `HPC`, the third-party `LegacyLogger` therefore cannot be supervised; only its reporting companion `LoggerCompanion` could be ([EM guide, Section 5.4](04_ExecutionManagement.md#54-non-reporting-processes-and-the-companion-pattern)).
+- **Non-reporting processes.** Supervision depends on process states, and a non-reporting process does not report its Execution State, so EM cannot inform PHM (SWS, Section 4.1). The TPS forbids a supervised entity port in such an executable ([constr_3795]). In `HPC`, the third-party `LegacyLogger` therefore cannot be supervised; only its reporting companion `LoggerCompanion` could be ([EM guide, Section 5.4](ExecutionManagement.md#54-non-reporting-processes-and-the-companion-pattern)).
 - **Processes started before PHM.** How supervision starts for processes that run before the PHM daemon, such as the process of Execution Management, is not standardized (SWS, Section 7.2.2).
 
 ### 10.6 Disabling Supervision at Run Time
@@ -1306,7 +1306,7 @@ virtual ara::core::Future< void > RecoveryHandler (const ara::exec::ExecutionErr
                                                    TypeOfSupervision supervision) noexcept=0;  // [SWS_PHM_01142]
 ```
 
-- **`executionError`** contains the Function Group of the Global Supervision and the application error of the failed process ([SWS_PHM_00101]). The error comes from the `processExecutionError` of the `StartupConfig` that the process currently uses. If none is configured, PHM reports the value 1 ([SWS_PHM_01361]). This is the same `ExecutionErrorEvent` and the same encoding that EM uses for crashes ([EM guide, Section 14.6](04_ExecutionManagement.md#146-executionerrorevent-and-executionerror)).
+- **`executionError`** contains the Function Group of the Global Supervision and the application error of the failed process ([SWS_PHM_00101]). The error comes from the `processExecutionError` of the `StartupConfig` that the process currently uses. If none is configured, PHM reports the value 1 ([SWS_PHM_01361]). This is the same `ExecutionErrorEvent` and the same encoding that EM uses for crashes ([EM guide, Section 14.6](ExecutionManagement.md#146-executionerrorevent-and-executionerror)).
 - **`supervision`** is the `TypeOfSupervision` that caused the transition to `kEXPIRED`: `kAliveSupervision`, `kDeadlineSupervision` or `kLogicalSupervision` ([SWS_PHM_01138]).
 
 In `HPC`, a failure of `Fusion` arrives as `ADAS` with 42 (`FusionFailed`). A failure of `CameraDriver` arrives as `ADAS` with 1, because `CameraDriver` has no `processExecutionError`.
@@ -1350,11 +1350,11 @@ flowchart TD
     E -- "value" --> F["Recovery handled:<br/>no further action"]
 ```
 
-> **Pitfall:** The timeout runs from the detection of the failure until State Management's acknowledgment ([SWS_PHM_00104]). State Management may complete the `Future` only when its recovery action is finished ([SWS_SM_00031]). The timeout must then be longer than the slowest recovery, computed from the EM timeouts of every process that the recovery transition stops or starts. In `HPC`, the transition from `ADAS.Normal` to `ADAS.Degraded` terminates `Fusion` (termination timeout 500 ms) and then `LoggerCompanion` (1 s), which is restarted because it has a separate startup configuration per state. It then starts `LoggerCompanion` (start-up timeout 2 s) and, once it is *Running*, `FusionLite` (2 s) ([EM guide, Section 13.11](04_ExecutionManagement.md#1311-the-running-example-complete-configuration)). The worst case is therefore about 5.5 s, and `HPC` uses 6 s. A longer timeout also delays the watchdog reaction when State Management itself cannot recover; if it is too long for the safety goal, shorten the EM timeouts of the processes on the recovery path instead. The specification does not define more precisely what counts as the acknowledgment.
+> **Pitfall:** The timeout runs from the detection of the failure until State Management's acknowledgment ([SWS_PHM_00104]). State Management may complete the `Future` only when its recovery action is finished ([SWS_SM_00031]). The timeout must then be longer than the slowest recovery, computed from the EM timeouts of every process that the recovery transition stops or starts. In `HPC`, the transition from `ADAS.Normal` to `ADAS.Degraded` terminates `Fusion` (termination timeout 500 ms) and then `LoggerCompanion` (1 s), which is restarted because it has a separate startup configuration per state. It then starts `LoggerCompanion` (start-up timeout 2 s) and, once it is *Running*, `FusionLite` (2 s) ([EM guide, Section 13.11](ExecutionManagement.md#1311-the-running-example-complete-configuration)). The worst case is therefore about 5.5 s, and `HPC` uses 6 s. A longer timeout also delays the watchdog reaction when State Management itself cannot recover; if it is too long for the safety goal, shorten the EM timeouts of the processes on the recovery path instead. The specification does not define more precisely what counts as the acknowledgment.
 
 ### 12.5 State Management's Side in Brief
 
-What State Management does with the notification is project-specific and is the subject of [guide 05, Chapter 8](05_StateManagement.md#8-error-handling-and-recovery). Three rules of the State Management specification matter for PHM:
+What State Management does with the notification is project-specific and is the subject of the [SM guide, Chapter 8](StateManagement.md#8-error-handling-and-recovery). Three rules of the State Management specification matter for PHM:
 
 - With the StateMachine approach, the `executionError` from `RecoveryHandler` is used as the error code in the StateMachine that manages the Function Group of the failed process ([SWS_SM_00670]). Its `ErrorRecoveryTable` must contain an entry `ANY` for error codes that are not configured ([SWS_SM_CONSTR_00014]).
 - During an update session, a StateMachine that is affected by the update ignores recovery requests from PHM and logs them ([SWS_SM_00664]).
@@ -1391,7 +1391,7 @@ sequenceDiagram
 
 PHM notifies State Management only when a Global Supervision *switches* to `kEXPIRED`. The specification itself names the consequence: if failures follow each other, the Global Supervision may stay in its failed state without a further notification, which can hinder the recovery (SWS, Section 4.1).
 
-The running example shows a related case. Suppose the alive supervision of `CameraDriver` expires ([Section 6.5](#65-worked-example-fusion-and-cameradriver)). State Management switches `ADAS` to `Degraded`. But `CameraDriver` runs in `Degraded` too, with the same startup configuration, so EM does not restart it. Its supervision stays `kEXPIRED` ([SWS_PHM_01356]), and so does `CameraDriverSupervision` ([SWS_PHM_00230]). PHM no longer supervises `CameraDriver`, and it will not report another failure. Only a restart of `CameraDriver`, for example through `ADAS.Off`, clears the status. [Guide 05, Section 8.8](05_StateManagement.md#88-worked-example-a-stuck-cameradriver) shows how State Management handles it in `HPC`.
+The running example shows a related case. Suppose the alive supervision of `CameraDriver` expires ([Section 6.5](#65-worked-example-fusion-and-cameradriver)). State Management switches `ADAS` to `Degraded`. But `CameraDriver` runs in `Degraded` too, with the same startup configuration, so EM does not restart it. Its supervision stays `kEXPIRED` ([SWS_PHM_01356]), and so does `CameraDriverSupervision` ([SWS_PHM_00230]). PHM no longer supervises `CameraDriver`, and it will not report another failure. Only a restart of `CameraDriver`, for example through `ADAS.Off`, clears the status. The [SM guide, Section 8.8](StateManagement.md#88-worked-example-a-stuck-cameradriver) shows how State Management handles it in `HPC`.
 
 > **Key takeaways**
 >
@@ -1455,7 +1455,7 @@ A Global Supervision of State Management needs no recovery notification: notifyi
 
 ### 13.5 PHM's Own Startup and Shutdown
 
-**Startup.** PHM calls `AliveNotification` *before* it reports `kRunning` to EM ([SWS_PHM_01252]). The intention is to take over the hardware watchdog as early as possible. The integrator must make sure that the time from enabling the watchdog until PHM serves it is shorter than the watchdog timeout ([guide 01, Section 6.5](01_PlatformOverview.md#65-walkthrough-the-platform-starts-and-stops)).
+**Startup.** PHM calls `AliveNotification` *before* it reports `kRunning` to EM ([SWS_PHM_01252]). The intention is to take over the hardware watchdog as early as possible. The integrator must make sure that the time from enabling the watchdog until PHM serves it is shorter than the watchdog timeout (the [Platform Overview guide, Section 6.5](PlatformOverview.md#65-walkthrough-the-platform-starts-and-stops)).
 
 ```mermaid
 sequenceDiagram
@@ -1695,7 +1695,7 @@ The TPS states that the "only purpose" of `HealthChannel` and `HealthChannelSupe
 
 ### 14.14 Related Settings Outside PHM
 
-PHM also reads settings of other elements, which the EM guide and guide 02 describe in detail.
+PHM also reads settings of other elements, which the EM guide and the Manifests guide describe in detail.
 
 | Element and attribute | What PHM does with it | Spec |
 | --- | --- | --- |
@@ -1707,18 +1707,18 @@ PHM also reads settings of other elements, which the EM guide and guide 02 descr
 
 ### 14.15 The Running Example: Complete Configuration
 
-The following three files contain the complete PHM configuration of `HPC`. They continue the seven files of [guide 02, Section 12.16](02_Manifests.md#1216-the-running-example-complete-configuration) and use their packages, executables, processes, Function Groups and the Machine. Each file validates against the R25-11 schema `AUTOSAR_00054.xsd`. Merged with the seven files of guide 02 and the standardized package `/AUTOSAR/StdTypes`, all references resolve to elements of the `DEST` type, and the model satisfies the constraints cited in this chapter.
+The following three files contain the complete PHM configuration of `HPC`. They continue the seven files of the [Manifests guide, Section 12.16](Manifests.md#1216-the-running-example-complete-configuration) and use their packages, executables, processes, Function Groups and the Machine. Each file validates against the R25-11 schema `AUTOSAR_00054.xsd`. Merged with the seven files of the Manifests guide and the standardized package `/AUTOSAR/StdTypes`, all references resolve to elements of the `DEST` type, and the model satisfies the constraints cited in this chapter.
 
-The files rely on the splitting rules of [guide 02, Section 3.7](02_Manifests.md#37-many-files-one-model). Ports of a component type are splitable, so `08_PhmDesign.arxml` adds the PHM ports to `CameraDriverSwc` and `FusionSwc` without changing `02_ApplicationDesign.arxml` ([TPS_GST_00414], [TPS_GST_00415]). The contained elements of a Software Cluster are splitable too, so `09` and `10` add their elements to `AdasCluster` and `HpcPlatformCore`. Only the contained processes of a Software Cluster are not splitable. The new process `StateManager` must therefore be added to `HpcPlatformCore` in `07_SoftwareClusters.arxml` itself, after its `CONTAINED-PACKAGE-ELEMENT-REFS`:
+The files rely on the splitting rules of the [Manifests guide, Section 3.7](Manifests.md#37-many-files-one-model). Ports of a component type are splitable, so `08_PhmDesign.arxml` adds the PHM ports to `CameraDriverSwc` and `FusionSwc` without changing `02_ApplicationDesign.arxml` ([TPS_GST_00414], [TPS_GST_00415]). The contained elements of a Software Cluster are splitable too, so `09` and `10` add their elements to `AdasCluster` and `HpcPlatformCore`. Only the contained processes of a Software Cluster are not splitable. The new process `StateManager` must therefore be added to `HpcPlatformCore` in `07_SoftwareClusters.arxml` itself, after its `CONTAINED-PACKAGE-ELEMENT-REFS`:
 
 ```xml
-<!-- Addition to HpcPlatformCore in 07_SoftwareClusters.arxml of guide 02 -->
+<!-- Addition to HpcPlatformCore in 07_SoftwareClusters.arxml of the Manifests guide -->
               <CONTAINED-PROCESS-REFS>
                 <CONTAINED-PROCESS-REF DEST="PROCESS">/HPC/Processes/StateManager</CONTAINED-PROCESS-REF>
               </CONTAINED-PROCESS-REFS>
 ```
 
-Because guide 02 does not model `StateManager`, `10_PhmPlatformContribution.arxml` also contains the process `StateManager` with its startup configuration and its mapping to `HPC`, and `08_PhmDesign.arxml` its executable `state_manager`. Their content follows the EM guide ([Section 13.11](04_ExecutionManagement.md#1311-the-running-example-complete-configuration)); the State Client ports of `StateManagerSwc` are not part of this model. Open a file to see its content.
+Because the Manifests guide does not model `StateManager`, `10_PhmPlatformContribution.arxml` also contains the process `StateManager` with its startup configuration and its mapping to `HPC`, and `08_PhmDesign.arxml` its executable `state_manager`. Their content follows the EM guide ([Section 13.11](ExecutionManagement.md#1311-the-running-example-complete-configuration)); the State Client ports of `StateManagerSwc` are not part of this model. Open a file to see its content.
 
 <details>
 <summary><code>08_PhmDesign.arxml</code>: Supervised Entity interfaces, the recovery interface, the PHM ports and the executable `state_manager` (149 lines)</summary>
@@ -2383,7 +2383,7 @@ The following table explains the values and why they were chosen. All values are
 > - Many attributes are `0..1` in the class tables and mandatory by constraint, for example all six main attributes of alive supervision and `expiredSupervisionTolerance`.
 > - PHM defines no defaults; the only absence behavior is `executionError` 1, and `0`/INF switch single checks off.
 > - Without a `PhmContributionToMachineMapping`, a contribution has no effect; without a health channel and a mapping, nobody is notified.
-> - The complete PHM model of `HPC` is about 600 lines of validated ARXML on top of the model of guide 02.
+> - The complete PHM model of `HPC` is about 600 lines of validated ARXML on top of the model of the Manifests guide.
 
 ---
 
@@ -2530,7 +2530,7 @@ private:
 //   handler.StopOffer();   // during the shutdown of State Management
 ```
 
-Call `Offer()` only when the derived object is fully constructed, never from its constructor, and call `StopOffer()` before the object is destroyed. `executionError.functionGroup` is an `ara::exec::FunctionGroup`, which cannot be copied; compare it with your own `FunctionGroup` objects ([EM guide, Section 14.6](04_ExecutionManagement.md#146-executionerrorevent-and-executionerror)).
+Call `Offer()` only when the derived object is fully constructed, never from its constructor, and call `StopOffer()` before the object is destroyed. `executionError.functionGroup` is an `ara::exec::FunctionGroup`, which cannot be copied; compare it with your own `FunctionGroup` objects ([EM guide, Section 14.6](ExecutionManagement.md#146-executionerrorevent-and-executionerror)).
 
 ### 15.5 TypeOfSupervision, ElementarySupervisionStatus and GlobalSupervisionStatus
 
@@ -2579,7 +2579,7 @@ public:
 }  // namespace ara::phm
 ```
 
-The domain identifier and the name of `PhmErrorDomain` are fixed by SWS Core ([SWS_CORE_90023]): `0x8000'0000'0000'0602` and `Phm` ([guide 03, Section 7.4](03_CoreAndGeneral.md#74-error-domain-identifiers)). As in every cluster, `ThrowAsException` is available only when the toolchain supports exceptions. A typical check looks like this:
+The domain identifier and the name of `PhmErrorDomain` are fixed by SWS Core ([SWS_CORE_90023]): `0x8000'0000'0000'0602` and `Phm` (the [Core guide, Section 7.4](CoreAndGeneral.md#74-error-domain-identifiers)). As in every cluster, `ThrowAsException` is available only when the toolchain supports exceptions. A typical check looks like this:
 
 ```cpp
 // Illustrative.
@@ -2654,7 +2654,7 @@ public:
 | Security event | A checkpoint reported by the wrong process | [16.4](#164-security-event) |
 | Production error | PHM triggered a watchdog reset | [16.5](#165-production-error-phm_e_watchdog_reset) |
 
-PHM uses the `Logger` of Log and Trace for its standardized messages (SWS, Table 5.2). In addition, a change of a Global Supervision Status "can be logged" for test and debugging (SWS, Section 7.4.2). Guide 03 lists the DLT context ID `#PHM` and the message ID range `0x8000'9000` to `0x8000'9fff` of this cluster ([guide 03, Section 12.5](03_CoreAndGeneral.md#125-logging-and-tracing-conventions)).
+PHM uses the `Logger` of Log and Trace for its standardized messages (SWS, Table 5.2). In addition, a change of a Global Supervision Status "can be logged" for test and debugging (SWS, Section 7.4.2). The Core guide lists the DLT context ID `#PHM` and the message ID range `0x8000'9000` to `0x8000'9fff` of this cluster (the [Core guide, Section 12.5](CoreAndGeneral.md#125-logging-and-tracing-conventions)).
 
 ### 16.2 Log Messages
 
@@ -2671,7 +2671,7 @@ All four log messages have the status DRAFT.
 
 ### 16.3 Violation Messages
 
-PHM uses the standardized violation messages of SWS Core (SWS, Section 7.8.3). Each one ends the calling process ([guide 03, Section 15.3](03_CoreAndGeneral.md#153-violation-messages)).
+PHM uses the standardized violation messages of SWS Core (SWS, Section 7.8.3). Each one ends the calling process (the [Core guide, Section 15.3](CoreAndGeneral.md#153-violation-messages)).
 
 | Violation | Message ID | Raised by | Spec |
 | --- | --- | --- | --- |
@@ -2690,7 +2690,7 @@ Implementations may raise further, non-standardized violations (SWS, Section 7.8
 | --- | --- | --- | --- | --- |
 | `SEV_ACCESS_CONTROL_PHM_IAM_ACCESS_DENIED` | 65 | DRAFT | Version 1: `UserId` (`uint32`) | [SWS_PHM_01340], [SWS_PHM_01375] |
 
-PHM reports it to the Intrusion Detection System Manager when it ignores a checkpoint that the wrong process reported ([SWS_PHM_01339]). How security events are qualified and forwarded is the subject of guide 16.
+PHM reports it to the Intrusion Detection System Manager when it ignores a checkpoint that the wrong process reported ([SWS_PHM_01339]). How security events are qualified and forwarded is the subject of the IDSM and Firewall guide.
 
 ### 16.5 Production Error PHM_E_WATCHDOG_RESET
 
@@ -2708,7 +2708,7 @@ The requirement is a recommendation ("should"), not a must, for a practical reas
 
 ### 16.6 Using PHM Reports in Practice
 
-The following illustrative trace shows the deadline failure of `Fusion` from [Section 12.6](#126-worked-example-fusion-stalls-and-adas-goes-to-degraded) together with the messages of EM ([EM guide, Section 15.2](04_ExecutionManagement.md#152-process-lifecycle-trace-messages)). The layout depends on the DLT viewer; only the message names and IDs are standardized.
+The following illustrative trace shows the deadline failure of `Fusion` from [Section 12.6](#126-worked-example-fusion-stalls-and-adas-goes-to-degraded) together with the messages of EM ([EM guide, Section 15.2](ExecutionManagement.md#152-process-lifecycle-trace-messages)). The layout depends on the DLT viewer; only the message names and IDs are standardized.
 
 ```text
 # Illustrative DLT excerpt (layout simplified)
@@ -2751,7 +2751,7 @@ Every 50 ms, `Fusion` reports `CycleStart`, `InputsRead`, `ObjectsPublished` and
 
 ### 17.4 A Late Input Is Not a Failure
 
-One radar frame arrives too late. `CollectInputs` returns `kInputTimeout`, and `Fusion` skips the cycle: it reports `CycleStart` and then `CycleEnd` ([guide 03, Section 16.4](03_CoreAndGeneral.md#164-a-late-input)). The graph allows this path, `CycleDeadline` measures the shorter cycle, and `FusionAlive` still counts the `CycleStart`. PHM sees nothing wrong. This is the result of modeling the skip path ([Section 8.5](#85-worked-example-the-fusion-cycle-graph)).
+One radar frame arrives too late. `CollectInputs` returns `kInputTimeout`, and `Fusion` skips the cycle: it reports `CycleStart` and then `CycleEnd` (the [Core guide, Section 16.4](CoreAndGeneral.md#164-a-late-input)). The graph allows this path, `CycleDeadline` measures the shorter cycle, and `FusionAlive` still counts the `CycleStart`. PHM sees nothing wrong. This is the result of modeling the skip path ([Section 8.5](#85-worked-example-the-fusion-cycle-graph)).
 
 ### 17.5 Fusion Stalls: Recovery to Degraded
 
@@ -2857,7 +2857,7 @@ The driver switches the vehicle off. State Management switches `ADAS` to `Off`: 
 | A second failure of a process is never reported | The process kept running after the first failure, so its supervision stays `kEXPIRED` | Whether State Management restarted the process |
 | The machine resets after a supervision failure of an application | State Management answered `kSMCanNotHandleRecovery`, did not answer within `recoveryNotificationTimeout`, or the handler was not offered | `WatchdogReset` and `RecoveryInitiated` messages; the `Offer` result; the timeout ([Section 13.3](#133-when-phm-fires-the-watchdog)) |
 | The machine resets without any application failure | A supervision of State Management or EM reached `kSTOPPED`, or the PHM daemon itself stopped | `WatchdogReset`; the reset reason; the supervision parameters of SM and EM |
-| The machine resets during startup | PHM served the watchdog too late | Time from enabling the watchdog to the first `AliveNotification` ([guide 01, Section 6.5](01_PlatformOverview.md#65-walkthrough-the-platform-starts-and-stops)) |
+| The machine resets during startup | PHM served the watchdog too late | Time from enabling the watchdog to the first `AliveNotification` (the [Platform Overview guide, Section 6.5](PlatformOverview.md#65-walkthrough-the-platform-starts-and-stops)) |
 | A security event 65 appears | A process reports a checkpoint that is configured for another process | `SupervisionCheckpoint.process`; process and executable deployment |
 
 > **Key takeaways**

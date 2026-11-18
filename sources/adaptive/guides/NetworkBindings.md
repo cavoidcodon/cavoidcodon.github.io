@@ -10,13 +10,13 @@
 >
 > **Version:** 1.0 (draft, pending review)
 >
-> **Part of the series:** [AUTOSAR Adaptive Platform Training Guides](00_LearningPath.md). Previous: [07 Communication Management Part 1: `ara::com` Concepts and API](07_CommunicationManagement.md). Next: [08b Communication Management Part 3: Secure Communication and End-to-End Protection](08b_SecureAndSafeCommunication.md).
+> **Part of the series:** [AUTOSAR Adaptive Platform Training Guides](../README.md). Previous: [Communication Management Part 1: `ara::com` Concepts and API](CommunicationManagement.md). Next: [Communication Management Part 3: Secure Communication and End-to-End Protection](SecureAndSafeCommunication.md).
 
 ## About This Guide
 
-[Guide 07](07_CommunicationManagement.md) showed how an application offers, finds and uses services with `ara::com`. It left one question open on purpose: what happens below the API? When `CameraDriver` calls `Image.Send()` and the consumer `Cockpit` sits on another ECU, the image must become bytes on an Ethernet cable, and the bytes must become a sample again on the other side. When the vehicle speed is a CAN signal of a Classic ECU, something must turn the signal into an event of a service.
+The [CM guide](CommunicationManagement.md) showed how an application offers, finds and uses services with `ara::com`. It left one question open on purpose: what happens below the API? When `CameraDriver` calls `Image.Send()` and the consumer `Cockpit` sits on another ECU, the image must become bytes on an Ethernet cable, and the bytes must become a sample again on the other side. When the vehicle speed is a CAN signal of a Classic ECU, something must turn the signal into an event of a service.
 
-This is the job of the **network bindings** of Communication Management (CM). R25-11 specifies three of them: **SOME/IP**, the **Signal-Based** binding (which performs the Signal-to-Service translation) and **DDS**. This guide explains each binding as specified: what goes on the wire, how service discovery works, how events, methods and fields are mapped, how data is serialized, and what you configure. How communication is protected (TLS, SecOC, IPsec, MACsec, DDS Security and end-to-end protection on the wire) is the topic of the next guide, [08b](08b_SecureAndSafeCommunication.md).
+This is the job of the **network bindings** of Communication Management (CM). R25-11 specifies three of them: **SOME/IP**, the **Signal-Based** binding (which performs the Signal-to-Service translation) and **DDS**. This guide explains each binding as specified: what goes on the wire, how service discovery works, how events, methods and fields are mapped, how data is serialized, and what you configure. How communication is protected (TLS, SecOC, IPsec, MACsec, DDS Security and end-to-end protection on the wire) is the topic of the next guide, [Secure Communication](SecureAndSafeCommunication.md).
 
 ### Who This Guide Is For
 
@@ -24,7 +24,7 @@ This is the job of the **network bindings** of Communication Management (CM). R2
 - **Application developers** who want to understand what their `Send()`, `Subscribe()` or method call does on the network, and why a remote service sometimes "is not there".
 - **Platform developers** who implement or adapt a binding and need to know exactly what the specification requires.
 
-Assumed background: the concepts of [guide 07](07_CommunicationManagement.md) (service interface, skeleton and proxy, events, methods, fields, service discovery, instance specifiers), the manifest structure of [guide 02](02_Manifests.md), and basic networking (IP addresses, UDP and TCP ports, multicast). You do not need prior knowledge of SOME/IP, DDS or the Classic Platform; this guide introduces them.
+Assumed background: the concepts of the [CM guide](CommunicationManagement.md) (service interface, skeleton and proxy, events, methods, fields, service discovery, instance specifiers), the manifest structure of the [Manifests guide](Manifests.md), and basic networking (IP addresses, UDP and TCP ports, multicast). You do not need prior knowledge of SOME/IP, DDS or the Classic Platform; this guide introduces them.
 
 ### Learning Objectives
 
@@ -61,7 +61,7 @@ If you only need to deploy services over SOME/IP, read Chapters 1 to 7, 9 and 14
 
 ### The Running Example
 
-All guides of the series use the same invented system. A high-performance ECU called **`HPC`** runs an ADAS feature. [Guide 00, Chapter 6](00_LearningPath.md#6-the-running-example-the-hpc-reference-system) defines the complete example; this section recaps the part that the network bindings need.
+All guides of the series use the same invented system. A high-performance ECU called **`HPC`** runs an ADAS feature. The [Running Example guide](RunningExample.md) defines the complete example; this section recaps the part that the network bindings need.
 
 - **`HPC`** (`192.168.10.10`) sits on the Ethernet backbone together with **`CentralGateway`** (`192.168.10.1`) and **`Cockpit`** (`192.168.10.20`). SOME/IP Service Discovery uses UDP port 30490 and the multicast address `239.192.255.251`.
 - **`CameraDriver`** provides **`CameraService`** (event `Image`, method `SetExposureMode`, field `CameraStatus`) over SOME/IP on TCP port 30501. `Fusion` on `HPC` and `Cockpit` consume it.
@@ -69,7 +69,7 @@ All guides of the series use the same invented system. A high-performance ECU ca
 - **`SmControl`** provides **`AdasStatusService`** (field `AdasStatus`) for `Cockpit` and for the Classic ECU **`InstrumentCluster`** on CAN.
 - The Classic ECU **`ChassisECU`** sends `VehicleSpeed`, `SteeringAngle` and `YawRate` on CAN; **`CentralGateway`** sends `PowerMode`. On `HPC`, they become **`VehicleDynamicsService`** (for `Fusion`, `FusionLite` and `SmControl`) and **`PowerModeService`** (for `SmControl`).
 
-This guide adds the following elements to the running example (guide 00 lists them as well):
+This guide adds the following elements to the running example (the Running Example guide lists them as well):
 
 | Element | What it is | Used in |
 | --- | --- | --- |
@@ -227,7 +227,7 @@ This guide adds the following elements to the running example (guide 00 lists th
 
 ### 1.1 What Is a Network Binding?
 
-In plain words, a **network binding** is the part of Communication Management that turns `ara::com` calls into network messages and back. The application only sees the API of [guide 07](07_CommunicationManagement.md): it calls `OfferService()`, `Send()`, `Subscribe()` or a method. The binding decides how this looks on the wire: which protocol, which header, which IDs, which bytes, which ports, and how the partners find each other.
+In plain words, a **network binding** is the part of Communication Management that turns `ara::com` calls into network messages and back. The application only sees the API of the [CM guide](CommunicationManagement.md): it calls `OfferService()`, `Send()`, `Subscribe()` or a method. The binding decides how this looks on the wire: which protocol, which header, which IDs, which bytes, which ports, and how the partners find each other.
 
 Follow one call to see the layers. `CameraDriver` calls `Image.Send(image)`:
 
@@ -242,11 +242,11 @@ Formally, the binding is defined by the *deployment* of a service interface and 
 
 | Topic | Where it is covered |
 | --- | --- |
-| The `ara::com` API: proxies, skeletons, handlers, errors, threading | [Guide 07](07_CommunicationManagement.md) |
-| Communication between processes on the same Machine (local IPC) | [Guide 07, Chapter 13](07_CommunicationManagement.md#13-local-communication-and-multi-binding); the local mechanism is implementation-specific |
-| Protection of the communication: TLS, DTLS, SecOC, IPsec, MACsec, DDS Security, end-to-end protection on the wire | [Guide 08b](08b_SecureAndSafeCommunication.md) |
-| Access control for services (who may offer or use what) | Guide 15 |
-| Waking up and shutting down the network (partial networks), time synchronization, raw data streams | Guide 09 |
+| The `ara::com` API: proxies, skeletons, handlers, errors, threading | [CM guide](CommunicationManagement.md) |
+| Communication between processes on the same Machine (local IPC) | [CM guide, Chapter 13](CommunicationManagement.md#13-local-communication-and-multi-binding); the local mechanism is implementation-specific |
+| Protection of the communication: TLS, DTLS, SecOC, IPsec, MACsec, DDS Security, end-to-end protection on the wire | [Secure Communication guide](SecureAndSafeCommunication.md) |
+| Access control for services (who may offer or use what) | IAM guide |
+| Waking up and shutting down the network (partial networks), time synchronization, raw data streams | NM/TSync/RDS guide |
 | The Classic Platform COM stack, CAN drivers and the gateway configuration | Outside the Adaptive specifications; only background in this guide |
 
 ### 1.3 Three Bindings, One API
@@ -262,7 +262,7 @@ R25-11 specifies three network bindings (SWS CM, Section 7.2). The following tab
 | Supported service elements | All | Events, triggers, field notifiers, fire-and-forget methods (details in [Section 11.5](#115-what-each-variant-can-carry)) | All |
 | Specification | SWS CM 7.2.1, PRS SOME/IP, PRS SOME/IP-SD | SWS CM 7.2.2, TPS Chapter 9 | SWS CM 7.2.3, PRS DDS |
 
-A fourth option, the *user-defined* deployment, is a frame for vendor-specific bindings. Guide 07 used it for local IPC. The Signal-Based Static and IEEE1722 ACF variants also use the user-defined deployment elements, with standardized categories ([Section 11.3](#113-signal-based-static-sockets-without-service-discovery)).
+A fourth option, the *user-defined* deployment, is a frame for vendor-specific bindings. The CM guide used it for local IPC. The Signal-Based Static and IEEE1722 ACF variants also use the user-defined deployment elements, with standardized categories ([Section 11.3](#113-signal-based-static-sockets-without-service-discovery)).
 
 ### 1.4 Analogies
 
@@ -275,7 +275,7 @@ A fourth option, the *user-defined* deployment, is a frame for vendor-specific b
 > - A network binding turns `ara::com` calls into network messages and back; the application code does not change between bindings.
 > - R25-11 specifies three bindings: SOME/IP, Signal-Based and DDS.
 > - The binding is chosen by the integrator in the deployment, not by the application developer.
-> - Protection of the communication is covered in [guide 08b](08b_SecureAndSafeCommunication.md); local IPC in guide 07.
+> - Protection of the communication is covered in the [Secure Communication guide](SecureAndSafeCommunication.md); local IPC in the CM guide.
 
 ---
 
@@ -287,7 +287,7 @@ A fourth option, the *user-defined* deployment, is a frame for vendor-specific b
 
 On the API level, a consumer uses a *service instance* through an `InstanceSpecifier`. On the wire, every binding needs numbers or names instead:
 
-| API concept ([guide 07](07_CommunicationManagement.md)) | SOME/IP | DDS |
+| API concept (the [CM guide](CommunicationManagement.md)) | SOME/IP | DDS |
 | --- | --- | --- |
 | Service interface | **Service ID**, 16 bit (`serviceInterfaceId`) | `serviceInterfaceId` (a string) and topic names |
 | Service instance | **Instance ID**, 16 bit (`serviceInstanceId`) | `serviceInstanceId` and a DDS domain |
@@ -344,7 +344,7 @@ A **SOME/IP eventgroup** is a set of events and field notifiers that a client su
 
 ### 3.1 Where the Bindings Sit
 
-The bindings are part of Communication Management. They sit between the API of guide 07 and the operating system's network stack, as the following diagram shows.
+The bindings are part of Communication Management. They sit between the API of the CM guide and the operating system's network stack, as the following diagram shows.
 
 ```mermaid
 flowchart TB
@@ -373,7 +373,7 @@ The Adaptive Platform communicates over Ethernet only (TPS, Section 9.2: "the so
 - The `MachineDesign` has an **`EthernetCommunicationConnector`** per channel. It references the unicast endpoint and holds the **`ApApplicationEndpoint`s**, which define the UDP and TCP ports ([TPS_MANI_03280]).
 - A **`ServiceInstanceToMachineMapping`** puts service instances on a connector and selects their ports ([TPS_MANI_03001]).
 
-Guide 02 introduced this structure ([guide 02, Section 9.5](02_Manifests.md#95-mapping-service-instances-to-the-machine)). This guide adds the details that each binding needs.
+The Manifests guide introduced this structure (the [Manifests guide, Section 9.5](Manifests.md#95-mapping-service-instances-to-the-machine)). This guide adds the details that each binding needs.
 
 ### 3.3 Change the Binding Without Recompiling
 
@@ -384,7 +384,7 @@ The SWS requires that the deployment can change without recompiling the applicat
 - changing ports and other attributes of the machine mapping;
 - backwards-compatible changes of the service version.
 
-The one exception is the SOME/IP major version: a new `SomeipServiceVersion.majorVersion` means an incompatible interface and requires recompilation. A port can also have several bindings at the same time (**multi-binding**, [SWS_CM_10590]); guide 07 explained this, and [Section 12.11](#1211-worked-example-chassisdynamics-becomes-vehicledynamicsservice) uses it for `AdasStatusService`.
+The one exception is the SOME/IP major version: a new `SomeipServiceVersion.majorVersion` means an incompatible interface and requires recompilation. A port can also have several bindings at the same time (**multi-binding**, [SWS_CM_10590]); the CM guide explained this, and [Section 12.11](#1211-worked-example-chassisdynamics-becomes-vehicledynamicsservice) uses it for `AdasStatusService`.
 
 ### 3.4 Interaction Map
 
@@ -395,10 +395,10 @@ flowchart LR
     SIM["Service Instance Manifest<br/>(deployments, instances, mappings)"] --> B["Network bindings"]
     MM["Machine Manifest and Machine Design<br/>(connectors, endpoints, ports, SD config)"] --> B
     CM["Classic communication matrix<br/>(ISignals, ISignalIPdus, triggerings)"] --> B
-    B --> API["ara::com API (guide 07)"]
-    IAM["Identity and Access Management (guide 15)"] -.-> B
-    SEC["Secure channels and E2E (guide 08b)"] -.-> B
-    NM["Network Management (guide 09)"] -.-> B
+    B --> API["ara::com API (the CM guide)"]
+    IAM["Identity and Access Management (the IAM guide)"] -.-> B
+    SEC["Secure channels and E2E (the Secure Communication guide)"] -.-> B
+    NM["Network Management (the NM/TSync/RDS guide)"] -.-> B
 ```
 
 Every binding discards a message that it identifies as malformed, and does not report the error to the application ([SWS_CM_10416]). This is worth remembering when "nothing arrives".
@@ -420,7 +420,7 @@ Every binding discards a message that it identifies as malformed, and does not r
 
 | Configuration | Where | Typical owner |
 | --- | --- | --- |
-| Service interface (events, methods, fields) | Service interface description (guide 02) | Application or function architect |
+| Service interface (events, methods, fields) | Service interface description (the Manifests guide) | Application or function architect |
 | Service interface deployment: IDs, eventgroups, transport protocol, serializer, topic names | Service Instance Manifest | Communication designer |
 | Service instances: instance IDs, SD settings, versions, QoS profiles | Service Instance Manifest | Integrator |
 | Port mapping (which process uses which instance) | Service Instance Manifest | Integrator |
@@ -451,7 +451,7 @@ flowchart TB
 ### 4.3 Who Configures What, and When
 
 1. The **function architect** defines the service interface. It is binding-independent.
-2. The **communication designer** chooses the binding per instance and assigns the IDs: service IDs must be unique in the system, method IDs, event IDs and eventgroup IDs unique within the deployment (guide 02).
+2. The **communication designer** chooses the binding per instance and assigns the IDs: service IDs must be unique in the system, method IDs, event IDs and eventgroup IDs unique within the deployment (the Manifests guide).
 3. The **network designer** defines the network: VLANs, IP addresses, ports, the SD multicast address.
 4. For Classic partners, the **vehicle communication designer** provides the communication matrix and, together with the Adaptive team, the signal/service translation mapping.
 5. The **integrator** maps instances to processes and to the Machine, and tunes SD timing.
@@ -515,7 +515,7 @@ The return code says whether a request was processed successfully ([PRS_SOMEIP_0
 | `0x08` | E_WRONG_INTERFACE_VERSION | Interface version mismatch |
 | `0x09` | E_MALFORMED_MESSAGE | The payload cannot be de-serialized |
 | `0x0A` | E_WRONG_MESSAGE_TYPE | Unexpected message type |
-| `0x0B` to `0x0F` | E_E2E_... | End-to-end protection errors ([guide 08b](08b_SecureAndSafeCommunication.md)) |
+| `0x0B` to `0x0F` | E_E2E_... | End-to-end protection errors (the [Secure Communication guide](SecureAndSafeCommunication.md)) |
 | `0x10` to `0x1F` | | Reserved for generic SOME/IP errors |
 | `0x20` to `0x5E` | | Reserved for errors of a specific service; Communication Management uses this range for application errors ([Section 7.3](#73-methods-request-response-and-error)) |
 
@@ -660,7 +660,7 @@ When a multicast FindService arrives, the server answers after a random delay be
 
 On the client side, the Initial Wait and Repetition phases are configured in `SomeipSdClientServiceInstanceConfig.initialFindBehavior` ([TPS_MANI_03026], [TPS_MANI_03027]). They start when the application calls `FindService()` or `StartFindService()` ([SWS_CM_00209]).
 
-An important detail for application developers: **`FindService()` does not wait for offers.** It only checks what the local Communication Management already knows from received offers ([SWS_CM_00209]). Right after startup, a one-shot `FindService()` may therefore return an empty list even though the service is about to be offered. Use `StartFindService()` with a handler, as guide 07 recommends ([guide 07, Section 6.4](07_CommunicationManagement.md#64-finding-continuously)).
+An important detail for application developers: **`FindService()` does not wait for offers.** It only checks what the local Communication Management already knows from received offers ([SWS_CM_00209]). Right after startup, a one-shot `FindService()` may therefore return an empty list even though the service is about to be offered. Use `StartFindService()` with a handler, as the CM guide recommends (the [CM guide, Section 6.4](CommunicationManagement.md#64-finding-continuously)).
 
 ### 6.5 Versions on the Wire: Major, Minor, Blocklist
 
@@ -708,7 +708,7 @@ The SWS lists SD features that Communication Management does not support in R25-
 
 ### 6.10 Worked Example: `Cockpit` Finds and Subscribes to `CameraService`
 
-`HPC` offers `CameraService` with the SD timing of guide 02: initial delay 10 to 100 ms, repetition base delay 50 ms, three repetitions, cyclic offers every 1 s, TTL 3 s. `Cockpit` looks for the service and subscribes to the eventgroup `CameraEvents` (ID 1), which contains `Image` and the notifier of `CameraStatus`. Both elements use TCP. The following sequence shows a typical startup.
+`HPC` offers `CameraService` with the SD timing of the Manifests guide: initial delay 10 to 100 ms, repetition base delay 50 ms, three repetitions, cyclic offers every 1 s, TTL 3 s. `Cockpit` looks for the service and subscribes to the eventgroup `CameraEvents` (ID 1), which contains `Image` and the notifier of `CameraStatus`. Both elements use TCP. The following sequence shows a typical startup.
 
 ```mermaid
 sequenceDiagram
@@ -790,7 +790,7 @@ For example, if `SetExposureMode` fails with `ExposureModeNotSupported` (error c
 
 ### 7.4 Fire-and-Forget Methods
 
-A fire-and-forget method sends a REQUEST_NO_RETURN message (`0x01`) without session handling ([PRS_SOMEIP_00939]). No response is sent. `HPC` has no fire-and-forget method; guide 07 shows the API ([guide 07, Section 8.5](07_CommunicationManagement.md#85-fire-and-forget-methods)).
+A fire-and-forget method sends a REQUEST_NO_RETURN message (`0x01`) without session handling ([PRS_SOMEIP_00939]). No response is sent. `HPC` has no fire-and-forget method; the CM guide shows the API (the [CM guide, Section 8.5](CommunicationManagement.md#85-fire-and-forget-methods)).
 
 ### 7.5 Fields: Notifier, Getter and Setter
 
@@ -833,7 +833,7 @@ In `HPC`, `AdasStatusService` has a field `AdasStatus` with a notifier only. Its
 
 ### 7.6 What the Receiver Checks, and Silent Discards
 
-Messages that fail the checks of the receiving side are discarded. Malformed messages are discarded without notifying the application ([SWS_CM_10416]). The application sees only the effect: no new sample, or a method `Future` that never becomes ready (guide 07 explains why `ara::com` has no built-in method timeout, [guide 07, Section 8.3](07_CommunicationManagement.md#83-no-timeout-supervision)).
+Messages that fail the checks of the receiving side are discarded. Malformed messages are discarded without notifying the application ([SWS_CM_10416]). The application sees only the effect: no new sample, or a method `Future` that never becomes ready (the CM guide explains why `ara::com` has no built-in method timeout, the [CM guide, Section 8.3](CommunicationManagement.md#83-no-timeout-supervision)).
 
 ### 7.7 Service Interfaces Without Elements
 
@@ -992,7 +992,7 @@ The configuration lives in the machine mapping: for a provided instance, `Someip
 
 > **Note:** In the R25-11 XML schema, the references `remoteUnicastConfig` and `remoteMulticastConfig` of `SomeipServiceInstanceToMachineMapping` are marked as *candidate*, that is, not yet fully released. Check with your tool vendor before you rely on them.
 
-> **Pitfall:** Without SD, a consumer cannot detect that the provider has gone away: there is no TTL and no StopOffer. Use E2E protection with a timeout ([guide 08b](08b_SecureAndSafeCommunication.md)) or an application-level heartbeat if you need to know.
+> **Pitfall:** Without SD, a consumer cannot detect that the provider has gone away: there is no TTL and no StopOffer. Use E2E protection with a timeout (the [Secure Communication guide](SecureAndSafeCommunication.md)) or an application-level heartbeat if you need to know.
 
 ### 9.4 Worked Example: Why `CameraService` Uses TCP for `Image`
 
@@ -1029,7 +1029,7 @@ No translation is needed if the Classic ECU itself speaks SOME/IP with the SOME/
 > - PDUs are often sent **cyclically** (for example every 10 ms) so that the receiver can detect a lost sender: if no PDU arrives within a deadline, the data is stale.
 > - The **communication matrix** (the System Description) defines all signals, PDUs and frames of a vehicle network.
 
-In `HPC`, three PDUs are relevant (illustrative values from guide 00):
+In `HPC`, three PDUs are relevant (illustrative values from the Running Example guide):
 
 | PDU (CAN ID, cycle) | Direction | Signals (start bit, length, scaling) |
 | --- | --- | --- |
@@ -1050,7 +1050,7 @@ The TPS describes four ways to connect the worlds (TPS, Section 9.1, Figures 9.1
 | **C. IEEE 1722 ACF stream** | A stream producer puts whole CAN or LIN frames into IEEE 1722 ACF messages; the HPC extracts the PDUs and translates them. | No PDU gateway logic; frames are tunneled as they are | DRAFT in R25-11; no service discovery |
 | **D. Classic and Adaptive on one hypervisor** | A Classic instance and an Adaptive instance on the same hardware exchange PDUs over IPC. | No network hop | The IPC is implementation-specific; whether a message header is needed is not defined |
 
-`HPC` uses **architecture B**: `CentralGateway` routes the PDUs between CAN and the backbone, and the translation runs on `HPC` (guide 00, Section 6.8).
+`HPC` uses **architecture B**: `CentralGateway` routes the PDUs between CAN and the backbone, and the translation runs on `HPC` (the Running Example guide, Section 1.8).
 
 ```mermaid
 flowchart LR
@@ -1142,7 +1142,7 @@ The **Signal-Based Static** binding is enabled when a `ServiceInstanceToSignalMa
 
 The SWS lists the information needed (local UDP or TCP port, the connector, the remote peers, a multicast address), and the TPS lists the same elements for the server and client sides (TPS, Sections 9.5.4.1, 9.5.4.2). However, "the actual representation of the required information is not standardized": it is provided through the model extension mechanism (TPS, Section 9.5.4). This is the main reason why `HPC` uses the Signal-Based SOME/IP variant.
 
-> **Pitfall:** Under the Signal-Based Static binding, `FindService()` always succeeds at once. The service "exists" even if the gateway is switched off. Data timeouts must be detected by the application or by end-to-end protection (TPS, Section 9.8.6; [guide 08b](08b_SecureAndSafeCommunication.md)).
+> **Pitfall:** Under the Signal-Based Static binding, `FindService()` always succeeds at once. The service "exists" even if the gateway is switched off. Data timeouts must be detected by the application or by end-to-end protection (TPS, Section 9.8.6; the [Secure Communication guide](SecureAndSafeCommunication.md)).
 
 ### 11.4 Signal-Based IEEE1722 ACF (DRAFT)
 
@@ -1222,7 +1222,7 @@ The data type of the service element must be able to hold the signal. In `HPC`, 
 
 ### 12.4 Signal Groups, and One PDU to Several Events
 
-Signal groups do not need to be mapped explicitly: they are covered by the mappings of their signals ([advisory_02001]). The signals of one `ISignalIPdu` can be mapped to several events or field notifiers ([TPS_MANI_03667]). This is even required when a PDU contains several signal groups of which some are end-to-end protected, because the E2E status is available per event (TPS, Section 9.6.6; [guide 08b, Section 14.4](08b_SecureAndSafeCommunication.md#144-one-pdu-several-events-e2e-status-per-event)).
+Signal groups do not need to be mapped explicitly: they are covered by the mappings of their signals ([advisory_02001]). The signals of one `ISignalIPdu` can be mapped to several events or field notifiers ([TPS_MANI_03667]). This is even required when a PDU contains several signal groups of which some are end-to-end protected, because the E2E status is available per event (TPS, Section 9.6.6; the [Secure Communication guide, Section 14.4](SecureAndSafeCommunication.md#144-one-pdu-several-events-e2e-status-per-event)).
 
 If such a PDU is translated with service discovery, all events that take signals from it must share the same `serviceInterfaceId`, the same `eventId` and the same `transportProtocol`, and must all use `signalBased` serialization ([TPS_MANI_03666]). The reason is simple: the PDU arrives behind one Partial SOME/IP Header, so it has one Message ID. The SOME/IP rule that event IDs are unique within a deployment has an explicit exception for `signalBased` events ([constr_3305]).
 
@@ -1235,9 +1235,9 @@ If such a PDU is translated with service discovery, all events that take signals
 | `translationStart` | Offered right after the translation software starts ([TPS_MANI_03580]) | Found and subscribed right after start ([TPS_MANI_03581]) |
 | `serviceDiscovery` | Offered with SOME/IP-SD when the translation starts ([TPS_MANI_03606]) | Found with SOME/IP-SD, then all eventgroups subscribed ([TPS_MANI_03582], [TPS_MANI_03583]) |
 
-`SignalServiceTranslationEventProps` adds per mapping whether the translation must be *safe* and *secure* (`safeTranslation`, `secureTranslation`, both mandatory: [constr_10230], [constr_10231]). If `safeTranslation` is true, the translation software must fulfill a sufficient ASIL ([TPS_MANI_03612]). [Guide 08b, Section 14.1](08b_SecureAndSafeCommunication.md#141-safetranslation-and-securetranslation) explains them; in `HPC`, the vehicle dynamics are translated safely and `PowerMode` securely.
+`SignalServiceTranslationEventProps` adds per mapping whether the translation must be *safe* and *secure* (`safeTranslation`, `secureTranslation`, both mandatory: [constr_10230], [constr_10231]). If `safeTranslation` is true, the translation software must fulfill a sufficient ASIL ([TPS_MANI_03612]). The [Secure Communication guide, Section 14.1](SecureAndSafeCommunication.md#141-safetranslation-and-securetranslation) explains them; in `HPC`, the vehicle dynamics are translated safely and `PowerMode` securely.
 
-> **Note:** The R25-11 XML schema allows further values of `serviceControl` (`partialNetwork`, `anyPartialNetworkActive`, `allPartialNetworksActive`) that are not described in TPS Section 9.5. They relate to partial networks (guide 09).
+> **Note:** The R25-11 XML schema allows further values of `serviceControl` (`partialNetwork`, `anyPartialNetworkActive`, `allPartialNetworksActive`) that are not described in TPS Section 9.5. They relate to partial networks (the NM/TSync/RDS guide).
 
 ### 12.6 Optional Members, Update Bits and Transmission Triggers
 
@@ -1276,7 +1276,7 @@ The last two rows are easy to miss: the translation does not detect a missing cy
 
 | Pitfall | Why it happens | What to do |
 | --- | --- | --- |
-| Stale data looks fresh | A cyclic PDU stops, but the last event sample stays in the proxy cache | Monitor the arrival of events in the application, or use E2E with a timeout ([guide 08b](08b_SecureAndSafeCommunication.md)) |
+| Stale data looks fresh | A cyclic PDU stops, but the last event sample stays in the proxy cache | Monitor the arrival of events in the application, or use E2E with a timeout (the [Secure Communication guide](SecureAndSafeCommunication.md)) |
 | Too many events | A 10 ms PDU becomes 100 events per second for each consumer | Use `GetNewSamples()` with a cycle, or filters such as `maskedNewDiffersMaskedOld` |
 | The instrument cluster shows an old status | `SmControl` publishes `AdasStatus` only on change, but the CAN PDU is expected every 100 ms | The application (or the gateway) must provide the cycle (TPS, Section 9.8.7) |
 | Wrong values | Byte order of signals (little endian on CAN) confused with SOME/IP big endian | The signal mapping's `packingByteOrder` applies ([SWS_CM_80004]) |
@@ -1355,7 +1355,7 @@ The required instance of `Fusion` has the category `SIGNALBASED_WITH_HEADER`:
 </REQUIRED-SOMEIP-SERVICE-INSTANCE>
 ```
 
-The PDU and its signals come from the communication matrix. The signal group `ChassisDynamicsGroup` and the three E2E header signals in bytes 6 and 7 belong to the E2E protection of the PDU ([guide 08b, Section 14.6](08b_SecureAndSafeCommunication.md#146-worked-example-chassisdynamics-with-profile_11-becomes-vehicledynamicsservice)). Each signal has a triggering on the backbone channel, which references the ISignalPort of `HPC`:
+The PDU and its signals come from the communication matrix. The signal group `ChassisDynamicsGroup` and the three E2E header signals in bytes 6 and 7 belong to the E2E protection of the PDU (the [Secure Communication guide, Section 14.6](SecureAndSafeCommunication.md#146-worked-example-chassisdynamics-with-profile_11-becomes-vehicledynamicsservice)). Each signal has a triggering on the backbone channel, which references the ISignalPort of `HPC`:
 
 ```xml
 <I-SIGNAL-I-PDU>
@@ -1453,7 +1453,7 @@ On the wire, at 50.00 km/h, a steering angle of -2.5 degrees and a yaw rate of 1
 | `78 00` | `YawRate` = 120 | 1.20 degree/s |
 | `00 00` | unused | |
 
-Communication Management on `HPC` finds the deployment by the Message ID, extracts the three signals by bit position and byte order, and delivers three events. `SmControl`, for example, then reads the vehicle speed with the proxy API of guide 07.
+Communication Management on `HPC` finds the deployment by the Message ID, extracts the three signals by bit position and byte order, and delivers three events. `SmControl`, for example, then reads the vehicle speed with the proxy API of the CM guide.
 
 In the other direction, `SmControl` provides `AdasStatusService` with two bindings on the same P-port (multi-binding): `AdasStatus_ToCockpit` uses the ordinary SOME/IP deployment of [Section 7.5](#75-fields-notifier-getter-and-setter); `AdasStatus_ToInstrumentCluster` uses a second, signal-based deployment with service ID `0x2003`, whose notifier is mapped to the signal `AdasStatus`:
 
@@ -1477,7 +1477,7 @@ In the other direction, `SmControl` provides `AdasStatusService` with two bindin
 
 `CentralGateway` subscribes to the eventgroup `AdasHmiEvents` and routes the PDU `AdasHmi` to CAN.
 
-> **Pitfall:** `AdasHmi` is a 100 ms PDU on CAN, but `SmControl` updates `AdasStatus` only when the state changes. Because the translation does not send cyclically on its own (TPS, Section 9.8.7), either `SmControl` must call `Update()` every 100 ms or `CentralGateway` must repeat the last value on CAN. This is a project decision; in `HPC`, `SmControl` publishes `AdasStatus` on every change and at least every 100 ms, which the E2E protection towards `Cockpit` needs anyway ([guide 08b](08b_SecureAndSafeCommunication.md)).
+> **Pitfall:** `AdasHmi` is a 100 ms PDU on CAN, but `SmControl` updates `AdasStatus` only when the state changes. Because the translation does not send cyclically on its own (TPS, Section 9.8.7), either `SmControl` must call `Update()` every 100 ms or `CentralGateway` must repeat the last value on CAN. This is a project decision; in `HPC`, `SmControl` publishes `AdasStatus` on every change and at least every 100 ms, which the E2E protection towards `Cockpit` needs anyway (the [Secure Communication guide](SecureAndSafeCommunication.md)).
 
 > **Key takeaways**
 >
@@ -1560,11 +1560,11 @@ The payload is serialized with the DDS standard serialization rules of DDS-XType
 | Footprint | Small; implementations for small ECUs exist | Larger; more entities per service |
 | Methods | Native request/response | RPC over DDS |
 | Signal-based partners | Signal-Based SOME/IP | Not supported |
-| Security | TLS, DTLS, SecOC, IPsec ([guide 08b](08b_SecureAndSafeCommunication.md)) | TLS, DTLS or DDS Security ([guide 08b](08b_SecureAndSafeCommunication.md)) |
+| Security | TLS, DTLS, SecOC, IPsec (the [Secure Communication guide](SecureAndSafeCommunication.md)) | TLS, DTLS or DDS Security (the [Secure Communication guide](SecureAndSafeCommunication.md)) |
 
 ### 13.9 Worked Example: `ObjectListService` to `Cockpit` over DDS
 
-`Fusion` and `FusionLite` provide `ObjectListService` to `Cockpit` over DDS. Both offer the same instance (instance ID 1), but never at the same time, because they run in different `ADAS` states (guide 00). `Storage` on `HPC` reads the object lists through the same DDS instance. The deployment names the topics of the event `ObjectList` and of the notifier of `FusionMode`, and the request and reply topics of the `FusionMode` getter:
+`Fusion` and `FusionLite` provide `ObjectListService` to `Cockpit` over DDS. Both offer the same instance (instance ID 1), but never at the same time, because they run in different `ADAS` states (the Running Example guide). `Storage` on `HPC` reads the object lists through the same DDS instance. The deployment names the topics of the event `ObjectList` and of the notifier of `FusionMode`, and the request and reply topics of the `FusionMode` getter:
 
 ```xml
 <DDS-SERVICE-INTERFACE-DEPLOYMENT>
@@ -1624,7 +1624,7 @@ On the wire, `Cockpit` therefore finds the instance on the topic `ara.com://serv
 
 > **Why this matters:** This chapter answers the integrator's question "what do I have to configure for this binding, and what does each setting mean?". It lists the standardized elements and attributes that the bindings read, with their rules and run-time effects.
 
-The tables use the meta-model names of the TPS. "Mult." is the multiplicity in the meta-model; a multiplicity constraint can make an optional attribute mandatory (column *Rules*). "Default" is given only where the specification defines one; otherwise it says "not specified". Attributes that concern protection (secure communication, E2E, topic access rules) are listed as "see 08b". The service interface, the general deployment rules and `minimumSendInterval` are in [guide 07, Chapter 14](07_CommunicationManagement.md#14-configuration-reference-what-to-configure).
+The tables use the meta-model names of the TPS. "Mult." is the multiplicity in the meta-model; a multiplicity constraint can make an optional attribute mandatory (column *Rules*). "Default" is given only where the specification defines one; otherwise it says "not specified". Attributes that concern protection (secure communication, E2E, topic access rules) are listed as "see the Secure Communication guide". The service interface, the general deployment rules and `minimumSendInterval` are in the [CM guide, Chapter 14](CommunicationManagement.md#14-configuration-reference-what-to-configure).
 
 ### 14.1 Minimal Configuration
 
@@ -1654,7 +1654,7 @@ The tables use the meta-model names of the TPS. "Mult." is the multiplicity in t
 | `NetworkEndpoint.networkEndpointAddress` | IPv4 or IPv6 configuration | `Ipv4Configuration`, `Ipv6Configuration` | * | not specified | | Address used for offers and subscriptions |
 | `SomeipServiceDiscovery.someipServiceDiscoveryPort` | UDP port of SOME/IP-SD | PositiveInteger | 0..1 | not specified | | SD socket |
 | `SomeipServiceDiscovery.multicastSdIpAddress` | SD multicast group | ref `NetworkEndpoint` | 0..1 | not specified | | Destination of multicast offers and finds |
-| `SomeipServiceDiscovery.unicastSecureComProps`, `multicastSecureComProps` | Protection of SD messages | refs | * / 0..1 | not specified | | See [08b, Section 15.2](08b_SecureAndSafeCommunication.md#152-endpoint-security-references) |
+| `SomeipServiceDiscovery.unicastSecureComProps`, `multicastSecureComProps` | Protection of SD messages | refs | * / 0..1 | not specified | | See [Secure Communication, Section 15.2](SecureAndSafeCommunication.md#152-endpoint-security-references) |
 
 ### 14.3 `SomeipServiceInterfaceDeployment` and Its Elements
 
@@ -1686,7 +1686,7 @@ The tables use the meta-model names of the TPS. "Mult." is the multiplicity in t
 | `eventProps`, `methodResponseProps` | UDP accumulation per event or method response | `SomeipEventProps`, `SomeipMethodProps` with `collectionProps` | * | not specified | | [Section 5.5](#55-data-accumulation-for-udp) |
 | `capabilityRecord` | Configuration Option content | key/value | * | | Ignored for matching ([SWS_CM_CONSTR_00003]) | Sent in offers |
 | `loadBalancingPriority`, `loadBalancingWeight` | Load balancing | PositiveInteger | 0..1 | | Not supported in R25-11 ([SWS_CM_CONSTR_00004]) | None |
-| `e2eEventProtectionProps`, `e2eMethodProtectionProps`, `secureComConfig` | Protection | | * | | | See [08b, Section 15.9](08b_SecureAndSafeCommunication.md#159-e2e-for-service-instances) |
+| `e2eEventProtectionProps`, `e2eMethodProtectionProps`, `secureComConfig` | Protection | | * | | | See [Secure Communication, Section 15.9](SecureAndSafeCommunication.md#159-e2e-for-service-instances) |
 
 ### 14.5 `RequiredSomeipServiceInstance` and Required Eventgroups
 
@@ -1730,7 +1730,7 @@ The `category` attribute also exists on `ProvidedSomeipServiceInstance` with the
 | `udpCollectionBufferSizeThreshold` | Enables UDP accumulation | PositiveInteger (bytes) | 0..1 | not specified; no accumulation if absent | | [SWS_CM_10388] |
 | `SomeipCollectionProps.udpCollectionTrigger`, `udpCollectionBufferTimeout` | Per element: trigger the send, maximum wait | `always`, `never`; TimeValue | 0..1 each | not specified | | [SWS_CM_10389] |
 | `remoteUnicastConfig`, `remoteMulticastConfig` | Static peers | `SomeipRemoteUnicastConfig` (`ipv4Address`, `ipv6Address`, `udpPort`, `tcpPort`, `eventGroup`), `SomeipRemoteMulticastConfig` | * | | *Candidate* in the R25-11 schema | [Section 9.3](#93-static-service-connection-someip-without-service-discovery) |
-| `secureComPropsForTcp`, `secureComPropsForUdp`, `secOcComPropsForMulticast` | Protection | refs | | | | See [08b, Section 15.2](08b_SecureAndSafeCommunication.md#152-endpoint-security-references) |
+| `secureComPropsForTcp`, `secureComPropsForUdp`, `secOcComPropsForMulticast` | Protection | refs | | | | See [Secure Communication, Section 15.2](SecureAndSafeCommunication.md#152-endpoint-security-references) |
 
 ### 14.8 Serialization Properties: `ApSomeipTransformationProps`
 
@@ -1761,7 +1761,7 @@ The properties are attached either to a whole service interface element with `Tr
 | `filter` (`DataFilter`) | Reception filter | `dataFilterType` `always`, `maskedNewEqualsX`, `maskedNewDiffersX`, `maskedNewDiffersMaskedOld`; `mask`, `x` | 0..1 | not specified | Signal-service only ([constr_3643]; [TPS_MANI_03644]) | [Section 12.7](#127-data-filters) |
 | `transmissionTrigger` | Whether this signal raises the event | Boolean | 0..1 | absent means false ([TPS_MANI_03649]) | Signal-service only ([constr_3644]) | [Section 12.6](#126-optional-members-update-bits-and-transmission-triggers) |
 | `SignalServiceTranslationProps.serviceControl` | When translated instances are offered or found | `translationStart`, `serviceDiscovery` | 0..1 | | Mandatory ([constr_10255]) | [Section 12.5](#125-when-the-translated-service-appears-translationstart-or-servicediscovery) |
-| `SignalServiceTranslationEventProps.safeTranslation`, `secureTranslation`, `serviceElementMapping` | Safety and security of the translation | Boolean; refs | 0..1 each; * | | Both Booleans mandatory ([constr_10230], [constr_10231]) | See [08b, Section 14.1](08b_SecureAndSafeCommunication.md#141-safetranslation-and-securetranslation) |
+| `SignalServiceTranslationEventProps.safeTranslation`, `secureTranslation`, `serviceElementMapping` | Safety and security of the translation | Boolean; refs | 0..1 each; * | | Both Booleans mandatory ([constr_10230], [constr_10231]) | See [Secure Communication, Section 14.1](SecureAndSafeCommunication.md#141-safetranslation-and-securetranslation) |
 | From the System Description | `ISignal` (`length`, `initValue`), `ISignalIPdu`, `ISignalToIPduMapping` (`startPosition`, `packingByteOrder`, `updateIndicationBitPosition`), `ISignalPort` (`communicationDirection`, `handleInvalid`), `ISignalTriggering`, `PduTriggering`, `SoConIPduIdentifier.headerId`, `IEEE1722TpAcfConnection` and its CAN/LIN parts | | | | | Read by the translation (TPS 9.2, 9.8) |
 | **Not standardized** | Socket configuration of Signal-Based Static: local ports, remote peers, multicast address | Model extension | | | TPS, Section 9.5.4 | [Section 11.3](#113-signal-based-static-sockets-without-service-discovery) |
 
@@ -1781,11 +1781,11 @@ The properties are attached either to a whole service interface element with `Tr
 | `discoveryType` | Discovery protocol | `domainParticipantUserDataQos`, `topic` | 0..1 | not specified | Equal on both sides ([SWS_CM_90500]) | [Section 13.3](#133-two-ways-to-discover-user_data-qos-or-discovery-topic) |
 | `DdsProvidedServiceInstance.resourceIdentifierType` | How instances are separated | `instanceId`, `partition`, `topicPrefix` | 0..1 | not specified | | Topic names ([FO_PRS_DDS_00100]) |
 | `blocklistedVersion` (required) | Versions never used | `DdsServiceVersion` | * | | | Filter in find |
-| Topic access rules, `DdsSecureComProps` | Protection | | | | | See [08b, Section 15.8](08b_SecureAndSafeCommunication.md#158-dds-security) |
+| Topic access rules, `DdsSecureComProps` | Protection | | | | | See [Secure Communication, Section 15.8](SecureAndSafeCommunication.md#158-dds-security) |
 
 ### 14.11 The Running Example: Complete Configuration
 
-The complete model of `HPC` consists of the files of guides 02, 05, 06 and 07 plus one new file for this guide; all were validated against the R25-11 XML schema. The following summary shows what this guide adds.
+The complete model of `HPC` consists of the files of the Manifests, SM, PHM and CM guides plus one new file for this guide; all were validated against the R25-11 XML schema. The following summary shows what this guide adds.
 
 ```text
 # Conceptual view of the running example. NOT real ARXML syntax.
@@ -1809,10 +1809,10 @@ Instances
   ObjectList_Dds (provided by Fusion and FusionLite), ObjectList_Storage (required)  domain 1, topic discovery, partition
 Translation
   11 ServiceInstanceToSignalMappings (one per member and instance)
-  HpcTranslationProps: serviceControl serviceDiscovery, event props VehicleDynamicsSafe (safe), PowerModeSecure (secure), AdasHmiPlain (neither); see guide 08b
+  HpcTranslationProps: serviceControl serviceDiscovery, event props VehicleDynamicsSafe (safe), PowerModeSecure (secure), AdasHmiPlain (neither); see the Secure Communication guide
 ```
 
-The SOME/IP instance of `AdasStatusService` for `Cockpit` and its machine mapping. The E2E props of the notifier are explained in [guide 08b, Section 11.6](08b_SecureAndSafeCommunication.md#116-worked-example-the-state-of-adasstatus-through-a-burst-of-lost-messages):
+The SOME/IP instance of `AdasStatusService` for `Cockpit` and its machine mapping. The E2E props of the notifier are explained in the [Secure Communication guide, Section 11.6](SecureAndSafeCommunication.md#116-worked-example-the-state-of-adasstatus-through-a-burst-of-lost-messages):
 
 ```xml
 <PROVIDED-SOMEIP-SERVICE-INSTANCE>
@@ -1915,7 +1915,7 @@ The translation properties (shortened in the guide to the first two references; 
 
 ## 15. Observing the Bindings: Tools, Traces and Reporting
 
-> **Why this matters:** This guide adds no `ara::com` API; the API is the same for every binding ([guide 07, Chapter 15](07_CommunicationManagement.md#15-api-reference-and-usage-guide-aracom)). What changes is what you can see on the network. Being able to read a trace is the fastest way to find a binding problem.
+> **Why this matters:** This guide adds no `ara::com` API; the API is the same for every binding (the [CM guide, Chapter 15](CommunicationManagement.md#15-api-reference-and-usage-guide-aracom)). What changes is what you can see on the network. Being able to read a trace is the fastest way to find a binding problem.
 
 ### 15.1 Reading SOME/IP and SD in Wireshark
 
@@ -1935,7 +1935,7 @@ Signal-based PDUs behind a Partial SOME/IP Header are not full SOME/IP messages;
 
 ### 15.3 What the Application Sees When the Network Misbehaves
 
-| Network problem | What the application sees ([guide 07](07_CommunicationManagement.md)) |
+| Network problem | What the application sees (the [CM guide](CommunicationManagement.md)) |
 | --- | --- |
 | No offer received, or the offer TTL expired | `FindService()` returns an empty list; the `StartFindService()` handler reports the service as gone; proxy calls fail with `kServiceNotAvailable` |
 | Subscription rejected (Nack) or not answered | The subscription state stays `kSubscriptionPending` |
@@ -1944,7 +1944,7 @@ Signal-based PDUs behind a Partial SOME/IP Header are not full SOME/IP messages;
 | Malformed or unexpected messages | Nothing: they are discarded silently ([SWS_CM_10416]) |
 | A signal-based PDU stops arriving | Nothing: the last sample stays; deadline monitoring is the application's job (TPS, Section 9.8.6) |
 
-Security events and violation messages of Communication Management are listed in [guide 07, Chapter 16](07_CommunicationManagement.md#16-logging-security-events-and-violations). R25-11 defines no security events for secure communication; failures show up only in the API and in the SecOC `VerificationStatus` service ([guide 08b, Section 17.1](08b_SecureAndSafeCommunication.md#171-what-is-reported-and-what-is-not)).
+Security events and violation messages of Communication Management are listed in the [CM guide, Chapter 16](CommunicationManagement.md#16-logging-security-events-and-violations). R25-11 defines no security events for secure communication; failures show up only in the API and in the SecOC `VerificationStatus` service (the [Secure Communication guide, Section 17.1](SecureAndSafeCommunication.md#171-what-is-reported-and-what-is-not)).
 
 > **Key takeaways**
 >
@@ -1976,7 +1976,7 @@ sequenceDiagram
     GW->>CM: Subscribe AdasHmiEvents
     GW->>CM: VehicleMode PDU, PowerMode = On (Partial SOME/IP Header)
     CM->>SMC: PowerMode notification
-    Note over SMC: Requests MachineFG Driving, ADAS Normal (guide 05)
+    Note over SMC: Requests MachineFG Driving, ADAS Normal (the SM guide)
     CM-->>CK: Offer 0x1001 CameraService, 0x1002 AdasStatusService
     CK->>CM: Subscribe CameraEvents (TCP) and AdasStatusEvents (UDP)
     Note over FU: ADAS Normal: Fusion starts
@@ -1995,7 +1995,7 @@ sequenceDiagram
 
 1. **Startup.** In `MachineFG` `Startup`, `SmControl` starts and looks for `VehicleDynamicsService` and `PowerModeService`. Their required instances have the category `SIGNALBASED_WITH_HEADER` and `serviceControl` `serviceDiscovery`, so CM searches for them with SOME/IP-SD ([TPS_MANI_03582]).
 2. **Gateway offers.** `CentralGateway` offers the translated services `0x2001` and `0x2002` and answers the subscriptions (TPS, Section 9.5). CM on `HPC` subscribes once per required instance (or once per Machine, depending on the implementation).
-3. **Power mode.** The PDU `VehicleMode` arrives with `PowerMode` = 1. CM finds the deployment by the Message ID `0x20028001`, extracts the 2-bit signal and delivers the notification of `PowerMode` to `SmControl`, which requests the transitions of guide 05.
+3. **Power mode.** The PDU `VehicleMode` arrives with `PowerMode` = 1. CM finds the deployment by the Message ID `0x20028001`, extracts the 2-bit signal and delivers the notification of `PowerMode` to `SmControl`, which requests the transitions of the SM guide.
 4. **Remote services.** CM offers `CameraService` and `AdasStatusService` to `Cockpit`; `Cockpit` subscribes over TCP and UDP ([Section 6.10](#610-worked-example-cockpit-finds-and-subscribes-to-cameraservice)).
 5. **DDS.** When `ADAS` reaches `Normal`, `Fusion` starts and offers `ObjectListService` over DDS: a participant in domain 1, a writer on the discovery topic and a writer on the object list topic ([Section 13.9](#139-worked-example-objectlistservice-to-cockpit-over-dds)).
 6. **Vehicle dynamics.** Every 10 ms, `ChassisDynamics` arrives; CM delivers three events to each of `Fusion`, `FusionLite` (if running) and `SmControl` ([Section 12.11](#1211-worked-example-chassisdynamics-becomes-vehicledynamicsservice)).
@@ -2045,7 +2045,7 @@ sequenceDiagram
 
 | Symptom | Likely cause | Where to look |
 | --- | --- | --- |
-| Remote consumer never finds the service | Wrong service or instance ID, wrong major version, minor version filter, blocklist, SD multicast not reachable (VLAN, firewall) | SD trace; `requiredMinorVersion`, `versionDrivenFindBehavior`, `blocklistedVersion`; firewall rules (guide 16) |
+| Remote consumer never finds the service | Wrong service or instance ID, wrong major version, minor version filter, blocklist, SD multicast not reachable (VLAN, firewall) | SD trace; `requiredMinorVersion`, `versionDrivenFindBehavior`, `blocklistedVersion`; firewall rules (the IDSM and Firewall guide) |
 | Service found, but no events | No subscription, Nack, wrong eventgroup, TCP connection missing, events sent to an old endpoint | SD trace: Subscribe and Ack; `requiredEventGroup` |
 | Service disappears every few seconds | TTL shorter than cyclic offers, or lost offers | `serviceOfferTimeToLive`, `offerCyclicDelay` |
 | Values are garbage | Different serialization properties or byte order on the two sides | `ApSomeipTransformationProps`; for signals `packingByteOrder` |
@@ -2302,9 +2302,9 @@ Message types: `0x00` REQUEST, `0x01` REQUEST_NO_RETURN, `0x02` NOTIFICATION, `0
 
 | Release | Change |
 | --- | --- |
-| R25-11 | Bitfield data types in SOME/IP ([SWS_CM_12102], [SWS_CM_12103]); inhibit time monitoring (Minimum Send Interval, guide 07); error code `kNetworkBindingFailure` renamed to `kCommunicationFailure`; security event for IAM access violations; no automatic conversion to upper camel case in proxies and skeletons (SWS CM change history) |
+| R25-11 | Bitfield data types in SOME/IP ([SWS_CM_12102], [SWS_CM_12103]); inhibit time monitoring (Minimum Send Interval, the CM guide); error code `kNetworkBindingFailure` renamed to `kCommunicationFailure`; security event for IAM access violations; no automatic conversion to upper camel case in proxies and skeletons (SWS CM change history) |
 | R25-11 (schema) | Removed from the translation mapping: `SignalBasedMethodToISignalTriggeringMapping` and the getter and setter signal references of field mappings; `eventReceptionDefaultValue` of `SomeipEventDeployment` and `UserDefinedEventDeployment` marked obsolete; `remoteUnicastConfig` and `remoteMulticastConfig` marked candidate |
-| R24-11 | New Signal-Based IEEE1722 ACF binding (DRAFT); interoperability fix between AP and CP for SOME/IP error responses; transport fault conditions; MACsec ([guide 08b](08b_SecureAndSafeCommunication.md)) |
+| R24-11 | New Signal-Based IEEE1722 ACF binding (DRAFT); interoperability fix between AP and CP for SOME/IP error responses; transport fault conditions; MACsec (the [Secure Communication guide](SecureAndSafeCommunication.md)) |
 
 ## Appendix E. References
 

@@ -10,7 +10,7 @@
 >
 > **Version:** 1.0 (draft, pending review)
 >
-> **Part of the series:** [AUTOSAR Adaptive Platform Training Guides](00_LearningPath.md). Previous: [10 Log and Trace](10_LogAndTrace.md). Next: [12a Diagnostics Part 1](12a_Diagnostics.md).
+> **Part of the series:** [AUTOSAR Adaptive Platform Training Guides](../README.md). Previous: [Log and Trace](LogAndTrace.md). Next: [Diagnostics Part 1](DiagnosticsPart1.md).
 
 ## About This Guide
 
@@ -22,7 +22,7 @@ Almost every application needs to remember something: a calibration, a learned p
 - **Integrators** who decide where the data lives, how much space it may use, and how it is protected by redundancy and cryptography.
 - **Platform developers** who implement Persistency or a platform cluster that uses it, and who need the exact rules for installation, update, recovery and reporting.
 
-Assumed background: modern C++ (C++17: templates, move semantics, `std::function`), plus basic Linux/POSIX knowledge (files, directories, `fsync`). You do not need prior AUTOSAR Adaptive knowledge. Three guides of the series make this one easier: [02 Manifests and Methodology](02_Manifests.md) for ports, interfaces, processes and APMC, [03 `ara::core` and General Conventions](03_CoreAndGeneral.md) for `Initialize`, `InstanceSpecifier`, `Result`, `ErrorCode` and violations, and [07 Communication Management](07_CommunicationManagement.md) for the service through which the running example shares its data.
+Assumed background: modern C++ (C++17: templates, move semantics, `std::function`), plus basic Linux/POSIX knowledge (files, directories, `fsync`). You do not need prior AUTOSAR Adaptive knowledge. Three guides of the series make this one easier: [Manifests and Methodology](Manifests.md) for ports, interfaces, processes and APMC, [`ara::core` and General Conventions](CoreAndGeneral.md) for `Initialize`, `InstanceSpecifier`, `Result`, `ErrorCode` and violations, and [Communication Management](CommunicationManagement.md) for the service through which the running example shares its data.
 
 ### Learning Objectives
 
@@ -62,14 +62,14 @@ If you write application code, read Chapters 1, 2, 5 to 8, 13, 15 and 17 first. 
 
 ### The Running Example
 
-All guides of the series use the same invented system. A high-performance ECU called **`HPC`** runs an ADAS feature. [Guide 00, Chapter 6](00_LearningPath.md#6-the-running-example-the-hpc-reference-system) defines the complete example; this section recaps the part that Persistency needs.
+All guides of the series use the same invented system. A high-performance ECU called **`HPC`** runs an ADAS feature. The [Running Example guide](RunningExample.md) defines the complete example; this section recaps the part that Persistency needs.
 
-- **`Storage`** is the ADAS data store. It keeps the camera calibration, provides it to other processes through `CalibrationDataService` ([guide 07, Section 13.5](07_CommunicationManagement.md#135-worked-example-calibrationdataservice-over-local-ipc)), and records the object lists of `Fusion`.
+- **`Storage`** is the ADAS data store. It keeps the camera calibration, provides it to other processes through `CalibrationDataService` (the [CM guide, Section 13.5](CommunicationManagement.md#135-worked-example-calibrationdataservice-over-local-ipc)), and records the object lists of `Fusion`.
 - **`Fusion`** fuses camera, radar and vehicle data in `ADAS.Normal`. It is delivered in the Software Cluster `AdasCluster`, first as version 1.0.0, later updated to 1.1.0.
 - **`CameraDriver`** writes a new camera calibration through `SetCalibration` at the end of the diagnostic routine `CalibrateCamera`; **`CalibrationCheck`** reads it through `GetCalibration` at ADAS start.
 - `HPC` has flash memory for persistent data and a Hardware Security Module (HSM) for keys.
 
-The persistent data of `HPC` is defined in [guide 00, Section 6.9](00_LearningPath.md#69-persistent-data); this guide is its owner and holds the details:
+The persistent data of `HPC` is defined in the [Running Example guide, Section 1.9](RunningExample.md#19-persistent-data); this guide is its owner and holds the details:
 
 | Element | What it is | Used in |
 | --- | --- | --- |
@@ -241,11 +241,11 @@ The persistent data of `HPC` is defined in [guide 00, Section 6.9](00_LearningPa
 | --- | --- |
 | Sharing data between processes | Communication Management. Persistent data is always local to one process ([SWS_PER_00309]); [Section 3.5](#35-sharing-data-between-processes-use-a-service) shows the pattern. |
 | Queries, indexes, transactions over several storages | The application. A Key-Value Storage is a set of keys with values, not a database engine. |
-| Creating and protecting cryptographic keys | Cryptography (guide 14). Persistency only uses a configured key slot. |
-| Transferring and activating software packages | Update and Configuration Management (UCM, guide 13). Persistency only reacts to the new configuration. |
+| Creating and protecting cryptographic keys | Cryptography (the Cryptography guide). Persistency only uses a configured key slot. |
+| Transferring and activating software packages | Update and Configuration Management (UCM, the UCM guide). Persistency only reacts to the new configuration. |
 | Removing the data of an uninstalled application | UCM, using the URIs of the configuration (SWS, Section 7.2.5.5). |
 | Defining the storage format or a URI scheme | Nobody: both are implementation-specific. |
-| Sharing data with other machines | Remote Persistency (`ara::rper`), which is not covered by this series ([guide 00, Section 2.4](00_LearningPath.md#24-topics-outside-the-series)). |
+| Sharing data with other machines | Remote Persistency (`ara::rper`), which is not covered by this series ([main page](../README.md#topics-outside-the-series)). |
 
 ### 1.3 Analogies
 
@@ -338,8 +338,8 @@ The most important architectural rule is short: persistent data is always local 
 
 Persistency is configured in two parts (SWS, Chapter 2):
 
-- The **Application Design** is written by the application designer. It says *what* the application needs: a port for each storage, typed by a persistency interface, with the keys or files, their types, their initial values and the requested access mode. It is part of the AUTOSAR meta-model (M2), like the rest of the design ([guide 02, Section 6.5](02_Manifests.md#65-interfaces-to-functional-clusters)).
-- The **Target Configuration** is written by the integrator. It says *how* and *where* the data is stored on the machine: the process, the locations, the version, the sizes, the update strategies, redundancy and cryptography. In R25-11 it is defined as an **APMC** model, the Adaptive Platform Machine Configuration ([guide 02, Section 11.9](02_Manifests.md#119-looking-ahead-apmc)). The older M2 description in the TPS is still provided but may be discontinued ([Section 14.12](#1412-the-legacy-m2-target-configuration)).
+- The **Application Design** is written by the application designer. It says *what* the application needs: a port for each storage, typed by a persistency interface, with the keys or files, their types, their initial values and the requested access mode. It is part of the AUTOSAR meta-model (M2), like the rest of the design (the [Manifests guide, Section 6.5](Manifests.md#65-interfaces-to-functional-clusters)).
+- The **Target Configuration** is written by the integrator. It says *how* and *where* the data is stored on the machine: the process, the locations, the version, the sizes, the update strategies, redundancy and cryptography. In R25-11 it is defined as an **APMC** model, the Adaptive Platform Machine Configuration (the [Manifests guide, Section 11.9](Manifests.md#119-looking-ahead-apmc)). The older M2 description in the TPS is still provided but may be discontinued ([Section 14.12](#1412-the-legacy-m2-target-configuration)).
 
 The target configuration can refine what the design says. When both define the same element, the target configuration wins ([SWS_PER_00379]); [Section 4.4](#44-precedence-in-one-picture) shows all precedence rules.
 
@@ -446,7 +446,7 @@ Besides applications, several platform clusters use Persistency (SWS, Table 5.1)
 | Interface | Used by | Purpose |
 | --- | --- | --- |
 | `KeyValueStorage` | Diagnostic Management | Associated data of diagnostic trouble codes, for example freeze frames |
-| | State Management | Its internal state ([guide 05, Section 11.3](05_StateManagement.md#113-persistency-logging-and-supervision-of-state-management)) |
+| | State Management | Its internal state (the [SM guide, Section 11.3](StateManagement.md#113-persistency-logging-and-supervision-of-state-management)) |
 | | Time Synchronization | The last received time stamp, for a faster startup |
 | | UCM, V-UCM | Their internal state |
 | | Remote Persistency | Access to an underlying Key-Value Storage |
@@ -475,7 +475,7 @@ Persistency creates these storages at installation like port-based ones ([SWS_PE
 
 ### 3.5 Sharing Data Between Processes: Use a Service
 
-Because persistent data is private to one process, data that several processes need must be owned by one of them and offered through a service interface (SWS, Section 7.2.2). The running example follows this rule: `Storage` owns `CalibrationKvs` and offers `CalibrationDataService`; `CameraDriver`, `CalibrationCheck`, `Fusion` and `FusionLite` use the service ([guide 07, Section 13.5](07_CommunicationManagement.md#135-worked-example-calibrationdataservice-over-local-ipc)).
+Because persistent data is private to one process, data that several processes need must be owned by one of them and offered through a service interface (SWS, Section 7.2.2). The running example follows this rule: `Storage` owns `CalibrationKvs` and offers `CalibrationDataService`; `CameraDriver`, `CalibrationCheck`, `Fusion` and `FusionLite` use the service (the [CM guide, Section 13.5](CommunicationManagement.md#135-worked-example-calibrationdataservice-over-local-ipc)).
 
 ```mermaid
 flowchart LR
@@ -488,7 +488,7 @@ flowchart LR
     end
 ```
 
-The owner also becomes the single place for plausibility checks, access control (only `CameraDriver` may call `SetCalibration`, guide 15) and the decision when to commit.
+The owner also becomes the single place for plausibility checks, access control (only `CameraDriver` may call `SetCalibration`, the IAM guide) and the decision when to commit.
 
 > **Pitfall:** Two processes of the same executable get two separate sets of storages ([SWS_PER_00309]), because the target configuration has one storage configuration per process (SWS, Section 7.1.1). If you start a second instance of an executable for load sharing, it does not see the data of the first one.
 
@@ -589,12 +589,12 @@ So the effective strategy of an element is: target element level if present, els
 
 ### 5.1 Initialize and Deinitialize
 
-Persistency belongs to the Adaptive Platform Foundation, so `ara::core::Initialize` and `ara::core::Deinitialize` initialize and de-initialize it together with the other library-based clusters (SWS, Section 7.5; [guide 03, Section 5.2](03_CoreAndGeneral.md#52-initialize)).
+Persistency belongs to the Adaptive Platform Foundation, so `ara::core::Initialize` and `ara::core::Deinitialize` initialize and de-initialize it together with the other library-based clusters (SWS, Section 7.5; the [Core guide, Section 5.2](CoreAndGeneral.md#52-initialize)).
 
 - **At `Initialize`**, Persistency reads its target configuration and prepares the access structures to all Key-Value Storages and File Storages that the configuration defines ([SWS_PER_00408]). Depending on the implementation, it may also check redundancy at this point ([Section 9.5](#95-when-persistency-checks-and-what-it-reports)).
 - **At `Deinitialize`**, Persistency persists all open files as if `SyncToFile` had been called and closes them, drops all unsynced changes of Key-Value Storages as if `DiscardPendingChanges` had been called, and then frees its remaining resources ([SWS_PER_00409]).
 
-The global functions that take an `InstanceSpecifier`, and the global update and reset functions, check whether they are called before `Initialize` or after `Deinitialize`. If so, this is a violation: Persistency logs `CalledWhileUnititializedViolation` and the process is aborted ([SWS_PER_00574], [SWS_PER_20029]). The checked functions are `UpdatePersistency`, `ResetPersistency`, `OpenKeyValueStorage`, `RecoverKeyValueStorage`, `ResetKeyValueStorage`, `GetCurrentKeyValueStorageSize`, `OpenFileStorage`, `RecoverAllFiles`, `ResetAllFiles` and `GetCurrentFileStorageSize`. All other functions and methods are unprotected; calling them outside the initialized phase is undefined behavior (SWS, Section 7.5; [guide 03, Section 5.4](03_CoreAndGeneral.md#54-what-works-before-initialize-and-after-deinitialize)).
+The global functions that take an `InstanceSpecifier`, and the global update and reset functions, check whether they are called before `Initialize` or after `Deinitialize`. If so, this is a violation: Persistency logs `CalledWhileUnititializedViolation` and the process is aborted ([SWS_PER_00574], [SWS_PER_20029]). The checked functions are `UpdatePersistency`, `ResetPersistency`, `OpenKeyValueStorage`, `RecoverKeyValueStorage`, `ResetKeyValueStorage`, `GetCurrentKeyValueStorageSize`, `OpenFileStorage`, `RecoverAllFiles`, `ResetAllFiles` and `GetCurrentFileStorageSize`. All other functions and methods are unprotected; calling them outside the initialized phase is undefined behavior (SWS, Section 7.5; the [Core guide, Section 5.4](CoreAndGeneral.md#54-what-works-before-initialize-and-after-deinitialize)).
 
 > **Note:** The sentence of [SWS_PER_00574] is inverted in R25-11: it says Persistency shall check whether the functions are called before `Initialize` or after `Deinitialize`, and "if not" treat it as a violation. The explanation directly above it in SWS Section 7.5 makes the intent clear: calling them *outside* the initialized phase is the violation.
 
@@ -604,7 +604,7 @@ The global functions that take an `InstanceSpecifier`, and the global update and
 
 A storage is identified by an `ara::core::InstanceSpecifier` (SWS, Section 7.1.1):
 
-- For an application, it is the short-name path of the R-port in the executable, for example `/storage/Root/CalibrationKvsPort` or `/fusion/Root/FusionParamsPort`. The path starts with the executable and its root software component prototype, as for service ports ([guide 02, Section 9.4](02_Manifests.md#94-from-port-to-instancespecifier)).
+- For an application, it is the short-name path of the R-port in the executable, for example `/storage/Root/CalibrationKvsPort` or `/fusion/Root/FusionParamsPort`. The path starts with the executable and its root software component prototype, as for service ports (the [Manifests guide, Section 9.4](Manifests.md#94-from-port-to-instancespecifier)).
 - For a platform cluster without a port, it is the ApmC path of the `PersistencyKeyValueStorage` or `PersistencyFileStorage` container ([Section 3.4](#34-platform-clusters-as-persistency-users)).
 
 If the specifier does not name a configured storage, Persistency returns `kStorageNotFound` ([SWS_PER_00538]). This is deliberately an *error*, not a violation as the general requirements of the platform would demand: an error lets the code handle storages that are not configured in a particular product variant ([SWS_PER_NA_00002]). Opening the same storage twice is allowed; both calls return handles to the same storage ([SWS_PER_NA_00003]).
@@ -745,7 +745,7 @@ Like all other operations, these work on the temporary storage: a removed key is
 
 ### 6.7 Worked Example: CalibrationStore in Storage
 
-`Storage` wraps `CalibrationKvs` in a small class, `CalibrationStore`. [Guide 07](07_CommunicationManagement.md#86-implementing-a-method-in-the-skeleton) uses its methods `Read`, `Write` and `IsPlausible` in the methods `GetCalibration` and `SetCalibration` of `CalibrationDataService`. The keys of the storage are the names of the enumerators of `CalibrationKey`.
+`Storage` wraps `CalibrationKvs` in a small class, `CalibrationStore`. The [CM guide](CommunicationManagement.md#86-implementing-a-method-in-the-skeleton) uses its methods `Read`, `Write` and `IsPlausible` in the methods `GetCalibration` and `SetCalibration` of `CalibrationDataService`. The keys of the storage are the names of the enumerators of `CalibrationKey`.
 
 ```cpp
 // Storage: CalibrationStore wraps the Key-Value Storage CalibrationKvs (illustrative).
@@ -798,7 +798,7 @@ private:
 }  // namespace hpc::storage
 ```
 
-Three design decisions are worth noting. First, `Write` syncs immediately: a calibration is written rarely and is expensive to measure again, so losing it is worse than one extra flash write. Second, after a failed sync, `Write` discards the pending change, so that `GetCalibration` never returns a value that is not stored. Third, `Storage` processes the method calls of `CalibrationDataService` with `kEventSingleThread` ([guide 07, Section 8.7](07_CommunicationManagement.md#87-method-call-processing-modes)), so `Write` never runs concurrently with itself; a multi-threaded provider would need its own lock, because a `SetValue` of one thread and a `DiscardPendingChanges` of another would interfere.
+Three design decisions are worth noting. First, `Write` syncs immediately: a calibration is written rarely and is expensive to measure again, so losing it is worse than one extra flash write. Second, after a failed sync, `Write` discards the pending change, so that `GetCalibration` never returns a value that is not stored. Third, `Storage` processes the method calls of `CalibrationDataService` with `kEventSingleThread` (the [CM guide, Section 8.7](CommunicationManagement.md#87-method-call-processing-modes)), so `Write` never runs concurrently with itself; a multi-threaded provider would need its own lock, because a `SetValue` of one thread and a `DiscardPendingChanges` of another would interfere.
 
 On a fresh installation, both keys hold their initial values `CameraExtrinsicsDefault` and `RadarAlignmentDefault`, which mean "not calibrated" (an empty value list). `CalibrationCheck` detects this state through `GetCalibration`.
 
@@ -940,7 +940,7 @@ The states are useful after a recovery: a file with `kCreatedDuringRecovery` or 
 
 ### 7.9 Worked Example: RecordingFile in Storage
 
-`Storage` records the object lists of `Fusion` into `Recordings`, one file per recording. The class `RecordingFile` is used by the main loop of `Storage` in [guide 07, Section 15.13](07_CommunicationManagement.md#1513-complete-example-storage): `Append` adds one object list, and `WaitShortly` waits for the next batch. The file name contains the start time with a fixed width (illustrative: `rec_0000001730.bin`), so that the names sort by age.
+`Storage` records the object lists of `Fusion` into `Recordings`, one file per recording. The class `RecordingFile` is used by the main loop of `Storage` in the [CM guide, Section 15.13](CommunicationManagement.md#1513-complete-example-storage): `Append` adds one object list, and `WaitShortly` waits for the next batch. The file name contains the start time with a fixed width (illustrative: `rec_0000001730.bin`), so that the names sort by age.
 
 ```cpp
 // Storage: RecordingFile writes the File Storage Recordings (illustrative).
@@ -1231,7 +1231,7 @@ sequenceDiagram
 
 The application continues normally. Persistency also logs `KeyValueStorageRecovered` ([Section 16.1](#161-log-messages)).
 
-**Case 2: two copies are broken.** No two copies agree. `OpenKeyValueStorage` fails with `kValidationFailed`, and the callback reports `kKeyValueStorageRecoveryFailed` with both indices. `Storage` has no open handle, so it can call `RecoverKeyValueStorage` and open the storage again. Whatever the result, the values may now be outdated or back to "not calibrated". `Storage` checks each record with `IsPlausible`; an implausible or initial value makes `CalibrationCheck` fail at the next ADAS start, and a workshop must run the routine `CalibrateCamera` again (guide 12a).
+**Case 2: two copies are broken.** No two copies agree. `OpenKeyValueStorage` fails with `kValidationFailed`, and the callback reports `kKeyValueStorageRecoveryFailed` with both indices. `Storage` has no open handle, so it can call `RecoverKeyValueStorage` and open the storage again. Whatever the result, the values may now be outdated or back to "not calibrated". `Storage` checks each record with `IsPlausible`; an implausible or initial value makes `CalibrationCheck` fail at the next ADAS start, and a workshop must run the routine `CalibrateCamera` again (the Diagnostics Part 1 guide).
 
 ```cpp
 // Storage: register the recovery report callback once, before opening storages (illustrative).
@@ -1279,7 +1279,7 @@ A container `PersistencyCryptoKeySlotProps` configures the protection ([APMC_PER
 | `ForeignCryptoKeySlotRef` | The `CryptoKeySlot` that holds the key; a temporary reference until Cryptography moves to APMC ([APMC_PER_00048]) |
 | `CryptoVerificationHash` | Optional fixed hash value for a verification hash ([Section 10.4](#104-verification-hashes-for-read-only-and-write-only-once-storages)) |
 
-The key itself is created, stored and protected by Cryptography (guide 14). Persistency stores which keys and algorithms it used in the metadata of the storage ([SWS_PER_00559]), so that it can still read data protected with an old key after an update that changes the protection ([SWS_PER_00562], [SWS_PER_00563]).
+The key itself is created, stored and protected by Cryptography (the Cryptography guide). Persistency stores which keys and algorithms it used in the metadata of the storage ([SWS_PER_00559]), so that it can still read data protected with an old key after an update that changes the protection ([SWS_PER_00562], [SWS_PER_00563]).
 
 Because the container exists at most once per storage and once per element, one storage has one usage. To get both confidentiality and authenticity, choose an authenticated encryption algorithm with `ENCRYPTION`, or protect the storage with one usage and its elements with the other.
 
@@ -1310,11 +1310,11 @@ A storage that never changes after installation can be protected without a key: 
 
 The specification notes that corruption, the second cause, can be detected or even avoided by configuring redundancy (SWS, Section 7.2.1.1). It does not name a dedicated error for a failed verification-hash comparison.
 
-> **Pitfall:** A missing key looks exactly like an attack. If the key slot is not provisioned on a new ECU, or was deleted, every access fails with `kAuthenticationFailed` or `kEncryptionFailed`. Make key provisioning part of the production process (guide 14), and test the "key missing" case.
+> **Pitfall:** A missing key looks exactly like an attack. If the key slot is not provisioned on a new ECU, or was deleted, every access fails with `kAuthenticationFailed` or `kEncryptionFailed`. Make key provisioning part of the production process (the Cryptography guide), and test the "key missing" case.
 
 ### 10.6 Worked Example: the MAC over CalibrationKvs
 
-`CalibrationKvs` has `PersistencyCryptoKeySlotProps` in its `PersistencyCommon` with `CryptoKeySlotUsage` `VERIFICATION`, `CryptoAlgorithm` `MAC/CMAC/AES-128` and the key slot `CalibrationMacKeySlot`, which holds the symmetric key `CalibrationMacKey` ([guide 00, Section 6.12](00_LearningPath.md#612-security)). Persistency computes the MAC at every `SyncToStorage` and verifies it at every open ([SWS_PER_00449], [SWS_PER_00450]).
+`CalibrationKvs` has `PersistencyCryptoKeySlotProps` in its `PersistencyCommon` with `CryptoKeySlotUsage` `VERIFICATION`, `CryptoAlgorithm` `MAC/CMAC/AES-128` and the key slot `CalibrationMacKeySlot`, which holds the symmetric key `CalibrationMacKey` (the [Running Example guide, Section 1.12](RunningExample.md#112-security)). Persistency computes the MAC at every `SyncToStorage` and verifies it at every open ([SWS_PER_00449], [SWS_PER_00450]).
 
 If someone changes the calibration on the flash, for example to hide a misaligned camera, the next open of `CalibrationKvs` fails with `kAuthenticationFailed`. `CalibrationStore::Read` returns the error, `GetCalibration` answers `CalibrationNotFound`, and `CalibrationCheck` reports the calibration as missing, so that ADAS does not start with untrusted data. The calibration is not encrypted: it is not secret, but it must be authentic.
 
@@ -1370,7 +1370,7 @@ A File Storage can also be limited in the number of files with `PersistencyFileS
 `Recordings` has `MinimumSustainedSize` 64 MiB, `MaximumAllowedSize` 256 MiB and `maxNumberOfFiles` 64. When the quota, the physical space or the file limit is reached, `RecordingFile` from [Section 7.9](#79-worked-example-recordingfile-in-storage) deletes the oldest finished recording and continues. Because the names contain the start time with a fixed width, the smallest name is the oldest; the creation time from `GetFileInfo` would also work, but it may be 0 where the time is not available ([SWS_PER_00458]).
 
 ```cpp
-// Storage: make room in Recordings (illustrative; log_ is a logger of Storage, guide 10).
+// Storage: make room in Recordings (illustrative; log_ is a logger of Storage, the Log and Trace guide).
 #include <algorithm>
 
 void RecordingFile::HandleWriteError(const ara::core::ErrorCode& error) {
@@ -1427,7 +1427,7 @@ flowchart LR
     F --> U["Later: removal by UCM using the URIs"]
 ```
 
-The UCM and State Management side of the verification phase is described in [guide 05, Section 9.4](05_StateManagement.md#94-prepare-verify-and-roll-back); guide 13 tells the UCM story.
+The UCM and State Management side of the verification phase is described in the [SM guide, Section 9.4](StateManagement.md#94-prepare-verify-and-roll-back); the UCM guide tells the UCM story.
 
 ### 12.2 The Central Storage and the Two Versions
 
@@ -1629,7 +1629,7 @@ sequenceDiagram
 The code is in [Section 15.6](#156-complete-example-fusion-loads-uses-and-migrates-fusionparams). Two consequences are worth knowing:
 
 - If the conversion fails (for example `kQuotaExceeded`, because the backup also counts against the 16 KiB quota), `Fusion` falls back to `ResetKey("TrackerTuning")`, which sets the factory value `TrackerTuningDefault` of the current configuration. The vehicle loses its learned tuning but keeps working.
-- If `AdasCluster` is later rolled back to 1.0.0 *after* `CleanUpPersistency`, no backup with version 1.0.0 exists, so Persistency re-installs `FusionParams` with its initial value ([Section 12.8](#128-roll-back)). Guide 13 may later move the migration into `ADAS.Verify` with an explicit `UpdatePersistency`, so that a failing migration fails the verification instead.
+- If `AdasCluster` is later rolled back to 1.0.0 *after* `CleanUpPersistency`, no backup with version 1.0.0 exists, so Persistency re-installs `FusionParams` with its initial value ([Section 12.8](#128-roll-back)). The UCM guide may later move the migration into `ADAS.Verify` with an explicit `UpdatePersistency`, so that a failing migration fails the verification instead.
 
 > **Key takeaways**
 >
@@ -1647,7 +1647,7 @@ The code is in [Section 15.6](#156-complete-example-fusion-loads-uses-and-migrat
 
 ### 13.1 PerErrc and the Error Domain
 
-Persistency reports errors through `ara::core::Result` with codes of `ara::per::PerErrc` ([SWS_PER_00472]); the API never throws ([guide 03, Section 6.2](03_CoreAndGeneral.md#62-errors-are-returned-never-thrown)). The domain is `PerErrorDomain`; `GetPerDomain()` returns it ([SWS_PER_00473]), its `Name()` is `"Per"` ([SWS_PER_00353]), and its identifier is defined in the table of [SWS_CORE_90023]. `MakeErrorCode(PerErrc, SupportDataType)` creates an `ErrorCode` ([SWS_PER_00474]). If you prefer exceptions, `ThrowAsException` throws a `PerException` ([SWS_PER_00476]). Values 0 to 255 are reserved for AUTOSAR; vendors may add their own errors from 256 ([SWS_PER_00472]).
+Persistency reports errors through `ara::core::Result` with codes of `ara::per::PerErrc` ([SWS_PER_00472]); the API never throws (the [Core guide, Section 6.2](CoreAndGeneral.md#62-errors-are-returned-never-thrown)). The domain is `PerErrorDomain`; `GetPerDomain()` returns it ([SWS_PER_00473]), its `Name()` is `"Per"` ([SWS_PER_00353]), and its identifier is defined in the table of [SWS_CORE_90023]. `MakeErrorCode(PerErrc, SupportDataType)` creates an `ErrorCode` ([SWS_PER_00474]). If you prefer exceptions, `ThrowAsException` throws a `PerException` ([SWS_PER_00476]). Values 0 to 255 are reserved for AUTOSAR; vendors may add their own errors from 256 ([SWS_PER_00472]).
 
 | Value | Enumerator | Meaning |
 | --- | --- | --- |
@@ -1675,7 +1675,7 @@ The values 11 and 14 are not used ([SWS_PER_00311]).
 
 ### 13.2 What Each Error Means and How to React
 
-The API table of every function lists its errors with their recoverability: *rollback semantics* means that the failed call had no side effects, *no rollback semantics* that it may have had some while invariants are kept ([guide 03, Section 6.6](03_CoreAndGeneral.md#66-recoverability-classes)). The general requirements use Persistency as their example: if resetting a Key-Value Storage fails with `kAuthenticationFailed`, nothing has changed; if it fails with `kOutOfStorageSpace`, some keys may already be reset and others not, and only a later successful call makes the storage consistent again ([RS_AP_00160]).
+The API table of every function lists its errors with their recoverability: *rollback semantics* means that the failed call had no side effects, *no rollback semantics* that it may have had some while invariants are kept (the [Core guide, Section 6.6](CoreAndGeneral.md#66-recoverability-classes)). The general requirements use Persistency as their example: if resetting a Key-Value Storage fails with `kAuthenticationFailed`, nothing has changed; if it fails with `kOutOfStorageSpace`, some keys may already be reset and others not, and only a later successful call makes the storage consistent again ([RS_AP_00160]).
 
 | Error | Typical cause | Typical reaction |
 | --- | --- | --- |
@@ -1714,7 +1714,7 @@ Decision Classify(const ara::core::ErrorCode& e) {
 
 ### 13.3 Violations
 
-Some problems are not reported as errors, because the process cannot continue sensibly. Persistency treats them as violations: it logs a violation message and the process is aborted ([guide 03, Section 6.3](03_CoreAndGeneral.md#63-violations-fail-early)).
+Some problems are not reported as errors, because the process cannot continue sensibly. Persistency treats them as violations: it logs a violation message and the process is aborted (the [Core guide, Section 6.3](CoreAndGeneral.md#63-violations-fail-early)).
 
 | Situation | Violation message | Spec |
 | --- | --- | --- |
@@ -2008,7 +2008,7 @@ The TPS constraints were written for the M2 model; whether they formally apply t
 
 ### 14.11 PersistencyLogging
 
-**Spec:** [APMC_PER_00050]. A `PersistencyLogging` container (`0..*` in `PersistencyCommon`) maps the log messages of a storage to a log sink: `ForeignDltContextRef` ([APMC_PER_00051]) names the `DltContext`, and `ForeignDltLogSinkRef` ([APMC_PER_00052]) the sink. The SWS notes that this modeling will change once Log and Trace has moved to APMC. Without it, where Persistency's messages appear is implementation-specific. The running example does not configure it; guide 10 explains sinks and contexts ([guide 10, Section 10.2](10_LogAndTrace.md#102-machine-sinks-and-per-port-sinks)).
+**Spec:** [APMC_PER_00050]. A `PersistencyLogging` container (`0..*` in `PersistencyCommon`) maps the log messages of a storage to a log sink: `ForeignDltContextRef` ([APMC_PER_00051]) names the `DltContext`, and `ForeignDltLogSinkRef` ([APMC_PER_00052]) the sink. The SWS notes that this modeling will change once Log and Trace has moved to APMC. Without it, where Persistency's messages appear is implementation-specific. The running example does not configure it; the Log and Trace guide explains sinks and contexts (the [Log and Trace guide, Section 10.2](LogAndTrace.md#102-machine-sinks-and-per-port-sinks)).
 
 ### 14.12 The Legacy M2 Target Configuration
 
@@ -2032,7 +2032,7 @@ Before APMC, the target configuration was modeled with meta-classes of the TPS (
 | `PersistencyLogging` | `PersistencyDeploymentToDltLogSinkMapping` ([TPS_MANI_03276]) |
 | Redundancy containers | `PersistencyRedundancyHandling` and its subclasses, `.scope`, `.algorithmFamily`, `.length`, `.m`, `.n` |
 
-In the M2 approach, `ProcessToMachineMapping.persistencyCentralStorageURI` must exist for every process that uses Persistency ([constr_10090]; [guide 02, Section 12.12](02_Manifests.md#1212-processtomachinemapping)). The SWS warns that the correspondence table is misleading in places: for example, the element-level `DELETE` should map only to `PersistencyElementLevelUpdateStrategyEnum.delete` (SWS, Section 4.1).
+In the M2 approach, `ProcessToMachineMapping.persistencyCentralStorageURI` must exist for every process that uses Persistency ([constr_10090]; the [Manifests guide, Section 12.12](Manifests.md#1212-processtomachinemapping)). The SWS warns that the correspondence table is misleading in places: for example, the element-level `DELETE` should map only to `PersistencyElementLevelUpdateStrategyEnum.delete` (SWS, Section 4.1).
 
 ### 14.13 The Running Example: Complete Configuration
 
@@ -2063,7 +2063,7 @@ The Application Design of the running example is real ARXML that validates again
 </ADAPTIVE-APPLICATION-SW-COMPONENT-TYPE>
 ```
 
-The value type of `CalibrationKvs` is `CalibrationRecord` from `CalibrationDataService` ([guide 07, Section 13.5](07_CommunicationManagement.md#135-worked-example-calibrationdataservice-over-local-ipc)); the types `TrackerTuningV1` and `TrackerTuningV2` and the constants `CameraExtrinsicsDefault`, `RadarAlignmentDefault` and `TrackerTuningDefault` are defined in the same ARXML file.
+The value type of `CalibrationKvs` is `CalibrationRecord` from `CalibrationDataService` (the [CM guide, Section 13.5](CommunicationManagement.md#135-worked-example-calibrationdataservice-over-local-ipc)); the types `TrackerTuningV1` and `TrackerTuningV2` and the constants `CameraExtrinsicsDefault`, `RadarAlignmentDefault` and `TrackerTuningDefault` are defined in the same ARXML file.
 
 The target configuration is APMC. AUTOSAR publishes no standardized APMC definition file for Persistency in R25-11 that values could reference, so the target configuration is shown as a conceptual tree. URIs and paths are illustrative.
 
@@ -2090,7 +2090,7 @@ Persistency StoragePersistency:
         PersistencyCryptoKeySlotProps:
           CryptoKeySlotUsage: VERIFICATION
           CryptoAlgorithm: "MAC/CMAC/AES-128"
-          ForeignCryptoKeySlotRef: CalibrationMacKeySlot                 # defined in guide 14
+          ForeignCryptoKeySlotRef: CalibrationMacKeySlot                 # defined in the Cryptography guide
       PersistencyKeyValuePairCollection:
         PersistencyKeyValuePair CameraExtrinsics:
           ElementUpdateStrategy: KEEP_EXISTING
@@ -2395,7 +2395,7 @@ Persistency defines no security events (SWS, Section 7.6.1).
 
 ### 16.1 Log Messages
 
-Persistency defines 69 modeled (non-verbose) DLT messages, with the message IDs `0x80008000` to `0x80008044` ([SWS_PER_20001] to [SWS_PER_20072], without [SWS_PER_20028] to [SWS_PER_20030]). All are DRAFT. Most arguments are UTF-8 strings, such as `storageName`, `keyName` or `fileName`. Modeled messages are explained in [guide 10, Chapter 8](10_LogAndTrace.md#8-modeled-messages).
+Persistency defines 69 modeled (non-verbose) DLT messages, with the message IDs `0x80008000` to `0x80008044` ([SWS_PER_20001] to [SWS_PER_20072], without [SWS_PER_20028] to [SWS_PER_20030]). All are DRAFT. Most arguments are UTF-8 strings, such as `storageName`, `keyName` or `fileName`. Modeled messages are explained in the [Log and Trace guide, Chapter 8](LogAndTrace.md#8-modeled-messages).
 
 | Group (SWS section) | Messages (examples) | Message IDs | Levels |
 | --- | --- | --- | --- |
@@ -2423,7 +2423,7 @@ Before the process is aborted for a violation, Persistency logs one of three mes
 
 ### 16.3 Production Errors
 
-Persistency defines three diagnostic events (SWS, Section 7.6.4; DRAFT). [Guide 12b](12b_Diagnostics.md#2-core-concepts-and-terminology) explains how diagnostic events become DTCs.
+Persistency defines three diagnostic events (SWS, Section 7.6.4; DRAFT). The [Diagnostics Part 2 guide](DiagnosticsPart2.md#2-core-concepts-and-terminology) explains how diagnostic events become DTCs.
 
 | Event | Failed when | Passed when | Spec |
 | --- | --- | --- | --- |

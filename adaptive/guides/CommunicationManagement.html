@@ -28,7 +28,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <nav class="sidebar" id="sidebar" aria-label="Guides">
   <a class="sidebar-home" href="../index.html">Home</a>
   <p class="sidebar-label">Guides</p>
-  <ol class="guide-list"><li><a href="../guides/00_LearningPath.html"><span class="num">00</span><span class="title">Learning Path, Series Glossary and Running Example</span></a></li><li><a href="../guides/01_PlatformOverview.html"><span class="num">01</span><span class="title">Adaptive Platform Overview and Architecture</span></a></li><li><a href="../guides/02_Manifests.html"><span class="num">02</span><span class="title">Manifests and Methodology</span></a></li><li><a href="../guides/03_CoreAndGeneral.html"><span class="num">03</span><span class="title"><code>ara::core</code> and General Conventions</span></a></li><li><a href="../guides/04_ExecutionManagement.html"><span class="num">04</span><span class="title">Execution Management</span></a></li><li><a href="../guides/05_StateManagement.html"><span class="num">05</span><span class="title">State Management</span></a></li><li><a href="../guides/06_PlatformHealthManagement.html"><span class="num">06</span><span class="title">Platform Health Management</span></a></li><li><a href="../guides/07_CommunicationManagement.html" class="active" aria-current="page"><span class="num">07</span><span class="title">Communication Management Part 1: <code>ara::com</code> Concepts and API</span></a></li><li><a href="../guides/08a_NetworkBindings.html"><span class="num">08a</span><span class="title">Communication Management Part 2: Network Bindings (SOME/IP, Signal-Based, DDS)</span></a></li><li><a href="../guides/08b_SecureAndSafeCommunication.html"><span class="num">08b</span><span class="title">Communication Management Part 3: Secure Communication and End-to-End Protection</span></a></li><li><a href="../guides/10_LogAndTrace.html"><span class="num">10</span><span class="title">Log and Trace</span></a></li><li><a href="../guides/11_Persistency.html"><span class="num">11</span><span class="title">Persistency</span></a></li><li><a href="../guides/12a_Diagnostics.html"><span class="num">12a</span><span class="title">Diagnostics Part 1</span></a></li><li><a href="../guides/12b_Diagnostics.html"><span class="num">12b</span><span class="title">Diagnostics Part 2</span></a></li></ol>
+  <ol class="guide-list"><li><a href="../guides/RunningExample.html"><span class="title">The Running Example</span></a></li><li><a href="../guides/Glossary.html"><span class="title">Series Glossary</span></a></li><li><a href="../guides/PlatformOverview.html"><span class="title">Adaptive Platform Overview and Architecture</span></a></li><li><a href="../guides/Manifests.html"><span class="title">Manifests and Methodology</span></a></li><li><a href="../guides/CoreAndGeneral.html"><span class="title"><code>ara::core</code> and General Conventions</span></a></li><li><a href="../guides/ExecutionManagement.html"><span class="title">Execution Management</span></a></li><li><a href="../guides/StateManagement.html"><span class="title">State Management</span></a></li><li><a href="../guides/PlatformHealthManagement.html"><span class="title">Platform Health Management</span></a></li><li><a href="../guides/CommunicationManagement.html" class="active" aria-current="page"><span class="title">Communication Management Part 1: <code>ara::com</code> Concepts and API</span></a></li><li><a href="../guides/NetworkBindings.html"><span class="title">Communication Management Part 2: Network Bindings (SOME/IP, Signal-Based, DDS)</span></a></li><li><a href="../guides/SecureAndSafeCommunication.html"><span class="title">Communication Management Part 3: Secure Communication and End-to-End Protection</span></a></li><li><a href="../guides/LogAndTrace.html"><span class="title">Log and Trace</span></a></li><li><a href="../guides/Persistency.html"><span class="title">Persistency</span></a></li><li><a href="../guides/DiagnosticsPart1.html"><span class="title">Diagnostics Part 1</span></a></li><li><a href="../guides/DiagnosticsPart2.html"><span class="title">Diagnostics Part 2</span></a></li></ol>
 </nav>
 <div class="scrim" id="scrim" hidden></div>
 <main class="content" id="content">
@@ -39,17 +39,17 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p><strong>Document type:</strong> training material.</p>
 <p><strong>Author:</strong> Hieu Do Minh/Claude</p>
 <p><strong>Version:</strong> 1.0 (draft, pending review)</p>
-<p><strong>Part of the series:</strong> <a href="00_LearningPath.html">AUTOSAR Adaptive Platform Training Guides</a>. Previous: <a href="06_PlatformHealthManagement.html">06 Platform Health Management</a>. Next: <a href="08a_NetworkBindings.html">08a Communication Management Part 2: Network Bindings (SOME/IP, Signal-Based, DDS)</a>.</p>
+<p><strong>Part of the series:</strong> <a href="../index.html">AUTOSAR Adaptive Platform Training Guides</a>. Previous: <a href="PlatformHealthManagement.html">Platform Health Management</a>. Next: <a href="NetworkBindings.html">Communication Management Part 2: Network Bindings (SOME/IP, Signal-Based, DDS)</a>.</p>
 </blockquote>
 <h2 id="about-this-guide">About This Guide<a class="anchor" href="#about-this-guide" aria-label="Link to this section">#</a></h2>
-<p>Adaptive applications rarely work alone. A camera driver delivers images, a fusion algorithm turns them into objects, a recorder stores the objects, and a display shows them. On the Adaptive Platform, all of these exchanges are <em>services</em>: a provider offers a service, consumers find it and use its events, methods and fields. The functional cluster that makes this work is Communication Management (CM), and its C++ API is <code>ara::com</code>. Questions like &quot;why does my proxy never see the service?&quot;, &quot;why do I lose samples?&quot;, &quot;why does <code>OfferService</code> fail with a field error?&quot; or &quot;is this handler called from another thread?&quot; are all questions about <code>ara::com</code>. This guide explains the service model, the generated proxy and skeleton classes, every part of the <code>ara::com</code> API, and the configuration behind them. It stays independent of the network protocol: SOME/IP, DDS and signal-to-service translation are the topic of <a href="08a_NetworkBindings.html">guide 08a</a>, end-to-end protection and secure communication of <a href="08b_SecureAndSafeCommunication.html">guide 08b</a>.</p>
+<p>Adaptive applications rarely work alone. A camera driver delivers images, a fusion algorithm turns them into objects, a recorder stores the objects, and a display shows them. On the Adaptive Platform, all of these exchanges are <em>services</em>: a provider offers a service, consumers find it and use its events, methods and fields. The functional cluster that makes this work is Communication Management (CM), and its C++ API is <code>ara::com</code>. Questions like &quot;why does my proxy never see the service?&quot;, &quot;why do I lose samples?&quot;, &quot;why does <code>OfferService</code> fail with a field error?&quot; or &quot;is this handler called from another thread?&quot; are all questions about <code>ara::com</code>. This guide explains the service model, the generated proxy and skeleton classes, every part of the <code>ara::com</code> API, and the configuration behind them. It stays independent of the network protocol: SOME/IP, DDS and signal-to-service translation are the topic of the <a href="NetworkBindings.html">Network Bindings guide</a>, end-to-end protection and secure communication of the <a href="SecureAndSafeCommunication.html">Secure Communication guide</a>.</p>
 <h3 id="who-this-guide-is-for">Who This Guide Is For<a class="anchor" href="#who-this-guide-is-for" aria-label="Link to this section">#</a></h3>
 <ul>
 <li><strong>Application developers</strong> who write service providers (skeletons) and consumers (proxies) in C++.</li>
 <li><strong>Integrators</strong> who connect ports to service instances, choose bindings and analyze communication problems.</li>
 <li><strong>Platform developers</strong> who implement or adapt a Communication Management stack, or who need to know exactly what the API promises.</li>
 </ul>
-<p>Assumed background: modern C++ (C++17: smart pointers, <code>std::function</code>, move semantics), plus basic Linux/POSIX knowledge (processes, threads, sockets). You do not need prior AUTOSAR Adaptive knowledge. Three guides of the series make this one easier: <a href="02_Manifests.html">02 Manifests and Methodology</a> for service interfaces and their deployment in the model, <a href="03_CoreAndGeneral.html">03 <code>ara::core</code> and General Conventions</a> for <code>Result</code>, <code>Future</code>, <code>ErrorCode</code>, <code>InstanceSpecifier</code> and violations, and <a href="04_ExecutionManagement.html">04 Execution Management</a> for the process lifecycle in which services are offered.</p>
+<p>Assumed background: modern C++ (C++17: smart pointers, <code>std::function</code>, move semantics), plus basic Linux/POSIX knowledge (processes, threads, sockets). You do not need prior AUTOSAR Adaptive knowledge. Three guides of the series make this one easier: <a href="Manifests.html">Manifests and Methodology</a> for service interfaces and their deployment in the model, <a href="CoreAndGeneral.html"><code>ara::core</code> and General Conventions</a> for <code>Result</code>, <code>Future</code>, <code>ErrorCode</code>, <code>InstanceSpecifier</code> and violations, and <a href="ExecutionManagement.html">Execution Management</a> for the process lifecycle in which services are offered.</p>
 <h3 id="learning-objectives">Learning Objectives<a class="anchor" href="#learning-objectives" aria-label="Link to this section">#</a></h3>
 <p>After working through this guide you will be able to:</p>
 <ol>
@@ -115,7 +115,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p><strong>Note:</strong> The code in this guide is illustrative C++17. It follows the R25-11 API tables of the specification exactly, but generated and vendor headers may differ in detail, for example in the types that the specification allows a vendor to replace. Where the explanatory document (EXP) shows an older form of a signature, the guide uses the form of the specification and says so (<a href="#15-the-two-documents-behind-this-guide">Section 1.5</a>).</p>
 </blockquote>
 <h3 id="the-running-example">The Running Example<a class="anchor" href="#the-running-example" aria-label="Link to this section">#</a></h3>
-<p>All guides of the series use the same invented system. A high-performance ECU called <strong><code>HPC</code></strong> runs an ADAS feature. <a href="00_LearningPath.html#6-the-running-example-the-hpc-reference-system">Guide 00, Chapter 6</a> defines the complete example; this section recaps the part that <code>ara::com</code> needs. All values are illustrative.</p>
+<p>All guides of the series use the same invented system. A high-performance ECU called <strong><code>HPC</code></strong> runs an ADAS feature. The <a href="RunningExample.html">Running Example guide</a> defines the complete example; this section recaps the part that <code>ara::com</code> needs. All values are illustrative.</p>
 <ul>
 <li><strong><code>CameraDriver</code></strong> drives the front camera and provides <strong><code>CameraService</code></strong>: the event <code>Image</code> (30 images per second), the method <code>SetExposureMode</code> and the field <code>CameraStatus</code>.</li>
 <li><strong><code>Fusion</code></strong> fuses camera, radar and vehicle data in a <strong>50 ms cycle</strong>. It uses <code>CameraService</code> and <code>CalibrationDataService</code> and provides <strong><code>ObjectListService</code></strong>. It runs only in <code>ADAS.Normal</code>.</li>
@@ -123,7 +123,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <li><strong><code>Storage</code></strong> keeps the calibration, provides <strong><code>CalibrationDataService</code></strong>, and records the object lists of <code>ObjectListService</code>.</li>
 <li><strong><code>CalibrationCheck</code></strong> reads the calibration once at the start of <code>ADAS</code> and terminates.</li>
 </ul>
-<p>This guide adds the following elements to the running example (guide 00 lists them as well):</p>
+<p>This guide adds the following elements to the running example (the Running Example guide lists them as well):</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -434,11 +434,11 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p>Knowing the limits saves time when something does not work:</p>
 <ul>
 <li><strong>No component model.</strong> <code>ara::com</code> does not create objects for you, call your code cyclically or manage program flow. It only provides the communication API, on top of which such frameworks could be built (EXP, Section 3.2).</li>
-<li><strong>No wire protocol in the API.</strong> The same application code runs over SOME/IP, DDS or a local binding. The integrator chooses the binding in the manifest (<a href="#43-what-you-can-change-without-recompiling">Section 4.3</a>); <a href="08a_NetworkBindings.html">guide 08a</a> explains the bindings.</li>
+<li><strong>No wire protocol in the API.</strong> The same application code runs over SOME/IP, DDS or a local binding. The integrator chooses the binding in the manifest (<a href="#43-what-you-can-change-without-recompiling">Section 4.3</a>); the <a href="NetworkBindings.html">Network Bindings guide</a> explains the bindings.</li>
 <li><strong>No timeout supervision of method calls.</strong> A lost response can block a waiting <code>Future</code> forever. Protecting the caller is the application's job (<a href="#83-no-timeout-supervision">Section 8.3</a>).</li>
 <li><strong>No thread-safety guarantee.</strong> R25-11 does not define the thread safety of the <code>ara::com</code> API (SWS CM, Section 4.1.7). Only some handler calls are serialized (<a href="#10-threading-execution-context-and-handlers">Chapter 10</a>).</li>
 <li><strong>No standardized local IPC.</strong> Communication between processes on one machine is implementation-specific (<a href="#13-local-communication-and-multi-binding">Chapter 13</a>).</li>
-<li><strong>No access policy.</strong> Communication Management <em>enforces</em> access rights, but the policy and its configuration belong to Identity and Access Management (guide 15).</li>
+<li><strong>No access policy.</strong> Communication Management <em>enforces</em> access rights, but the policy and its configuration belong to Identity and Access Management (the IAM guide).</li>
 </ul>
 <h3 id="13-why-autosar-defined-its-own-api">1.3 Why AUTOSAR Defined Its Own API<a class="anchor" href="#13-why-autosar-defined-its-own-api" aria-label="Link to this section">#</a></h3>
 <p>Before designing <code>ara::com</code>, AUTOSAR evaluated existing middleware, among them the ROS API, the DDS API and CommonAPI. None met all of its key requirements (EXP, Section 3.1):</p>
@@ -562,7 +562,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </blockquote>
 <h3 id="21-service-interface-service-instance-provider-and-consumer">2.1 Service Interface, Service Instance, Provider and Consumer<a class="anchor" href="#21-service-interface-service-instance-provider-and-consumer" aria-label="Link to this section">#</a></h3>
 <p><strong>In plain words:</strong> a <em>service interface</em> is the contract: which events, methods, fields and triggers a service has, and their data types. A <em>service instance</em> is one concrete provider of that contract. There can be several instances of the same interface, for example one per camera.</p>
-<p><strong>Formally:</strong> a <code>ServiceInterface</code> is a model element that aggregates events (<code>VariableDataPrototype</code>), methods (<code>ClientServerOperation</code>), fields (<code>Field</code>) and triggers (<code>Trigger</code>) (<a href="02_Manifests.html#61-events-methods-fields-and-triggers">guide 02, Section 6.1</a>). An <code>AdaptivePlatformServiceInstance</code> &quot;makes the functionality of a <code>ServiceInterface</code> available&quot; on the platform; several instances may exist for the same interface, for different purposes or users (TPS, Section 13.3).</p>
+<p><strong>Formally:</strong> a <code>ServiceInterface</code> is a model element that aggregates events (<code>VariableDataPrototype</code>), methods (<code>ClientServerOperation</code>), fields (<code>Field</code>) and triggers (<code>Trigger</code>) (the <a href="Manifests.html#61-events-methods-fields-and-triggers">Manifests guide, Section 6.1</a>). An <code>AdaptivePlatformServiceInstance</code> &quot;makes the functionality of a <code>ServiceInterface</code> available&quot; on the platform; several instances may exist for the same interface, for different purposes or users (TPS, Section 13.3).</p>
 <ul>
 <li>The <strong>service provider</strong> (server) implements the interface and <em>offers</em> an instance.</li>
 <li>The <strong>service consumer</strong> (client) <em>finds</em> an instance and <em>uses</em> it.</li>
@@ -669,9 +669,9 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p><strong>In plain words:</strong> an <em>instance specifier</em> is the name that <em>you</em> use in the code: the path of your port in the model, such as <code>/fusion/Root/CameraRPort</code>. An <em>instance identifier</em> is the technical address of one instance in one binding, such as a SOME/IP instance ID. The manifest maps one to the other, so your code never contains binding-specific IDs.</p>
 <p><strong>Formally:</strong></p>
 <ul>
-<li><code>ara::core::InstanceSpecifier</code> is defined in SWS Core. For application ports, it is the path of short names <code>/Executable/RootSwComponentPrototype/.../PortPrototype</code> ([SWS_CORE_10200]); <a href="03_CoreAndGeneral.html#1111-instancespecifier">guide 03, Section 11.11</a> explains it.</li>
+<li><code>ara::core::InstanceSpecifier</code> is defined in SWS Core. For application ports, it is the path of short names <code>/Executable/RootSwComponentPrototype/.../PortPrototype</code> ([SWS_CORE_10200]); the <a href="CoreAndGeneral.html#1111-instancespecifier">Core guide, Section 11.11</a> explains it.</li>
 <li><code>ara::com::InstanceIdentifier</code> is the &quot;unique identifier of a specific instance of a service, needed to distinguish different instances of exactly the same service in the system&quot; ([SWS_CM_00302], SWS CM, Section 7.5.22.1). Its string form is vendor-specific ([SWS_CM_00088]).</li>
-<li>Communication Management translates a specifier into zero, one or several identifiers ([SWS_CM_10452]), through the <code>ServiceInstanceToPortPrototypeMapping</code> of the process (<a href="02_Manifests.html#94-from-port-to-instancespecifier">guide 02, Section 9.4</a>).</li>
+<li>Communication Management translates a specifier into zero, one or several identifiers ([SWS_CM_10452]), through the <code>ServiceInstanceToPortPrototypeMapping</code> of the process (the <a href="Manifests.html#94-from-port-to-instancespecifier">Manifests guide, Section 9.4</a>).</li>
 </ul>
 <blockquote>
 <p><strong>Note:</strong> SWS CM still describes the specifier of an abstract network binding as <code>&lt;port context&gt;::&lt;port name&gt;</code> ([SWS_CM_10590]). SWS Core and the EXP use the <code>/</code>-separated path ([SWS_CORE_10200]; EXP, Section 4.8.1). The series uses the SWS Core form.</p>
@@ -781,12 +781,12 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <tr>
 <td>Network discovery (SOME/IP-SD, DDS discovery)</td>
 <td>Daemon or binding library</td>
-<td>Yes, the protocols (<a href="08a_NetworkBindings.html">guide 08a</a>)</td>
+<td>Yes, the protocols (the <a href="NetworkBindings.html">Network Bindings guide</a>)</td>
 </tr>
 </tbody>
 </table></div>
 <h3 id="32-interfaces-provided-and-required">3.2 Interfaces Provided and Required<a class="anchor" href="#32-interfaces-provided-and-required" aria-label="Link to this section">#</a></h3>
-<p>Communication Management provides <strong>no interfaces to other functional clusters</strong> (SWS CM, Table 5.1). Other clusters use it like applications do: through <code>ara::com</code> service interfaces. For example, the services of State Management (<a href="05_StateManagement.html#13-api-reference-and-usage-guide-arasm">guide 05, Section 13</a>) are ordinary <code>ara::com</code> services. The only services that Communication Management itself defines are three SecOC services in the namespace <code>ara::com::secoc</code> (SWS CM, Chapter 9), which <a href="08b_SecureAndSafeCommunication.html">guide 08b</a> covers.</p>
+<p>Communication Management provides <strong>no interfaces to other functional clusters</strong> (SWS CM, Table 5.1). Other clusters use it like applications do: through <code>ara::com</code> service interfaces. For example, the services of State Management (the <a href="StateManagement.html#13-api-reference-and-usage-guide-arasm">SM guide, Section 13</a>) are ordinary <code>ara::com</code> services. The only services that Communication Management itself defines are three SecOC services in the namespace <code>ara::com::secoc</code> (SWS CM, Chapter 9), which the <a href="SecureAndSafeCommunication.html">Secure Communication guide</a> covers.</p>
 <p>Communication Management requires the following interfaces (SWS CM, Table 5.2):</p>
 <div class="table-wrap"><table>
 <thead>
@@ -805,7 +805,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <tr>
 <td>Execution Management</td>
 <td><code>ExecutionClient</code></td>
-<td>No purpose stated; it is the interface with which a process reports its execution state (<a href="04_ExecutionManagement.html#143-executionclient">EM guide, Section 14.3</a>)</td>
+<td>No purpose stated; it is the interface with which a process reports its execution state (<a href="ExecutionManagement.html#143-executionclient">EM guide, Section 14.3</a>)</td>
 </tr>
 <tr>
 <td>Intrusion Detection System Manager</td>
@@ -824,7 +824,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 </tbody>
 </table></div>
-<p>In addition, Communication Management depends on the E2E protocol (SWS CM, Section 5.3), and it enforces the access rights that Identity and Access Management configures (SWS CM, Section 7.3.1; guide 15).</p>
+<p>In addition, Communication Management depends on the E2E protocol (SWS CM, Section 5.3), and it enforces the access rights that Identity and Access Management configures (SWS CM, Section 7.3.1; the IAM guide).</p>
 <h3 id="33-service-discovery-inside-the-machine">3.3 Service Discovery Inside the Machine<a class="anchor" href="#33-service-discovery-inside-the-machine" aria-label="Link to this section">#</a></h3>
 <p>For offers and searches <em>over the network</em>, the protocol is fixed by the binding, for example SOME/IP-SD. For offers and searches <em>between processes on the same machine</em>, &quot;the protocol implementation for service discovery taking place locally is totally up to the AP product vendor&quot; (EXP, Section 7.2).</p>
 <blockquote>
@@ -836,9 +836,9 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <li><strong>Startup.</strong> No special handling is needed, but it is recommended to start Communication Management in parallel with or after Execution Management, and before State Management. Once both are running, they &quot;should take control of the Communication Management lifecycle&quot; (SWS CM, Section 7.6.1).</li>
 <li><strong>Shutdown.</strong> Communication Management should keep the functions that State Management needs for as long as necessary. The integrator decides when its parts terminate, and &quot;should provide a concept how to notify application processes still holding <code>ara::com::SamplePtr</code>'s to memory elements of communication management&quot; (SWS CM, Section 7.6.2).</li>
 </ul>
-<p>On <code>HPC</code>, the Communication Management daemon is one of the platform daemons of <code>HpcPlatformCore</code> that Execution Management starts in <code>MachineFG.Startup</code> (<a href="00_LearningPath.html#63-the-hpc-machine">guide 00, Section 6.3</a>).</p>
+<p>On <code>HPC</code>, the Communication Management daemon is one of the platform daemons of <code>HpcPlatformCore</code> that Execution Management starts in <code>MachineFG.Startup</code> (the <a href="RunningExample.html#13-the-hpc-machine">Running Example guide, Section 1.3</a>).</p>
 <blockquote>
-<p><strong>Pitfall:</strong> An application process that reports <code>kRunning</code> to Execution Management before it has offered its services makes the Execution Dependencies of others meaningless. Offer first, then report <code>kRunning</code> (<a href="04_ExecutionManagement.html#66-prefer-service-discovery-for-applications">EM guide, Section 6.6</a>).</p>
+<p><strong>Pitfall:</strong> An application process that reports <code>kRunning</code> to Execution Management before it has offered its services makes the Execution Dependencies of others meaningless. Offer first, then report <code>kRunning</code> (<a href="ExecutionManagement.html#66-prefer-service-discovery-for-applications">EM guide, Section 6.6</a>).</p>
 </blockquote>
 <h3 id="35-interaction-map">3.5 Interaction Map<a class="anchor" href="#35-interaction-map" aria-label="Link to this section">#</a></h3>
 <p>The following diagram summarizes who talks to Communication Management, and how.</p>
@@ -876,7 +876,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p><strong>Why this matters:</strong> In <code>ara::com</code>, the code says <em>what</em> to communicate and the manifest says <em>how</em> and <em>with whom</em>. A consumer finds nothing if a single mapping is missing. This chapter gives you the mental model of the configuration; <a href="#14-configuration-reference-what-to-configure">Chapter 14</a> lists every setting.</p>
 </blockquote>
 <h3 id="41-where-the-configuration-lives">4.1 Where the Configuration Lives<a class="anchor" href="#41-where-the-configuration-lives" aria-label="Link to this section">#</a></h3>
-<p>The configuration that <code>ara::com</code> reads is spread over three kinds of work products. <a href="02_Manifests.html#4-configuration-overview">Guide 02</a> explains the manifests in general; the table shows the <code>ara::com</code> view.</p>
+<p>The configuration that <code>ara::com</code> reads is spread over three kinds of work products. The <a href="Manifests.html#4-configuration-overview">Manifests guide</a> explains the manifests in general; the table shows the <code>ara::com</code> view.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -928,7 +928,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
     MM[&quot;ServiceInstanceToMachineMapping&quot;] --&gt;|&quot;serviceInstance&quot;| INST
     MM --&gt;|&quot;communicationConnector&quot;| CONN[&quot;Communication connector&lt;br/&gt;of the machine&quot;]
 </pre>
-<p>At run time, a constructor or <code>FindService</code> call with an <code>InstanceSpecifier</code> makes Communication Management look up the mapping of the <em>current process</em> for that port, take the service instance it points to, and use that instance's deployment and connector ([SWS_CM_10452]; <a href="02_Manifests.html#93-connecting-a-port-to-a-service-instance">guide 02, Section 9.3</a>). If one of these links is missing or wrong, the call raises a violation (<a href="#113-violations-in-aracom">Section 11.3</a>).</p>
+<p>At run time, a constructor or <code>FindService</code> call with an <code>InstanceSpecifier</code> makes Communication Management look up the mapping of the <em>current process</em> for that port, take the service instance it points to, and use that instance's deployment and connector ([SWS_CM_10452]; the <a href="Manifests.html#93-connecting-a-port-to-a-service-instance">Manifests guide, Section 9.3</a>). If one of these links is missing or wrong, the call raises a violation (<a href="#113-violations-in-aracom">Section 11.3</a>).</p>
 <h3 id="43-what-you-can-change-without-recompiling">4.3 What You Can Change Without Recompiling<a class="anchor" href="#43-what-you-can-change-without-recompiling" aria-label="Link to this section">#</a></h3>
 <p>The choice of a binding is an integration decision, so it must not force developers to rebuild. The specification requires that the following changes need at most a re-link, not a recompilation, of the involved applications (SWS CM, Section 7.2):</p>
 <div class="table-wrap"><table>
@@ -1034,7 +1034,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <tr>
 <td><code>{ns-path}/{domain}_error_domain.h</code></td>
 <td>Generated, one per application error domain</td>
-<td>The error domain of the methods' application errors (<a href="03_CoreAndGeneral.html#78-generated-error-domains">guide 03, Section 7.8</a>)</td>
+<td>The error domain of the methods' application errors (the <a href="CoreAndGeneral.html#78-generated-error-domains">Core guide, Section 7.8</a>)</td>
 <td>SWS LBAP</td>
 </tr>
 </tbody>
@@ -1133,10 +1133,10 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tbody>
 </table></div>
 <blockquote>
-<p><strong>Note:</strong> The specification does not say what <code>Output</code> contains when a method has no out argument, such as <code>SetCalibration</code> or <code>SetExposureMode</code>. The return type is still <code>ara::core::Future&lt;Output&gt;</code>; the structure is typically empty. Check your generator. (<a href="03_CoreAndGeneral.html#97-worked-example-fusion-requests-the-night-exposure-mode">Guide 03, Section 9.7</a> simplified this to <code>Future&lt;void&gt;</code>.)</p>
+<p><strong>Note:</strong> The specification does not say what <code>Output</code> contains when a method has no out argument, such as <code>SetCalibration</code> or <code>SetExposureMode</code>. The return type is still <code>ara::core::Future&lt;Output&gt;</code>; the structure is typically empty. Check your generator. (The <a href="CoreAndGeneral.html#97-worked-example-fusion-requests-the-night-exposure-mode">Core guide, Section 9.7</a> simplified this to <code>Future&lt;void&gt;</code>.)</p>
 </blockquote>
 <h3 id="55-data-types">5.5 Data Types<a class="anchor" href="#55-data-types" aria-label="Link to this section">#</a></h3>
-<p>The data types of a service interface are generated by the <em>ARA language binding generator</em> according to SWS LBAP (SWS CM, Section 7.5.23.1). The category of each <code>CppImplementationDataType</code> selects the C++ form (<a href="02_Manifests.html#64-data-types">guide 02, Section 6.4</a>):</p>
+<p>The data types of a service interface are generated by the <em>ARA language binding generator</em> according to SWS LBAP (SWS CM, Section 7.5.23.1). The category of each <code>CppImplementationDataType</code> selects the C++ form (the <a href="Manifests.html#64-data-types">Manifests guide, Section 6.4</a>):</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -1183,7 +1183,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <li><strong>Invalid values.</strong> If a data type has an <code>invalidValue</code>, its header also defines <code>constexpr static &lt;SourceDataType&gt; kInvalidValue&lt;DataType&gt; = &lt;InvalidValue&gt;;</code> ([SWS_CM_10453]). Providers send it to signal &quot;no valid value&quot;; consumers compare against it. This works only for types of category <code>TYPE_REFERENCE</code> and <code>STRING</code>.</li>
 </ul>
 <h3 id="56-worked-example-the-generated-api-of-cameraservice">5.6 Worked Example: The Generated API of <code>CameraService</code><a class="anchor" href="#56-worked-example-the-generated-api-of-cameraservice" aria-label="Link to this section">#</a></h3>
-<p>The following sketch shows the shape of the two generated headers for <code>CameraService</code> (<a href="02_Manifests.html#66-worked-example-cameraservice-as-arxml">guide 02, Section 6.6</a> gives its model). It shows only what this chapter discussed; <a href="#15-api-reference-and-usage-guide-aracom">Chapter 15</a> lists every member.</p>
+<p>The following sketch shows the shape of the two generated headers for <code>CameraService</code> (the <a href="Manifests.html#66-worked-example-cameraservice-as-arxml">Manifests guide, Section 6.6</a> gives its model). It shows only what this chapter discussed; <a href="#15-api-reference-and-usage-guide-aracom">Chapter 15</a> lists every member.</p>
 <div class="code-block" data-lang="cpp"><pre class="highlight"><code><span class="c1">// hpc/camera/cameraservice_proxy.h: shape of the generated proxy header (illustrative).</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">"hpc/camera/cameraservice_common.h"</span>
 
@@ -1528,16 +1528,16 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </table></div>
 <p><code>ara::com::InstanceIdentifier</code> can be built from its string form, with <code>InstanceIdentifier::Create(serializedFormat)</code> or the constructor, and turned back into a string with <code>toString()</code> ([SWS_CM_11520] to [SWS_CM_11522]). A corrupt or duplicated string raises <code>InvalidInstanceIdentifierStringViolation</code>.</p>
 <p>When would you use identifiers? Because an identifier contains all binding information, it can be passed to another process and used there without a manifest lookup (EXP, Section 4.8.2). This is risky: the binding may no longer exist, or another vendor's stack may interpret the string differently (EXP, Section 4.8.2.1). Use identifiers only for logging and for rare power-user cases.</p>
-<p>Because the mapping is per process, the same executable can be started several times, each process with a different mapping of the same specifier (EXP, Section 4.8.1; <a href="02_Manifests.html#93-connecting-a-port-to-a-service-instance">guide 02, Section 9.3</a>).</p>
+<p>Because the mapping is per process, the same executable can be started several times, each process with a different mapping of the same specifier (EXP, Section 4.8.1; the <a href="Manifests.html#93-connecting-a-port-to-a-service-instance">Manifests guide, Section 9.3</a>).</p>
 <h3 id="68-service-contract-versioning">6.8 Service Contract Versioning<a class="anchor" href="#68-service-contract-versioning" aria-label="Link to this section">#</a></h3>
 <p>The contract between provider and consumer can evolve. A service interface carries a <code>majorVersion</code> and a <code>minorVersion</code> (SWS CM, Section 7.1.4):</p>
 <ul>
 <li>A <strong>backwards-incompatible</strong> change increases the major version and resets the minor version to 0.</li>
 <li>A <strong>backwards-compatible</strong> change increases the minor version.</li>
 </ul>
-<p>The contract version is mapped, manually, to a version of each service interface deployment; one interface may have several deployments with different versions. Service discovery evaluates the version of the deployment for backwards compatibility, according to the binding ([SWS_CM_99003]). As a result, a proxy finds only compatible instances (EXP, Listing 5.2). With a static SOME/IP connection, service discovery is bypassed, and versions are not checked at run time ([SWS_CM_02203]; <a href="08a_NetworkBindings.html">guide 08a</a>).</p>
+<p>The contract version is mapped, manually, to a version of each service interface deployment; one interface may have several deployments with different versions. Service discovery evaluates the version of the deployment for backwards compatibility, according to the binding ([SWS_CM_99003]). As a result, a proxy finds only compatible instances (EXP, Listing 5.2). With a static SOME/IP connection, service discovery is bypassed, and versions are not checked at run time ([SWS_CM_02203]; the <a href="NetworkBindings.html">Network Bindings guide</a>).</p>
 <h3 id="69-worked-example-fusion-finds-cameraservice">6.9 Worked Example: <code>Fusion</code> Finds <code>CameraService</code><a class="anchor" href="#69-worked-example-fusion-finds-cameraservice" aria-label="Link to this section">#</a></h3>
-<p><code>Fusion</code> does not have an Execution Dependency on <code>CameraDriver</code> (<a href="00_LearningPath.html#65-processes">guide 00, Section 6.5</a>). It searches continuously, creates its proxy when the first instance appears, and subscribes. Later availability changes need no action, because the proxy updates itself. The following sequence diagram shows the startup.</p>
+<p><code>Fusion</code> does not have an Execution Dependency on <code>CameraDriver</code> (the <a href="RunningExample.html#15-processes">Running Example guide, Section 1.5</a>). It searches continuously, creates its proxy when the first instance appears, and subscribes. Later availability changes need no action, because the proxy updates itself. The following sequence diagram shows the startup.</p>
 <pre class="mermaid">sequenceDiagram
     participant FU as Fusion
     participant CM as Communication Management
@@ -1896,7 +1896,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w">  </span><span class="c1">// no active subscriber: nothing to send</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">    </span><span class="n">ara</span><span class="o">::</span><span class="n">com</span><span class="o">::</span><span class="n">SampleAllocateePtr</span><span class="o">&lt;</span><span class="n">hpc</span><span class="o">::</span><span class="n">camera</span><span class="o">::</span><span class="n">CameraImage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">sample</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Image</span><span class="p">.</span><span class="n">Allocate</span><span class="p">();</span>
-<span class="w">    </span><span class="n">sample</span><span class="o">-&gt;</span><span class="n">timestamp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">frame</span><span class="p">.</span><span class="n">vehicleTimeNs</span><span class="p">;</span><span class="w">  </span><span class="c1">// VehicleTime, guide 09</span>
+<span class="w">    </span><span class="n">sample</span><span class="o">-&gt;</span><span class="n">timestamp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">frame</span><span class="p">.</span><span class="n">vehicleTimeNs</span><span class="p">;</span><span class="w">  </span><span class="c1">// VehicleTime, the NM/TSync/RDS guide</span>
 <span class="w">    </span><span class="n">sample</span><span class="o">-&gt;</span><span class="n">width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">frame</span><span class="p">.</span><span class="n">width</span><span class="p">;</span>
 <span class="w">    </span><span class="n">sample</span><span class="o">-&gt;</span><span class="n">height</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">frame</span><span class="p">.</span><span class="n">height</span><span class="p">;</span>
 <span class="w">    </span><span class="n">sample</span><span class="o">-&gt;</span><span class="n">pixels</span><span class="p">.</span><span class="n">assign</span><span class="p">(</span><span class="n">frame</span><span class="p">.</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">frame</span><span class="p">.</span><span class="n">data</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">frame</span><span class="p">.</span><span class="n">size</span><span class="p">);</span>
@@ -2005,7 +2005,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </table></div>
 <p>A call to a service that the process may not use raises <code>InsufficientPermissionsViolation</code> instead.</p>
 <h3 id="82-getting-the-result">8.2 Getting the Result<a class="anchor" href="#82-getting-the-result" aria-label="Link to this section">#</a></h3>
-<p>The returned <code>ara::core::Future</code> is the AUTOSAR version of <code>std::future</code>, with <code>GetResult()</code>, <code>then()</code> and <code>is_ready()</code> added (<a href="03_CoreAndGeneral.html#9-future-and-promise-asynchronous-results">guide 03, Chapter 9</a>). Your choice of function decides the style of the call:</p>
+<p>The returned <code>ara::core::Future</code> is the AUTOSAR version of <code>std::future</code>, with <code>GetResult()</code>, <code>then()</code> and <code>is_ready()</code> added (the <a href="CoreAndGeneral.html#9-future-and-promise-asynchronous-results">Core guide, Chapter 9</a>). Your choice of function decides the style of the call:</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -2042,7 +2042,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <ul>
 <li>A cyclic application polls with <code>is_ready()</code> and counts cycles.</li>
 <li>A blocking caller uses <code>wait_for()</code> or <code>wait_until()</code> instead of <code>get()</code>.</li>
-<li>A safety-relevant caller can supervise the call with a checkpoint of Platform Health Management (<a href="06_PlatformHealthManagement.html#5-supervised-entities-and-checkpoints-in-practice">guide 06</a>); the specification recommends this for E2E-protected methods (SWS CM, Section 7.4.1.2.6).</li>
+<li>A safety-relevant caller can supervise the call with a checkpoint of Platform Health Management (the <a href="PlatformHealthManagement.html#5-supervised-entities-and-checkpoints-in-practice">PHM guide</a>); the specification recommends this for E2E-protected methods (SWS CM, Section 7.4.1.2.6).</li>
 </ul>
 <p>The client does get an error, <code>kCommunicationFailure</code>, when the implementation <em>knows</em> that the call cannot succeed: when sending failed locally, or when a response arrived that is malformed but can still be assigned to the call ([SWS_CM_10440]).</p>
 <blockquote>
@@ -2054,7 +2054,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p>When the proxy itself is destroyed, it destroys the promises of all pending calls, so their futures become ready with <code>FutureErrc::kBrokenPromise</code> ([SWS_CM_10446]).</p>
 <h3 id="85-fire-and-forget-methods">8.5 Fire-and-Forget Methods<a class="anchor" href="#85-fire-and-forget-methods" aria-label="Link to this section">#</a></h3>
 <p><strong>In plain words:</strong> a fire-and-forget method is a one-way call. The consumer does not get an answer, not even an error. It is light-weight, and it is enough when &quot;best effort&quot; is acceptable.</p>
-<p><strong>Formally:</strong> when <code>ClientServerOperation.fireAndForget</code> is <code>true</code>, the method has only in arguments and no possible errors ([constr_3374], [constr_3375]; guide 02). The generated API is ([SWS_CM_90435], [SWS_CM_90434]):</p>
+<p><strong>Formally:</strong> when <code>ClientServerOperation.fireAndForget</code> is <code>true</code>, the method has only in arguments and no possible errors ([constr_3374], [constr_3375]; the Manifests guide). The generated API is ([SWS_CM_90435], [SWS_CM_90434]):</p>
 <div class="code-block" data-lang="cpp"><pre class="highlight"><code><span class="c1">// Proxy: proxy::methods::{&lt;fnfmethod&gt;}</span>
 <span class="kt">void</span><span class="w"> </span><span class="k">operator</span><span class="p">()(</span><span class="cm">/* in arguments */</span><span class="p">)</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span>
 <span class="c1">// Skeleton</span>
@@ -2083,7 +2083,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <span class="n">ara</span><span class="o">::</span><span class="n">core</span><span class="o">::</span><span class="n">Future</span><span class="o">&lt;</span><span class="n">CalibrationService</span><span class="o">::</span><span class="n">GetCalibrationOutput</span><span class="o">&gt;</span>
 <span class="n">CalibrationService</span><span class="o">::</span><span class="n">GetCalibration</span><span class="p">(</span><span class="n">hpc</span><span class="o">::</span><span class="n">storage</span><span class="o">::</span><span class="n">CalibrationKey</span><span class="w"> </span><span class="n">key</span><span class="p">)</span><span class="w"> </span><span class="k">noexcept</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">ara</span><span class="o">::</span><span class="n">core</span><span class="o">::</span><span class="n">Promise</span><span class="o">&lt;</span><span class="n">GetCalibrationOutput</span><span class="o">&gt;</span><span class="w"> </span><span class="n">promise</span><span class="p">;</span>
-<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">record</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">store_</span><span class="p">.</span><span class="n">Read</span><span class="p">(</span><span class="n">key</span><span class="p">);</span><span class="w">  </span><span class="c1">// reads CalibrationKvs (guide 11, Section 6.7)</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">record</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">store_</span><span class="p">.</span><span class="n">Read</span><span class="p">(</span><span class="n">key</span><span class="p">);</span><span class="w">  </span><span class="c1">// reads CalibrationKvs (the Persistency guide, Section 6.7)</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">record</span><span class="p">.</span><span class="n">HasValue</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="n">promise</span><span class="p">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">GetCalibrationOutput</span><span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">record</span><span class="p">).</span><span class="n">Value</span><span class="p">()});</span>
 <span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
@@ -2149,7 +2149,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </blockquote>
 <h3 id="88-application-errors">8.8 Application Errors<a class="anchor" href="#88-application-errors" aria-label="Link to this section">#</a></h3>
 <p><strong>In plain words:</strong> a method can fail for a reason that belongs to the service itself, such as &quot;this exposure mode is not supported&quot;. Such <em>application errors</em> are modeled with the interface and reach the caller as ordinary error codes.</p>
-<p><strong>Formally:</strong> the model lists the possible errors of a method in <code>ClientServerOperation.possibleApError</code> and <code>possibleApErrorSet</code>. Each <code>ApApplicationError</code> belongs to an error domain, for which the generator creates a C++ error domain (<a href="03_CoreAndGeneral.html#78-generated-error-domains">guide 03, Section 7.8</a>). To report one, the provider stores the corresponding <code>ara::core::ErrorCode</code> in the promise with <code>SetError</code>; the binding transports it in the response (SWS CM, Section 7.5.19). An application error that is not configured for the method reaches the caller as <code>kUnknownApplicationError</code> ([SWS_CM_00048]). Errors of <code>ara::com</code> itself are in <code>ComErrorDomain</code> (<a href="#112-comerrordomain-and-comerrc">Section 11.2</a>).</p>
+<p><strong>Formally:</strong> the model lists the possible errors of a method in <code>ClientServerOperation.possibleApError</code> and <code>possibleApErrorSet</code>. Each <code>ApApplicationError</code> belongs to an error domain, for which the generator creates a C++ error domain (the <a href="CoreAndGeneral.html#78-generated-error-domains">Core guide, Section 7.8</a>). To report one, the provider stores the corresponding <code>ara::core::ErrorCode</code> in the promise with <code>SetError</code>; the binding transports it in the response (SWS CM, Section 7.5.19). An application error that is not configured for the method reaches the caller as <code>kUnknownApplicationError</code> ([SWS_CM_00048]). Errors of <code>ara::com</code> itself are in <code>ComErrorDomain</code> (<a href="#112-comerrordomain-and-comerrc">Section 11.2</a>).</p>
 <p><code>HPC</code> has two modeled application error domains for its services:</p>
 <div class="table-wrap"><table>
 <thead>
@@ -2176,8 +2176,8 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tbody>
 </table></div>
 <h3 id="89-worked-example-setexposuremode-from-fusion-to-cameradriver">8.9 Worked Example: <code>SetExposureMode</code> From <code>Fusion</code> to <code>CameraDriver</code><a class="anchor" href="#89-worked-example-setexposuremode-from-fusion-to-cameradriver" aria-label="Link to this section">#</a></h3>
-<p><a href="03_CoreAndGeneral.html#97-worked-example-fusion-requests-the-night-exposure-mode">Guide 03, Section 9.7</a> showed how <code>Fusion</code> polls the future of <code>SetExposureMode(Night)</code> once per cycle, with a stand-in function. With the generated proxy, the call and the type of the future become:</p>
-<div class="code-block" data-lang="cpp"><pre class="highlight"><code><span class="c1">// Fusion: request the Night exposure mode (illustrative; HandleReply as in guide 03, Section 9.7).</span>
+<p>The <a href="CoreAndGeneral.html#97-worked-example-fusion-requests-the-night-exposure-mode">Core guide, Section 9.7</a> showed how <code>Fusion</code> polls the future of <code>SetExposureMode(Night)</code> once per cycle, with a stand-in function. With the generated proxy, the call and the type of the future become:</p>
+<div class="code-block" data-lang="cpp"><pre class="highlight"><code><span class="c1">// Fusion: request the Night exposure mode (illustrative; HandleReply as in the Core guide, Section 9.7).</span>
 <span class="k">using</span><span class="w"> </span><span class="n">ExposureFuture</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ara</span><span class="o">::</span><span class="n">core</span><span class="o">::</span><span class="n">Future</span><span class="o">&lt;</span><span class="n">hpc</span><span class="o">::</span><span class="n">camera</span><span class="o">::</span><span class="n">proxy</span><span class="o">::</span><span class="n">methods</span><span class="o">::</span><span class="n">SetExposureMode</span><span class="o">::</span><span class="n">Output</span><span class="o">&gt;</span><span class="p">;</span>
 
 <span class="kt">void</span><span class="w"> </span><span class="nf">ExposureControl::OnCycle</span><span class="p">(</span><span class="n">CameraProxy</span><span class="o">&amp;</span><span class="w"> </span><span class="n">camera</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">imageIsDark</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -2356,7 +2356,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p><strong>Note:</strong> The API table declares the field's <code>GetNewSamples</code> without <code>noexcept</code> and as &quot;not exception safe&quot; ([SWS_CM_11610]), unlike the event version ([SWS_CM_00701]). This is probably editorial; your vendor's header decides.</p>
 </blockquote>
 <h3 id="96-worked-example-camerastatus-and-fusionmode">9.6 Worked Example: <code>CameraStatus</code> and <code>FusionMode</code><a class="anchor" href="#96-worked-example-camerastatus-and-fusionmode" aria-label="Link to this section">#</a></h3>
-<p><strong><code>CameraStatus</code></strong> has a getter and a notifier. <code>CameraDriver</code> gives it the initial value <code>NotAvailable</code> before the offer, sets <code>Ok</code> when the first image is captured, and <code>Blocked</code> when its monitor detects a dark or frozen image (guide 12b):</p>
+<p><strong><code>CameraStatus</code></strong> has a getter and a notifier. <code>CameraDriver</code> gives it the initial value <code>NotAvailable</code> before the offer, sets <code>Ok</code> when the first image is captured, and <code>Blocked</code> when its monitor detects a dark or frozen image (the Diagnostics Part 2 guide):</p>
 <div class="code-block" data-lang="cpp"><pre class="highlight"><code><span class="c1">// CameraDriver (illustrative).</span>
 <span class="n">camera</span><span class="p">.</span><span class="n">CameraStatus</span><span class="p">.</span><span class="n">Update</span><span class="p">(</span><span class="n">hpc</span><span class="o">::</span><span class="n">camera</span><span class="o">::</span><span class="n">CameraState</span><span class="o">::</span><span class="n">NotAvailable</span><span class="p">);</span><span class="w">  </span><span class="c1">// before OfferService</span>
 <span class="c1">// ... later, from the image loop:</span>
@@ -2520,7 +2520,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td>Continuation</td>
 <td><code>Future::then</code></td>
 <td>The method result is ready</td>
-<td>May run in another thread (<a href="03_CoreAndGeneral.html#95-continuations-with-then">guide 03, Section 9.5</a>)</td>
+<td>May run in another thread (the <a href="CoreAndGeneral.html#95-continuations-with-then">Core guide, Section 9.5</a>)</td>
 <td>SWS Core</td>
 </tr>
 </tbody>
@@ -2578,7 +2578,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 </tbody>
 </table></div>
-<p><a href="03_CoreAndGeneral.html#1112-executor">Guide 03, Section 11.12</a> explains <code>ara::core::Executor</code>. SWS Core gives it no public constructor besides copy and move, so how an application obtains one depends on the API that hands it out or on the vendor.</p>
+<p>The <a href="CoreAndGeneral.html#1112-executor">Core guide, Section 11.12</a> explains <code>ara::core::Executor</code>. SWS Core gives it no public constructor besides copy and move, so how an application obtains one depends on the API that hands it out or on the vendor.</p>
 <div class="code-block" data-lang="cpp"><pre class="highlight"><code><span class="c1">// Run Storage's receive handler in an executor that the application controls (illustrative;</span>
 <span class="c1">// recorderExecutor is an ara::core::Executor obtained in a vendor-specific way).</span>
 <span class="n">objects</span><span class="p">.</span><span class="n">ObjectList</span><span class="p">.</span><span class="n">SetReceiveHandler</span><span class="p">([</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">objects</span><span class="p">]()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">ReadObjectLists</span><span class="p">(</span><span class="n">objects</span><span class="p">);</span><span class="w"> </span><span class="p">},</span>
@@ -2609,7 +2609,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p><strong>Why this matters:</strong> Every <code>ara::com</code> call can fail, and the failure tells you what to do: retry later, fix the configuration, or stop. This chapter lists all errors and violations of <code>ara::com</code>, explains the Minimum Send Interval that R25-11 introduced, and the transport fault conditions added in R24-11.</p>
 </blockquote>
 <h3 id="111-three-kinds-of-errors">11.1 Three Kinds of Errors<a class="anchor" href="#111-three-kinds-of-errors" aria-label="Link to this section">#</a></h3>
-<p><code>ara::com</code> follows the error model of SWS Core (<a href="03_CoreAndGeneral.html#6-the-error-handling-model">guide 03, Chapter 6</a>): recoverable errors are returned as an <code>ara::core::ErrorCode</code> inside a <code>Result</code> or a <code>Future</code> ([SWS_CM_11265]); broken contracts are violations that end the process. There are three kinds of errors (SWS CM, Section 7.5.22.6):</p>
+<p><code>ara::com</code> follows the error model of SWS Core (the <a href="CoreAndGeneral.html#6-the-error-handling-model">Core guide, Chapter 6</a>): recoverable errors are returned as an <code>ara::core::ErrorCode</code> inside a <code>Result</code> or a <code>Future</code> ([SWS_CM_11265]); broken contracts are violations that end the process. There are three kinds of errors (SWS CM, Section 7.5.22.6):</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -2715,10 +2715,10 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 </tbody>
 </table></div>
-<p>The API tables also mark each error with its recoverability class ([RS_AP_00160]; <a href="03_CoreAndGeneral.html#66-recoverability-classes">guide 03, Section 6.6</a>). Most <code>ara::com</code> errors have rollback semantics: nothing happened, and you can retry. <code>kCommunicationFailure</code> of a method call or of <code>Set</code> has <strong>no</strong> rollback semantics: &quot;In case of a communication timeout this could lead to an uncertain state on the remote server side&quot; ([SWS_CM_00196], [SWS_CM_00113]). Do not blindly retry non-idempotent calls after it.</p>
+<p>The API tables also mark each error with its recoverability class ([RS_AP_00160]; the <a href="CoreAndGeneral.html#66-recoverability-classes">Core guide, Section 6.6</a>). Most <code>ara::com</code> errors have rollback semantics: nothing happened, and you can retry. <code>kCommunicationFailure</code> of a method call or of <code>Set</code> has <strong>no</strong> rollback semantics: &quot;In case of a communication timeout this could lead to an uncertain state on the remote server side&quot; ([SWS_CM_00196], [SWS_CM_00113]). Do not blindly retry non-idempotent calls after it.</p>
 <p>The domain class follows the pattern of all error domains: <code>Errc</code> and <code>Exception</code> aliases, <code>Name()</code>, <code>Message()</code>, <code>ThrowAsException()</code>, and the free functions <code>GetComErrorDomain()</code> and <code>MakeErrorCode()</code> ([SWS_CM_11329] to [SWS_CM_11337]). Its exception class is <code>ara::com::ComException</code> ([SWS_CM_11327]).</p>
 <h3 id="113-violations-in-aracom">11.3 Violations in ara::com<a class="anchor" href="#113-violations-in-aracom" aria-label="Link to this section">#</a></h3>
-<p>A violation is a broken rule that the caller cannot handle sensibly; the platform logs a message and terminates the process (<a href="03_CoreAndGeneral.html#63-violations-fail-early">guide 03, Section 6.3</a>). <code>ara::com</code> raises the following violations. The first group has a standardized log message (SWS CM, Section 7.7.3).</p>
+<p>A violation is a broken rule that the caller cannot handle sensibly; the platform logs a message and terminates the process (the <a href="CoreAndGeneral.html#63-violations-fail-early">Core guide, Section 6.3</a>). <code>ara::com</code> raises the following violations. The first group has a standardized log message (SWS CM, Section 7.7.3).</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -2905,7 +2905,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <span class="p">}</span>
 </code></pre></div>
 <p>The second argument is the number of fault conditions detected. Handlers can be set on proxy events, fields and triggers, on the skeleton for all methods, and on skeleton fields for their getter and setter (<code>SetTransportFaultConditionHandler</code>, <code>UnsetTransportFaultConditionHandler</code>; <a href="#153-proxy-events-fields-methods-and-triggers">Section 15.3</a>). Calls are serialized per element ([SWS_CM_00089]). On the client side, methods, <code>Get</code> and <code>Set</code> report transport faults as <code>kCommunicationFailure</code> in their future ([SWS_CM_00090]).</p>
-<p>R25-11 defines the mapping of the three conditions only for the DDS binding, as DRAFT: <code>kSampleRejected</code> for the DDS status <code>SAMPLE_REJECTED</code>, <code>kDeadlineMissed</code> for <code>REQUESTED_DEADLINE_MISSED</code>, and <code>kSampleLost</code> for <code>SAMPLE_LOST</code> ([SWS_CM_00211]; <a href="08a_NetworkBindings.html">guide 08a</a>). For other bindings, it is not specified when the handler is called.</p>
+<p>R25-11 defines the mapping of the three conditions only for the DDS binding, as DRAFT: <code>kSampleRejected</code> for the DDS status <code>SAMPLE_REJECTED</code>, <code>kDeadlineMissed</code> for <code>REQUESTED_DEADLINE_MISSED</code>, and <code>kSampleLost</code> for <code>SAMPLE_LOST</code> ([SWS_CM_00211]; the <a href="NetworkBindings.html">Network Bindings guide</a>). For other bindings, it is not specified when the handler is called.</p>
 <h3 id="116-worked-example-every-error-fusion-can-see-from-cameraservice">11.6 Worked Example: Every Error <code>Fusion</code> Can See From <code>CameraService</code><a class="anchor" href="#116-worked-example-every-error-fusion-can-see-from-cameraservice" aria-label="Link to this section">#</a></h3>
 <p>The following table lists what <code>Fusion</code> can meet when it uses <code>CameraService</code>, and how it reacts.</p>
 <div class="table-wrap"><table>
@@ -2920,12 +2920,12 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <tr>
 <td>Port path wrong in the code or the model</td>
 <td><code>InstanceSpecifierMappingIntegrityViolation</code> at <code>StartFindService</code></td>
-<td>None at run time: the process ends; fix the model or the code (<a href="03_CoreAndGeneral.html#67-worked-example-a-wrong-instancespecifier-in-fusion">guide 03, Section 6.7</a>)</td>
+<td>None at run time: the process ends; fix the model or the code (the <a href="CoreAndGeneral.html#67-worked-example-a-wrong-instancespecifier-in-fusion">Core guide, Section 6.7</a>)</td>
 </tr>
 <tr>
 <td><code>Fusion</code> not allowed to use the service</td>
 <td><code>InsufficientPermissionsViolation</code></td>
-<td>None at run time: fix the IAM configuration (guide 15)</td>
+<td>None at run time: fix the IAM configuration (the IAM guide)</td>
 </tr>
 <tr>
 <td><code>CameraDriver</code> not yet offered</td>
@@ -2959,7 +2959,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 </tbody>
 </table></div>
-<div class="code-block" data-lang="cpp"><pre class="highlight"><code><span class="c1">// Fusion: reaction to the result of SetExposureMode (illustrative; extends guide 03, Section 9.7).</span>
+<div class="code-block" data-lang="cpp"><pre class="highlight"><code><span class="c1">// Fusion: reaction to the result of SetExposureMode (illustrative; extends the Core guide, Section 9.7).</span>
 <span class="kt">void</span><span class="w"> </span><span class="nf">ExposureControl::HandleReply</span><span class="p">(</span>
 <span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="n">ara</span><span class="o">::</span><span class="n">core</span><span class="o">::</span><span class="n">Result</span><span class="o">&lt;</span><span class="n">hpc</span><span class="o">::</span><span class="n">camera</span><span class="o">::</span><span class="n">proxy</span><span class="o">::</span><span class="n">methods</span><span class="o">::</span><span class="n">SetExposureMode</span><span class="o">::</span><span class="n">Output</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">reply</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">reply</span><span class="p">.</span><span class="n">HasValue</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
@@ -2975,7 +2975,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">error</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ara</span><span class="o">::</span><span class="n">com</span><span class="o">::</span><span class="n">ComErrc</span><span class="o">::</span><span class="n">kCommunicationFailure</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="c1">// no rollback semantics: the camera may have switched; log and re-check CameraStatus first</span>
 <span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">error</span><span class="p">.</span><span class="n">Domain</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ara</span><span class="o">::</span><span class="n">com</span><span class="o">::</span><span class="n">e2e</span><span class="o">::</span><span class="n">GetComE2EErrorDomain</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="c1">// E2E check failed (if guide 08b protects the method): log and retry</span>
+<span class="w">        </span><span class="c1">// E2E check failed (if the Secure Communication guide protects the method): log and retry</span>
 <span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="c1">// kUnknownApplicationError, kBrokenPromise or a vendor-specific error: log</span>
 <span class="w">    </span><span class="p">}</span>
@@ -2994,11 +2994,11 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <hr />
 <h2 id="12-end-to-end-protection-the-api-side">12. End-to-End Protection: The API Side<a class="anchor" href="#12-end-to-end-protection-the-api-side" aria-label="Link to this section">#</a></h2>
 <blockquote>
-<p><strong>Why this matters:</strong> Safety-relevant data, such as object lists that a braking function relies on, must not be used when it is corrupted, repeated or stale. End-to-end (E2E) protection detects this, and <code>ara::com</code> reports the result to the application. This chapter shows how to read and use these results. How E2E works on the wire, which profiles exist and how they are configured are covered in <a href="08b_SecureAndSafeCommunication.html">guide 08b</a>.</p>
+<p><strong>Why this matters:</strong> Safety-relevant data, such as object lists that a braking function relies on, must not be used when it is corrupted, repeated or stale. End-to-end (E2E) protection detects this, and <code>ara::com</code> reports the result to the application. This chapter shows how to read and use these results. How E2E works on the wire, which profiles exist and how they are configured are covered in the <a href="SecureAndSafeCommunication.html">Secure Communication guide</a>.</p>
 </blockquote>
 <h3 id="121-e2e-in-plain-words">12.1 E2E in Plain Words<a class="anchor" href="#121-e2e-in-plain-words" aria-label="Link to this section">#</a></h3>
 <p><strong>In plain words:</strong> the sender adds a small header to each message: a counter, a checksum (CRC) and an identifier of the data. The receiver checks the header. A <em>check status</em> says what happened to one message; a <em>state machine</em> looks at the recent history of checks and says whether the communication as a whole can be trusted right now.</p>
-<p><strong>Formally:</strong> Communication Management provides &quot;a built-in safety mechanism (E2E protection), which can be used for all levels of communication for events and methods&quot; (SWS CM, Chapter 1). The E2E functions follow the AUTOSAR E2E protocol ([SWS_CM_90433], [SWS_CM_90485]). The protection of an event is configured in <code>End2EndEventProtectionProps</code> and <code>E2EProfileConfiguration</code>, that of a method in <code>End2EndMethodProtectionProps</code> and <code>E2EProfileConfiguration</code> ([SWS_CM_90402], [SWS_CM_10460]); these elements belong to the service instance (<a href="08b_SecureAndSafeCommunication.html">guide 08b</a>).</p>
+<p><strong>Formally:</strong> Communication Management provides &quot;a built-in safety mechanism (E2E protection), which can be used for all levels of communication for events and methods&quot; (SWS CM, Chapter 1). The E2E functions follow the AUTOSAR E2E protocol ([SWS_CM_90433], [SWS_CM_90485]). The protection of an event is configured in <code>End2EndEventProtectionProps</code> and <code>E2EProfileConfiguration</code>, that of a method in <code>End2EndMethodProtectionProps</code> and <code>E2EProfileConfiguration</code> ([SWS_CM_90402], [SWS_CM_10460]); these elements belong to the service instance (the <a href="SecureAndSafeCommunication.html">Secure Communication guide</a>).</p>
 <p>For the application, the checks are invisible until it asks for the result:</p>
 <ul>
 <li><strong>Events and field notifications:</strong> the check runs inside <code>GetNewSamples</code>, for each sample before it is deserialized ([SWS_CM_90406], [SWS_CM_00703]).</li>
@@ -3182,7 +3182,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <li><code>ara::com</code> does not supervise method timeouts, even with E2E; the specification recommends supervision by the application, for example with Platform Health Management (SWS CM, Section 7.4.1.2.6).</li>
 </ul>
 <h3 id="125-worked-example-storage-checks-the-e2e-status-of-objectlist">12.5 Worked Example: <code>Storage</code> Checks the E2E Status of <code>ObjectList</code><a class="anchor" href="#125-worked-example-storage-checks-the-e2e-status-of-objectlist" aria-label="Link to this section">#</a></h3>
-<p>Whether <code>ObjectListService</code> is E2E-protected in <code>HPC</code> is decided in <a href="08b_SecureAndSafeCommunication.html#133-worked-example-what-storage-sees-for-objectlist">guide 08b, Section 13.3</a>: <code>ObjectListService</code> uses the DDS binding, which has no E2E profile, and its <code>SMState</code> follows DDS liveliness. The following code shows how <code>Storage</code> uses the results. It collects the new object lists, drops samples that failed the check, and marks the recording as not trustworthy while the state machine is not <code>kValid</code>.</p>
+<p>Whether <code>ObjectListService</code> is E2E-protected in <code>HPC</code> is decided in the <a href="SecureAndSafeCommunication.html#133-worked-example-what-storage-sees-for-objectlist">Secure Communication guide, Section 13.3</a>: <code>ObjectListService</code> uses the DDS binding, which has no E2E profile, and its <code>SMState</code> follows DDS liveliness. The following code shows how <code>Storage</code> uses the results. It collects the new object lists, drops samples that failed the check, and marks the recording as not trustworthy while the state machine is not <code>kValid</code>.</p>
 <div class="code-block" data-lang="cpp"><pre class="highlight"><code><span class="c1">// Storage: read ObjectList with E2E status (illustrative; called from the receive handler).</span>
 <span class="kt">void</span><span class="w"> </span><span class="nf">Recorder::ReadObjectLists</span><span class="p">(</span><span class="n">ObjectListProxy</span><span class="o">&amp;</span><span class="w"> </span><span class="n">objects</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">ara</span><span class="o">::</span><span class="n">com</span><span class="o">::</span><span class="n">e2e</span><span class="o">::</span><span class="n">ProfileCheckStatus</span><span class="p">;</span>
@@ -3288,7 +3288,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <li><strong>Local and network.</strong> Instance 1 is local and reached over IPC; instance 2 runs on another ECU and is reached over SOME/IP. The handles of the two instances look completely different inside.</li>
 <li><strong>SOME/IP through a daemon.</strong> Applications usually do not open network sockets themselves; a daemon owns them, and applications reach it over local IPC.</li>
 </ol>
-<p>The following diagram shows how <code>CameraService</code> <em>could</em> be deployed with multi-binding: <code>Fusion</code> on <code>HPC</code> over local IPC, <code>Cockpit</code> over SOME/IP. Whether <code>HPC</code> does this is decided in <a href="08a_NetworkBindings.html">guide 08a</a>; guide 02 models only the SOME/IP binding.</p>
+<p>The following diagram shows how <code>CameraService</code> <em>could</em> be deployed with multi-binding: <code>Fusion</code> on <code>HPC</code> over local IPC, <code>Cockpit</code> over SOME/IP. Whether <code>HPC</code> does this is decided in the <a href="NetworkBindings.html">Network Bindings guide</a>; the Manifests guide models only the SOME/IP binding.</p>
 <pre class="mermaid">flowchart LR
     subgraph HPC[&quot;HPC&quot;]
         CD[&quot;CameraDriver&lt;br/&gt;skeleton (one object)&quot;]
@@ -3345,7 +3345,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">promise</span><span class="p">.</span><span class="n">get_future</span><span class="p">();</span>
 <span class="p">}</span>
 </code></pre></div>
-<p><code>CameraDriver</code> calls <code>SetCalibration</code> at the end of the diagnostic routine <code>CalibrateCamera</code> (<a href="12a_Diagnostics.html#114-worked-example-calibratecamera">guide 12a, Section 11.4</a>). The routine waits for the result with a timeout, because <code>ara::com</code> does not time out calls (<a href="#83-no-timeout-supervision">Section 8.3</a>):</p>
+<p><code>CameraDriver</code> calls <code>SetCalibration</code> at the end of the diagnostic routine <code>CalibrateCamera</code> (the <a href="DiagnosticsPart1.html#114-worked-example-calibratecamera">Diagnostics Part 1 guide, Section 11.4</a>). The routine waits for the result with a timeout, because <code>ara::com</code> does not time out calls (<a href="#83-no-timeout-supervision">Section 8.3</a>):</p>
 <div class="code-block" data-lang="cpp"><pre class="highlight"><code><span class="c1">// CameraDriver: store a new camera calibration (illustrative).</span>
 <span class="k">auto</span><span class="w"> </span><span class="n">future</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">calibration</span><span class="p">.</span><span class="n">SetCalibration</span><span class="p">(</span><span class="n">hpc</span><span class="o">::</span><span class="n">storage</span><span class="o">::</span><span class="n">CalibrationKey</span><span class="o">::</span><span class="n">CameraExtrinsics</span><span class="p">,</span><span class="w"> </span><span class="n">measured</span><span class="p">);</span>
 <span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">future</span><span class="p">.</span><span class="n">wait_for</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">milliseconds</span><span class="p">(</span><span class="mi">500</span><span class="p">))</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">ara</span><span class="o">::</span><span class="n">core</span><span class="o">::</span><span class="n">future_status</span><span class="o">::</span><span class="n">kReady</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -3370,7 +3370,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <hr />
 <h2 id="14-configuration-reference-what-to-configure">14. Configuration Reference: What to Configure<a class="anchor" href="#14-configuration-reference-what-to-configure" aria-label="Link to this section">#</a></h2>
 <blockquote>
-<p><strong>Why this matters:</strong> This chapter answers the question &quot;what do I have to configure for <code>ara::com</code>, and what does each setting mean?&quot;. It covers the binding-independent elements that Communication Management reads. The SOME/IP, DDS and signal-based settings of the deployment are covered in <a href="08a_NetworkBindings.html#14-configuration-reference-what-to-configure">guide 08a, Chapter 14</a>, the E2E protection and secure communication settings in <a href="08b_SecureAndSafeCommunication.html">guide 08b</a>; the general manifest structure is in <a href="02_Manifests.html#12-configuration-reference-what-to-configure">guide 02, Chapter 12</a>.</p>
+<p><strong>Why this matters:</strong> This chapter answers the question &quot;what do I have to configure for <code>ara::com</code>, and what does each setting mean?&quot;. It covers the binding-independent elements that Communication Management reads. The SOME/IP, DDS and signal-based settings of the deployment are covered in the <a href="NetworkBindings.html#14-configuration-reference-what-to-configure">Network Bindings guide, Chapter 14</a>, the E2E protection and secure communication settings in the <a href="SecureAndSafeCommunication.html">Secure Communication guide</a>; the general manifest structure is in the <a href="Manifests.html#12-configuration-reference-what-to-configure">Manifests guide, Chapter 12</a>.</p>
 </blockquote>
 <p>The tables use the column <em>Default</em> only for values that a specification states. SWS CM itself defines no default values (SWS CM, Section 10.1); the only defaults below come from individual requirements and from the TPS.</p>
 <h3 id="141-minimal-configuration">14.1 Minimal Configuration<a class="anchor" href="#141-minimal-configuration" aria-label="Link to this section">#</a></h3>
@@ -3395,7 +3395,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td>2</td>
 <td>The C++ implementation data types and application errors that the interface uses</td>
 <td>Service designer</td>
-<td><a href="02_Manifests.html#125-cppimplementationdatatype">Guide 02, 12.5 and 12.6</a></td>
+<td><a href="Manifests.html#125-cppimplementationdatatype">Manifests guide, 12.5 and 12.6</a></td>
 </tr>
 <tr>
 <td>3</td>
@@ -3413,7 +3413,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td>5</td>
 <td>An <code>Executable</code> for each component, with the component in its root prototype; a <code>Process</code> for each executable, mapped to the machine</td>
 <td>Application developer, integrator</td>
-<td><a href="02_Manifests.html#8-the-execution-manifest">Guide 02, Chapter 8</a></td>
+<td><a href="Manifests.html#8-the-execution-manifest">Manifests guide, Chapter 8</a></td>
 </tr>
 <tr>
 <td>6</td>
@@ -3443,12 +3443,12 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td>10</td>
 <td>If access control is enabled: grants for the processes</td>
 <td>Integrator</td>
-<td><a href="#1410-cmmoduleinstantiation">14.10</a>, guide 15</td>
+<td><a href="#1410-cmmoduleinstantiation">14.10</a>, the IAM guide</td>
 </tr>
 </tbody>
 </table></div>
 <h3 id="142-serviceinterface-and-its-elements">14.2 ServiceInterface and Its Elements<a class="anchor" href="#142-serviceinterface-and-its-elements" aria-label="Link to this section">#</a></h3>
-<p><strong>Purpose:</strong> the contract of the service; it determines the generated C++ API. <strong>Lives in:</strong> service interface design. <strong>Configured by:</strong> service designer. <strong>Spec:</strong> TPS 4.2; <a href="02_Manifests.html#124-serviceinterface-and-its-elements">guide 02, Section 12.4</a> has the complete attribute table. The table below adds the effect on <code>ara::com</code>.</p>
+<p><strong>Purpose:</strong> the contract of the service; it determines the generated C++ API. <strong>Lives in:</strong> service interface design. <strong>Configured by:</strong> service designer. <strong>Spec:</strong> TPS 4.2; the <a href="Manifests.html#124-serviceinterface-and-its-elements">Manifests guide, Section 12.4</a> has the complete attribute table. The table below adds the effect on <code>ara::com</code>.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -3674,7 +3674,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>0..1</code></td>
 <td>not specified</td>
 <td></td>
-<td><a href="08b_SecureAndSafeCommunication.html">Guide 08b</a></td>
+<td><a href="SecureAndSafeCommunication.html">Secure Communication guide</a></td>
 </tr>
 <tr>
 <td><code>SenderComSpec.transmissionProps</code> (<code>TransmissionComSpecProps</code>: <code>dataUpdatePeriod</code>, <code>minimumSendInterval</code>, <code>transmissionMode</code>, <code>onChangeDataPrototype</code>)</td>
@@ -3855,12 +3855,12 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>0..1</code> each</td>
 <td>not specified</td>
 <td><strong>Not supported</strong> by Communication Management in R25-11 (SWS CM, Sections 7.4.1.1.1, 7.4.1.2.1)</td>
-<td>None; the instance-level E2E configuration applies (<a href="08b_SecureAndSafeCommunication.html#159-e2e-for-service-instances">guide 08b, Section 15.9</a>)</td>
+<td>None; the instance-level E2E configuration applies (the <a href="SecureAndSafeCommunication.html#159-e2e-for-service-instances">Secure Communication guide, Section 15.9</a>)</td>
 </tr>
 </tbody>
 </table></div>
 <h3 id="147-serviceinterfacedeployment-and-minimumsendinterval">14.7 ServiceInterfaceDeployment and minimumSendInterval<a class="anchor" href="#147-serviceinterfacedeployment-and-minimumsendinterval" aria-label="Link to this section">#</a></h3>
-<p><strong>Purpose:</strong> the transport-specific form of a service interface. <strong>Lives in:</strong> Service Instance Manifest. <strong>Configured by:</strong> software cluster integrator. <strong>Spec:</strong> TPS 13.2, Tables 13.6 to 13.10; <a href="02_Manifests.html#1213-serviceinterfacedeployment-and-service-instances">guide 02, Section 12.13</a>.</p>
+<p><strong>Purpose:</strong> the transport-specific form of a service interface. <strong>Lives in:</strong> Service Instance Manifest. <strong>Configured by:</strong> software cluster integrator. <strong>Spec:</strong> TPS 13.2, Tables 13.6 to 13.10; the <a href="Manifests.html#1213-serviceinterfacedeployment-and-service-instances">Manifests guide, Section 12.13</a>.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -4029,7 +4029,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tbody>
 </table></div>
 <h3 id="149-service-instances-and-their-mappings">14.9 Service Instances and Their Mappings<a class="anchor" href="#149-service-instances-and-their-mappings" aria-label="Link to this section">#</a></h3>
-<p><strong>Purpose:</strong> connect ports to instances, and instances to the machine. <strong>Lives in:</strong> Service Instance Manifest. <strong>Configured by:</strong> integrators. <strong>Spec:</strong> TPS 13.3, Tables 13.28 to 13.32; <a href="02_Manifests.html#1214-serviceinstancetoportprototypemapping-and-serviceinstancetomachinemapping">guide 02, Section 12.14</a> gives the binding-specific attributes.</p>
+<p><strong>Purpose:</strong> connect ports to instances, and instances to the machine. <strong>Lives in:</strong> Service Instance Manifest. <strong>Configured by:</strong> integrators. <strong>Spec:</strong> TPS 13.3, Tables 13.28 to 13.32; the <a href="Manifests.html#1214-serviceinstancetoportprototypemapping-and-serviceinstancetomachinemapping">Manifests guide, Section 12.14</a> gives the binding-specific attributes.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -4059,7 +4059,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>*</code> each</td>
 <td>not specified</td>
 <td>[SWS_CM_90402], [SWS_CM_10460]</td>
-<td><a href="08b_SecureAndSafeCommunication.html#159-e2e-for-service-instances">Guide 08b, Section 15.9</a></td>
+<td><a href="SecureAndSafeCommunication.html#159-e2e-for-service-instances">Secure Communication guide, Section 15.9</a></td>
 </tr>
 <tr>
 <td><code>ProvidedApServiceInstance</code>, <code>RequiredApServiceInstance</code></td>
@@ -4131,7 +4131,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>0..1</code>, <code>0..1</code>, <code>*</code></td>
 <td>not specified</td>
 <td></td>
-<td>Guides 08, 14</td>
+<td>Secure Communication and Cryptography guides</td>
 </tr>
 </tbody>
 </table></div>
@@ -4157,7 +4157,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>*</code></td>
 <td>not specified</td>
 <td>Candidate</td>
-<td>Access control (guide 15); a refused operation raises <code>InsufficientPermissionsViolation</code></td>
+<td>Access control (the IAM guide); a refused operation raises <code>InsufficientPermissionsViolation</code></td>
 </tr>
 <tr>
 <td><code>CmModuleInstantiation.localComAccessControlEnabled</code></td>
@@ -4166,7 +4166,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>0..1</code></td>
 <td>not specified</td>
 <td>Candidate</td>
-<td>Guide 15</td>
+<td>IAM guide</td>
 </tr>
 <tr>
 <td><code>CmModuleInstantiation.remoteAccessControlEnabled</code></td>
@@ -4175,7 +4175,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>0..1</code></td>
 <td>not specified</td>
 <td>Candidate</td>
-<td>Guide 15</td>
+<td>IAM guide</td>
 </tr>
 <tr>
 <td><code>CmModuleInstantiation.secOCIgnoreVerificationResult</code></td>
@@ -4184,15 +4184,15 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <td><code>0..1</code></td>
 <td>not specified</td>
 <td>Candidate</td>
-<td><a href="08b_SecureAndSafeCommunication.html#76-receiving-verification-retries-bypass-and-ignore">Guide 08b, Section 7.6</a></td>
+<td><a href="SecureAndSafeCommunication.html#76-receiving-verification-retries-bypass-and-ignore">Secure Communication guide, Section 7.6</a></td>
 </tr>
 </tbody>
 </table></div>
 <h3 id="1411-the-running-example-complete-configuration">14.11 The Running Example: Complete Configuration<a class="anchor" href="#1411-the-running-example-complete-configuration" aria-label="Link to this section">#</a></h3>
-<p>The following conceptual view shows every <code>ara::com</code>-relevant element of <code>HPC</code> in one place. The SOME/IP deployment of <code>CameraService</code> is in <a href="02_Manifests.html#96-worked-example-cameraservice-between-cameradriver-and-fusion">guide 02, Section 9.6</a>; the DDS deployment of <code>ObjectListService</code> is added in <a href="08a_NetworkBindings.html">guide 08a</a>.</p>
+<p>The following conceptual view shows every <code>ara::com</code>-relevant element of <code>HPC</code> in one place. The SOME/IP deployment of <code>CameraService</code> is in the <a href="Manifests.html#96-worked-example-cameraservice-between-cameradriver-and-fusion">Manifests guide, Section 9.6</a>; the DDS deployment of <code>ObjectListService</code> is added in the <a href="NetworkBindings.html">Network Bindings guide</a>.</p>
 <div class="code-block" data-lang="yaml"><pre class="highlight"><code><span class="c1"># Conceptual view of the ara::com configuration of HPC. NOT real ARXML syntax.</span>
 <span class="nt">ServiceInterfaces</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">CameraService</span><span class="p">:</span><span class="w">          </span><span class="p p-Indicator">{</span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="nv">hpc</span><span class="p p-Indicator">::</span><span class="nv">camera</span><span class="p p-Indicator">,</span><span class="nt">  version</span><span class="p">:</span><span class="w"> </span><span class="nv">1.0</span><span class="p p-Indicator">,</span><span class="w">       </span><span class="c1"># guide 02</span>
+<span class="w">  </span><span class="nt">CameraService</span><span class="p">:</span><span class="w">          </span><span class="p p-Indicator">{</span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="nv">hpc</span><span class="p p-Indicator">::</span><span class="nv">camera</span><span class="p p-Indicator">,</span><span class="nt">  version</span><span class="p">:</span><span class="w"> </span><span class="nv">1.0</span><span class="p p-Indicator">,</span><span class="w">       </span><span class="c1"># the Manifests guide</span>
 <span class="nt">                           event</span><span class="p">:</span><span class="w"> </span><span class="nv">Image (CameraImage)</span><span class="p p-Indicator">,</span><span class="nt"> method</span><span class="p">:</span><span class="w"> </span><span class="nv">SetExposureMode(in mode)</span><span class="p p-Indicator">,</span>
 <span class="nt">                           field</span><span class="p">:</span><span class="w"> </span><span class="nv">CameraStatus (CameraState; getter</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">notifier)</span><span class="p p-Indicator">}</span>
 <span class="w">  </span><span class="nt">ObjectListService</span><span class="p">:</span><span class="w">      </span><span class="p p-Indicator">{</span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="nv">hpc</span><span class="p p-Indicator">::</span><span class="nv">fusion</span><span class="p p-Indicator">,</span><span class="nt">  version</span><span class="p">:</span><span class="w"> </span><span class="nv">1.0</span><span class="p p-Indicator">,</span>
@@ -4214,8 +4214,8 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">/storage/Root/ObjectListRPort         R ObjectListService</span>
 <span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">/calib_check/Root/CalibrationRPort    R CalibrationDataService</span>
 <span class="nt">Deployments</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">CameraService_Someip</span><span class="p">:</span><span class="w">       </span><span class="l l-Scalar l-Scalar-Plain">SOME/IP (guide 02, guide 08a)</span>
-<span class="w">  </span><span class="nt">ObjectListService</span><span class="p">:</span><span class="w">          </span><span class="l l-Scalar l-Scalar-Plain">DDS (guide 08a)</span>
+<span class="w">  </span><span class="nt">CameraService_Someip</span><span class="p">:</span><span class="w">       </span><span class="l l-Scalar l-Scalar-Plain">SOME/IP (the Manifests guide, the Network Bindings guide)</span>
+<span class="w">  </span><span class="nt">ObjectListService</span><span class="p">:</span><span class="w">          </span><span class="l l-Scalar l-Scalar-Plain">DDS (the Network Bindings guide)</span>
 <span class="w">  </span><span class="nt">CalibrationDataService_Ipc</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">user-defined, SERVICE_INTERFACE_DEPLOYMENT_IPC; SetCalibration minimumSendInterval 1.0 s</span>
 <span class="nt">Instances and mappings (CalibrationDataService)</span><span class="p">:</span>
 <span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">CalibrationDataProvided  &lt;- /storage/Root/CalibrationPPort in Storage</span>
@@ -4245,7 +4245,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
     MM --&gt; RI
     MM --&gt; CON
 </pre>
-<p>The new elements are written as ARXML in the file <code>12_Communication.arxml</code> of the series model. It continues the files of guides 02, 05 and 06, and it validates against the R25-11 schema (<code>AUTOSAR_00054.xsd</code>). The following excerpts are copied from it. <a href="02_Manifests.html#3-reading-arxml">Guide 02, Chapter 3</a> explains how to read ARXML.</p>
+<p>The new elements are written as ARXML in the file <code>12_Communication.arxml</code> of the series model. It continues the files of the Manifests, SM and PHM guides, and it validates against the R25-11 schema (<code>AUTOSAR_00054.xsd</code>). The following excerpts are copied from it. The <a href="Manifests.html#3-reading-arxml">Manifests guide, Chapter 3</a> explains how to read ARXML.</p>
 <p>The service interface <code>CalibrationDataService</code>, with two methods, their application errors and the trigger:</p>
 <div class="code-block" data-lang="xml"><pre class="highlight"><code><span class="nt">&lt;SERVICE-INTERFACE&gt;</span>
 <span class="w">  </span><span class="nt">&lt;SHORT-NAME&gt;</span>CalibrationDataService<span class="nt">&lt;/SHORT-NAME&gt;</span>
@@ -4338,7 +4338,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <span class="w">  </span><span class="nt">&lt;/FIELDS&gt;</span>
 <span class="nt">&lt;/SERVICE-INTERFACE&gt;</span>
 </code></pre></div>
-<p>The ports that this guide adds to <code>FusionSwc</code>. The component is split over several files, which the model merges (<a href="02_Manifests.html#37-many-files-one-model">guide 02, Section 3.7</a>); the <code>FieldSenderComSpec</code> gives <code>FusionMode</code> its initial value 0 (<code>Full</code>):</p>
+<p>The ports that this guide adds to <code>FusionSwc</code>. The component is split over several files, which the model merges (the <a href="Manifests.html#37-many-files-one-model">Manifests guide, Section 3.7</a>); the <code>FieldSenderComSpec</code> gives <code>FusionMode</code> its initial value 0 (<code>Full</code>):</p>
 <div class="code-block" data-lang="xml"><pre class="highlight"><code><span class="nt">&lt;ADAPTIVE-APPLICATION-SW-COMPONENT-TYPE&gt;</span>
 <span class="w">  </span><span class="nt">&lt;SHORT-NAME&gt;</span>FusionSwc<span class="nt">&lt;/SHORT-NAME&gt;</span>
 <span class="w">  </span><span class="nt">&lt;PORTS&gt;</span>
@@ -5228,7 +5228,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </table></div>
 <p><a href="#12-end-to-end-protection-the-api-side">Chapter 12</a> explains the E2E types and <a href="#115-transport-fault-conditions">Section 11.5</a> the transport faults.</p>
 <h3 id="1511-complete-example-cameradriver">15.11 Complete Example: <code>CameraDriver</code><a class="anchor" href="#1511-complete-example-cameradriver" aria-label="Link to this section">#</a></h3>
-<p>The three programs of this and the next two sections form one consistent sample. They follow the R25-11 signatures; types such as <code>Sensor</code>, <code>Frame</code>, <code>RadarInput</code> and <code>RecordingFile</code> stand for the application's own code. Supervision checkpoints (guide 06) and logging (<a href="10_LogAndTrace.html">guide 10</a>) are left out. All programs initialize ARA first, offer their services before they report <code>kRunning</code>, and stop their offers before they end (<a href="03_CoreAndGeneral.html#56-worked-example-the-main-function-of-fusion">guide 03, Section 5.6</a>; <a href="04_ExecutionManagement.html#143-executionclient">EM guide, Section 14.3</a>).</p>
+<p>The three programs of this and the next two sections form one consistent sample. They follow the R25-11 signatures; types such as <code>Sensor</code>, <code>Frame</code>, <code>RadarInput</code> and <code>RecordingFile</code> stand for the application's own code. Supervision checkpoints (the PHM guide) and logging (the <a href="LogAndTrace.html">Log and Trace guide</a>) are left out. All programs initialize ARA first, offer their services before they report <code>kRunning</code>, and stop their offers before they end (the <a href="CoreAndGeneral.html#56-worked-example-the-main-function-of-fusion">Core guide, Section 5.6</a>; <a href="ExecutionManagement.html#143-executionclient">EM guide, Section 14.3</a>).</p>
 <div class="code-block" data-lang="cpp"><pre class="highlight"><code><span class="c1">// camera_driver: provider of CameraService (illustrative, simplified).</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">"hpc/camera/cameraservice_skeleton.h"</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">"ara/core/initialization.h"</span>
@@ -5408,7 +5408,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 
 <span class="w">    </span><span class="n">FusionCycle</span><span class="w"> </span><span class="n">cycle</span><span class="p">;</span>
 <span class="w">    </span><span class="n">ExposureControl</span><span class="w"> </span><span class="n">exposure</span><span class="p">;</span>
-<span class="w">    </span><span class="n">RadarInput</span><span class="w"> </span><span class="n">radar</span><span class="p">;</span><span class="w">  </span><span class="c1">// raw data stream from FrontRadar (guide 09)</span>
+<span class="w">    </span><span class="n">RadarInput</span><span class="w"> </span><span class="n">radar</span><span class="p">;</span><span class="w">  </span><span class="c1">// raw data stream from FrontRadar (the NM/TSync/RDS guide)</span>
 <span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">steady_clock</span><span class="o">::</span><span class="n">now</span><span class="p">();</span>
 <span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">stop</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="n">next</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">50</span><span class="n">ms</span><span class="p">;</span>
@@ -5542,7 +5542,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">objectsSpec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ara</span><span class="o">::</span><span class="n">core</span><span class="o">::</span><span class="n">InstanceSpecifier</span><span class="o">::</span><span class="n">Create</span><span class="p">(</span><span class="s">"/storage/Root/ObjectListRPort"</span><span class="p">);</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">client</span><span class="p">.</span><span class="n">HasValue</span><span class="p">()</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="n">calibSpec</span><span class="p">.</span><span class="n">HasValue</span><span class="p">()</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="n">objectsSpec</span><span class="p">.</span><span class="n">HasValue</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">EXIT_FAILURE</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
 
-<span class="w">    </span><span class="n">CalibrationStore</span><span class="w"> </span><span class="n">store</span><span class="p">;</span><span class="w">  </span><span class="c1">// CalibrationKvs (guide 11, Section 6.7)</span>
+<span class="w">    </span><span class="n">CalibrationStore</span><span class="w"> </span><span class="n">store</span><span class="p">;</span><span class="w">  </span><span class="c1">// CalibrationKvs (the Persistency guide, Section 6.7)</span>
 <span class="w">    </span><span class="n">CalibrationService</span><span class="w"> </span><span class="n">calibration</span><span class="p">{</span><span class="n">calibSpec</span><span class="p">.</span><span class="n">Value</span><span class="p">(),</span><span class="w"> </span><span class="n">store</span><span class="p">};</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">calibration</span><span class="p">.</span><span class="n">OfferService</span><span class="p">().</span><span class="n">HasValue</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">EXIT_FAILURE</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
 <span class="w">    </span><span class="n">client</span><span class="p">.</span><span class="n">Value</span><span class="p">().</span><span class="n">ReportExecutionState</span><span class="p">(</span><span class="n">ara</span><span class="o">::</span><span class="n">exec</span><span class="o">::</span><span class="n">ExecutionState</span><span class="o">::</span><span class="n">kRunning</span><span class="p">);</span><span class="w">  </span><span class="c1">// CalibrationCheck may start</span>
@@ -5554,7 +5554,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <span class="w">        </span><span class="n">objectsSpec</span><span class="p">.</span><span class="n">Value</span><span class="p">());</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">search</span><span class="p">.</span><span class="n">HasValue</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">EXIT_FAILURE</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
 
-<span class="w">    </span><span class="n">RecordingFile</span><span class="w"> </span><span class="n">file</span><span class="p">;</span><span class="w">  </span><span class="c1">// Recordings (guide 11, Section 7.9)</span>
+<span class="w">    </span><span class="n">RecordingFile</span><span class="w"> </span><span class="n">file</span><span class="p">;</span><span class="w">  </span><span class="c1">// Recordings (the Persistency guide, Section 7.9)</span>
 <span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">stop</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="n">recorder</span><span class="p">.</span><span class="n">Flush</span><span class="p">(</span><span class="n">file</span><span class="p">);</span>
 <span class="w">        </span><span class="n">file</span><span class="p">.</span><span class="n">WaitShortly</span><span class="p">();</span><span class="w">  </span><span class="c1">// for example 100 ms</span>
@@ -5609,7 +5609,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 </tbody>
 </table></div>
-<p>Communication Management reports it through the <code>EventReporter</code> interface of the Intrusion Detection System Manager (SWS CM, Table 5.2). In <code>HPC</code>, this is the event that appears when the misconfigured <code>FusionLite</code> tries to subscribe to <code>CameraService</code> (<a href="00_LearningPath.html#612-security">guide 00, Section 6.12</a>); guide 15 configures the rights and guide 16 shows how IdsM qualifies the event.</p>
+<p>Communication Management reports it through the <code>EventReporter</code> interface of the Intrusion Detection System Manager (SWS CM, Table 5.2). In <code>HPC</code>, this is the event that appears when the misconfigured <code>FusionLite</code> tries to subscribe to <code>CameraService</code> (the <a href="RunningExample.html#112-security">Running Example guide, Section 1.12</a>); the IAM guide configures the rights and the IDSM and Firewall guide shows how IdsM qualifies the event.</p>
 <h3 id="162-log-messages-and-violation-messages">16.2 Log Messages and Violation Messages<a class="anchor" href="#162-log-messages-and-violation-messages" aria-label="Link to this section">#</a></h3>
 <p>Communication Management defines no non-verbose (modeled) log messages and no production errors (SWS CM, Sections 7.7.2 and 7.7.4). It does define violation messages, which are logged with <code>DLT_LOG_FATAL</code> before the process is terminated (SWS CM, Section 7.7.3):</p>
 <div class="table-wrap"><table>
@@ -5668,7 +5668,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </table></div>
 <p><code>modeledProcessId</code> is the short name path of the process with <code>/</code> as separator; <code>location</code> is an implementation-defined place such as <code>{filename}:{linenumber}</code>. Implementations may add non-standardized violations (SWS CM, Section 7.7.3), which is what the violations without a message in <a href="#113-violations-in-aracom">Section 11.3</a> become in practice.</p>
 <h3 id="163-what-an-integrator-sees-when-an-instancespecifier-is-wrong">16.3 What an Integrator Sees When an InstanceSpecifier Is Wrong<a class="anchor" href="#163-what-an-integrator-sees-when-an-instancespecifier-is-wrong" aria-label="Link to this section">#</a></h3>
-<p>Suppose the model renames the port <code>CameraRPort</code> of <code>FusionSwc</code>, but the code of <code>fusion</code> still uses <code>/fusion/Root/CameraRPort</code>. <code>InstanceSpecifier::Create</code> succeeds, because the syntax is valid. The call <code>CameraProxy::StartFindService(handler, spec)</code> then cannot resolve the path and raises <code>InstanceSpecifierMappingIntegrityViolation</code> ([SWS_CM_00623]). The DLT log of <code>HPC</code> shows one fatal message with the ID <code>0x80001ffc</code>, the process <code>/HPC/Processes/Fusion</code>, the specifier <code>/fusion/Root/CameraRPort</code> and the class name, and Execution Management reports the abnormal termination of <code>Fusion</code>. <a href="03_CoreAndGeneral.html#67-worked-example-a-wrong-instancespecifier-in-fusion">Guide 03, Section 6.7</a> follows the same failure through State Management and Platform Health Management.</p>
+<p>Suppose the model renames the port <code>CameraRPort</code> of <code>FusionSwc</code>, but the code of <code>fusion</code> still uses <code>/fusion/Root/CameraRPort</code>. <code>InstanceSpecifier::Create</code> succeeds, because the syntax is valid. The call <code>CameraProxy::StartFindService(handler, spec)</code> then cannot resolve the path and raises <code>InstanceSpecifierMappingIntegrityViolation</code> ([SWS_CM_00623]). The DLT log of <code>HPC</code> shows one fatal message with the ID <code>0x80001ffc</code>, the process <code>/HPC/Processes/Fusion</code>, the specifier <code>/fusion/Root/CameraRPort</code> and the class name, and Execution Management reports the abnormal termination of <code>Fusion</code>. The <a href="CoreAndGeneral.html#67-worked-example-a-wrong-instancespecifier-in-fusion">Core guide, Section 6.7</a> follows the same failure through State Management and Platform Health Management.</p>
 <blockquote>
 <p><strong>Key takeaways</strong></p>
 <ul>
@@ -5683,7 +5683,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p><strong>Why this matters:</strong> The previous chapters explained each mechanism alone. This chapter follows <code>HPC</code> through one drive and shows how discovery, events, methods, fields, triggers and error handling work together on the running example.</p>
 </blockquote>
 <h3 id="171-the-sequence">17.1 The Sequence<a class="anchor" href="#171-the-sequence" aria-label="Link to this section">#</a></h3>
-<p>The following sequence diagram shows the main steps. Execution Management starts and stops the processes as guide 04 describes; State Management requests the <code>ADAS</code> states as guide 05 describes.</p>
+<p>The following sequence diagram shows the main steps. Execution Management starts and stops the processes as the EM guide describes; State Management requests the <code>ADAS</code> states as the SM guide describes.</p>
 <pre class="mermaid">sequenceDiagram
     autonumber
     participant ST as Storage
@@ -5773,7 +5773,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 <tr>
 <td>9</td>
-<td>Workshop recalibrates the camera (<a href="12a_Diagnostics.html#114-worked-example-calibratecamera">guide 12a</a>)</td>
+<td>Workshop recalibrates the camera (the <a href="DiagnosticsPart1.html#114-worked-example-calibratecamera">Diagnostics Part 1 guide</a>)</td>
 <td><code>CameraDriver</code> calls <code>SetCalibration</code>; <code>Storage</code> writes the key and sends <code>CalibrationUpdated</code>; <code>Fusion</code> sees the trigger and re-reads the calibration</td>
 <td><a href="#77-triggers">7.7</a>, <a href="#135-worked-example-calibrationdataservice-over-local-ipc">13.5</a></td>
 </tr>
@@ -5785,7 +5785,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 <tr>
 <td>11</td>
-<td>A supervision of <code>Fusion</code> fails; <code>ADAS</code> goes to <code>Degraded</code> (guides 05, 06)</td>
+<td>A supervision of <code>Fusion</code> fails; <code>ADAS</code> goes to <code>Degraded</code> (the SM and PHM guides)</td>
 <td><code>Fusion</code> is stopped: its skeleton destructor stops the offer; <code>FusionLite</code> offers the same <code>ObjectListService</code> instance with <code>FusionMode</code> <code>RadarOnly</code>; <code>Storage</code>'s proxy reconnects and receives the new initial value</td>
 <td><a href="#96-worked-example-camerastatus-and-fusionmode">9.6</a></td>
 </tr>
@@ -5817,7 +5817,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <h3 id="181-best-practices">18.1 Best Practices<a class="anchor" href="#181-best-practices" aria-label="Link to this section">#</a></h3>
 <ol>
 <li><strong>Use <code>InstanceSpecifier</code>s everywhere.</strong> Keep binding-specific identifiers out of the code; let the manifest decide (<a href="#67-instancespecifier-instanceidentifier-and-resolveinstanceids">Section 6.7</a>).</li>
-<li><strong>Prefer service discovery to start-up order.</strong> Search with <code>StartFindService</code> and let proxies reconnect, instead of relying on Execution Dependencies for services (<a href="04_ExecutionManagement.html#66-prefer-service-discovery-for-applications">EM guide, Section 6.6</a>).</li>
+<li><strong>Prefer service discovery to start-up order.</strong> Search with <code>StartFindService</code> and let proxies reconnect, instead of relying on Execution Dependencies for services (<a href="ExecutionManagement.html#66-prefer-service-discovery-for-applications">EM guide, Section 6.6</a>).</li>
 <li><strong>Prepare, then offer, then report <code>kRunning</code>.</strong> Give every field a value and register every SetHandler before <code>OfferService()</code>; report <code>kRunning</code> after it (<a href="#62-offering-and-stopping-an-offer">Section 6.2</a>).</li>
 <li><strong>Use the exception-free API.</strong> Create proxies with <code>Create</code>, and read results with <code>GetResult()</code> (<a href="#65-from-handle-to-proxy">Section 6.5</a>).</li>
 <li><strong>Size <code>maxSampleCount</code> deliberately:</strong> the number of samples you keep, plus the ones you want to receive per read (<a href="#74-sampleptr-who-owns-a-sample">Section 7.4</a>).</li>
@@ -5970,7 +5970,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <tr>
 <td>Subscription stays <code>kSubscriptionPending</code></td>
 <td>Provider not reachable, or not offering</td>
-<td>Provider state; network; for SOME/IP, event group configuration (<a href="08a_NetworkBindings.html">guide 08a</a>)</td>
+<td>Provider state; network; for SOME/IP, event group configuration (the <a href="NetworkBindings.html">Network Bindings guide</a>)</td>
 </tr>
 <tr>
 <td><code>GetNewSamples</code> returns 0 although data is sent</td>
@@ -6679,7 +6679,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 <tr>
 <td>R23-11</td>
-<td><strong>Communication Groups declared obsolete</strong>; Raw Data Stream removed from <code>ara::com</code> (guide 09 covers the Raw Data Stream); subscription state on the skeleton side; harmonized error codes; access management grants reworked; lifetime requirements for sample data.</td>
+<td><strong>Communication Groups declared obsolete</strong>; Raw Data Stream removed from <code>ara::com</code> (the NM/TSync/RDS guide covers the Raw Data Stream); subscription state on the skeleton side; harmonized error codes; access management grants reworked; lifetime requirements for sample data.</td>
 <td>(change history)</td>
 </tr>
 <tr>
@@ -6721,8 +6721,8 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p><em>End of the training guide. For normative details, always refer to <code>AUTOSAR_AP_SWS_CommunicationManagement</code> and <code>AUTOSAR_AP_EXP_ARAComAPI</code> (R25-11) and to the specifications they reference: the Manifest Specification, Core and the language binding.</em></p>
 
 </article>
-<nav class="pager" aria-label="Previous and next guide"><a class="pager-prev" href="06_PlatformHealthManagement.html"><span class="pager-label">← Previous</span><span class="pager-title">06 · Platform Health Management</span></a><a class="pager-next" href="08a_NetworkBindings.html"><span class="pager-label">Next →</span><span class="pager-title">08a · Communication Management Part 2: Network Bindings (SOME/IP, Signal-Based, DDS)</span></a></nav>
-<footer class="site-footer"><p>Author: Hieu Do Minh/Claude · Based on the AUTOSAR Adaptive Platform and Foundation specifications, release R25-11.</p><p>Training material, not a normative reference. Where a guide and an AUTOSAR specification differ, the specification applies. Specifications: <a href="https://www.autosar.org/standards" target="_blank" rel="noopener">autosar.org/standards</a>.</p></footer>
+<nav class="pager" aria-label="Previous and next guide"><a class="pager-prev" href="PlatformHealthManagement.html"><span class="pager-label">← Previous</span><span class="pager-title">Platform Health Management</span></a><a class="pager-next" href="NetworkBindings.html"><span class="pager-label">Next →</span><span class="pager-title">Communication Management Part 2: Network Bindings (SOME/IP, Signal-Based, DDS)</span></a></nav>
+<footer class="site-footer"><p>Based on the AUTOSAR Adaptive Platform and Foundation specifications, release R25-11.</p><p>Training material, not a normative reference. Where a guide and an AUTOSAR specification differ, the specification applies. Specifications: <a href="https://www.autosar.org/standards" target="_blank" rel="noopener">autosar.org/standards</a>.</p></footer>
 </main>
 <aside class="toc" aria-label="On this page"><p class="toc-label">On this page</p><ul><li class="lvl2"><a href="#about-this-guide">About This Guide</a></li><li class="lvl3"><a href="#who-this-guide-is-for">Who This Guide Is For</a></li><li class="lvl3"><a href="#learning-objectives">Learning Objectives</a></li><li class="lvl3"><a href="#how-to-read-this-guide">How to Read This Guide</a></li><li class="lvl3"><a href="#the-running-example">The Running Example</a></li><li class="lvl2"><a href="#table-of-contents">Table of Contents</a></li><li class="lvl2"><a href="#1-introduction-to-communication-management">1. Introduction to Communication Management</a></li><li class="lvl3"><a href="#11-what-is-communication-management">1.1 What Is Communication Management?</a></li><li class="lvl3"><a href="#12-what-aracom-does-not-do">1.2 What ara::com Does Not Do</a></li><li class="lvl3"><a href="#13-why-autosar-defined-its-own-api">1.3 Why AUTOSAR Defined Its Own API</a></li><li class="lvl3"><a href="#14-analogies">1.4 Analogies</a></li><li class="lvl3"><a href="#15-the-two-documents-behind-this-guide">1.5 The Two Documents Behind This Guide</a></li><li class="lvl2"><a href="#2-core-concepts-and-terminology">2. Core Concepts and Terminology</a></li><li class="lvl3"><a href="#21-service-interface-service-instance-provider-and-consumer">2.1 Service Interface, Service Instance, Provider and Consumer</a></li><li class="lvl3"><a href="#22-skeleton-and-proxy">2.2 Skeleton and Proxy</a></li><li class="lvl3"><a href="#23-the-four-means-of-communication">2.3 The Four Means of Communication</a></li><li class="lvl3"><a href="#24-service-discovery">2.4 Service Discovery</a></li><li class="lvl3"><a href="#25-instance-identifiers-and-instance-specifiers">2.5 Instance Identifiers and Instance Specifiers</a></li><li class="lvl3"><a href="#26-subscription-samples-and-the-local-cache">2.6 Subscription, Samples and the Local Cache</a></li><li class="lvl3"><a href="#27-language-binding-network-binding-and-multi-binding">2.7 Language Binding, Network Binding and Multi-Binding</a></li><li class="lvl3"><a href="#28-other-key-terms">2.8 Other Key Terms</a></li><li class="lvl2"><a href="#3-communication-management-in-the-system-architecture">3. Communication Management in the System Architecture</a></li><li class="lvl3"><a href="#31-where-communication-management-sits-in-the-platform">3.1 Where Communication Management Sits in the Platform</a></li><li class="lvl3"><a href="#32-interfaces-provided-and-required">3.2 Interfaces Provided and Required</a></li><li class="lvl3"><a href="#33-service-discovery-inside-the-machine">3.3 Service Discovery Inside the Machine</a></li><li class="lvl3"><a href="#34-lifecycle-of-communication-management">3.4 Lifecycle of Communication Management</a></li><li class="lvl3"><a href="#35-interaction-map">3.5 Interaction Map</a></li><li class="lvl2"><a href="#4-configuration-overview">4. Configuration Overview</a></li><li class="lvl3"><a href="#41-where-the-configuration-lives">4.1 Where the Configuration Lives</a></li><li class="lvl3"><a href="#42-how-the-elements-relate">4.2 How the Elements Relate</a></li><li class="lvl3"><a href="#43-what-you-can-change-without-recompiling">4.3 What You Can Change Without Recompiling</a></li><li class="lvl2"><a href="#5-from-service-interface-to-generated-code">5. From Service Interface to Generated Code</a></li><li class="lvl3"><a href="#51-what-the-generator-produces">5.1 What the Generator Produces</a></li><li class="lvl3"><a href="#52-file-names-namespaces-and-names">5.2 File Names, Namespaces and Names</a></li><li class="lvl3"><a href="#53-the-common-header-service-identifier-and-contract-version">5.3 The Common Header: Service Identifier and Contract Version</a></li><li class="lvl3"><a href="#54-how-arguments-are-passed">5.4 How Arguments Are Passed</a></li><li class="lvl3"><a href="#55-data-types">5.5 Data Types</a></li><li class="lvl3"><a href="#56-worked-example-the-generated-api-of-cameraservice">5.6 Worked Example: The Generated API of CameraService</a></li><li class="lvl2"><a href="#6-service-discovery-offering-and-finding-services">6. Service Discovery: Offering and Finding Services</a></li><li class="lvl3"><a href="#61-creating-a-skeleton">6.1 Creating a Skeleton</a></li><li class="lvl3"><a href="#62-offering-and-stopping-an-offer">6.2 Offering and Stopping an Offer</a></li><li class="lvl3"><a href="#63-finding-a-service-once">6.3 Finding a Service Once</a></li><li class="lvl3"><a href="#64-finding-continuously">6.4 Finding Continuously</a></li><li class="lvl3"><a href="#65-from-handle-to-proxy">6.5 From Handle to Proxy</a></li><li class="lvl3"><a href="#66-when-the-service-goes-away">6.6 When the Service Goes Away</a></li><li class="lvl3"><a href="#67-instancespecifier-instanceidentifier-and-resolveinstanceids">6.7 InstanceSpecifier, InstanceIdentifier and ResolveInstanceIDs</a></li><li class="lvl3"><a href="#68-service-contract-versioning">6.8 Service Contract Versioning</a></li><li class="lvl3"><a href="#69-worked-example-fusion-finds-cameraservice">6.9 Worked Example: Fusion Finds CameraService</a></li><li class="lvl2"><a href="#7-events-and-triggers">7. Events and Triggers</a></li><li class="lvl3"><a href="#71-sending-an-event">7.1 Sending an Event</a></li><li class="lvl3"><a href="#72-subscribing-to-an-event">7.2 Subscribing to an Event</a></li><li class="lvl3"><a href="#73-receiving-samples">7.3 Receiving Samples</a></li><li class="lvl3"><a href="#74-sampleptr-who-owns-a-sample">7.4 SamplePtr: Who Owns a Sample</a></li><li class="lvl3"><a href="#75-polling-or-event-driven-reception">7.5 Polling or Event-Driven Reception</a></li><li class="lvl3"><a href="#76-buffering-and-zero-copy">7.6 Buffering and Zero-Copy</a></li><li class="lvl3"><a href="#77-triggers">7.7 Triggers</a></li><li class="lvl3"><a href="#78-worked-example-images-for-fusion-object-lists-for-storage">7.8 Worked Example: Images for Fusion, Object Lists for Storage</a></li><li class="lvl2"><a href="#8-methods">8. Methods</a></li><li class="lvl3"><a href="#81-calling-a-method">8.1 Calling a Method</a></li><li class="lvl3"><a href="#82-getting-the-result">8.2 Getting the Result</a></li><li class="lvl3"><a href="#83-no-timeout-supervision">8.3 No Timeout Supervision</a></li><li class="lvl3"><a href="#84-canceling-a-call">8.4 Canceling a Call</a></li><li class="lvl3"><a href="#85-fire-and-forget-methods">8.5 Fire-and-Forget Methods</a></li><li class="lvl3"><a href="#86-implementing-a-method-in-the-skeleton">8.6 Implementing a Method in the Skeleton</a></li><li class="lvl3"><a href="#87-method-call-processing-modes">8.7 Method Call Processing Modes</a></li><li class="lvl3"><a href="#88-application-errors">8.8 Application Errors</a></li><li class="lvl3"><a href="#89-worked-example-setexposuremode-from-fusion-to-cameradriver">8.9 Worked Example: SetExposureMode From Fusion to CameraDriver</a></li><li class="lvl2"><a href="#9-fields">9. Fields</a></li><li class="lvl3"><a href="#91-a-field-is-an-event-plus-get-and-set">9.1 A Field Is an Event Plus Get and Set</a></li><li class="lvl3"><a href="#92-the-value-before-the-offer">9.2 The Value Before the Offer</a></li><li class="lvl3"><a href="#93-get-and-the-optional-gethandler">9.3 Get and the Optional GetHandler</a></li><li class="lvl3"><a href="#94-set-and-the-mandatory-sethandler">9.4 Set and the Mandatory SetHandler</a></li><li class="lvl3"><a href="#95-subscribing-to-field-notifications">9.5 Subscribing to Field Notifications</a></li><li class="lvl3"><a href="#96-worked-example-camerastatus-and-fusionmode">9.6 Worked Example: CameraStatus and FusionMode</a></li><li class="lvl2"><a href="#10-threading-execution-context-and-handlers">10. Threading, Execution Context and Handlers</a></li><li class="lvl3"><a href="#101-what-r25-11-says-about-thread-safety">10.1 What R25-11 Says About Thread Safety</a></li><li class="lvl3"><a href="#102-which-calls-may-switch-context">10.2 Which Calls May Switch Context</a></li><li class="lvl3"><a href="#103-handlers-and-their-rules">10.3 Handlers and Their Rules</a></li><li class="lvl3"><a href="#104-choosing-the-execution-context">10.4 Choosing the Execution Context</a></li><li class="lvl3"><a href="#105-patterns-that-work">10.5 Patterns That Work</a></li><li class="lvl2"><a href="#11-errors-rate-limits-and-transport-faults">11. Errors, Rate Limits and Transport Faults</a></li><li class="lvl3"><a href="#111-three-kinds-of-errors">11.1 Three Kinds of Errors</a></li><li class="lvl3"><a href="#112-comerrordomain-and-comerrc">11.2 ComErrorDomain and ComErrc</a></li><li class="lvl3"><a href="#113-violations-in-aracom">11.3 Violations in ara::com</a></li><li class="lvl3"><a href="#114-the-minimum-send-interval">11.4 The Minimum Send Interval</a></li><li class="lvl3"><a href="#115-transport-fault-conditions">11.5 Transport Fault Conditions</a></li><li class="lvl3"><a href="#116-worked-example-every-error-fusion-can-see-from-cameraservice">11.6 Worked Example: Every Error Fusion Can See From CameraService</a></li><li class="lvl2"><a href="#12-end-to-end-protection-the-api-side">12. End-to-End Protection: The API Side</a></li><li class="lvl3"><a href="#121-e2e-in-plain-words">12.1 E2E in Plain Words</a></li><li class="lvl3"><a href="#122-events-check-status-per-sample-state-per-event">12.2 Events: Check Status per Sample, State per Event</a></li><li class="lvl3"><a href="#123-methods-and-fields">12.3 Methods and Fields</a></li><li class="lvl3"><a href="#124-what-you-can-switch-off-and-other-limits">12.4 What You Can Switch Off, and Other Limits</a></li><li class="lvl3"><a href="#125-worked-example-storage-checks-the-e2e-status-of-objectlist">12.5 Worked Example: Storage Checks the E2E Status of ObjectList</a></li><li class="lvl2"><a href="#13-local-communication-and-multi-binding">13. Local Communication and Multi-Binding</a></li><li class="lvl3"><a href="#131-local-communication-is-implementation-specific">13.1 Local Communication Is Implementation-Specific</a></li><li class="lvl3"><a href="#132-serialization-and-zero-copy-between-local-processes">13.2 Serialization and Zero-Copy Between Local Processes</a></li><li class="lvl3"><a href="#133-multi-binding">13.3 Multi-Binding</a></li><li class="lvl3"><a href="#134-typical-implementations-on-linux">13.4 Typical Implementations on Linux</a></li><li class="lvl3"><a href="#135-worked-example-calibrationdataservice-over-local-ipc">13.5 Worked Example: CalibrationDataService Over Local IPC</a></li><li class="lvl2"><a href="#14-configuration-reference-what-to-configure">14. Configuration Reference: What to Configure</a></li><li class="lvl3"><a href="#141-minimal-configuration">14.1 Minimal Configuration</a></li><li class="lvl3"><a href="#142-serviceinterface-and-its-elements">14.2 ServiceInterface and Its Elements</a></li><li class="lvl3"><a href="#143-portprototype-and-rportprototypeprops">14.3 PortPrototype and RPortPrototypeProps</a></li><li class="lvl3"><a href="#144-sender-and-receiver-comspecs">14.4 Sender and Receiver ComSpecs</a></li><li class="lvl3"><a href="#145-client-and-server-comspecs">14.5 Client and Server ComSpecs</a></li><li class="lvl3"><a href="#146-endtoendtransformationcomspecprops">14.6 EndToEndTransformationComSpecProps</a></li><li class="lvl3"><a href="#147-serviceinterfacedeployment-and-minimumsendinterval">14.7 ServiceInterfaceDeployment and minimumSendInterval</a></li><li class="lvl3"><a href="#148-user-defined-deployment-for-local-ipc">14.8 User-Defined Deployment for Local IPC</a></li><li class="lvl3"><a href="#149-service-instances-and-their-mappings">14.9 Service Instances and Their Mappings</a></li><li class="lvl3"><a href="#1410-cmmoduleinstantiation">14.10 CmModuleInstantiation</a></li><li class="lvl3"><a href="#1411-the-running-example-complete-configuration">14.11 The Running Example: Complete Configuration</a></li><li class="lvl2"><a href="#15-api-reference-and-usage-guide-aracom">15. API Reference and Usage Guide (ara::com)</a></li><li class="lvl3"><a href="#151-api-overview">15.1 API Overview</a></li><li class="lvl3"><a href="#152-the-proxy-class-and-handletype">15.2 The Proxy Class and HandleType</a></li><li class="lvl3"><a href="#153-proxy-events-fields-methods-and-triggers">15.3 Proxy Events, Fields, Methods and Triggers</a></li><li class="lvl3"><a href="#154-the-skeleton-class">15.4 The Skeleton Class</a></li><li class="lvl3"><a href="#155-skeleton-events-fields-and-triggers">15.5 Skeleton Events, Fields and Triggers</a></li><li class="lvl3"><a href="#156-types-in-aracomtypesh">15.6 Types in ara/com/types.h</a></li><li class="lvl3"><a href="#157-instanceidentifier-resolveinstanceids-and-service-identifiers">15.7 InstanceIdentifier, ResolveInstanceIDs and Service Identifiers</a></li><li class="lvl3"><a href="#158-sampleptr-and-sampleallocateeptr">15.8 SamplePtr and SampleAllocateePtr</a></li><li class="lvl3"><a href="#159-error-domains-and-exceptions">15.9 Error Domains and Exceptions</a></li><li class="lvl3"><a href="#1510-e2e-status-types-and-transport-fault-types">15.10 E2E Status Types and Transport Fault Types</a></li><li class="lvl3"><a href="#1511-complete-example-cameradriver">15.11 Complete Example: CameraDriver</a></li><li class="lvl3"><a href="#1512-complete-example-fusion">15.12 Complete Example: Fusion</a></li><li class="lvl3"><a href="#1513-complete-example-storage">15.13 Complete Example: Storage</a></li><li class="lvl2"><a href="#16-logging-security-events-and-violations">16. Logging, Security Events and Violations</a></li><li class="lvl3"><a href="#161-security-event">16.1 Security Event</a></li><li class="lvl3"><a href="#162-log-messages-and-violation-messages">16.2 Log Messages and Violation Messages</a></li><li class="lvl3"><a href="#163-what-an-integrator-sees-when-an-instancespecifier-is-wrong">16.3 What an Integrator Sees When an InstanceSpecifier Is Wrong</a></li><li class="lvl2"><a href="#17-end-to-end-walkthrough-a-drive-seen-through-aracom">17. End-to-End Walkthrough: A Drive Seen Through ara::com</a></li><li class="lvl3"><a href="#171-the-sequence">17.1 The Sequence</a></li><li class="lvl3"><a href="#172-step-by-step">17.2 Step by Step</a></li><li class="lvl2"><a href="#18-best-practices-pitfalls-and-troubleshooting">18. Best Practices, Pitfalls and Troubleshooting</a></li><li class="lvl3"><a href="#181-best-practices">18.1 Best Practices</a></li><li class="lvl3"><a href="#182-common-pitfalls">18.2 Common Pitfalls</a></li><li class="lvl3"><a href="#183-troubleshooting-guide">18.3 Troubleshooting Guide</a></li><li class="lvl2"><a href="#19-summary-and-self-check-quiz">19. Summary and Self-Check Quiz</a></li><li class="lvl3"><a href="#191-summary">19.1 Summary</a></li><li class="lvl3"><a href="#192-self-check-quiz">19.2 Self-Check Quiz</a></li><li class="lvl2"><a href="#appendix-a-glossary-and-acronyms">Appendix A. Glossary and Acronyms</a></li><li class="lvl3"><a href="#a1-acronyms">A.1 Acronyms</a></li><li class="lvl3"><a href="#a2-glossary">A.2 Glossary</a></li><li class="lvl2"><a href="#appendix-b-quick-reference-cheat-sheet">Appendix B. Quick Reference Cheat Sheet</a></li><li class="lvl3"><a href="#b1-provider-and-consumer-in-five-steps">B.1 Provider and Consumer in Five Steps</a></li><li class="lvl3"><a href="#b2-enumerations">B.2 Enumerations</a></li><li class="lvl3"><a href="#b3-error-codes">B.3 Error Codes</a></li><li class="lvl3"><a href="#b4-defaults-and-limits">B.4 Defaults and Limits</a></li><li class="lvl2"><a href="#appendix-c-spec-traceability">Appendix C. Spec Traceability</a></li><li class="lvl2"><a href="#appendix-d-notable-changes-in-recent-releases">Appendix D. Notable Changes in Recent Releases</a></li><li class="lvl2"><a href="#appendix-e-references">Appendix E. References</a></li></ul></aside>
 </div>

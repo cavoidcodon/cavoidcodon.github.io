@@ -10,11 +10,11 @@
 >
 > **Version:** 1.0 (draft, pending review)
 >
-> **Part of the series:** [AUTOSAR Adaptive Platform Training Guides](00_LearningPath.md). Previous: [11 Persistency](11_Persistency.md). Next: [12b Diagnostics Part 2](12b_Diagnostics.md).
+> **Part of the series:** [AUTOSAR Adaptive Platform Training Guides](../README.md). Previous: [Persistency](Persistency.md). Next: [Diagnostics Part 2](DiagnosticsPart2.md).
 
 ## About This Guide
 
-In the workshop, a technician connects a diagnostic tester to the vehicle, reads software versions, runs a calibration routine and resets an ECU. On the Adaptive Platform, the counterpart of the tester is the functional cluster *Diagnostic Management* (DM): a daemon that speaks the diagnostic protocol UDS over DoIP, checks every request against sessions, security levels and access rights, and forwards the requests that need application knowledge to the applications through a C++ API called `ara::diag`. Questions like "why does the tester get `0x7F`?", "who answers my DID when the process is not running?", "where do I configure that a routine needs the extended session?" or "how does a diagnostic ECU reset reach State Management?" are all questions about Diagnostic Management. This guide, the first of two, covers diagnostic communication: transport, conversations, request validation, sessions, security access, authentication, data identifiers, routines, ECU reset and the configuration behind them. Part 2 (guide 12b) covers diagnostic events, DTCs and the event memory, data and file transfer, and the service-oriented diagnostics SOVD.
+In the workshop, a technician connects a diagnostic tester to the vehicle, reads software versions, runs a calibration routine and resets an ECU. On the Adaptive Platform, the counterpart of the tester is the functional cluster *Diagnostic Management* (DM): a daemon that speaks the diagnostic protocol UDS over DoIP, checks every request against sessions, security levels and access rights, and forwards the requests that need application knowledge to the applications through a C++ API called `ara::diag`. Questions like "why does the tester get `0x7F`?", "who answers my DID when the process is not running?", "where do I configure that a routine needs the extended session?" or "how does a diagnostic ECU reset reach State Management?" are all questions about Diagnostic Management. This guide, the first of two, covers diagnostic communication: transport, conversations, request validation, sessions, security access, authentication, data identifiers, routines, ECU reset and the configuration behind them. Part 2 (the Diagnostics Part 2 guide) covers diagnostic events, DTCs and the event memory, data and file transfer, and the service-oriented diagnostics SOVD.
 
 ### Who This Guide Is For
 
@@ -22,7 +22,7 @@ In the workshop, a technician connects a diagnostic tester to the vehicle, reads
 - **Integrators and diagnostic authors** who configure sessions, security levels, DIDs, routines and their mapping to processes, and who configure DoIP on the machine.
 - **Platform developers** who implement a UDS transport protocol plug-in or need the exact processing rules of DM.
 
-Assumed background: modern C++ (C++17: futures, `std::function`, move semantics), basic Linux/POSIX and TCP/IP knowledge, and the idea of request and response protocols. You do not need prior AUTOSAR Adaptive or UDS knowledge; [Section 2.1](#21-uds-in-one-page) gives the UDS basics. Three guides of the series make this one easier: [02 Manifests and Methodology](02_Manifests.md) for ports, processes and Software Clusters, [03 `ara::core` and General Conventions](03_CoreAndGeneral.md) for `InstanceSpecifier`, `Result`, `Future` and violations, and [05 State Management](05_StateManagement.md) for the ECU reset path.
+Assumed background: modern C++ (C++17: futures, `std::function`, move semantics), basic Linux/POSIX and TCP/IP knowledge, and the idea of request and response protocols. You do not need prior AUTOSAR Adaptive or UDS knowledge; [Section 2.1](#21-uds-in-one-page) gives the UDS basics. Three guides of the series make this one easier: [Manifests and Methodology](Manifests.md) for ports, processes and Software Clusters, [`ara::core` and General Conventions](CoreAndGeneral.md) for `InstanceSpecifier`, `Result`, `Future` and violations, and [State Management](StateManagement.md) for the ECU reset path.
 
 ### Learning Objectives
 
@@ -62,15 +62,15 @@ If you write application code, read Chapters 1, 2, 7, 10 to 13 and 15 first. If 
 
 ### The Running Example
 
-All guides of the series use the same invented system. A high-performance ECU called **`HPC`** runs an ADAS feature. [Guide 00, Chapter 6](00_LearningPath.md#6-the-running-example-the-hpc-reference-system) defines the complete example; this section recaps the part that diagnostics needs.
+All guides of the series use the same invented system. A high-performance ECU called **`HPC`** runs an ADAS feature. The [Running Example guide](RunningExample.md) defines the complete example; this section recaps the part that diagnostics needs.
 
 - A **`DiagnosticTester`** in the workshop connects through the `CentralGateway` and sends UDS requests over DoIP (TCP port 13400) to `HPC`, which has the logical address `0x1010`; the tester uses `0x0E80`.
 - `HPC` runs two Software Clusters, `HpcPlatformCore` and `AdasCluster`. They share one diagnostic configuration and one diagnostic address.
 - **`Fusion`** runs only in `ADAS.Normal` and provides the DID `0x0101` `FusionSoftwareVersion`.
-- **`CameraDriver`** provides the routine `0x0201` `CalibrateCamera`, which measures the camera position and stores it with `SetCalibration` ([guide 07, Section 13.5](07_CommunicationManagement.md#135-worked-example-calibrationdataservice-over-local-ipc)).
-- **`SmControl`** implements `ara::diag::EcuResetRequest`; an ECU reset ends in `MachineFG.Restart` through the StateMachine `HpcController` ([guide 05, Section 11.2](05_StateManagement.md#112-diagnostics-ecu-reset-and-communication-control)).
+- **`CameraDriver`** provides the routine `0x0201` `CalibrateCamera`, which measures the camera position and stores it with `SetCalibration` (the [CM guide, Section 13.5](CommunicationManagement.md#135-worked-example-calibrationdataservice-over-local-ipc)).
+- **`SmControl`** implements `ara::diag::EcuResetRequest`; an ECU reset ends in `MachineFG.Restart` through the StateMachine `HpcController` (the [SM guide, Section 11.2](StateManagement.md#112-diagnostics-ecu-reset-and-communication-control)).
 
-This guide adds the following elements (guide 00 lists them as well):
+This guide adds the following elements (the Running Example guide lists them as well):
 
 | Element | What it is | Used in |
 | --- | --- | --- |
@@ -237,8 +237,8 @@ DM consists of two building blocks (SWS, Chapter 7):
 
 | Building block | Responsibility | Covered in |
 | --- | --- | --- |
-| Diagnostic Communication Management | Receives, checks, dispatches and answers diagnostic requests (UDS and SOVD) | This guide (UDS); [guide 12b](12b_Diagnostics.md#12-sovd-concepts-and-server-setup) (SOVD) |
-| Diagnostic Event Management | Collects diagnostic events from monitors, computes DTC status and keeps the event memory | [Guide 12b](12b_Diagnostics.md#1-introduction-to-fault-memory-and-sovd) |
+| Diagnostic Communication Management | Receives, checks, dispatches and answers diagnostic requests (UDS and SOVD) | This guide (UDS); the [Diagnostics Part 2 guide](DiagnosticsPart2.md#12-sovd-concepts-and-server-setup) (SOVD) |
+| Diagnostic Event Management | Collects diagnostic events from monitors, computes DTC status and keeps the event memory | [Diagnostics Part 2 guide](DiagnosticsPart2.md#1-introduction-to-fault-memory-and-sovd) |
 
 ### 1.2 What DM Does Not Do
 
@@ -252,7 +252,7 @@ R25-11 is explicit about the limits of DM (SWS, Section 4.1):
 | DoIP gateway functionality | DM does not route requests to sub-networks behind the machine |
 | Manufacturer- or supplier-specific checks of ISO 14229-1 Figure 6 | Use `ServiceValidation` instead ([Section 7.4](#74-manufacturer-and-supplier-checks-servicevalidation)) |
 | Restarting the machine | DM only calls the application that implements the ECU reset ([Chapter 12](#12-ecu-reset-communication-control-and-custom-services)) |
-| Storing keys and certificates | Cryptography (guide 14) |
+| Storing keys and certificates | Cryptography (the Cryptography guide) |
 
 ### 1.3 Analogies
 
@@ -309,7 +309,7 @@ Every request carries a **source address** (SA), the address of the tester, and 
 
 ### 2.3 Diagnostic Server Instances and Software Clusters
 
-A machine can host several Software Clusters ([guide 02, Section 10.4](02_Manifests.md#104-worked-example-adascluster-and-hpcplatformcore)). DM supports two approaches (SWS, Section 7.3):
+A machine can host several Software Clusters (the [Manifests guide, Section 10.4](Manifests.md#104-worked-example-adascluster-and-hpcplatformcore)). DM supports two approaches (SWS, Section 7.3):
 
 - each Software Cluster has its own diagnostic address and its own diagnostic configuration, the **`DiagnosticContributionSet`**; or
 - several Software Clusters share one diagnostic address and one `DiagnosticContributionSet`.
@@ -382,7 +382,7 @@ DM is split into a **UDS Transport Layer** and an **Application Layer** (SWS, Ch
 flowchart TB
     NET["Ethernet"] --> DOIP["DoIP Transport Protocol Handler"]
     NET --> CTP["Custom Transport Protocol Handler"]
-    NET --> HTTP["SOVD HTTP handler (guide 12b)"]
+    NET --> HTTP["SOVD HTTP handler (the Diagnostics Part 2 guide)"]
     DOIP --> TPM["Transport Protocol Manager"]
     CTP --> TPM
     TPM -->|"target address 0x1010 or 0xE400"| DS["Diagnostic Server instance of HPC: sessions, security, checks, dispatching"]
@@ -402,7 +402,7 @@ DM provides no interfaces to other functional clusters (SWS, Table 5.1). To appl
 | Control the ECU | `EcuResetRequest`, `CommunicationControl` |
 | Observe and filter | `Conversation`, `ServiceValidation` |
 | Support DoIP | `DoIPPowerMode`, `DoIPEntityIdentification`, `DoIPGroupIdentification`, `DoIPActivationLine`, `DoIPTriggerVehicleAnnouncement` |
-| Fault memory, data transfer, SOVD | [guide 12b](12b_Diagnostics.md) |
+| Fault memory, data transfer, SOVD | [Diagnostics Part 2 guide](DiagnosticsPart2.md) |
 
 ### 3.3 Interfaces Required by DM
 
@@ -437,14 +437,14 @@ DM accepts `ara::diag` interactions only from the processes that the correspondi
 
 ### 3.6 UDS and SOVD Side by Side
 
-SOVD (Service-Oriented Vehicle Diagnostics, ASAM) offers diagnostic functions as REST resources over HTTP(S): data, faults, operations, modes, configurations, bulk data and software updates. In DM, the same Diagnostic Server instances serve both; DM itself is an SOVD component, and each Diagnostic Server instance is a sub-component ([SWS_DM_01372], [SWS_DM_01373]). An SOVD lock gives one client exclusive access; UDS requests that conflict with it get NRC `0x21` ([SWS_DM_01375]). Guide 12b covers SOVD.
+SOVD (Service-Oriented Vehicle Diagnostics, ASAM) offers diagnostic functions as REST resources over HTTP(S): data, faults, operations, modes, configurations, bulk data and software updates. In DM, the same Diagnostic Server instances serve both; DM itself is an SOVD component, and each Diagnostic Server instance is a sub-component ([SWS_DM_01372], [SWS_DM_01373]). An SOVD lock gives one client exclusive access; UDS requests that conflict with it get NRC `0x21` ([SWS_DM_01375]). The Diagnostics Part 2 guide covers SOVD.
 
 > **Key takeaways**
 >
 > - DM has a transport layer (handlers, manager) and per-contribution-set Diagnostic Server instances.
 > - Applications provide data and functions through `ara::diag`; only mapped processes may do so.
 > - DM depends on Persistency, Cryptography, IdsM, Log and Trace, EM and PHM.
-> - SOVD shares the servers with UDS; it is covered in [guide 12b](12b_Diagnostics.md#12-sovd-concepts-and-server-setup).
+> - SOVD shares the servers with UDS; it is covered in the [Diagnostics Part 2 guide](DiagnosticsPart2.md#12-sovd-concepts-and-server-setup).
 
 ---
 
@@ -593,7 +593,7 @@ The entity status response contains the "max data size" only if `entityStatusMax
 
 ### 5.6 Securing DoIP with TLS
 
-A Diagnostic Server instance secures its DoIP connections with TLS according to ISO 13400-2, using the configuration referenced by `DoIpNetworkConfigurationDesign.networkConfiguration.secureComPropsForTcp` ([SWS_DM_01979]). The TLS concepts are the same as for service communication ([guide 08b, Chapter 6](08b_SecureAndSafeCommunication.md#6-tls-and-dtls)). `HPC` does not use TLS for DoIP: the workshop reaches it through the `CentralGateway`, and security relies on SecurityAccess and the firewall (guide 16).
+A Diagnostic Server instance secures its DoIP connections with TLS according to ISO 13400-2, using the configuration referenced by `DoIpNetworkConfigurationDesign.networkConfiguration.secureComPropsForTcp` ([SWS_DM_01979]). The TLS concepts are the same as for service communication (the [Secure Communication guide, Chapter 6](SecureAndSafeCommunication.md#6-tls-and-dtls)). `HPC` does not use TLS for DoIP: the workshop reaches it through the `CentralGateway`, and security relies on SecurityAccess and the firewall (the IDSM and Firewall guide).
 
 ### 5.7 Dispatching to Diagnostic Servers
 
@@ -900,7 +900,7 @@ stateDiagram-v2
 
 ### 8.4 Worked Example: Unlocking `HPC` for Calibration
 
-`HPC` has one security level, `Level1`, with RequestSeed `0x01` and SendKey `0x02`, 4-byte seed and key, 3 allowed failures and a 10 s delay (illustrative). `SmControl` provides it through the P-port `SecurityLevelPort`. The seed is random; the key is derived from the seed with a secret that Cryptography keeps (guide 14). The derivation below is a placeholder.
+`HPC` has one security level, `Level1`, with RequestSeed `0x01` and SendKey `0x02`, 4-byte seed and key, 3 allowed failures and a 10 s delay (illustrative). `SmControl` provides it through the P-port `SecurityLevelPort`. The seed is random; the key is derived from the seed with a secret that Cryptography keeps (the Cryptography guide). The derivation below is a placeholder.
 
 ```cpp
 // SmControl: provider of security level Level1 (illustrative).
@@ -929,7 +929,7 @@ public:
             const ara::diag::MetaInfo& /*metaInfo*/,
             ara::diag::CancellationHandler /*cancellationHandler*/) noexcept override {
         ara::core::Promise<ara::diag::KeyCompareResultType> promise;
-        const bool ok = KeyMatches(seed_, key);  // derivation with the secret of guide 14
+        const bool ok = KeyMatches(seed_, key);  // derivation with the secret of the Cryptography guide
         promise.set_value(ok ? ara::diag::KeyCompareResultType::kKeyValid
                              : ara::diag::KeyCompareResultType::kKeyInvalid);
         return promise.get_future();
@@ -997,7 +997,7 @@ The authentication state can also be set by other means than `0x29`, for example
 
 Authentication checks apply only where `DiagnosticAccessPermission.authenticationEnabled` exists ([SWS_DM_01739]). Then DM checks whether the client's roles are among the `authenticationRole`s of the access permission, in this order: service level, service and sub-function, DIDs, dynamically defined DIDs, routine sub-functions, and the memory selection of `0x19` and `0x14` ([SWS_DM_01223]). If no role grants access, the dynamic access list is tried ([SWS_DM_01224]). If both fail, the response is `0x34` `kAuthenticationRequired` ([SWS_DM_01225]).
 
-`HPC` does not configure Authentication in this guide; its workshop access relies on SecurityAccess. Guide 14 covers the certificates that an authentication setup would need.
+`HPC` does not configure Authentication in this guide; its workshop access relies on SecurityAccess. The Cryptography guide covers the certificates that an authentication setup would need.
 
 > **Key takeaways**
 >
@@ -1107,7 +1107,7 @@ public:
 
 Since the value never changes, the object is declared `kConcurrent`: two testers may read it at the same time ([Section 6.5](#65-pseudo-parallel-processing-and-re-entrant-applications)).
 
-**When `Fusion` is not running.** `Fusion` runs only in `ADAS.Normal` ([guide 00, Section 6.10](00_LearningPath.md#610-diagnostics)). In `ADAS.Off` or `ADAS.Degraded`, nobody has offered the provider, so DM answers `0x7F 22 94` (`kResourceTemporarilyNotAvailable`) ([SWS_DM_01257]). The same happens for a short time after `Fusion` starts and before it calls `Offer()`. If the workshop needs the version in every state, the version must be provided by a process that always runs, for example by `SmControl` with a `GenericDataIdentifier` that reads the installed versions from UCM (guide 13).
+**When `Fusion` is not running.** `Fusion` runs only in `ADAS.Normal` (the [Running Example guide, Section 1.10](RunningExample.md#110-diagnostics)). In `ADAS.Off` or `ADAS.Degraded`, nobody has offered the provider, so DM answers `0x7F 22 94` (`kResourceTemporarilyNotAvailable`) ([SWS_DM_01257]). The same happens for a short time after `Fusion` starts and before it calls `Offer()`. If the workshop needs the version in every state, the version must be provided by a process that always runs, for example by `SmControl` with a `GenericDataIdentifier` that reads the installed versions from UCM (the UCM guide).
 
 > **Pitfall:** Do not call `Offer()` before your object can answer. DM may call `Read` from its own thread as soon as `Offer()` returns, possibly before your process has finished its initialization.
 
@@ -1241,7 +1241,7 @@ The sub-functions enableRapidPowerShutdown and disableRapidPowerShutdown are for
 
 ### 12.4 CommunicationControl (0x28)
 
-CommunicationControl switches the transmission or reception of normal or network-management messages on or off, for example during reprogramming. DM checks the sub-function against `DiagnosticComControl.category` (`0x12` otherwise) and calls `ara::diag::CommunicationControl::CommCtrlRequest` with the `controlType`, `communicationType` and `nodeIdentificationNumber` of the request ([SWS_DM_00252], [SWS_DM_00865], [SWS_DM_00805]). An NRC from the application becomes the negative response; otherwise DM answers positively ([SWS_DM_00866], [SWS_DM_00199]). What "switching off communication" means on an AP machine is the application's decision. `HPC` does not support CommunicationControl ([guide 05, Section 11.2](05_StateManagement.md#112-diagnostics-ecu-reset-and-communication-control)).
+CommunicationControl switches the transmission or reception of normal or network-management messages on or off, for example during reprogramming. DM checks the sub-function against `DiagnosticComControl.category` (`0x12` otherwise) and calls `ara::diag::CommunicationControl::CommCtrlRequest` with the `controlType`, `communicationType` and `nodeIdentificationNumber` of the request ([SWS_DM_00252], [SWS_DM_00865], [SWS_DM_00805]). An NRC from the application becomes the negative response; otherwise DM answers positively ([SWS_DM_00866], [SWS_DM_00199]). What "switching off communication" means on an AP machine is the application's decision. `HPC` does not support CommunicationControl (the [SM guide, Section 11.2](StateManagement.md#112-diagnostics-ecu-reset-and-communication-control)).
 
 ### 12.5 Custom Services with `GenericUDSService`
 
@@ -1251,10 +1251,10 @@ DM supports custom diagnostic services ([SWS_DM_00502], [SWS_DM_00983]). An appl
 
 ### 12.6 Worked Example: ECU Reset Through `SmControl`
 
-`SmControl` implements `EcuResetRequest` on `EcuResetPort` ([guide 05, Section 11.2](05_StateManagement.md#112-diagnostics-ecu-reset-and-communication-control)). The DEXT configures hardReset and softReset with `respondBeforeReset`. Both restart the machine through `HpcController`; a project could map softReset to a restart of `AdasCluster` only.
+`SmControl` implements `EcuResetRequest` on `EcuResetPort` (the [SM guide, Section 11.2](StateManagement.md#112-diagnostics-ecu-reset-and-communication-control)). The DEXT configures hardReset and softReset with `respondBeforeReset`. Both restart the machine through `HpcController`; a project could map softReset to a restart of `AdasCluster` only.
 
 ```cpp
-// SmControl: ECU reset handler (illustrative; RequestTransition and the request IDs are from guide 05).
+// SmControl: ECU reset handler (illustrative; RequestTransition and the request IDs are from the SM guide).
 #include "ara/diag/ecu_reset_request.h"
 
 namespace hpc::smcontrol {
@@ -1300,11 +1300,11 @@ private:
 }  // namespace hpc::smcontrol
 ```
 
-`RequestReset` refuses the reset while the vehicle moves or an update session is active; guide 05 recommends the latter, because the Controller then answers `kUpdateInProgress` ([guide 05, Section 9.3](05_StateManagement.md#93-impactedbyupdate)). Because the response is sent before the reset, the tester sees `0x51 01` and then loses the DoIP connection while the machine restarts.
+`RequestReset` refuses the reset while the vehicle moves or an update session is active; the SM guide recommends the latter, because the Controller then answers `kUpdateInProgress` (the [SM guide, Section 9.3](StateManagement.md#93-impactedbyupdate)). Because the response is sent before the reset, the tester sees `0x51 01` and then loses the DoIP connection while the machine restarts.
 
 ### 12.7 Worked Example: `DegradeAdas`
 
-Guide 05 left the diagnostic trigger for `ADAS.Degraded` to this guide. It is the routine `0x0202` `DegradeAdas` (extended session, `Level1`, start only), provided by `SmControl` on `DegradeAdasPort`. Its `Start` sends the request `Degrade` (10) to `AdasAgent`, which switches `ADAS` to `Degraded` ([guide 05, Section 7.6](05_StateManagement.md#76-worked-example-hpccontroller-and-adasagent)). The future completes when State Management has accepted the request; the transition itself is reported by `AdasStatusService`. A workshop uses it to test the degraded mode without unplugging the camera.
+The SM guide left the diagnostic trigger for `ADAS.Degraded` to this guide. It is the routine `0x0202` `DegradeAdas` (extended session, `Level1`, start only), provided by `SmControl` on `DegradeAdasPort`. Its `Start` sends the request `Degrade` (10) to `AdasAgent`, which switches `ADAS` to `Degraded` (the [SM guide, Section 7.6](StateManagement.md#76-worked-example-hpccontroller-and-adasagent)). The future completes when State Management has accepted the request; the transition itself is reported by `AdasStatusService`. A workshop uses it to test the degraded mode without unplugging the camera.
 
 > **Key takeaways**
 >
@@ -1342,7 +1342,7 @@ Constructors of provider classes take a `ConcurrencyType` (`kConcurrent` or `kNo
 
 ### 13.4 Caching of Calls While DM Is Unavailable
 
-An application may call `ara::diag` methods while DM is not yet started or temporarily unreachable. For calls outside service processing, such as reporting monitor results or condition states, the `ara::diag` library caches the information and forwards it once DM is available. Methods that list `kServiceNotAvailable` as a possible error do not cache; they fail instead (SWS, Section 7.3.1.3). Most of these methods belong to the event part (guide 12b).
+An application may call `ara::diag` methods while DM is not yet started or temporarily unreachable. For calls outside service processing, such as reporting monitor results or condition states, the `ara::diag` library caches the information and forwards it once DM is available. Methods that list `kServiceNotAvailable` as a possible error do not cache; they fail instead (SWS, Section 7.3.1.3). Most of these methods belong to the event part (the Diagnostics Part 2 guide).
 
 ### 13.5 DM Startup, Shutdown and Crash
 
@@ -1362,7 +1362,7 @@ The startup procedure of DM is vendor-specific. At the latest when it is needed,
 
 > **Why this matters:** Many diagnostic integration problems are configuration problems: a DID without a service instance, a routine without a mapping, a missing access permission, a DoIP default that does not fit the tester. This chapter lists what DM reads, what each setting means and what happens at run time.
 
-The diagnostic configuration is part of the DEXT (CP TPS) and of the TPS Manifest. The tables give the attributes that diagnostic communication uses; fault-memory and SOVD attributes are in [guide 12b, Chapter 14](12b_Diagnostics.md#14-configuration-reference-what-to-configure). "Default" names a value only where the SWS specifies it; otherwise it says "not specified".
+The diagnostic configuration is part of the DEXT (CP TPS) and of the TPS Manifest. The tables give the attributes that diagnostic communication uses; fault-memory and SOVD attributes are in the [Diagnostics Part 2 guide, Chapter 14](DiagnosticsPart2.md#14-configuration-reference-what-to-configure). "Default" names a value only where the SWS specifies it; otherwise it says "not specified".
 
 ### 14.1 Minimal Configuration
 
@@ -1590,8 +1590,8 @@ SoftwareClusterDiagnosticDeploymentProps HpcDiagProps: { diagnosticExtract: HpcD
 
 | Choice | Value | Why |
 | --- | --- | --- |
-| One contribution set | shared by both Software Clusters | One diagnostic address for the whole machine (guide 00) |
-| Sessions | default, extended | Programming session belongs to guide 13 |
+| One contribution set | shared by both Software Clusters | One diagnostic address for the whole machine (the Running Example guide) |
+| Sessions | default, extended | Programming session belongs to the UCM guide |
 | `Level1` for routines and reset | 3 attempts, 10 s | Calibration and resets change the vehicle |
 | `FusionSoftwareVersion` in both sessions | no security | Version reading is harmless |
 | `respondBeforeReset` | | The tester gets an answer before the connection drops |
@@ -1643,7 +1643,7 @@ All provider classes share one pattern:
 4. **Answer** with an `ara::core::Future`: a value, or an error of `DiagUdsNrcErrorDomain` that DM turns into an NRC ([SWS_DM_02060]).
 5. **Respect** `MetaInfo` (valid only during the call) and the `CancellationHandler` (`IsCanceled`, `SetNotifier`).
 
-Futures and promises are the `ara::core` types ([guide 03, Chapter 9](03_CoreAndGeneral.md#9-future-and-promise-asynchronous-results)).
+Futures and promises are the `ara::core` types (the [Core guide, Chapter 9](CoreAndGeneral.md#9-future-and-promise-asynchronous-results)).
 
 ### 15.3 Data Identifier Classes
 
@@ -1707,7 +1707,7 @@ Futures and promises are the `ara::core` types ([guide 03, Chapter 9](03_CoreAnd
 | `DiagUdsNrcErrorDomain` | `DiagUdsNrcErrc`: the ISO 14229-1 NRCs, for example `kGeneralReject` `0x10`, `kServiceNotSupported` `0x11`, `kSubFunctionNotSupported` `0x12`, `kIncorrectMessageLengthOrInvalidFormat` `0x13`, `kBusyRepeatRequest` `0x21`, `kConditionsNotCorrect` `0x22`, `kRequestSequenceError` `0x24`, `kRequestOutOfRange` `0x31`, `kSecurityAccessDenied` `0x33`, `kAuthenticationRequired` `0x34`, `kInvalidKey` `0x35`, `kRequestCorrectlyReceivedResponsePending` `0x78`, `kResourceTemporarilyNotAvailable` `0x94` | Negative responses from applications | [SWS_DM_00526], [SWS_DM_00536], [SWS_DM_00537] |
 | `DiagOfferErrorDomain` | `DiagOfferErrc`: `kAlreadyOffered` 101, `kConfigurationMismatch` 102, `kDebouncingConfigurationInconsistent` 103 | `Offer()` | [SWS_DM_00559] |
 | `DiagErrorDomain` | `DiagErrc`: 101 to 118, for example `kNotOffered` 106, `kBusy` 109, `kServiceNotAvailable` 118 | Other `ara::diag` calls | [SWS_DM_00514] |
-| `DiagReportingErrorDomain` | `DiagReportingErrc` | Event reporting ([guide 12b](12b_Diagnostics.md#1511-error-codes)) | [SWS_DM_00560] |
+| `DiagReportingErrorDomain` | `DiagReportingErrc` | Event reporting (the [Diagnostics Part 2 guide](DiagnosticsPart2.md#1511-error-codes)) | [SWS_DM_00560] |
 
 ### 15.9 The UDS Transport Layer Interface for Platform Developers
 
@@ -1796,7 +1796,7 @@ private:
 }  // namespace hpc::camera
 ```
 
-`CameraDriver` creates the object with `/camera_driver/Root/CalibrateCameraPort` once its camera and its `CalibrationDataService` proxy are ready, then calls `Offer()`. Because the routine needs the extended session and `Level1`, DM never calls `Start` in the default session ([Section 7.8](#78-worked-example-why-the-tester-gets-0x7f)). `Calibrator` is `CameraDriver`'s own class; `Store` calls `SetCalibration` with a timeout ([guide 07, Section 8.6](07_CommunicationManagement.md#86-implementing-a-method-in-the-skeleton)).
+`CameraDriver` creates the object with `/camera_driver/Root/CalibrateCameraPort` once its camera and its `CalibrationDataService` proxy are ready, then calls `Offer()`. Because the routine needs the extended session and `Level1`, DM never calls `Start` in the default session ([Section 7.8](#78-worked-example-why-the-tester-gets-0x7f)). `Calibrator` is `CameraDriver`'s own class; `Store` calls `SetCalibration` with a timeout (the [CM guide, Section 8.6](CommunicationManagement.md#86-implementing-a-method-in-the-skeleton)).
 
 > **Note:** If the DEXT defines no `stop` sub-function, the generated class may not contain `Stop` at all; the code above shows it for completeness. The status value before the first start (`kIdle`) is project-specific.
 
@@ -1831,7 +1831,7 @@ DM reports standardized security events to the IdsM through `EventReporter` ([SW
 | Access control | `SEV_ACCESS_CONTROL_DM_IAM_ACCESS_DENIED` | [SWS_DM_02131] to [SWS_DM_02133] |
 | DoIP | `SEV_DOIP_HEADER_CHECK_FAILED`, `SEV_DOIP_ROUTING_ACTIVATION_CHECK_FAILED`, `SEV_DOIP_ROUTING_ACTIVATION_SUCCESS`, `SEV_DOIP_DIAG_MESSAGE_CHECK_FAILED` | [SWS_DM_02134] to [SWS_DM_02141] |
 
-Guide 16 explains how the IdsM qualifies and stores these events.
+The IDSM and Firewall guide explains how the IdsM qualifies and stores these events.
 
 ### 16.2 Log Messages and Violations
 
@@ -1897,7 +1897,7 @@ What happens, step by step, with the sections that explain it:
 2. **Read the version (2-5).** A new conversation starts in the default session. `FusionSoftwareVersion` is allowed there without security, and `Fusion` is running, so the read succeeds ([Section 10.7](#107-worked-example-fusionsoftwareversion)). Had `ADAS` been `Degraded`, the answer would have been `0x7F 22 94`.
 3. **Extended session (6-7).** DM switches the conversation; S3 starts with every response ([Section 8.1](#81-diagnosticsessioncontrol-and-the-s3-timer)). From now on, a second tester with a lower priority is refused.
 4. **Unlock (8-14).** `SmControl` computes the seed and checks the key ([Section 8.4](#84-worked-example-unlocking-hpc-for-calibration)). DM reports `SEV_UDS_SECURITY_ACCESS_SUCCESSFUL` to the IdsM ([Section 16.1](#161-security-events)).
-5. **Calibrate (15-21).** The routine is allowed in the extended session at `Level1`. `CameraDriver` measures and stores the result through `SetCalibration`; the tester polls results and keeps the session alive with TesterPresent ([Section 11.4](#114-worked-example-calibratecamera)). `Storage` syncs `CalibrationKvs` (guide 11).
+5. **Calibrate (15-21).** The routine is allowed in the extended session at `Level1`. `CameraDriver` measures and stores the result through `SetCalibration`; the tester polls results and keeps the session alive with TesterPresent ([Section 11.4](#114-worked-example-calibratecamera)). `Storage` syncs `CalibrationKvs` (the Persistency guide).
 6. **Reset (22-26).** `SmControl` accepts the reset (vehicle standing, no update session); DM answers `0x51 01` before the reset and calls `ExecuteReset`; State Management restarts the machine ([Section 12.6](#126-worked-example-ecu-reset-through-smcontrol)). At the next ADAS start, `CalibrationCheck` reads the new calibration.
 
 > **Key takeaways**
@@ -1944,7 +1944,7 @@ What happens, step by step, with the sections that explain it:
 
 | Symptom | Likely cause | What to check |
 | --- | --- | --- |
-| Tester finds no ECU | DoIP not configured, wrong interface, firewall | DoIP configuration, `networkInterfaceId`, firewall rules (guide 16) |
+| Tester finds no ECU | DoIP not configured, wrong interface, firewall | DoIP configuration, `networkInterfaceId`, firewall rules (the IDSM and Firewall guide) |
 | Routing activation fails | Source address not accepted, too many connections | `maxTesterConnections`, security event `SEV_DOIP_ROUTING_ACTIVATION_CHECK_FAILED` |
 | `0x11` for a service | No service instance in the contribution set | Service table |
 | `0x7F` | Service not allowed in this session | Access permission, current session |
@@ -2142,7 +2142,7 @@ The error `kNoProcessingNoResponse` ([SWS_DM_00860]; [Section 7.4](#74-manufactu
 | Security level | A level unlocked with SecurityAccess `0x27` by seed and key. |
 | Session | A mode of the conversation that unlocks services, switched with `0x10`. |
 | SID | Service identifier, the first byte of a UDS request. |
-| SOVD | Service-Oriented Vehicle Diagnostics (ASAM); covered in [guide 12b](12b_Diagnostics.md#27-sovd-in-one-page). |
+| SOVD | Service-Oriented Vehicle Diagnostics (ASAM); covered in the [Diagnostics Part 2 guide](DiagnosticsPart2.md#27-sovd-in-one-page). |
 | Transport Protocol Handler | A plug-in that implements a UDS transport protocol, such as DoIP. |
 | Transport Protocol Manager | The part of DM that dispatches messages between handlers and servers. |
 | UDS | Unified Diagnostic Services (ISO 14229-1). |
@@ -2156,7 +2156,7 @@ The error `kNoProcessingNoResponse` ([SWS_DM_00860]; [Section 7.4](#74-manufactu
 | --- | --- | --- | --- |
 | `0x10` | DiagnosticSessionControl | internal | 8.1 |
 | `0x11` | ECUReset | external (`EcuResetRequest`) | 12 |
-| `0x14`, `0x19` | ClearDiagnosticInformation, ReadDTCInformation | internal | [12b](12b_Diagnostics.md#10-reading-clearing-and-controlling-the-fault-memory-over-uds) |
+| `0x14`, `0x19` | ClearDiagnosticInformation, ReadDTCInformation | internal | [Diagnostics Part 2](DiagnosticsPart2.md#10-reading-clearing-and-controlling-the-fault-memory-over-uds) |
 | `0x22`, `0x2E` | Read / WriteDataByIdentifier | internal and external / external | 10 |
 | `0x27` | SecurityAccess | internal and external (`SecurityAccess`) | 8.2 |
 | `0x28` | CommunicationControl | external | 12.4 |
@@ -2164,9 +2164,9 @@ The error `kNoProcessingNoResponse` ([SWS_DM_00860]; [Section 7.4](#74-manufactu
 | `0x2A` | ReadDataByPeriodicIdentifier (scheduler type 1) | internal | 10.6 |
 | `0x2C` | DynamicallyDefineDataIdentifier (no defineByMemoryAddress) | internal | 10.6 |
 | `0x31` | RoutineControl | external | 11 |
-| `0x34` to `0x38` | Download, upload, transfer, file transfer | external | [12b](12b_Diagnostics.md#11-data-transfer-and-file-transfer), 13 |
+| `0x34` to `0x38` | Download, upload, transfer, file transfer | external | [Diagnostics Part 2](DiagnosticsPart2.md#11-data-transfer-and-file-transfer), 13 |
 | `0x3E` | TesterPresent | internal | 8.1 |
-| `0x85`, `0x86` | ControlDTCSetting (ON/OFF), ResponseOnEvent | internal | [12b](12b_Diagnostics.md#104-0x85-controldtcsetting) |
+| `0x85`, `0x86` | ControlDTCSetting (ON/OFF), ResponseOnEvent | internal | [Diagnostics Part 2](DiagnosticsPart2.md#104-0x85-controldtcsetting) |
 | not supported | `0x23`, `0x24`, `0x2F`, `0x3D`, `0x83`, `0x84`, `0x87`, OBD | – | 1.2 |
 
 **NRCs produced by DM checks:** `0x10` pending limit; `0x11` service; `0x12` sub-function; `0x13` length or format; `0x21` busy or refused; `0x22` condition; `0x31` identifier; `0x33` security; `0x34` authentication; `0x35`, `0x36`, `0x37` security access attempts; `0x78` pending; `0x7E`, `0x7F` session; `0x94` provider not offered.
@@ -2232,4 +2232,4 @@ This summary is based on the history appendix of the specification (SWS, Appendi
 
 ---
 
-*End of the training guide. For normative details, always refer to `AUTOSAR_AP_SWS_Diagnostics` (R25-11) and to the specifications it references, in particular the Manifest Specification and the Diagnostic Extract Template. [Part 2 (guide 12b)](12b_Diagnostics.md) continues with diagnostic events, DTCs, data transfer and SOVD.*
+*End of the training guide. For normative details, always refer to `AUTOSAR_AP_SWS_Diagnostics` (R25-11) and to the specifications it references, in particular the Manifest Specification and the Diagnostic Extract Template. [Part 2 (the Diagnostics Part 2 guide)](DiagnosticsPart2.md) continues with diagnostic events, DTCs, data transfer and SOVD.*

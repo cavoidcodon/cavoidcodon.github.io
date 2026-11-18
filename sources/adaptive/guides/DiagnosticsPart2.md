@@ -10,11 +10,11 @@
 >
 > **Version:** 1.0 (draft, pending review)
 >
-> **Part of the series:** [AUTOSAR Adaptive Platform Training Guides](00_LearningPath.md). Previous: [12a Diagnostics Part 1](12a_Diagnostics.md). Next: 13 Update and Configuration Management (`13_UpdateAndConfigurationManagement.md`, planned).
+> **Part of the series:** [AUTOSAR Adaptive Platform Training Guides](../README.md). Previous: [Diagnostics Part 1](DiagnosticsPart1.md). Next: Update and Configuration Management (`UpdateAndConfigManagement.md`, planned).
 
 ## About This Guide
 
-A camera that is covered by snow, a sensor with a broken wire, a process that cannot reach its partner: an ECU must notice such faults, decide when a fault is real, remember it across power cycles together with the circumstances in which it happened, and tell the workshop about it. On the Adaptive Platform this is the job of *Diagnostic Event Management*, the second half of Diagnostic Management (DM). Applications run *monitors* and report their results through `ara::diag`; DM debounces the results, keeps the status of each *diagnostic event*, turns events into *Diagnostic Trouble Codes* (DTCs), stores them in the *event memory* with snapshot and extended data, ages them out, and answers the tester's requests to read and clear them. The same server also moves bulk data and files between tester and ECU, and offers all of this to modern clients through *Service-Oriented Vehicle Diagnostics* (SOVD), a REST API over HTTPS. Questions like "why is my DTC pending but not confirmed?", "why does the tester get NRC `0x22` when it clears the fault memory?", "who restarts the operation cycle?" or "how does an SOVD client read the same fault?" are all answered here. [Guide 12a](12a_Diagnostics.md) covers diagnostic communication: transport, conversations, request validation, sessions, security, DIDs and routines.
+A camera that is covered by snow, a sensor with a broken wire, a process that cannot reach its partner: an ECU must notice such faults, decide when a fault is real, remember it across power cycles together with the circumstances in which it happened, and tell the workshop about it. On the Adaptive Platform this is the job of *Diagnostic Event Management*, the second half of Diagnostic Management (DM). Applications run *monitors* and report their results through `ara::diag`; DM debounces the results, keeps the status of each *diagnostic event*, turns events into *Diagnostic Trouble Codes* (DTCs), stores them in the *event memory* with snapshot and extended data, ages them out, and answers the tester's requests to read and clear them. The same server also moves bulk data and files between tester and ECU, and offers all of this to modern clients through *Service-Oriented Vehicle Diagnostics* (SOVD), a REST API over HTTPS. Questions like "why is my DTC pending but not confirmed?", "why does the tester get NRC `0x22` when it clears the fault memory?", "who restarts the operation cycle?" or "how does an SOVD client read the same fault?" are all answered here. The [Diagnostics Part 1 guide](DiagnosticsPart1.md) covers diagnostic communication: transport, conversations, request validation, sessions, security, DIDs and routines.
 
 ### Who This Guide Is For
 
@@ -22,7 +22,7 @@ A camera that is covered by snow, a sensor with a broken wire, a process that ca
 - **Integrators and diagnostic authors** who configure events, DTCs, debouncing, event memories, records, aging and the SOVD server.
 - **Platform developers** who need the exact rules of the DTC status byte, the event memory and the SOVD mapping.
 
-Assumed background: modern C++ (C++17: futures, `std::function`, `std::variant`), basic Linux/POSIX, the idea of HTTP and JSON, and [guide 12a](12a_Diagnostics.md), at least its Chapters 1 to 4. You do not need to know ISO 14229-1 (UDS); [Section 2.2](#22-event-status-and-the-uds-dtc-status-byte) explains the DTC status bits that matter. Two other guides help: [02 Manifests and Methodology](02_Manifests.md) for ports, processes and Software Clusters, and [03 `ara::core` and General Conventions](03_CoreAndGeneral.md) for `InstanceSpecifier`, `Result`, `Future` and violations.
+Assumed background: modern C++ (C++17: futures, `std::function`, `std::variant`), basic Linux/POSIX, the idea of HTTP and JSON, and the [Diagnostics Part 1 guide](DiagnosticsPart1.md), at least its Chapters 1 to 4. You do not need to know ISO 14229-1 (UDS); [Section 2.2](#22-event-status-and-the-uds-dtc-status-byte) explains the DTC status bits that matter. Two other guides help: [Manifests and Methodology](Manifests.md) for ports, processes and Software Clusters, and [`ara::core` and General Conventions](CoreAndGeneral.md) for `InstanceSpecifier`, `Result`, `Future` and violations.
 
 ### Learning Objectives
 
@@ -63,14 +63,14 @@ If you write monitors, read Chapters 1, 2, 5 to 8 and 15 first. If you configure
 
 ### The Running Example
 
-All guides of the series use the same invented system. A high-performance ECU called **`HPC`** runs an ADAS feature. [Guide 00, Chapter 6](00_LearningPath.md#6-the-running-example-the-hpc-reference-system) defines the complete example; [guide 12a](12a_Diagnostics.md#the-running-example) adds the diagnostic communication. This guide uses:
+All guides of the series use the same invented system. A high-performance ECU called **`HPC`** runs an ADAS feature. The [Running Example guide](RunningExample.md) defines the complete example; the [Diagnostics Part 1 guide](DiagnosticsPart1.md#the-running-example) adds the diagnostic communication. This guide uses:
 
 - **`CameraDriver`** drives the front camera, 30 images per second. Its diagnostic monitor detects a **blocked camera** (dark or frozen image) and reports the diagnostic event **`CameraBlocked`**, which maps to the DTC **`0x9A1011`**.
 - **`SmControl`** knows the power mode (`PowerModeService`, values `Off` and `On`) and the vehicle speed (`VehicleDynamicsService`). It owns the operation cycle and two conditions, and provides the vehicle speed for the snapshot record.
-- **`Storage`** keeps the object-list recordings ([guide 11](11_Persistency.md)); the workshop can read them as files.
+- **`Storage`** keeps the object-list recordings (the [Persistency guide](Persistency.md)); the workshop can read them as files.
 - The **`DiagnosticTester`** (UDS over DoIP, logical address `0x0E80`) and an **SOVD client** in the workshop read and clear the fault.
 
-This guide adds the following elements (guide 00 lists them as well). All values are illustrative.
+This guide adds the following elements (the Running Example guide lists them as well). All values are illustrative.
 
 | Element | What it is | Used in |
 | --- | --- | --- |
@@ -241,13 +241,13 @@ This guide adds the following elements (guide 00 lists them as well). All values
 
 **In plain words:** Diagnostic Event Management is the ECU's fault diary. Applications tell it "this check passed" or "this check failed". It filters out noise, decides when a failure is real, gives the fault a code, writes it into a persistent diary together with some surrounding data, and keeps or forgets the entry according to rules. The workshop reads and erases the diary.
 
-**Formally:** Diagnostic Event Management is one of the two building blocks of DM (SWS, Chapter 7; [guide 12a, Section 1.1](12a_Diagnostics.md#11-what-is-diagnostic-management)). Diagnostic events are the input source of Diagnostic Event Management: applications report the state of a monitored entity, and DM performs defined actions such as DTC status changes and the capture and storage of snapshot and extended data records (SWS, Section 7.3.4.1.1). The *event memory* is the database for detected faults; it corresponds to the "fault memory" of ISO 14229-1 (SWS, Section 7.3.4.4). DM supports a primary event memory and up to 256 user-defined event memories ([SWS_DM_00055]).
+**Formally:** Diagnostic Event Management is one of the two building blocks of DM (SWS, Chapter 7; the [Diagnostics Part 1 guide, Section 1.1](DiagnosticsPart1.md#11-what-is-diagnostic-management)). Diagnostic events are the input source of Diagnostic Event Management: applications report the state of a monitored entity, and DM performs defined actions such as DTC status changes and the capture and storage of snapshot and extended data records (SWS, Section 7.3.4.1.1). The *event memory* is the database for detected faults; it corresponds to the "fault memory" of ISO 14229-1 (SWS, Section 7.3.4.4). DM supports a primary event memory and up to 256 user-defined event memories ([SWS_DM_00055]).
 
 ### 1.2 What This Guide Covers
 
 Diagnostic Management is split over two guides. The split follows the two building blocks, plus the topics that need both.
 
-| Topic | Guide 12a | Guide 12b (this guide) |
+| Topic | Diagnostics Part 1 guide | Diagnostics Part 2 guide (this guide) |
 | --- | --- | --- |
 | Transport (DoIP), dispatching, conversations | yes | — |
 | Request validation, sessions, SecurityAccess, authentication | yes | used |
@@ -255,7 +255,7 @@ Diagnostic Management is split over two guides. The split follows the two buildi
 | Diagnostic events, monitors, debouncing, operation cycles, conditions | — | yes |
 | DTCs, status byte, event memory, snapshot and extended data, aging, displacement | — | yes |
 | UDS `0x14`, `0x19`, `0x85`, `0x86` | listed | yes |
-| Data and file transfer `0x34` to `0x38` | listed | yes (the update path itself is in guide 13) |
+| Data and file transfer `0x34` to `0x38` | listed | yes (the update path itself is in the UCM guide) |
 | SOVD | orientation | yes |
 
 What DM does **not** do in this area (SWS, Section 4.1): no OBD or WWH-OBD DTCs, no mirror memory, several `0x19` sub-functions are missing, `0x85` supports only ON and OFF, `0x86` has no event queuing, and variant handling of events and DTCs at run time is not supported. [Appendix B](#appendix-b-quick-reference-cheat-sheet) lists the details.
@@ -268,7 +268,7 @@ What DM does **not** do in this area (SWS, Section 4.1): no OBD or WWH-OBD DTCs,
 
 ### 1.4 Fault Memory and ARA
 
-The fault-memory part of `ara::diag` is a set of small classes, each bound to one port of the application by an `InstanceSpecifier`, like the classes of [guide 12a](12a_Diagnostics.md#14-dm-and-ara). Most of them are *required* ports: the application uses a function of DM, for example to report a monitor result or to restart an operation cycle. DM is daemon-based and persists the event memory with Persistency (SWS, Table 5.2).
+The fault-memory part of `ara::diag` is a set of small classes, each bound to one port of the application by an `InstanceSpecifier`, like the classes of the [Diagnostics Part 1 guide](DiagnosticsPart1.md#14-dm-and-ara). Most of them are *required* ports: the application uses a function of DM, for example to report a monitor result or to restart an operation cycle. DM is daemon-based and persists the event memory with Persistency (SWS, Table 5.2).
 
 ```mermaid
 flowchart LR
@@ -423,7 +423,7 @@ Each fault-memory class is constructed with the `InstanceSpecifier` of a port wh
 | `FileTransferService` | `DiagnosticRequestFileTransferInterface` | `DiagnosticServiceGenericMapping` | P-port | File provider |
 | SOVD classes | `DiagnosticSovd...Interface` | `DiagnosticSovd...PortMapping` | P-port | SOVD provider |
 
-Two classes look like providers although the TPS uses R-ports: `Monitor` has `Offer()` and `StopOffer()` because DM calls its `initMonitor` notifier (SWS, Section 7.3.4.1.2), and the typed extended data record element has `Offer()`, `StopOffer()` and a pure virtual `Read` (SWS, Section 8.49) while its mapping references an `RPortPrototype` ([TPS_MANI_01484]). This is the same kind of difference as the R-port wording for DIDs that [guide 12a, Section 10.3](12a_Diagnostics.md#103-four-ways-to-provide-a-did) discusses: follow the TPS for the port kind and the API for the code.
+Two classes look like providers although the TPS uses R-ports: `Monitor` has `Offer()` and `StopOffer()` because DM calls its `initMonitor` notifier (SWS, Section 7.3.4.1.2), and the typed extended data record element has `Offer()`, `StopOffer()` and a pure virtual `Read` (SWS, Section 8.49) while its mapping references an `RPortPrototype` ([TPS_MANI_01484]). This is the same kind of difference as the R-port wording for DIDs that the [Diagnostics Part 1 guide, Section 10.3](DiagnosticsPart1.md#103-four-ways-to-provide-a-did) discusses: follow the TPS for the port kind and the API for the code.
 
 ### 3.2 Who Calls Whom
 
@@ -614,7 +614,7 @@ sequenceDiagram
 | `kFreezeDebouncing` (`0x06`) | freeze the debounce timer | no | yes | no |
 | `kResetDebouncing` (`0x07`) | reset the debounce counter or timer | yes | yes | no |
 
-If a monitor reports an action that its debouncing does not support, DM triggers a violation in the process of the monitor ([SWS_DM_01988]): the `UnexpectedMonitorActionHandlingViolation` of [SWS_DM_00543]. A violation terminates the process ([guide 03](03_CoreAndGeneral.md)).
+If a monitor reports an action that its debouncing does not support, DM triggers a violation in the process of the monitor ([SWS_DM_01988]): the `UnexpectedMonitorActionHandlingViolation` of [SWS_DM_00543]. A violation terminates the process (the [Core guide](CoreAndGeneral.md)).
 
 > **Pitfall:** Reporting `kPrefailed` for an event that is configured as monitor-internal in the DEXT is a violation, not a harmless no-op. The DEXT configuration overrides the constructor ([SWS_DM_01099]), so a monitor written for counter-based debouncing breaks when the diagnostic designer switches the event to monitor-internal debouncing.
 
@@ -921,7 +921,7 @@ If any clear condition of a DTC is `kConditionFalse`, the clear is *forbidden* (
 
 ### 7.4 Worked Example: `SmControl` Owns the Cycle and the Conditions
 
-`SmControl` already receives `PowerMode` (values `Off` and `On`) and `VehicleSpeed` ([guide 00, Section 6.6](00_LearningPath.md#66-services-and-their-consumers)). It gets three R-ports for the fault memory: `IgnitionCyclePort` (`DiagnosticOperationCycleInterface`), `PowerModeOnConditionPort` and `StandstillClearConditionPort` (both `DiagnosticConditionInterface`).
+`SmControl` already receives `PowerMode` (values `Off` and `On`) and `VehicleSpeed` (the [Running Example guide, Section 1.6](RunningExample.md#16-services-and-their-consumers)). It gets three R-ports for the fault memory: `IgnitionCyclePort` (`DiagnosticOperationCycleInterface`), `PowerModeOnConditionPort` and `StandstillClearConditionPort` (both `DiagnosticConditionInterface`).
 
 ```cpp
 // SmControl: operation cycle and conditions for Diagnostic Event Management (illustrative).
@@ -1247,7 +1247,7 @@ For `0x19` sub-functions `0x02` and `0x17` ([SWS_DM_01566]), DM reports DTCs in 
 
 ### 9.9 Worked Example: The Entry of `0x9A1011`
 
-`HpcPrimaryMemory` is the primary memory with 20 entries, displacement `full`, storage trigger `testFailed`, numbering `calculated`; `0x9A1011` allows 2 snapshot records. The snapshot content `CameraBlockedSnapshot` holds the DID `0x0102` `VehicleSpeed` (2 bytes, unsigned, 0.01 km/h per bit), which `SmControl` provides through the typed DID interface on its P-port `VehicleSpeedDidPort` like the DIDs of [guide 12a, Section 10.7](12a_Diagnostics.md#107-worked-example-fusionsoftwareversion). The extended data records are internal:
+`HpcPrimaryMemory` is the primary memory with 20 entries, displacement `full`, storage trigger `testFailed`, numbering `calculated`; `0x9A1011` allows 2 snapshot records. The snapshot content `CameraBlockedSnapshot` holds the DID `0x0102` `VehicleSpeed` (2 bytes, unsigned, 0.01 km/h per bit), which `SmControl` provides through the typed DID interface on its P-port `VehicleSpeedDidPort` like the DIDs of the [Diagnostics Part 1 guide, Section 10.7](DiagnosticsPart1.md#107-worked-example-fusionsoftwareversion). The extended data records are internal:
 
 | Record | Element | `dataProvider` |
 | --- | --- | --- |
@@ -1282,7 +1282,7 @@ A snapshot record in a UDS response is: record number, number of DIDs, then each
 
 > **Why this matters:** The workshop meets the fault memory through four UDS services. Which sub-functions exist, which NRC a refused clear produces and how a forgotten "DTC setting off" disables the whole fault memory are questions that every diagnostic integrator gets asked.
 
-All four services are processed internally by DM (SWS, Table 7.2): no application code is needed, only configuration. The general checks of [guide 12a, Chapter 7](12a_Diagnostics.md#7-request-validation-and-response-handling) (service support, session, security, environmental conditions) apply first.
+All four services are processed internally by DM (SWS, Table 7.2): no application code is needed, only configuration. The general checks of the [Diagnostics Part 1 guide, Chapter 7](DiagnosticsPart1.md#7-request-validation-and-response-handling) (service support, session, security, environmental conditions) apply first.
 
 ### 10.1 `0x19` ReadDTCInformation
 
@@ -1361,7 +1361,7 @@ Rules: one ResponseOnEvent logic is active per session; the client that starts i
 
 ### 10.6 Worked Example: The Workshop Reads, Inspects and Clears `0x9A1011`
 
-The `DiagnosticTester` (`0x0E80`) is connected over DoIP to `HPC` (`0x1010`) as in [guide 12a, Section 5.9](12a_Diagnostics.md#59-worked-example-diagnostictester-connects-to-hpc). `0x19` and `0x14` are allowed in both sessions without security; `dtcStatusAvailabilityMask` is `0xFF`. The vehicle stands still.
+The `DiagnosticTester` (`0x0E80`) is connected over DoIP to `HPC` (`0x1010`) as in the [Diagnostics Part 1 guide, Section 5.9](DiagnosticsPart1.md#59-worked-example-diagnostictester-connects-to-hpc). `0x19` and `0x14` are allowed in both sessions without security; `dtcStatusAvailabilityMask` is `0xFF`. The vehicle stands still.
 
 ```mermaid
 sequenceDiagram
@@ -1449,11 +1449,11 @@ The DEXT allows an access permission only on the level of the `DiagnosticRequest
 
 ### 11.5 Software Update through Diagnostics
 
-UCM does not expose diagnostic services; a *UCM client* forwards the data stream and the control commands (SWS UCM, Section 7.2). For a workshop update over UDS, a *diagnostic application* implements `DownloadService` (or `FileTransferService`) and routines, and calls the `PackageManagement` service of UCM, or of V-UCM for a vehicle update (SWS UCM, Table 7.1). For SOVD, the same role is played by the implementer of `SovdSwUpdate` ([Section 13.6](#136-configuration-bulk-data-and-software-update)). Guide 13 describes the update itself; `HPC` receives its updates from V-UCM ([guide 00, Section 6.11](00_LearningPath.md#611-software-updates)).
+UCM does not expose diagnostic services; a *UCM client* forwards the data stream and the control commands (SWS UCM, Section 7.2). For a workshop update over UDS, a *diagnostic application* implements `DownloadService` (or `FileTransferService`) and routines, and calls the `PackageManagement` service of UCM, or of V-UCM for a vehicle update (SWS UCM, Table 7.1). For SOVD, the same role is played by the implementer of `SovdSwUpdate` ([Section 13.6](#136-configuration-bulk-data-and-software-update)). The UCM guide describes the update itself; `HPC` receives its updates from V-UCM (the [Running Example guide, Section 1.11](RunningExample.md#111-software-updates)).
 
 ### 11.6 Worked Example: Reading a Recording from `Storage`
 
-`Storage` keeps object-list recordings in the File Storage `Recordings` ([guide 11](11_Persistency.md)). For the workshop, it provides `FileTransferService` on the P-port `RecordingsTransferPort` of `StorageSwc`, mapped by a `DiagnosticServiceGenericMapping` to the `DiagnosticRequestFileTransfer` instance. Only ReadFile and ReadDir are supported, in the extended session at `Level1`.
+`Storage` keeps object-list recordings in the File Storage `Recordings` (the [Persistency guide](Persistency.md)). For the workshop, it provides `FileTransferService` on the P-port `RecordingsTransferPort` of `StorageSwc`, mapped by a `DiagnosticServiceGenericMapping` to the `DiagnosticRequestFileTransfer` instance. Only ReadFile and ReadDir are supported, in the extended session at `Level1`.
 
 ```mermaid
 sequenceDiagram
@@ -1519,7 +1519,7 @@ public:
                          ara::diag::MetaInfo const&, ara::diag::CancellationHandler) noexcept
         -> ara::core::Future<std::tuple<ara::diag::DataTransferReadSession, ara::diag::FileSizes>> override;
     // Checks: path below "recordings/", no "..", dataFormatIdentifier 0x00 (no compression),
-    // otherwise an NRC through DiagUdsNrcErrc (see guide 12a, Section 7.7).
+    // otherwise an NRC through DiagUdsNrcErrc (see the Diagnostics Part 1 guide, Section 7.7).
     // Creating the DataTransferReadSession from a RecordingReader is vendor-specific in R25-11.
     // RequestWriteFile, RequestResumeWriteFile, DeleteFile: answer NRC 0x31 (not supported here).
 };
@@ -1527,7 +1527,7 @@ public:
 }  // namespace hpc::storage
 ```
 
-The `FileTransferService` object is constructed with the specifier `/storage/Root/RecordingsTransferPort` and `ConcurrencyType::kNotConcurrent`, and offered like any provider ([guide 12a, Section 13.1](12a_Diagnostics.md#131-offer-stopoffer-and-nrc-0x94)).
+The `FileTransferService` object is constructed with the specifier `/storage/Root/RecordingsTransferPort` and `ConcurrencyType::kNotConcurrent`, and offered like any provider (the [Diagnostics Part 1 guide, Section 13.1](DiagnosticsPart1.md#131-offer-stopoffer-and-nrc-0x94)).
 
 > **Key takeaways**
 >
@@ -1570,7 +1570,7 @@ UDS uses the extended session for exclusive access, SOVD uses *locks*. Only one 
 
 - A UDS client in a non-default session blocks SOVD locks: a lock can be acquired only if no UDS client is in the extended session ([SWS_DM_01477]).
 - An SOVD lock blocks UDS: a UDS request then gets NRC `0x21` ([SWS_DM_01375]).
-- An SOVD client without a lock is handled like a UDS client in the default session ([SWS_DM_01476]); the rules of [guide 12a, Chapter 6](12a_Diagnostics.md#6-diagnostic-conversations) apply.
+- An SOVD client without a lock is handled like a UDS client in the default session ([SWS_DM_01476]); the rules of the [Diagnostics Part 1 guide, Chapter 6](DiagnosticsPart1.md#6-diagnostic-conversations) apply.
 - If a resource cannot be served because the implementation is not re-entrant, DM returns the SOVD error "Conflicted state" ([SWS_DM_01929]).
 
 ### 12.4 Authorization
@@ -1585,7 +1585,7 @@ UDS uses the extended session for exclusive access, SOVD uses *locks*. Only one 
 | "Requesting a Token" | calls `GetTokenUrl(...)`, answers `307` | [SWS_DM_01471], [SWS_DM_01484] |
 | Any request with an `Authorization` header whose token is not yet validated | calls `ValidateAuthorization(token, metaInfo, clientAuthentication)` | [SWS_DM_01470], [SWS_DM_01483] |
 
-`ValidateAuthorization` returns `ValidateAuthorizationOutput` ([SWS_DM_01927]) with an optional `identity` ([SWS_DM_01819]) and `validUntil` ([SWS_DM_01820]). The roles that the application sets on the `ClientAuthentication` object (the same class as for UDS authentication, [guide 12a, Section 9.2](12a_Diagnostics.md#92-roles-and-authentication-state-per-client)) count as authenticated for all requests with the identical token until `validUntil` ([SWS_DM_01469]). DM considers requests with the same token, or with the same returned identity, as coming from the same client ([SWS_DM_01781], [SWS_DM_01782]); this matters for locks and for operations that the client started. Access to each SOVD method is then checked against the `DiagnosticAccessPermission` of the method's primitive, which can name authentication roles (TPS, Sections 5.7.2 and 5.7.3).
+`ValidateAuthorization` returns `ValidateAuthorizationOutput` ([SWS_DM_01927]) with an optional `identity` ([SWS_DM_01819]) and `validUntil` ([SWS_DM_01820]). The roles that the application sets on the `ClientAuthentication` object (the same class as for UDS authentication, the [Diagnostics Part 1 guide, Section 9.2](DiagnosticsPart1.md#92-roles-and-authentication-state-per-client)) count as authenticated for all requests with the identical token until `validUntil` ([SWS_DM_01469]). DM considers requests with the same token, or with the same returned identity, as coming from the same client ([SWS_DM_01781], [SWS_DM_01782]); this matters for locks and for operations that the client started. Access to each SOVD method is then checked against the `DiagnosticAccessPermission` of the method's primitive, which can name authentication roles (TPS, Sections 5.7.2 and 5.7.3).
 
 ```mermaid
 sequenceDiagram
@@ -1606,7 +1606,7 @@ sequenceDiagram
     DM-->>C: 200 faults
 ```
 
-> **Note:** The SWS requires the authorization port to be mapped to "the SoftwareCluster with category PLATFORM" ([SWS_DM_01472]). `HPC` has the categories `PLATFORM_CORE` and `APPLICATION_LAYER` ([guide 00, Section 6.3](00_LearningPath.md#63-the-hpc-machine)). This guide lets `SmControl` in `HpcPlatformCore` provide `SovdAuthorization`; whether `PLATFORM_CORE` satisfies the wording is not stated in R25-11.
+> **Note:** The SWS requires the authorization port to be mapped to "the SoftwareCluster with category PLATFORM" ([SWS_DM_01472]). `HPC` has the categories `PLATFORM_CORE` and `APPLICATION_LAYER` (the [Running Example guide, Section 1.3](RunningExample.md#13-the-hpc-machine)). This guide lets `SmControl` in `HpcPlatformCore` provide `SovdAuthorization`; whether `PLATFORM_CORE` satisfies the wording is not stated in R25-11.
 
 ### 12.5 Locks, Environmental Conditions and Service Validation
 
@@ -1620,9 +1620,9 @@ sequenceDiagram
 
 `DiagnosticSovdLock` is referenced by `DiagnosticAccessPermission` as an additional criterion: a method can require that the client holds the lock ([TPS_MANI_01396]).
 
-**Environmental conditions.** Before executing an SOVD method, DM evaluates its environmental condition like for UDS ([guide 12a, Section 7.5](12a_Diagnostics.md#75-environmental-conditions)), with `DiagnosticEnvSovdDataCondition` comparing an SOVD content element with a constant ([SWS_DM_01468], [TPS_MANI_01504]); if the condition is false, DM answers `503` ([SWS_DM_01466]).
+**Environmental conditions.** Before executing an SOVD method, DM evaluates its environmental condition like for UDS (the [Diagnostics Part 1 guide, Section 7.5](DiagnosticsPart1.md#75-environmental-conditions)), with `DiagnosticEnvSovdDataCondition` comparing an SOVD content element with a constant ([SWS_DM_01468], [TPS_MANI_01504]); if the condition is false, DM answers `503` ([SWS_DM_01466]).
 
-**Service validation.** On each SOVD request, DM calls `SovdServiceValidation::Validate(requestMethod, metaInfo)` for each `DiagnosticSovdServiceValidationPortMapping` in the configured order and stops at the first error ([SWS_DM_01784]); for a resource collection it validates each contained resource as well ([SWS_DM_01785]). This is the SOVD counterpart of `ServiceValidation` ([guide 12a, Section 7.4](12a_Diagnostics.md#74-manufacturer-and-supplier-checks-servicevalidation)).
+**Service validation.** On each SOVD request, DM calls `SovdServiceValidation::Validate(requestMethod, metaInfo)` for each `DiagnosticSovdServiceValidationPortMapping` in the configured order and stops at the first error ([SWS_DM_01784]); for a resource collection it validates each contained resource as well ([SWS_DM_01785]). This is the SOVD counterpart of `ServiceValidation` (the [Diagnostics Part 1 guide, Section 7.4](DiagnosticsPart1.md#74-manufacturer-and-supplier-checks-servicevalidation)).
 
 ### 12.6 Data Serialization and Conversion
 
@@ -1862,7 +1862,7 @@ public:
 //               status.Offer();
 ```
 
-`SovdContentConcurrencyType` holds one `ConcurrencyType` each for `read`, `write` and `readWrite`, all `kNotConcurrent` by default ([SWS_DM_02182]-[SWS_DM_02185]). The operation provider `CameraCalibration` derives from `GenericDiagnosticSovdOperation` and returns, for each start, an object derived from `SovdOperationExecution` that implements `ExecuteCapability`, `GetStatus` and `Terminate`; it reuses the calibration code of the UDS routine `0x0201` ([guide 12a, Section 11.4](12a_Diagnostics.md#114-worked-example-calibratecamera)). Because the response structures have no specified members ([Section 13.3](#133-operations)), this guide does not show its code.
+`SovdContentConcurrencyType` holds one `ConcurrencyType` each for `read`, `write` and `readWrite`, all `kNotConcurrent` by default ([SWS_DM_02182]-[SWS_DM_02185]). The operation provider `CameraCalibration` derives from `GenericDiagnosticSovdOperation` and returns, for each start, an object derived from `SovdOperationExecution` that implements `ExecuteCapability`, `GetStatus` and `Terminate`; it reuses the calibration code of the UDS routine `0x0201` (the [Diagnostics Part 1 guide, Section 11.4](DiagnosticsPart1.md#114-worked-example-calibratecamera)). Because the response structures have no specified members ([Section 13.3](#133-operations)), this guide does not show its code.
 
 > **Key takeaways**
 >
@@ -1875,7 +1875,7 @@ public:
 
 ## 14. Configuration Reference: What to Configure
 
-> **Why this matters:** Almost all fault-memory behavior is configured, not coded. This chapter answers the question "what do I have to configure, and what does each setting mean?" for events, DTCs, memories, records, the fault-memory services, transfer and SOVD. The configuration of the server itself (contribution set, sessions, security, DoIP) is in [guide 12a, Chapter 14](12a_Diagnostics.md#14-configuration-reference-what-to-configure).
+> **Why this matters:** Almost all fault-memory behavior is configured, not coded. This chapter answers the question "what do I have to configure, and what does each setting mean?" for events, DTCs, memories, records, the fault-memory services, transfer and SOVD. The configuration of the server itself (contribution set, sessions, security, DoIP) is in the [Diagnostics Part 1 guide, Chapter 14](DiagnosticsPart1.md#14-configuration-reference-what-to-configure).
 
 Conventions: "DEXT" refers to the *Diagnostic Extract Template* (CP TPS), "TPS" to the *Manifest Specification*. A default is given only where a requirement states it; otherwise the column says "not specified". Attributes that DM does not evaluate are marked "not used by DM".
 
@@ -2016,7 +2016,7 @@ DEXT values override the constructor defaults of `Monitor` ([SWS_DM_01099]). The
 
 ### 14.10 Service Instances for the Fault Memory and Transfer
 
-Every service instance has an `accessPermission` and a `serviceClass` like the services of [guide 12a, Section 14.3](12a_Diagnostics.md#143-service-tables-and-service-instances).
+Every service instance has an `accessPermission` and a `serviceClass` like the services of the [Diagnostics Part 1 guide, Section 14.3](DiagnosticsPart1.md#143-service-tables-and-service-instances).
 
 | Service instance (class) | Configures | Notes |
 | --- | --- | --- |
@@ -2089,7 +2089,7 @@ The three `DiagnosticMultiple...PortMapping`s map one resource each; several of 
 
 ### 14.14 The Running Example: Complete Configuration
 
-The fault-memory, transfer and SOVD configuration of `HPC`, as an addition to the tree of [guide 12a, Section 14.14](12a_Diagnostics.md#1414-the-running-example-complete-configuration). All values are illustrative.
+The fault-memory, transfer and SOVD configuration of `HPC`, as an addition to the tree of the [Diagnostics Part 1 guide, Section 14.14](DiagnosticsPart1.md#1414-the-running-example-complete-configuration). All values are illustrative.
 
 ```yaml
 # Conceptual view of the fault-memory, transfer and SOVD configuration of HPC. NOT real ARXML syntax.
@@ -2205,7 +2205,7 @@ DiagnosticSovdProximityChallengePortMapping: { port: sm_control/Root/SovdProximi
 
 ## 15. API Reference and Usage Guide (ara::diag, Fault Memory, Transfer and SOVD Part)
 
-> **Why this matters:** This chapter is the lookup table for the classes used in this guide: exact names, signatures in short form, error codes and the DRAFT status. The general rules for all `ara::diag` classes (construction with an `InstanceSpecifier`, constructor violations, `Offer`/`StopOffer`, `MetaInfo`, `CancellationHandler`, concurrency types) are in [guide 12a, Chapter 15](12a_Diagnostics.md#15-api-reference-and-usage-guide-aradiag-communication-part).
+> **Why this matters:** This chapter is the lookup table for the classes used in this guide: exact names, signatures in short form, error codes and the DRAFT status. The general rules for all `ara::diag` classes (construction with an `InstanceSpecifier`, constructor violations, `Offer`/`StopOffer`, `MetaInfo`, `CancellationHandler`, concurrency types) are in the [Diagnostics Part 1 guide, Chapter 15](DiagnosticsPart1.md#15-api-reference-and-usage-guide-aradiag-communication-part).
 
 ### 15.1 Headers and Classes Overview
 
@@ -2227,7 +2227,7 @@ DiagnosticSovdProximityChallengePortMapping: { port: sm_control/Root/SovdProximi
 | `ara/diag/sovd_bulk_data.h`, `sovd_configuration.h`, `sovd_sw_update.h`, `sovd_http_redirect.h` | `SovdBulkData`, `SovdConfiguration`, `SovdSwUpdate`, `HttpRedirect` | SOVD resources | – |
 | `ara/diag/diagnostic_sovd_content_data.h`, `diagnostic_sovd_content_element_data.h`, `generic_diagnostic_sovd_content.h`, `generic_diagnostic_sovd_operation.h` | content model; `GenericDiagnosticSovdContent`; `GenericDiagnosticSovdOperation`, `SovdOperationExecution` | SOVD data and operations | – |
 
-All classes in this table that bind to a port take the `InstanceSpecifier` of a port typed by the matching interface ([Section 3.1](#31-fault-memory-classes-and-their-port-interfaces)); the constructor detects specifier and mapping errors as violations, as described in [guide 12a, Section 13.1](12a_Diagnostics.md#131-offer-stopoffer-and-nrc-0x94). They are not copyable.
+All classes in this table that bind to a port take the `InstanceSpecifier` of a port typed by the matching interface ([Section 3.1](#31-fault-memory-classes-and-their-port-interfaces)); the constructor detects specifier and mapping errors as violations, as described in the [Diagnostics Part 1 guide, Section 13.1](DiagnosticsPart1.md#131-offer-stopoffer-and-nrc-0x94). They are not copyable.
 
 ### 15.2 `Monitor` and `MultipleMonitor`
 
@@ -2344,7 +2344,7 @@ For each application-provided element, the generator creates a class `{<extended
 | `DiagOfferErrc` | `kAlreadyOffered` 101, `kConfigurationMismatch` 102, `kDebouncingConfigurationInconsistent` 103 ([SWS_DM_00559]) | `Offer()` |
 | `DiagReportingErrc` | `kAlreadyOffered` 101, `kConfigurationMismatch` 102, `kDebouncingConfigurationInconsistent` 103, `kReportIgnored` 104, `kInvalidArgument` 105, `kNotOffered` 106, `kNoSuchDTC` 108 ([SWS_DM_00560]) | event reporting; the R25-11 API tables do not assign them to individual functions |
 | `DiagSovdErrc` | `kInvalidSignature` 1 … `kUpdateExecutionInProgress` 10 ([SWS_DM_01806]) | SOVD providers |
-| `DiagUdsNrcErrc` | NRCs from providers ([guide 12a, Section 7.7](12a_Diagnostics.md#77-nrcs-from-applications-diagudsnrcerrc)) | download, upload, file transfer |
+| `DiagUdsNrcErrc` | NRCs from providers (the [Diagnostics Part 1 guide, Section 7.7](DiagnosticsPart1.md#77-nrcs-from-applications-diagudsnrcerrc)) | download, upload, file transfer |
 
 > **Key takeaways**
 >
@@ -2358,7 +2358,7 @@ For each application-provided element, the generator creates a class `{<extended
 
 > **Why this matters:** Clearing the fault memory, switching off DTC setting and moving data are security-relevant: an attacker could hide faults or extract data. DM reports these actions to the Intrusion Detection System Manager.
 
-DM defines no modeled log messages and no production errors ([guide 12a, Chapter 16](12a_Diagnostics.md#16-reporting)). For the services of this guide it reports these security events to IdsM; all their context data definitions are DRAFT:
+DM defines no modeled log messages and no production errors (the [Diagnostics Part 1 guide, Chapter 16](DiagnosticsPart1.md#16-reporting)). For the services of this guide it reports these security events to IdsM; all their context data definitions are DRAFT:
 
 | Security event | Reported when | ID |
 | --- | --- | --- |
@@ -2373,7 +2373,7 @@ Other reporting in this guide's scope:
 - An unsupported `MonitorAction` causes a violation in the monitor's process ([SWS_DM_01988]).
 - R25-11 defines no security events for SOVD requests.
 
-Guide 16 describes how IdsM qualifies and forwards security events.
+The IDSM and Firewall guide describes how IdsM qualifies and forwards security events.
 
 > **Key takeaways**
 >
@@ -2388,7 +2388,7 @@ Guide 16 describes how IdsM qualifies and forwards security events.
 
 **Day 1, morning.** The driver switches the vehicle on. `PowerModeService` reports `On`; `SmControl` restarts `IgnitionCycle`, sets `PowerModeOn` true and calls `EnableControlDtc()` ([Section 7.4](#74-worked-example-smcontrol-owns-the-cycle-and-the-conditions)). The status of `0x9A1011` is `0x50`. `CameraDriver` has offered its monitor and reports `kPrepassed` every 100 ms; the counter sits at −20.
 
-**Day 1, 08:12.** Wet snow covers the camera. After 2 s of `kPrefailed`, the counter reaches 20 and `CameraBlocked` is qualified failed ([Section 6.7](#67-worked-example-debouncing-camerablocked)). DM sets the event bits and the DTC bits to `0x27` (pending), creates an entry in `HpcPrimaryMemory` with occurrence counter 1, reads DID `0x0102` from `SmControl` (50.00 km/h) for snapshot record 1, and persists the entry. In parallel, Platform Health Management and State Management may switch `ADAS` to `Degraded`, where `FusionLite` works without the camera ([guide 05](05_StateManagement.md)); that path is independent of the fault memory.
+**Day 1, 08:12.** Wet snow covers the camera. After 2 s of `kPrefailed`, the counter reaches 20 and `CameraBlocked` is qualified failed ([Section 6.7](#67-worked-example-debouncing-camerablocked)). DM sets the event bits and the DTC bits to `0x27` (pending), creates an entry in `HpcPrimaryMemory` with occurrence counter 1, reads DID `0x0102` from `SmControl` (50.00 km/h) for snapshot record 1, and persists the entry. In parallel, Platform Health Management and State Management may switch `ADAS` to `Degraded`, where `FusionLite` works without the camera (the [SM guide](StateManagement.md)); that path is independent of the fault memory.
 
 **Day 1, 08:40.** The snow slides off; `kPrepassed` reports heal the event after 2 s. Status `0x26`: still pending, because the cycle had a failure.
 
@@ -2703,4 +2703,4 @@ This summary is based on the change history and the history appendix of the spec
 
 ---
 
-*End of the training guide. For normative details, always refer to `AUTOSAR_AP_SWS_Diagnostics` (R25-11) and to the specifications it references, in particular the Diagnostic Extract Template and the Manifest Specification. The update path through diagnostics continues in guide 13.*
+*End of the training guide. For normative details, always refer to `AUTOSAR_AP_SWS_Diagnostics` (R25-11) and to the specifications it references, in particular the Diagnostic Extract Template and the Manifest Specification. The update path through diagnostics continues in the UCM guide.*

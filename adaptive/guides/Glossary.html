@@ -1,0 +1,2197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AUTOSAR Adaptive Platform: Series Glossary · AUTOSAR AP Guides</title>
+<meta name="description" content="AUTOSAR Adaptive Platform: Series Glossary">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/pygments.css">
+<script>(function(){try{var t=localStorage.getItem('theme');}catch(e){}
+if(t!=='light'&&t!=='dark'){t=window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}
+document.documentElement.setAttribute('data-theme',t);})();</script>
+</head>
+<body class="page-guide">
+<header class="topbar">
+  <button class="icon-btn menu-btn" id="menu-btn" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+  <a class="brand" href="../index.html"><span class="brand-mark">AP</span><span class="brand-text">AUTOSAR AP Guides</span></a>
+  <span class="release">R25-11</span>
+  <div class="search" role="search">
+    <span class="search-icon"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+    <input id="search-input" type="search" placeholder="Search sections…  ( / )" autocomplete="off" aria-label="Search all guides">
+    <ul id="search-results" class="search-results" role="listbox" hidden></ul>
+  </div>
+  <button class="icon-btn" id="theme-btn" aria-label="Toggle dark mode"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z" fill="currentColor"/></svg></button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Guides">
+  <a class="sidebar-home" href="../index.html">Home</a>
+  <p class="sidebar-label">Guides</p>
+  <ol class="guide-list"><li><a href="../guides/RunningExample.html"><span class="title">The Running Example</span></a></li><li><a href="../guides/Glossary.html" class="active" aria-current="page"><span class="title">Series Glossary</span></a></li><li><a href="../guides/PlatformOverview.html"><span class="title">Adaptive Platform Overview and Architecture</span></a></li><li><a href="../guides/Manifests.html"><span class="title">Manifests and Methodology</span></a></li><li><a href="../guides/CoreAndGeneral.html"><span class="title"><code>ara::core</code> and General Conventions</span></a></li><li><a href="../guides/ExecutionManagement.html"><span class="title">Execution Management</span></a></li><li><a href="../guides/StateManagement.html"><span class="title">State Management</span></a></li><li><a href="../guides/PlatformHealthManagement.html"><span class="title">Platform Health Management</span></a></li><li><a href="../guides/CommunicationManagement.html"><span class="title">Communication Management Part 1: <code>ara::com</code> Concepts and API</span></a></li><li><a href="../guides/NetworkBindings.html"><span class="title">Communication Management Part 2: Network Bindings (SOME/IP, Signal-Based, DDS)</span></a></li><li><a href="../guides/SecureAndSafeCommunication.html"><span class="title">Communication Management Part 3: Secure Communication and End-to-End Protection</span></a></li><li><a href="../guides/LogAndTrace.html"><span class="title">Log and Trace</span></a></li><li><a href="../guides/Persistency.html"><span class="title">Persistency</span></a></li><li><a href="../guides/DiagnosticsPart1.html"><span class="title">Diagnostics Part 1</span></a></li><li><a href="../guides/DiagnosticsPart2.html"><span class="title">Diagnostics Part 2</span></a></li></ol>
+</nav>
+<div class="scrim" id="scrim" hidden></div>
+<main class="content" id="content">
+<article class="markdown">
+<h1 id="autosar-adaptive-platform-series-glossary">AUTOSAR Adaptive Platform: Series Glossary<a class="anchor" href="#autosar-adaptive-platform-series-glossary" aria-label="Link to this section">#</a></h1>
+<blockquote>
+<p><strong>Source specification:</strong></p>
+<ul>
+<li><em>Glossary</em> (<code>AUTOSAR_FO_TR_Glossary</code>), AUTOSAR Foundation <strong>R25-11</strong>.</li>
+<li><em>Explanation of Adaptive Platform Design</em> (<code>AUTOSAR_AP_EXP_PlatformDesign</code>), AUTOSAR Adaptive Platform <strong>R25-11</strong>.</li>
+<li><em>Explanation of Adaptive Platform Software Architecture</em> (<code>AUTOSAR_AP_EXP_SWArchitecture</code>), AUTOSAR Adaptive Platform <strong>R25-11</strong>.</li>
+</ul>
+<p><strong>Document type:</strong> Training Material.</p>
+<p><strong>Author:</strong> Hieu Do Minh</p>
+<p><strong>Version:</strong> 1.0</p>
+<p><strong>Part of the series:</strong> <a href="../index.html">AUTOSAR Adaptive Platform Training Guides</a>. Previous: <a href="RunningExample.html">The Running Example</a>. Next: <a href="PlatformOverview.html">Adaptive Platform Overview and Architecture</a>.</p>
+</blockquote>
+<h2 id="about-this-guide">About This Guide<a class="anchor" href="#about-this-guide" aria-label="Link to this section">#</a></h2>
+<p>This guide is the glossary of the whole series. It defines every acronym and every term once, for all guides, and each guide's own glossary uses the same wording. Definitions are based on the AUTOSAR <em>Glossary</em> (R25-11), the <em>Platform Design</em> and <em>Software Architecture</em> explanations, and the specifications of the clusters. Keep it at hand while you read the other guides.</p>
+<h3 id="how-to-read-this-guide">How to Read This Guide<a class="anchor" href="#how-to-read-this-guide" aria-label="Link to this section">#</a></h3>
+<p>This guide is for lookup. <a href="#1-acronyms">Chapter 1</a> lists the acronyms, <a href="#2-glossary">Chapter 2</a> the terms, both in alphabetical order. The column <em>Explained in</em> names the guide, and where possible the section, that explains a term in detail: <code>[Diagnostics Part 2, 9.7]</code> means the Diagnostics Part 2 guide, Section 9.7. Guides are named by the short names listed on the <a href="../index.html#the-guides">main page</a>, and <em>Main page</em> means the <a href="../index.html">main page</a> of the series.</p>
+<h2 id="table-of-contents">Table of Contents<a class="anchor" href="#table-of-contents" aria-label="Link to this section">#</a></h2>
+<ul>
+<li><a href="#autosar-adaptive-platform-series-glossary">AUTOSAR Adaptive Platform: Series Glossary</a>
+<ul>
+<li><a href="#about-this-guide">About This Guide</a>
+<ul>
+<li><a href="#how-to-read-this-guide">How to Read This Guide</a></li>
+</ul>
+</li>
+<li><a href="#table-of-contents">Table of Contents</a></li>
+<li><a href="#1-acronyms">1. Acronyms</a></li>
+<li><a href="#2-glossary">2. Glossary</a></li>
+<li><a href="#appendix-a-references">Appendix A. References</a></li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="1-acronyms">1. Acronyms<a class="anchor" href="#1-acronyms" aria-label="Link to this section">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Acronym</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AA</td>
+<td>Adaptive Application</td>
+</tr>
+<tr>
+<td>AAG</td>
+<td>Automotive API Gateway</td>
+</tr>
+<tr>
+<td>ADL</td>
+<td>Argument-dependent lookup: the C++ rule that finds a function in the namespaces of its arguments</td>
+</tr>
+<tr>
+<td>AP</td>
+<td>(AUTOSAR) Adaptive Platform</td>
+</tr>
+<tr>
+<td>API</td>
+<td>Application Programming Interface</td>
+</tr>
+<tr>
+<td>APMC</td>
+<td>Adaptive Platform Machine Configuration</td>
+</tr>
+<tr>
+<td>ARA</td>
+<td>AUTOSAR Runtime for Adaptive Applications: the set of programming interfaces available to Adaptive Applications</td>
+</tr>
+<tr>
+<td>ARTI</td>
+<td>AUTOSAR Run-Time Interface</td>
+</tr>
+<tr>
+<td>ARXML</td>
+<td>AUTOSAR XML, the file format of AUTOSAR models and manifests</td>
+</tr>
+<tr>
+<td>ASIL</td>
+<td>Automotive Safety Integrity Level (ISO 26262)</td>
+</tr>
+<tr>
+<td>AUTOSAR</td>
+<td>AUTomotive Open System ARchitecture</td>
+</tr>
+<tr>
+<td>BSW</td>
+<td>Basic Software (Classic Platform)</td>
+</tr>
+<tr>
+<td>CAN</td>
+<td>Controller Area Network</td>
+</tr>
+<tr>
+<td>CM</td>
+<td>Communication Management. (In the AUTOSAR <em>Glossary</em>, CM also stands for the Classic &quot;Communication Module&quot;.)</td>
+</tr>
+<tr>
+<td>CP</td>
+<td>(AUTOSAR) Classic Platform</td>
+</tr>
+<tr>
+<td>DDS</td>
+<td>Data Distribution Service, a publish/subscribe middleware standard of the OMG</td>
+</tr>
+<tr>
+<td>DID</td>
+<td>Data Identifier, a UDS identifier for a data record</td>
+</tr>
+<tr>
+<td>DLT</td>
+<td>Diagnostic Log and Trace, the AUTOSAR log and trace protocol</td>
+</tr>
+<tr>
+<td>DM</td>
+<td>Diagnostic Management. (The AUTOSAR <em>Glossary</em> expands DM as &quot;Diagnostic Manager&quot;.)</td>
+</tr>
+<tr>
+<td>DoIP</td>
+<td>Diagnostics over Internet Protocol (ISO 13400-2)</td>
+</tr>
+<tr>
+<td>DTC</td>
+<td>Diagnostic Trouble Code</td>
+</tr>
+<tr>
+<td>DTLS</td>
+<td>Datagram Transport Layer Security</td>
+</tr>
+<tr>
+<td>E2E</td>
+<td>End-to-End (protection of data exchange)</td>
+</tr>
+<tr>
+<td>ECU</td>
+<td>Electronic Control Unit</td>
+</tr>
+<tr>
+<td>EcuC</td>
+<td>ECU Configuration (Classic Platform)</td>
+</tr>
+<tr>
+<td>Elementary Supervision Status</td>
+<td>The status of one alive, deadline or logical supervision: <code>kOK</code>, <code>kFAILED</code>, <code>kEXPIRED</code> or <code>kDEACTIVATED</code>.</td>
+</tr>
+<tr>
+<td>EM</td>
+<td>Execution Management</td>
+</tr>
+<tr>
+<td>EXP</td>
+<td>Explanation (AUTOSAR document type)</td>
+</tr>
+<tr>
+<td>FC</td>
+<td>Functional Cluster</td>
+</tr>
+<tr>
+<td>FFI</td>
+<td>Freedom From Interference</td>
+</tr>
+<tr>
+<td>FG</td>
+<td>Function Group</td>
+</tr>
+<tr>
+<td>FO</td>
+<td>(AUTOSAR) Foundation</td>
+</tr>
+<tr>
+<td>FVM</td>
+<td>Freshness Value Manager (SecOC)</td>
+</tr>
+<tr>
+<td>gPTP</td>
+<td>generalized Precision Time Protocol (IEEE 802.1AS)</td>
+</tr>
+<tr>
+<td>GST</td>
+<td>Generic Structure Template</td>
+</tr>
+<tr>
+<td>HPC</td>
+<td>High performance computer. In code font, <code>HPC</code> is the machine of the running example.</td>
+</tr>
+<tr>
+<td>HSM</td>
+<td>Hardware Security Module</td>
+</tr>
+<tr>
+<td>IAM</td>
+<td>Identity and Access Management</td>
+</tr>
+<tr>
+<td>IDB</td>
+<td>Implementation-defined behavior</td>
+</tr>
+<tr>
+<td>IdsM</td>
+<td>Intrusion Detection System Manager</td>
+</tr>
+<tr>
+<td>IdsR</td>
+<td>Intrusion Detection System Reporter</td>
+</tr>
+<tr>
+<td>I-PDU</td>
+<td>Interaction Layer Protocol Data Unit</td>
+</tr>
+<tr>
+<td>IFC</td>
+<td>Inter-Functional-Cluster (interface)</td>
+</tr>
+<tr>
+<td>IPC</td>
+<td>Inter-Process Communication</td>
+</tr>
+<tr>
+<td>LT</td>
+<td>Log and Trace</td>
+</tr>
+<tr>
+<td>MAC</td>
+<td>Message Authentication Code; also Media Access Control (Ethernet). The context makes clear which one is meant.</td>
+</tr>
+<tr>
+<td>MISRA</td>
+<td>Motor Industry Software Reliability Association; here its C++:2023 coding guidelines</td>
+</tr>
+<tr>
+<td>NM</td>
+<td>Network Management</td>
+</tr>
+<tr>
+<td>OEM</td>
+<td>Original Equipment Manufacturer (the vehicle manufacturer)</td>
+</tr>
+<tr>
+<td>OS</td>
+<td>Operating System</td>
+</tr>
+<tr>
+<td>OSEK</td>
+<td>The automotive operating system standard on which the Classic OS is based (ISO 17356-3)</td>
+</tr>
+<tr>
+<td>OSI</td>
+<td>Operating System Interface (functional cluster). Not to be confused with the ISO OSI reference model of network layers.</td>
+</tr>
+<tr>
+<td>OTA</td>
+<td>Over-The-Air (software update)</td>
+</tr>
+<tr>
+<td>PDP</td>
+<td>Policy Decision Point</td>
+</tr>
+<tr>
+<td>PDU</td>
+<td>Protocol Data Unit</td>
+</tr>
+<tr>
+<td>PEP</td>
+<td>Policy Enforcement Point</td>
+</tr>
+<tr>
+<td>PHM</td>
+<td>Platform Health Management</td>
+</tr>
+<tr>
+<td>PID</td>
+<td>Process Identifier</td>
+</tr>
+<tr>
+<td>PNC</td>
+<td>Partial Network Cluster</td>
+</tr>
+<tr>
+<td>POSIX</td>
+<td>Portable Operating System Interface (IEEE Std 1003.1)</td>
+</tr>
+<tr>
+<td>PRS</td>
+<td>Protocol Requirements Specification (AUTOSAR document type)</td>
+</tr>
+<tr>
+<td>PSE51</td>
+<td>The minimal real-time POSIX profile (IEEE Std 1003.13) that Adaptive Applications may use</td>
+</tr>
+<tr>
+<td>QSEv</td>
+<td>Qualified (onboard) Security Event</td>
+</tr>
+<tr>
+<td>RDS</td>
+<td>Raw Data Stream</td>
+</tr>
+<tr>
+<td>RID</td>
+<td>Routine Identifier, a UDS identifier for a routine</td>
+</tr>
+<tr>
+<td>RS</td>
+<td>Requirements Specification (AUTOSAR document type)</td>
+</tr>
+<tr>
+<td>RTE</td>
+<td>Runtime Environment (Classic Platform)</td>
+</tr>
+<tr>
+<td>S2S</td>
+<td>Signal-to-Service translation. (The AUTOSAR <em>Glossary</em> uses SST, Signal Service Translation.)</td>
+</tr>
+<tr>
+<td>SD</td>
+<td>Service Discovery</td>
+</tr>
+<tr>
+<td>SecOC</td>
+<td>Secure Onboard Communication</td>
+</tr>
+<tr>
+<td>SEooC</td>
+<td>Safety Element out of Context</td>
+</tr>
+<tr>
+<td>SEv</td>
+<td>(Onboard) Security Event</td>
+</tr>
+<tr>
+<td>SHWA</td>
+<td>Safe Hardware Acceleration</td>
+</tr>
+<tr>
+<td>SM</td>
+<td>State Management</td>
+</tr>
+<tr>
+<td>SOA</td>
+<td>Service-Oriented Architecture</td>
+</tr>
+<tr>
+<td>SOC</td>
+<td>Security Operations Center. (The AUTOSAR <em>Glossary</em> uses SOC for Service-Oriented Communication; the series does not.)</td>
+</tr>
+<tr>
+<td>SOME/IP</td>
+<td>Scalable service-Oriented MiddlewarE over IP</td>
+</tr>
+<tr>
+<td>SOME/IP-SD</td>
+<td>SOME/IP Service Discovery</td>
+</tr>
+<tr>
+<td>SOVD</td>
+<td>Service-Oriented Vehicle Diagnostics (ASAM)</td>
+</tr>
+<tr>
+<td>SWC</td>
+<td>Software Component</td>
+</tr>
+<tr>
+<td>SWCL</td>
+<td>Software Cluster</td>
+</tr>
+<tr>
+<td>SWS</td>
+<td>Software Specification (AUTOSAR document type)</td>
+</tr>
+<tr>
+<td>TCP</td>
+<td>Transmission Control Protocol</td>
+</tr>
+<tr>
+<td>TLS</td>
+<td>Transport Layer Security</td>
+</tr>
+<tr>
+<td>TPS</td>
+<td>Template Specification (AUTOSAR document type), for example the Manifest Specification</td>
+</tr>
+<tr>
+<td>TR</td>
+<td>Technical Report (AUTOSAR document type)</td>
+</tr>
+<tr>
+<td>TSync</td>
+<td>Time Synchronization. (The AUTOSAR <em>Glossary</em> uses TSY.)</td>
+</tr>
+<tr>
+<td>UB</td>
+<td>Undefined behavior</td>
+</tr>
+<tr>
+<td>UCM</td>
+<td>Update and Configuration Management</td>
+</tr>
+<tr>
+<td>UDP</td>
+<td>User Datagram Protocol</td>
+</tr>
+<tr>
+<td>UDS</td>
+<td>Unified Diagnostic Services (ISO 14229-1)</td>
+</tr>
+<tr>
+<td>UTF-8</td>
+<td>The Unicode encoding used for all strings in ARA</td>
+</tr>
+<tr>
+<td>UUID</td>
+<td>Universally Unique Identifier, a 128-bit identifier</td>
+</tr>
+<tr>
+<td>V-UCM</td>
+<td>Vehicle Update and Configuration Management</td>
+</tr>
+<tr>
+<td>VISS</td>
+<td>Vehicle Information Service Specification (COVESA)</td>
+</tr>
+<tr>
+<td>VSS</td>
+<td>Vehicle Signal Specification (COVESA)</td>
+</tr>
+<tr>
+<td>WCET</td>
+<td>Worst-case execution time</td>
+</tr>
+<tr>
+<td>XSD</td>
+<td>XML Schema Definition</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="2-glossary">2. Glossary<a class="anchor" href="#2-glossary" aria-label="Link to this section">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning</th>
+<th>Explained in</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Aging</td>
+<td>Deleting an event memory entry after a configured number of operation cycles without failure.</td>
+<td><a href="DiagnosticsPart2.html#97-aging">Diagnostics Part 2, 9.7</a></td>
+</tr>
+<tr>
+<td>Clear Condition</td>
+<td>A condition that must be fulfilled for a DTC to be cleared; set by an application through <code>ara::diag::Condition</code>. AP only.</td>
+<td><a href="DiagnosticsPart2.html#73-clear-conditions-and-cleareventallowedbehavior">Diagnostics Part 2, 7.3</a></td>
+</tr>
+<tr>
+<td>Confirmed DTC</td>
+<td>A DTC whose status bit 3 is set, after the configured number of failed operation cycles (confirmation threshold).</td>
+<td><a href="DiagnosticsPart2.html#82-status-bit-processing">Diagnostics Part 2, 8.2</a></td>
+</tr>
+<tr>
+<td>Debouncing</td>
+<td>Filtering of diagnostic monitor reports until a result is qualified as failed or passed; counter-based, time-based or inside the monitor.</td>
+<td><a href="DiagnosticsPart2.html#61-why-debounce">Diagnostics Part 2, 6.1</a></td>
+</tr>
+<tr>
+<td>Displacement</td>
+<td>Replacing a less important event memory entry by a new one when the event memory is full.</td>
+<td><a href="DiagnosticsPart2.html#96-overflow-and-displacement">Diagnostics Part 2, 9.6</a></td>
+</tr>
+<tr>
+<td>Enable Condition</td>
+<td>A condition that must be fulfilled for the reports of a diagnostic event to count; set by an application through <code>ara::diag::Condition</code>.</td>
+<td><a href="DiagnosticsPart2.html#72-enable-conditions">Diagnostics Part 2, 7.2</a></td>
+</tr>
+<tr>
+<td>Event Combination</td>
+<td>Mapping several diagnostic events to one DTC, combined on storage or on retrieval.</td>
+<td><a href="DiagnosticsPart2.html#84-event-combination">Diagnostics Part 2, 8.4</a></td>
+</tr>
+<tr>
+<td>Extended Data Record</td>
+<td>A record of mostly statistical data stored with a DTC, such as the occurrence counter or the aging counter.</td>
+<td><a href="DiagnosticsPart2.html#94-extended-data-records">Diagnostics Part 2, 9.4</a></td>
+</tr>
+<tr>
+<td>Fault Detection Counter (FDC)</td>
+<td>The debouncing progress of a diagnostic event, from −128 (finally healed) to +127 (finally defective).</td>
+<td><a href="DiagnosticsPart2.html#23-debouncing-and-the-fault-detection-counter">Diagnostics Part 2, 2.3</a></td>
+</tr>
+<tr>
+<td>Indicator (diagnostic)</td>
+<td>A warning output, such as a lamp, linked to diagnostic events; drives status bit 7 of their DTCs.</td>
+<td><a href="DiagnosticsPart2.html#85-indicators-and-the-warningindicatorrequested-bit">Diagnostics Part 2, 8.5</a></td>
+</tr>
+<tr>
+<td>Pending DTC</td>
+<td>A DTC whose status bit 2 is set: it failed in the current or the last operation cycle.</td>
+<td><a href="DiagnosticsPart2.html#82-status-bit-processing">Diagnostics Part 2, 8.2</a></td>
+</tr>
+<tr>
+<td>Proximity Challenge</td>
+<td>An SOVD mechanism that proves that a person is physically at the vehicle before an operation runs.</td>
+<td><a href="DiagnosticsPart2.html#134-proximity-challenge">Diagnostics Part 2, 13.4</a></td>
+</tr>
+<tr>
+<td>SOVD Gateway</td>
+<td>The edge node that routes SOVD requests from clients to the SOVD servers in the vehicle.</td>
+<td><a href="DiagnosticsPart2.html#34-the-sovd-reference-architecture">Diagnostics Part 2, 3.4</a></td>
+</tr>
+<tr>
+<td>SOVD Lock</td>
+<td>Exclusive access of one SOVD client to an SOVD entity; excludes a UDS client in the extended session.</td>
+<td><a href="DiagnosticsPart2.html#125-locks-environmental-conditions-and-service-validation">Diagnostics Part 2, 12.5</a></td>
+</tr>
+<tr>
+<td>SOVD Server</td>
+<td>An SOVD endpoint in the vehicle. On the Adaptive Platform, Diagnostic Management is an SOVD server; each Diagnostic Server instance is a sub-component.</td>
+<td><a href="DiagnosticsPart2.html#121-sovd-entities-and-dms-place">Diagnostics Part 2, 12.1</a></td>
+</tr>
+<tr>
+<td>UDS DTC Status Byte</td>
+<td>The 8 status bits of a DTC defined by ISO 14229-1, such as test failed, pending and confirmed.</td>
+<td><a href="DiagnosticsPart2.html#22-event-status-and-the-uds-dtc-status-byte">Diagnostics Part 2, 2.2</a></td>
+</tr>
+<tr>
+<td><code>≪atpSplitable≫</code></td>
+<td>Stereotype of a property whose content may be spread over several files.</td>
+<td><a href="Manifests.html#37-many-files-one-model">Manifests, 3.7</a></td>
+</tr>
+<tr>
+<td><code>≪atpUriDef≫</code></td>
+<td>Stereotype of a reference whose path carries the information, even if the target is not on the Machine.</td>
+<td><a href="Manifests.html#12-design-models-and-target-configuration">Manifests, 1.2</a>, <a href="Manifests.html#94-from-port-to-instancespecifier">Manifests, 9.4</a></td>
+</tr>
+<tr>
+<td>Abnormal Termination</td>
+<td>A process ended with an exit status other than <code>0</code>, for example after a crash.</td>
+<td><a href="ExecutionManagement.html#25-termination-events">EM, 2.5</a></td>
+</tr>
+<tr>
+<td>AbortHandler</td>
+<td>A function <code>void() noexcept</code> that <code>ara::core::Abort</code> calls, in reverse order of installation, before it ends the process</td>
+<td><a href="CoreAndGeneral.html#104-abort-handlers">Core, 10.4</a></td>
+</tr>
+<tr>
+<td>Access Control Decision</td>
+<td>The yes-or-no answer whether a requested operation is permitted. It is based on the identity of the caller and the Access Control Policy.</td>
+<td>IAM</td>
+</tr>
+<tr>
+<td>Access Control Policy</td>
+<td>A rule, bound to a target such as a service interface, that states which identity is needed to access it.</td>
+<td>IAM</td>
+</tr>
+<tr>
+<td>Access Permission (diagnostics)</td>
+<td><code>DiagnosticAccessPermission</code>: the sessions, security levels, environmental condition and roles in which a diagnostic service, DID or routine may be used.</td>
+<td><a href="DiagnosticsPart1.html#73-session-and-security-checks">Diagnostics Part 1, 7.3</a></td>
+</tr>
+<tr>
+<td>ActionList</td>
+<td>The ordered list of ActionListItems that a StateMachine executes when it enters a StateMachine State (meta-class <code>StateManagementActionList</code>).</td>
+<td><a href="StateManagement.html#23-actionlist-and-actionlistitem">SM, 2.3</a></td>
+</tr>
+<tr>
+<td>ActionListItem</td>
+<td>One action of an ActionList, for example a Function Group State request, SYNC, Sleep or the start of an Agent.</td>
+<td><a href="StateManagement.html#23-actionlist-and-actionlistitem">SM, 2.3</a></td>
+</tr>
+<tr>
+<td>Activation (update)</td>
+<td>The critical phase of a software update in which the new software is switched on and can still be rolled back.</td>
+<td>UCM</td>
+</tr>
+<tr>
+<td>Active subscriber</td>
+<td>An application that has called <code>Subscribe</code> on an event, field or trigger and has not called <code>Unsubscribe</code>.</td>
+<td><a href="CommunicationManagement.html#26-subscription-samples-and-the-local-cache">CM, 2.6</a></td>
+</tr>
+<tr>
+<td>Active update session</td>
+<td>The period from the accepted <code>RequestUpdateSession</code> to the end of <code>StopUpdateSession</code>, during which State Management supports UCM and keeps the machine available.</td>
+<td><a href="StateManagement.html#27-update-session-terms">SM, 2.7</a></td>
+</tr>
+<tr>
+<td>Adaptive Application</td>
+<td>Software that delivers a function. It consists of one or more Executables. It uses only ARA and the POSIX profile PSE51, so that it can be deployed on any Adaptive Platform.</td>
+<td><a href="ExecutionManagement.html#21-software-units-from-application-to-os-process">EM, 2.1</a></td>
+</tr>
+<tr>
+<td>Adaptive Platform</td>
+<td>AUTOSAR's software platform for high-performance ECUs with service-oriented communication and updatable software. The term means both the standard and an implementation of it.</td>
+<td><a href="../index.html#the-adaptive-platform-in-one-page">Main page</a>, <a href="PlatformOverview.html#11-what-is-the-adaptive-platform">Platform Overview, 1.1</a></td>
+</tr>
+<tr>
+<td>Adaptive Platform Foundation</td>
+<td>The part of the platform that provides the fundamental functions, such as Execution Management, Communication Management and Persistency, as library-based APIs.</td>
+<td><a href="../index.html#functional-clusters-and-their-guides">Main page</a>, <a href="PlatformOverview.html#33-four-groups-of-functional-clusters">Platform Overview, 3.3</a></td>
+</tr>
+<tr>
+<td>Adaptive Platform Services</td>
+<td>Standard platform services, such as UCM and State Management, that are provided as services over Communication Management.</td>
+<td><a href="../index.html#functional-clusters-and-their-guides">Main page</a>, <a href="PlatformOverview.html#33-four-groups-of-functional-clusters">Platform Overview, 3.3</a></td>
+</tr>
+<tr>
+<td>Agent (State Management)</td>
+<td>A StateMachine that the Controller starts and stops; it controls the Function Groups of one Software Cluster.</td>
+<td><a href="StateManagement.html#25-controller-and-agent">SM, 2.5</a></td>
+</tr>
+<tr>
+<td>Alive Indication</td>
+<td>One report of a checkpoint that is used for alive supervision.</td>
+<td><a href="PlatformHealthManagement.html#62-the-algorithm-alive-counter-reference-cycle-and-margins">PHM, 6.2</a></td>
+</tr>
+<tr>
+<td>Alive Supervision</td>
+<td>A PHM supervision that counts the reports of a checkpoint in each reference cycle and checks them against an expected number with margins.</td>
+<td><a href="PlatformHealthManagement.html#6-alive-supervision">PHM, 6</a></td>
+</tr>
+<tr>
+<td>APMC</td>
+<td>The M1-based target-configuration model with a definition side and a value side that replaces manifest content step by step.</td>
+<td><a href="Manifests.html#119-looking-ahead-apmc">Manifests, 11.9</a></td>
+</tr>
+<tr>
+<td>Application Design</td>
+<td>The design-related part of the model: data types, service interfaces, persistency interfaces and other interfaces that an application uses, independent of any deployment.</td>
+<td><a href="Manifests.html#23-the-kinds-of-manifest">Manifests, 2.3</a></td>
+</tr>
+<tr>
+<td>Application ID</td>
+<td>The identifier of one process instance in log and trace messages, defined by <code>DltApplication.applicationId</code>.</td>
+<td><a href="LogAndTrace.html#52-application-id">Log and Trace, 5.2</a></td>
+</tr>
+<tr>
+<td>ARA</td>
+<td>The AUTOSAR Runtime for Adaptive Applications: the standard C++ interfaces that the functional clusters provide to applications.</td>
+<td><a href="../index.html#the-adaptive-platform-in-one-page">Main page</a>, <a href="PlatformOverview.html#32-ara-the-autosar-runtime-for-adaptive-applications">Platform Overview, 3.2</a></td>
+</tr>
+<tr>
+<td>ARElement</td>
+<td>A model element that can be defined stand-alone in a package.</td>
+<td><a href="Manifests.html#24-design-elements-and-uploadable-elements">Manifests, 2.4</a></td>
+</tr>
+<tr>
+<td>ARPackage</td>
+<td>A package of the model. It establishes a name space and is an open set: several files may contribute to it.</td>
+<td><a href="Manifests.html#32-packages-short-names-and-paths">Manifests, 3.2</a></td>
+</tr>
+<tr>
+<td>ARTI</td>
+<td>The AUTOSAR Run-Time Interface between build tools and debugging and tracing tools. The OSI defines ARTI trace messages for processes and tasks.</td>
+<td><a href="PlatformOverview.html#710-os-tracing-with-arti">Platform Overview, 7.10</a></td>
+</tr>
+<tr>
+<td>Async-signal-safe</td>
+<td>Safe to call from a POSIX signal handler. No ARA API is</td>
+<td><a href="CoreAndGeneral.html#127-async-signal-safety">Core, 12.7</a></td>
+</tr>
+<tr>
+<td>Authenticator</td>
+<td>The (truncated) message authentication code that SecOC appends to a message.</td>
+<td><a href="SecureAndSafeCommunication.html#23-authenticator-mac-freshness-value-and-truncation">Secure Communication, 2.3</a></td>
+</tr>
+<tr>
+<td>Authenticity</td>
+<td>The property that data comes from the source it claims to come from.</td>
+<td>Cryptography</td>
+</tr>
+<tr>
+<td>Automotive API Gateway</td>
+<td>The functional cluster that gives clients access to selected vehicle data through VISS and VSS. Not covered by the series.</td>
+<td><a href="../index.html#topics-outside-the-series">Main page</a></td>
+</tr>
+<tr>
+<td>AUTOSAR XML (ARXML)</td>
+<td>The XML format in which AUTOSAR models, including manifests, are exchanged.</td>
+<td><a href="Manifests.html#31-the-anatomy-of-an-arxml-file">Manifests, 3.1</a></td>
+</tr>
+<tr>
+<td>Backup (Persistency)</td>
+<td>The copy of all persistent data of a process that Persistency creates before an update; only one backup exists at a time.</td>
+<td><a href="Persistency.html#125-the-update-sequence">Persistency, 12.5</a></td>
+</tr>
+<tr>
+<td>Basic Software (BSW)</td>
+<td>In the Classic Platform, the infrastructure software of an ECU below the RTE: services, ECU abstraction, microcontroller abstraction and complex drivers.</td>
+<td><a href="PlatformOverview.html#22-why-the-classic-design-fits-its-problem">Platform Overview, 2.2</a></td>
+</tr>
+<tr>
+<td>Central storage</td>
+<td>The location where Persistency keeps the list of installed storages and the versions for one process (<code>PersistencyCentralStorageUri</code>).</td>
+<td><a href="Persistency.html#122-the-central-storage-and-the-two-versions">Persistency, 12.2</a></td>
+</tr>
+<tr>
+<td>Certificate</td>
+<td>An X.509 document that binds a public key to an identity and is signed by a certificate authority.</td>
+<td>Cryptography</td>
+</tr>
+<tr>
+<td>Checkpoint</td>
+<td>A point in the control flow of a Supervised Entity where the activity is reported to PHM, so that PHM can supervise its timing and order.</td>
+<td><a href="PlatformHealthManagement.html#21-supervised-entity-checkpoint-and-supervised-entity-instance">PHM, 2.1</a></td>
+</tr>
+<tr>
+<td>Cipher Suite</td>
+<td>A set of algorithms for key exchange, authentication and encryption of a TLS connection, identified by an IANA number.</td>
+<td><a href="SecureAndSafeCommunication.html#64-cipher-suites-certificates-and-pre-shared-keys">Secure Communication, 6.4</a></td>
+</tr>
+<tr>
+<td>Class table</td>
+<td>The table of the TPS that lists the attributes of a meta-class with type, multiplicity and kind.</td>
+<td><a href="Manifests.html#38-reading-a-class-table-of-the-tps">Manifests, 3.8</a></td>
+</tr>
+<tr>
+<td>Classic Platform</td>
+<td>AUTOSAR's software platform for deeply embedded ECUs with high demands on predictability, safety and responsiveness.</td>
+<td><a href="PlatformOverview.html#21-the-problem-the-classic-platform-solves">Platform Overview, 2.1</a></td>
+</tr>
+<tr>
+<td>Client</td>
+<td>A software entity that uses the services of a server.</td>
+<td><a href="CommunicationManagement.html#21-service-interface-service-instance-provider-and-consumer">CM, 2.1</a></td>
+</tr>
+<tr>
+<td>Companion Process</td>
+<td>A small reporting process that reports <code>kRunning</code> on behalf of a non-reporting process once that process is really usable.</td>
+<td><a href="ExecutionManagement.html#54-non-reporting-processes-and-the-companion-pattern">EM, 5.4</a></td>
+</tr>
+<tr>
+<td>Compositionality</td>
+<td>The behavior of a component does not depend on the overall system load and configuration; an important property of deterministic systems.</td>
+<td><a href="PlatformOverview.html#231-what-determinism-means">Platform Overview, 2.3.1</a></td>
+</tr>
+<tr>
+<td>ComSpec</td>
+<td>A qualification of the use of one element of an interface at one port, for example the initial value of a field.</td>
+<td><a href="Manifests.html#52-ports-how-software-talks-to-the-outside">Manifests, 5.2</a></td>
+</tr>
+<tr>
+<td>Configuration class</td>
+<td>In the Classic Platform, the time at which a parameter is fixed: pre-compile time, link time or post-build time.</td>
+<td><a href="PlatformOverview.html#234-the-price-no-flexibility-after-build">Platform Overview, 2.3.4</a></td>
+</tr>
+<tr>
+<td>Constraint</td>
+<td>A numbered rule on the meta-model, cited as <code>[constr_nnnn]</code>. It must hold from its imposition time on; a model that violates it at that point is invalid.</td>
+<td><a href="../index.html#requirement-and-constraint-ids">Main page</a>, <a href="Manifests.html#25-constraints-and-imposition-times">Manifests, 2.5</a></td>
+</tr>
+<tr>
+<td>Context ID</td>
+<td>The Log and Trace identifier of a logical group of messages within an application, for example <code>TRCK</code> of <code>Fusion</code>; platform clusters use reserved four-character IDs such as <code>#COR</code></td>
+<td><a href="CoreAndGeneral.html#125-logging-and-tracing-conventions">Core, 12.5</a>, <a href="LogAndTrace.html#53-context-id">Log and Trace, 5.3</a></td>
+</tr>
+<tr>
+<td>Continuation</td>
+<td>A callable registered with <code>Future::then</code> that runs when the result is ready</td>
+<td><a href="CoreAndGeneral.html#95-continuations-with-then">Core, 9.5</a></td>
+</tr>
+<tr>
+<td>Contract version</td>
+<td>The version of the structure of a process's persistent data; when it increases, the application may migrate its data in the update callback.</td>
+<td><a href="Persistency.html#25-contract-version-and-target-configuration-version">Persistency, 2.5</a></td>
+</tr>
+<tr>
+<td>Control message</td>
+<td>A DLT message with which a logging client controls the logging module, or the module's response.</td>
+<td><a href="LogAndTrace.html#12-controlling-a-running-ecu-control-messages">Log and Trace, 13</a></td>
+</tr>
+<tr>
+<td>Controller (State Management)</td>
+<td>The one StateMachine that starts with State Management, controls <code>MachineFG</code> and starts and stops the Agents.</td>
+<td><a href="StateManagement.html#25-controller-and-agent">SM, 2.5</a></td>
+</tr>
+<tr>
+<td>Corruption</td>
+<td>The corruption of a system resource, such as a stack overflow or a bit flip; non-recoverable</td>
+<td><a href="CoreAndGeneral.html#64-corruptions-and-failed-default-allocations">Core, 6.4</a></td>
+</tr>
+<tr>
+<td>CppImplementationDataType</td>
+<td>A data type with its C++ binding; its category selects the C++ form.</td>
+<td><a href="Manifests.html#64-data-types">Manifests, 6.4</a></td>
+</tr>
+<tr>
+<td>CurrentState</td>
+<td>The state a Function Group is in when a transition starts.</td>
+<td><a href="ExecutionManagement.html#81-vocabulary">EM, 8.1</a></td>
+</tr>
+<tr>
+<td>Daemon-based</td>
+<td>A functional cluster that is intended to be implemented with its own daemon process.</td>
+<td><a href="../index.html#functional-clusters-and-their-guides">Main page</a>, <a href="PlatformOverview.html#42-library-based-and-service-based-functional-clusters">Platform Overview, 4.2</a></td>
+</tr>
+<tr>
+<td>Data Identifier (DID)</td>
+<td>A UDS identifier of a data record that a tester can read or write, such as a software version.</td>
+<td><a href="DiagnosticsPart1.html#101-reading-and-writing-dids-0x22-0x2e">Diagnostics Part 1, 10.1</a></td>
+</tr>
+<tr>
+<td>Data type mapping</td>
+<td><code>PersistencyKeyValueDataTypeMapping</code>: declares the previous and the current type of a key, so that the old value can be read during a migration.</td>
+<td><a href="Persistency.html#126-migrating-data-the-update-callback-and-data-type-mappings">Persistency, 12.6</a></td>
+</tr>
+<tr>
+<td>Deadline Supervision</td>
+<td>A PHM supervision that checks that the time from a source to a target checkpoint lies between a minimum and a maximum.</td>
+<td><a href="PlatformHealthManagement.html#7-deadline-supervision">PHM, 7</a></td>
+</tr>
+<tr>
+<td>Design model</td>
+<td>Model content that describes the system across compute nodes and is exchanged between roles, often as a contract.</td>
+<td><a href="Manifests.html#12-design-models-and-target-configuration">Manifests, 1.2</a></td>
+</tr>
+<tr>
+<td>Determinism</td>
+<td>The property that the same inputs always give the same outputs, within a known, bounded time, every time.</td>
+<td><a href="PlatformOverview.html#231-what-determinism-means">Platform Overview, 2.3.1</a></td>
+</tr>
+<tr>
+<td>Diagnostic Address</td>
+<td>The address under which a diagnostic server is reached. A machine can have one for all Software Clusters or one per Software Cluster.</td>
+<td><a href="DiagnosticsPart1.html#23-diagnostic-server-instances-and-software-clusters">Diagnostics Part 1, 2.3</a></td>
+</tr>
+<tr>
+<td>Diagnostic Contribution Set</td>
+<td><code>DiagnosticContributionSet</code>: the diagnostic configuration of one Diagnostic Server instance; Software Clusters reference it.</td>
+<td><a href="DiagnosticsPart1.html#23-diagnostic-server-instances-and-software-clusters">Diagnostics Part 1, 2.3</a></td>
+</tr>
+<tr>
+<td>Diagnostic Conversation</td>
+<td>The state of the exchange between one diagnostic tester and one Diagnostic Server instance (session, security level, ongoing request), allocated at run time.</td>
+<td><a href="DiagnosticsPart1.html#6-diagnostic-conversations">Diagnostics Part 1, 6</a></td>
+</tr>
+<tr>
+<td>Diagnostic Event</td>
+<td>The atomic unit of fault detection in Diagnostic Management. Its status reflects the latest result of a diagnostic monitor; one or more events make up a DTC.</td>
+<td><a href="DiagnosticsPart2.html#21-monitor-diagnostic-event-dtc">Diagnostics Part 2, 2.1</a></td>
+</tr>
+<tr>
+<td>Diagnostic Extract (DEXT)</td>
+<td>The AUTOSAR model of the diagnostic behavior of an ECU, shared by the Classic and the Adaptive Platform; the configuration input of Diagnostic Management.</td>
+<td><a href="DiagnosticsPart1.html#28-the-diagnostic-extract-dext-and-the-manifest">Diagnostics Part 1, 2.8</a></td>
+</tr>
+<tr>
+<td>Diagnostic mapping</td>
+<td>A model element that connects a DEXT element, such as a DID or routine, to a port of an executable and a process.</td>
+<td><a href="DiagnosticsPart1.html#1411-diagnostic-mappings-ports-and-processes">Diagnostics Part 1, 14.11</a></td>
+</tr>
+<tr>
+<td>Diagnostic Monitor</td>
+<td>The logic, usually in an application, that tests for a fault and reports the result to a diagnostic event.</td>
+<td><a href="DiagnosticsPart2.html#21-monitor-diagnostic-event-dtc">Diagnostics Part 2, 2.1</a></td>
+</tr>
+<tr>
+<td>Diagnostic Server instance</td>
+<td>One UDS server inside Diagnostic Management; there is one per Diagnostic Contribution Set.</td>
+<td><a href="DiagnosticsPart1.html#23-diagnostic-server-instances-and-software-clusters">Diagnostics Part 1, 2.3</a></td>
+</tr>
+<tr>
+<td>Diagnostic Session</td>
+<td>A mode of a Diagnostic Conversation that unlocks diagnostic services, switched with DiagnosticSessionControl (<code>0x10</code>).</td>
+<td><a href="DiagnosticsPart1.html#25-sessions-security-levels-and-access-permissions">Diagnostics Part 1, 2.5</a></td>
+</tr>
+<tr>
+<td>Diagnostic Trouble Code (DTC)</td>
+<td>A code that identifies a detected fault in the vehicle. Diagnostic Management stores it together with snapshot and extended data.</td>
+<td><a href="DiagnosticsPart2.html#81-dtc-format-and-groups">Diagnostics Part 2, 8.1</a></td>
+</tr>
+<tr>
+<td>E2E Profile</td>
+<td>A standardized combination of E2E mechanisms and header layout, for example <code>PROFILE_04</code>.</td>
+<td><a href="SecureAndSafeCommunication.html#102-profiles-available-on-the-adaptive-platform">Secure Communication, 10.2</a></td>
+</tr>
+<tr>
+<td>E2E Protection</td>
+<td>Safety mechanisms that detect corrupted, lost, repeated or delayed data between sender and receiver. An E2E profile defines the exact mechanism.</td>
+<td><a href="SecureAndSafeCommunication.html#10-e2e-profiles-and-the-e2e-header">Secure Communication</a></td>
+</tr>
+<tr>
+<td>E2E State Machine</td>
+<td>The function that turns the history of E2E checks into the states VALID, INVALID, INIT or NODATA, using windows and thresholds.</td>
+<td><a href="SecureAndSafeCommunication.html#11-the-e2e-state-machine">Secure Communication, 12</a></td>
+</tr>
+<tr>
+<td>ECU</td>
+<td>Electronic Control Unit: an embedded computer with at least one CPU and its peripherals in one housing, connected to vehicle networks, sensors and actuators.</td>
+<td><a href="PlatformOverview.html#21-the-problem-the-classic-platform-solves">Platform Overview, 2.1</a></td>
+</tr>
+<tr>
+<td>ECU ID</td>
+<td>The identifier of the ECU or machine in log and trace messages, defined by <code>DltEcu.ecuId</code>.</td>
+<td><a href="LogAndTrace.html#51-ecu-id">Log and Trace, 5.1</a></td>
+</tr>
+<tr>
+<td>Element (Persistency)</td>
+<td>A key-value pair of a Key-Value Storage or a file of a File Storage.</td>
+<td><a href="Persistency.html#21-storages-and-elements">Persistency, 2.1</a></td>
+</tr>
+<tr>
+<td>Error</td>
+<td>The inability of an assumed-bug-free API function to fulfill its purpose; recoverable; returned in <code>Result</code> or <code>Future</code></td>
+<td><a href="CoreAndGeneral.html#62-errors-are-returned-never-thrown">Core, 6.2</a></td>
+</tr>
+<tr>
+<td>Error code value</td>
+<td>The integer part of an <code>ErrorCode</code>, from the enumeration of its domain</td>
+<td><a href="CoreAndGeneral.html#71-errorcode-value-domain-and-support-data">Core, 7.1</a></td>
+</tr>
+<tr>
+<td>Error domain</td>
+<td>The context of a set of error codes: identifier, name, messages, exception type</td>
+<td><a href="CoreAndGeneral.html#73-errordomain-identity-name-and-message">Core, 7.3</a></td>
+</tr>
+<tr>
+<td>Error domain identifier</td>
+<td>The unique 64-bit number that identifies an error domain</td>
+<td><a href="CoreAndGeneral.html#74-error-domain-identifiers">Core, 7.4</a></td>
+</tr>
+<tr>
+<td>ErrorRecoveryTable</td>
+<td>The rules of a StateMachine that map an error code to the StateMachine State to enter; it must contain an <code>ANY</code> entry.</td>
+<td><a href="StateManagement.html#24-transitionrequesttable-and-errorrecoverytable">SM, 2.4</a></td>
+</tr>
+<tr>
+<td>Event (service element)</td>
+<td>A message that a service provider sends to all subscribed consumers.</td>
+<td><a href="CommunicationManagement.html#7-events-and-triggers">CM, 7</a></td>
+</tr>
+<tr>
+<td>Event Memory</td>
+<td>The part of Diagnostic Management that stores DTCs and their data.</td>
+<td><a href="DiagnosticsPart2.html#91-primary-and-user-defined-memories">Diagnostics Part 2, 9.1</a></td>
+</tr>
+<tr>
+<td>Eventgroup</td>
+<td>On SOME/IP, a set of events and field notifiers that a client subscribes to together.</td>
+<td><a href="NetworkBindings.html">Network Bindings</a></td>
+</tr>
+<tr>
+<td>Executable</td>
+<td>A program file with exactly one <code>main()</code> function.</td>
+<td><a href="ExecutionManagement.html#21-software-units-from-application-to-os-process">EM, 2.1</a>, <a href="Manifests.html#53-the-executable-and-its-root-prototype">Manifests, 5.3</a></td>
+</tr>
+<tr>
+<td>Execution Budget</td>
+<td>In the Classic OS, the statically configured maximum execution time of a task or interrupt handler, enforced by timing protection.</td>
+<td><a href="PlatformOverview.html#232-how-the-classic-platform-achieves-it">Platform Overview, 2.3.2</a></td>
+</tr>
+<tr>
+<td>Execution Dependency</td>
+<td>&quot;Start me only after process X is <em>Running</em> (or has <em>Terminated</em>).&quot; It controls order, not whether a process starts.</td>
+<td><a href="ExecutionManagement.html#6-execution-dependencies-startup-and-shutdown-ordering">EM, 6</a></td>
+</tr>
+<tr>
+<td>Execution Manifest</td>
+<td>The configuration of an Executable's processes: states, arguments, scheduling, dependencies, timeouts and more.</td>
+<td><a href="ExecutionManagement.html#41-where-the-configuration-lives">EM, 4.1</a>, <a href="Manifests.html#8-the-execution-manifest">Manifests, 8</a></td>
+</tr>
+<tr>
+<td>Execution State</td>
+<td>The state of a process as seen by the process itself. The only reportable value is <code>kRunning</code>.</td>
+<td><a href="ExecutionManagement.html#51-two-views-of-a-process-execution-state-and-process-state">EM, 5.1</a></td>
+</tr>
+<tr>
+<td>ExecutionError</td>
+<td>A number (<code>std::uint32_t</code>) that identifies why a process failed. It is configured per process, with the default <code>1</code>.</td>
+<td><a href="ExecutionManagement.html#146-executionerrorevent-and-executionerror">EM, 14.6</a></td>
+</tr>
+<tr>
+<td>ExecutionErrorEvent</td>
+<td>The event that tells State Management which Function Group failed, together with its <code>ExecutionError</code>.</td>
+<td><a href="ExecutionManagement.html#146-executionerrorevent-and-executionerror">EM, 14.6</a></td>
+</tr>
+<tr>
+<td>Executor</td>
+<td>An <code>ara::core</code> object that runs callables asynchronously in a thread-safe context</td>
+<td><a href="CoreAndGeneral.html#1112-executor">Core, 11.12</a></td>
+</tr>
+<tr>
+<td>Explicitly aborting an Operation</td>
+<td>Immediately aborting an API call by calling <code>ara::core::Abort</code>, usually after a Violation</td>
+<td><a href="CoreAndGeneral.html#103-abort">Core, 10.3</a></td>
+</tr>
+<tr>
+<td>Failed Default Allocation</td>
+<td>The default memory allocation of the framework cannot satisfy a request; handled like a Non-Standardized Violation</td>
+<td><a href="CoreAndGeneral.html#64-corruptions-and-failed-default-allocations">Core, 6.4</a></td>
+</tr>
+<tr>
+<td>Failure transparent</td>
+<td>A function that always succeeds: no errors, <code>noexcept</code>, no <code>Result</code> or <code>Future</code></td>
+<td><a href="CoreAndGeneral.html#25-thread-safety-and-recoverability">Core, 2.5</a></td>
+</tr>
+<tr>
+<td>Field</td>
+<td>A service element that holds a value. Consumers can get it, set it and be notified when it changes.</td>
+<td><a href="CommunicationManagement.html#9-fields">CM, 9</a></td>
+</tr>
+<tr>
+<td>File Storage</td>
+<td>A Persistency storage location in which a process can create files, like a directory without subdirectories.</td>
+<td><a href="Persistency.html#7-file-storages">Persistency, 7</a></td>
+</tr>
+<tr>
+<td>Find service handle</td>
+<td>The <code>ara::com::FindServiceHandle</code> that identifies a running <code>StartFindService</code> search, used to stop it.</td>
+<td><a href="CommunicationManagement.html#64-finding-continuously">CM, 6.4</a></td>
+</tr>
+<tr>
+<td>Fire-and-forget method</td>
+<td>A method without out arguments and without errors; the caller gets no answer.</td>
+<td><a href="CommunicationManagement.html#85-fire-and-forget-methods">CM, 8.5</a></td>
+</tr>
+<tr>
+<td>Firewall</td>
+<td>The functional cluster that configures the filtering of network traffic according to rules from the Machine Manifest.</td>
+<td>IDSM and Firewall</td>
+</tr>
+<tr>
+<td>Forwarding header</td>
+<td><code>ara/core/core_fwd.h</code>, which declares most <code>ara::core</code> types without defining them</td>
+<td><a href="CoreAndGeneral.html#122-header-files">Core, 12.2</a></td>
+</tr>
+<tr>
+<td>Foundation</td>
+<td>The AUTOSAR standard that holds what the Classic and the Adaptive Platform have in common, such as the protocols and the glossary.</td>
+<td><a href="../index.html#how-autosar-documents-are-named">Main page</a></td>
+</tr>
+<tr>
+<td>Foundation (standard)</td>
+<td>The AUTOSAR standard that contains the artifacts common to the Classic and the Adaptive Platform, such as protocols and common requirements, to ensure interoperability.</td>
+<td><a href="PlatformOverview.html#12-three-autosar-standards-adaptive-classic-and-foundation">Platform Overview, 1.2</a></td>
+</tr>
+<tr>
+<td>Freedom From Interference</td>
+<td>The guarantee that a faulty part of the system cannot disturb unrelated parts.</td>
+<td><a href="ExecutionManagement.html#111-why-resource-management-matters">EM, 11.1</a></td>
+</tr>
+<tr>
+<td>Freshness Value</td>
+<td>A counter or time stamp that makes each SecOC message unique in time and prevents replay.</td>
+<td><a href="SecureAndSafeCommunication.html#23-authenticator-mac-freshness-value-and-truncation">Secure Communication, 2.3</a></td>
+</tr>
+<tr>
+<td>Freshness Value Manager (FVM)</td>
+<td>The plug-in that provides and synchronizes SecOC freshness values; on the Adaptive Platform the platform extension <code>apext::com::secoc::FVM</code>.</td>
+<td><a href="SecureAndSafeCommunication.html#78-the-freshness-value-manager-plug-in">Secure Communication, 7.8</a></td>
+</tr>
+<tr>
+<td>Function Group</td>
+<td>A named group of processes that are switched on and off together.</td>
+<td><a href="ExecutionManagement.html#72-function-groups-and-function-group-states">EM, 7.2</a>, <a href="Manifests.html#75-function-groups-and-their-states">Manifests, 7.5</a></td>
+</tr>
+<tr>
+<td>Function Group State</td>
+<td>One mode of a Function Group, which defines the set of processes that run.</td>
+<td><a href="ExecutionManagement.html#72-function-groups-and-function-group-states">EM, 7.2</a></td>
+</tr>
+<tr>
+<td>Functional address</td>
+<td>A diagnostic target address that addresses several servers at once.</td>
+<td><a href="DiagnosticsPart1.html#22-diagnostic-client-diagnostic-server-and-addresses">Diagnostics Part 1, 2.2</a></td>
+</tr>
+<tr>
+<td>Functional Cluster</td>
+<td>A logical group of platform functionality, such as Execution Management, with its own specification and API.</td>
+<td><a href="../index.html#functional-clusters-and-their-guides">Main page</a>, <a href="PlatformOverview.html#5-the-functional-clusters-of-r25-11">Platform Overview, 5</a></td>
+</tr>
+<tr>
+<td>FunctionGroupPortMapping</td>
+<td>The manifest element that allows one State Management process to control one Function Group.</td>
+<td><a href="ExecutionManagement.html#126-function-group-access-control">EM, 12.6</a></td>
+</tr>
+<tr>
+<td>Getter</td>
+<td>The accessor of a field with which a consumer reads its current value (<code>Get</code>).</td>
+<td><a href="CommunicationManagement.html#93-get-and-the-optional-gethandler">CM, 9.3</a></td>
+</tr>
+<tr>
+<td>Global Supervision</td>
+<td>A group of supervisions of processes of one Function Group, with one aggregated status.</td>
+<td><a href="PlatformHealthManagement.html#94-grouping-supervisions-into-global-supervisions">PHM, 9.4</a></td>
+</tr>
+<tr>
+<td>Global Supervision Status</td>
+<td>The worst of the Elementary Supervision Statuses of a Global Supervision; additionally <code>kSTOPPED</code>.</td>
+<td><a href="PlatformHealthManagement.html#92-global-supervision-status">PHM, 9.2</a></td>
+</tr>
+<tr>
+<td>Graceful Degradation</td>
+<td>Continuing to operate with reduced functionality when errors occur, instead of failing completely. In the running example, <code>ADAS.Degraded</code>.</td>
+<td>SM, PHM</td>
+</tr>
+<tr>
+<td>Handle</td>
+<td>A <code>{&lt;SI&gt;}Proxy::HandleType</code> returned by service discovery; it identifies one found service instance and is used to create a proxy.</td>
+<td><a href="CommunicationManagement.html#65-from-handle-to-proxy">CM, 6.5</a></td>
+</tr>
+<tr>
+<td>Health Monitoring</td>
+<td>Supervision of the software behavior for correct timing and sequence; the Foundation concept shared by the Classic and the Adaptive Platform.</td>
+<td><a href="PlatformHealthManagement.html#26-health-monitoring-and-phm-who-specifies-what">PHM, 2.6</a></td>
+</tr>
+<tr>
+<td>Hypervisor</td>
+<td>Low-level software that runs several virtual machines on one physical machine.</td>
+<td><a href="PlatformOverview.html#43-the-machine">Platform Overview, 4.3</a></td>
+</tr>
+<tr>
+<td>I-PDU</td>
+<td>A protocol data unit that carries one or more signals between ECUs.</td>
+<td><a href="NetworkBindings.html">Network Bindings</a></td>
+</tr>
+<tr>
+<td>Identity and Access Management</td>
+<td>The framework that controls which Adaptive Applications may access which service interfaces and platform interfaces.</td>
+<td><a href="../index.html#functional-clusters-and-their-guides">Main page</a>, IAM</td>
+</tr>
+<tr>
+<td>Identity Information</td>
+<td>The properties of an application on which access control decisions are based.</td>
+<td>IAM</td>
+</tr>
+<tr>
+<td>ImpactedByUpdate</td>
+<td>The marking of a StateMachine whose Function Groups are being updated; it blocks transition requests and recovery.</td>
+<td><a href="StateManagement.html#27-update-session-terms">SM, 2.7</a></td>
+</tr>
+<tr>
+<td>Implementation-defined behavior</td>
+<td>Behavior chosen and documented by the platform implementation; vendor-specific behavior is the same</td>
+<td><a href="CoreAndGeneral.html#24-undefined-implementation-defined-and-vendor-specific-behavior">Core, 2.4</a></td>
+</tr>
+<tr>
+<td>Imposition time</td>
+<td>The point in the workflow at which a constraint must hold, for example <code>IT_BefAraApiGen</code> or <code>IT_Mani</code>.</td>
+<td><a href="Manifests.html#25-constraints-and-imposition-times">Manifests, 2.5</a></td>
+</tr>
+<tr>
+<td>Initial Process</td>
+<td>A process with management rights, for example to determine the exit status, over all processes of the Adaptive Platform. The OS shall allow starting EM as the Initial Process.</td>
+<td><a href="PlatformOverview.html#74-processes-threads-and-isolation">Platform Overview, 7.4</a></td>
+</tr>
+<tr>
+<td>Initial State (StateMachine)</td>
+<td>The StateMachine State that a StateMachine enters when it is started without a parameter (<code>ModeDeclarationGroup.initialMode</code>).</td>
+<td><a href="StateManagement.html#22-statemachine-statemachine-state-and-initial-state">SM, 2.2</a></td>
+</tr>
+<tr>
+<td>Instance reference</td>
+<td>A reference that navigates from a base through context elements to a target in an instance tree. Written as <code>-IREF</code>.</td>
+<td><a href="Manifests.html#22-types-prototypes-and-instance-references">Manifests, 2.2</a>, <a href="Manifests.html#35-instance-references--iref">Manifests, 3.5</a></td>
+</tr>
+<tr>
+<td>InstanceIdentifier</td>
+<td>The binding-specific identifier of one service instance, <code>ara::com::InstanceIdentifier</code>.</td>
+<td><a href="CommunicationManagement.html#67-instancespecifier-instanceidentifier-and-resolveinstanceids">CM, 6.7</a></td>
+</tr>
+<tr>
+<td>InstanceSpecifier</td>
+<td>A path in the model that identifies a configured element, such as a port, from code. Example: <code>/fusion/Root/CameraRPort</code>.</td>
+<td><a href="Manifests.html#94-from-port-to-instancespecifier">Manifests, 9.4</a>, <a href="CoreAndGeneral.html#1111-instancespecifier">Core, 11.11</a></td>
+</tr>
+<tr>
+<td>Integrity</td>
+<td>The property that data has not been changed or destroyed in an unauthorized way.</td>
+<td>Cryptography</td>
+</tr>
+<tr>
+<td>Inter-Functional-Cluster (IFC) interface</td>
+<td>An interface that one functional cluster provides to other clusters. Not part of ARA and not a formal requirement; described in an annex of the SWS.</td>
+<td><a href="PlatformOverview.html#62-how-clusters-talk-to-each-other">Platform Overview, 6.2</a></td>
+</tr>
+<tr>
+<td>Intrusion Detection System</td>
+<td>The system that detects, records and reports security events. It consists of security sensors, the IdsM and the IdsR.</td>
+<td>IDSM and Firewall</td>
+</tr>
+<tr>
+<td>Intrusion Detection System Manager</td>
+<td>The functional cluster that collects security events, qualifies them by rules, and stores or forwards the qualified events.</td>
+<td>IDSM and Firewall</td>
+</tr>
+<tr>
+<td>Key-Value Storage</td>
+<td>A Persistency storage location that holds key-value pairs.</td>
+<td><a href="Persistency.html#6-key-value-storages">Persistency, 6</a></td>
+</tr>
+<tr>
+<td>Language Binding</td>
+<td>How a service is presented to the programmer, for example as generated C++ proxy and skeleton classes.</td>
+<td><a href="CommunicationManagement.html#5-from-service-interface-to-generated-code">CM, 5</a></td>
+</tr>
+<tr>
+<td>Library-based</td>
+<td>A functional cluster whose interface library is linked into the application and communicates with the cluster directly.</td>
+<td><a href="PlatformOverview.html#42-library-based-and-service-based-functional-clusters">Platform Overview, 4.2</a></td>
+</tr>
+<tr>
+<td>Local cache</td>
+<td>The memory that <code>Subscribe(maxSampleCount)</code> reserves in the consumer for the samples of one event or field.</td>
+<td><a href="CommunicationManagement.html#73-receiving-samples">CM, 7.3</a></td>
+</tr>
+<tr>
+<td>Log and Trace</td>
+<td>The functional cluster that lets applications and clusters send log messages to the network, a console or a file.</td>
+<td><a href="LogAndTrace.html#11-what-is-log-and-trace">Log and Trace, 1.1</a></td>
+</tr>
+<tr>
+<td>Log and Trace Extract</td>
+<td>The part of the model that describes the sources (<code>DltEcu</code>, <code>DltApplication</code>, <code>DltContext</code>) and the modeled messages.</td>
+<td><a href="LogAndTrace.html#26-the-log-and-trace-extract">Log and Trace, 2.6</a></td>
+</tr>
+<tr>
+<td>Log channel</td>
+<td>A named output path of the DLT protocol, for example one Ethernet connection.</td>
+<td><a href="LogAndTrace.html#25-sinks-and-log-channels">Log and Trace, 2.5</a></td>
+</tr>
+<tr>
+<td>Log level</td>
+<td>The severity of a log message: Fatal, Error, Warn, Info, Debug or Verbose.</td>
+<td><a href="LogAndTrace.html#91-the-six-levels-and-koff">Log and Trace, 9.1</a></td>
+</tr>
+<tr>
+<td>Log sink</td>
+<td>A destination of log messages: console, file, DLT network channel or ARTI, modeled as <code>DltLogSink</code>.</td>
+<td><a href="LogAndTrace.html#10-output-sinks">Log and Trace, 11</a></td>
+</tr>
+<tr>
+<td>Logger</td>
+<td>The <code>ara::log</code> object that represents one context of one process; created by <code>CreateLogger</code>.</td>
+<td><a href="LogAndTrace.html#23-logger-and-logstream">Log and Trace, 2.3</a></td>
+</tr>
+<tr>
+<td>Logging backend</td>
+<td>The implementation of the LT protocol behind the <code>ara::log</code> library, for example a DLT daemon.</td>
+<td><a href="LogAndTrace.html#14-log-and-trace-and-ara">Log and Trace, 1.4</a></td>
+</tr>
+<tr>
+<td>Logging client</td>
+<td>An external tool that receives and stores log messages and can control the ECU.</td>
+<td><a href="LogAndTrace.html#28-logging-client-and-control-messages">Log and Trace, 2.8</a></td>
+</tr>
+<tr>
+<td>Logical Supervision</td>
+<td>A PHM supervision that checks the order of checkpoints against a graph of allowed transitions.</td>
+<td><a href="PlatformHealthManagement.html#8-logical-supervision">PHM, 8</a></td>
+</tr>
+<tr>
+<td>LogStream</td>
+<td>The temporary <code>ara::log</code> object that collects the arguments of one non-modeled message.</td>
+<td><a href="LogAndTrace.html#78-keeping-a-logstream-flush-and-scope">Log and Trace, 7.8</a></td>
+</tr>
+<tr>
+<td>M out of N</td>
+<td>Redundancy with N copies of which at least M must be identical when read; the only redundancy type that can repair corrupted data.</td>
+<td><a href="Persistency.html#93-m-out-of-n-and-storage-locations">Persistency, 9.3</a></td>
+</tr>
+<tr>
+<td>Machine</td>
+<td>The environment one Adaptive Platform instance runs on: an ECU, a virtual machine or a container.</td>
+<td><a href="ExecutionManagement.html#21-software-units-from-application-to-os-process">EM, 2.1</a>, <a href="Manifests.html#73-the-machine">Manifests, 7.3</a></td>
+</tr>
+<tr>
+<td>Machine Design</td>
+<td>The design-time placeholder of an Adaptive Machine in the system, the counterpart of the Classic <code>EcuInstance</code>.</td>
+<td><a href="Manifests.html#72-machine-design">Manifests, 7.2</a></td>
+</tr>
+<tr>
+<td>Machine Manifest</td>
+<td>The machine-wide configuration.</td>
+<td><a href="ExecutionManagement.html#41-where-the-configuration-lives">EM, 4.1</a>, <a href="Manifests.html#7-system-design-machine-design-and-the-machine-manifest">Manifests, 7</a></td>
+</tr>
+<tr>
+<td>Machine State</td>
+<td>A state of the Function Group <code>MachineFG</code>.</td>
+<td><a href="ExecutionManagement.html#73-machinefg-and-machine-states">EM, 7.3</a></td>
+</tr>
+<tr>
+<td>MachineFG</td>
+<td>The mandatory Function Group that controls the machine lifecycle.</td>
+<td><a href="ExecutionManagement.html#73-machinefg-and-machine-states">EM, 7.3</a></td>
+</tr>
+<tr>
+<td>Manifest</td>
+<td>A piece of AUTOSAR model that configures the platform or the software deployed on it, and that is installed together with that software.</td>
+<td><a href="ExecutionManagement.html#22-manifests">EM, 2.2</a>, <a href="Manifests.html#11-what-is-a-manifest">Manifests, 1.1</a></td>
+</tr>
+<tr>
+<td>Message Authentication Code</td>
+<td>A short value computed with a secret key that proves the integrity and authenticity of data.</td>
+<td>Cryptography</td>
+</tr>
+<tr>
+<td>Message ID</td>
+<td>The 32-bit identifier of a modeled message on the wire.</td>
+<td><a href="LogAndTrace.html#85-message-ids">Log and Trace, 8.5</a></td>
+</tr>
+<tr>
+<td>Meta-model</td>
+<td>The AUTOSAR vocabulary (M2) in which models (M1) are written; the XML Schema is generated from it.</td>
+<td><a href="Manifests.html#21-meta-levels-meta-model-model-and-xml-schema">Manifests, 2.1</a></td>
+</tr>
+<tr>
+<td>MetaInfo</td>
+<td><code>ara::diag::MetaInfo</code>: information about the current diagnostic request, such as the tester's address, passed to every provider call.</td>
+<td><a href="DiagnosticsPart1.html#132-metainfo-who-is-asking">Diagnostics Part 1, 13.2</a></td>
+</tr>
+<tr>
+<td>Method</td>
+<td>A service element that a consumer calls and the provider executes, possibly returning a result.</td>
+<td><a href="CommunicationManagement.html#8-methods">CM, 8</a></td>
+</tr>
+<tr>
+<td>Method Call Processing Mode</td>
+<td>How a skeleton executes incoming method calls: <code>kEvent</code> (concurrent), <code>kEventSingleThread</code> (sequential) or <code>kPoll</code> (on request of the provider).</td>
+<td><a href="CommunicationManagement.html#87-method-call-processing-modes">CM, 8.7</a></td>
+</tr>
+<tr>
+<td>Minimum Send Interval</td>
+<td>The configurable minimum time between two transmissions of one event, trigger, field update, method call, <code>Get</code> or <code>Set</code>.</td>
+<td><a href="CommunicationManagement.html#114-the-minimum-send-interval">CM, 11.4</a></td>
+</tr>
+<tr>
+<td>Modeled message</td>
+<td>A log message whose static parts are defined in the model, so that only the dynamic parts are sent (&quot;non-verbose&quot; in DLT).</td>
+<td><a href="LogAndTrace.html#8-modeled-messages">Log and Trace, 8</a></td>
+</tr>
+<tr>
+<td>Modelled Process</td>
+<td>The manifest description of one way to run an Executable (the meta-class <code>Process</code>).</td>
+<td><a href="ExecutionManagement.html#21-software-units-from-application-to-os-process">EM, 2.1</a></td>
+</tr>
+<tr>
+<td>monitorMode</td>
+<td>Trusted-platform mode in which failed checks are logged, but software is still launched.</td>
+<td><a href="ExecutionManagement.html#123-launch-behavior-modes">EM, 12.3</a></td>
+</tr>
+<tr>
+<td>Multi-binding</td>
+<td>One proxy or skeleton class communicating over several transports or protocols, for example one instance offered over local IPC and SOME/IP.</td>
+<td><a href="CommunicationManagement.html#133-multi-binding">CM, 13.3</a></td>
+</tr>
+<tr>
+<td>Multicast Threshold</td>
+<td>The number of subscribers from which SOME/IP sends the events of an eventgroup by multicast instead of unicast.</td>
+<td><a href="NetworkBindings.html">Network Bindings</a></td>
+</tr>
+<tr>
+<td>Named constructor</td>
+<td>A static <code>noexcept</code> function, usually <code>Create</code>, that constructs an object and returns a <code>Result</code></td>
+<td><a href="CoreAndGeneral.html#102-building-without-exceptions">Core, 10.2</a></td>
+</tr>
+<tr>
+<td>Nested recovery</td>
+<td>A new error reported for a StateMachine while its previous recovery is still in progress.</td>
+<td><a href="StateManagement.html#84-nested-recovery">SM, 8.4</a></td>
+</tr>
+<tr>
+<td>Network Binding</td>
+<td>How a service is represented on a specific transport, for example SOME/IP or DDS: serialization and protocol.</td>
+<td><a href="NetworkBindings.html">Network Bindings</a></td>
+</tr>
+<tr>
+<td>No rollback semantics</td>
+<td>A recoverability class: the failed call may have had side effects; invariants hold</td>
+<td><a href="CoreAndGeneral.html#66-recoverability-classes">Core, 6.6</a></td>
+</tr>
+<tr>
+<td>Non-modeled message</td>
+<td>A log message that is built and sent completely at run time (&quot;verbose&quot; in DLT).</td>
+<td><a href="LogAndTrace.html#7-writing-non-modeled-messages">Log and Trace, 7</a></td>
+</tr>
+<tr>
+<td>Non-reporting Process</td>
+<td>A process that does not report its Execution State and is considered <em>Running</em> immediately after creation.</td>
+<td><a href="ExecutionManagement.html#54-non-reporting-processes-and-the-companion-pattern">EM, 5.4</a></td>
+</tr>
+<tr>
+<td>Non-Standardized Violation</td>
+<td>A Violation specific to an implementation; ends with <code>Abort</code> or a non-<code>ara::core</code> exception</td>
+<td><a href="CoreAndGeneral.html#63-violations-fail-early">Core, 6.3</a></td>
+</tr>
+<tr>
+<td>Non-verbose mode</td>
+<td>The DLT form in which a message carries only a message ID and its variable data.</td>
+<td><a href="LogAndTrace.html#115-non-verbose-payload">Log and Trace, 11.5</a></td>
+</tr>
+<tr>
+<td>Notifier</td>
+<td>The part of a field that notifies subscribers of value changes, like an event.</td>
+<td><a href="CommunicationManagement.html#95-subscribing-to-field-notifications">CM, 9.5</a></td>
+</tr>
+<tr>
+<td>NRC</td>
+<td>Negative response code: the one-byte reason in a negative UDS response.</td>
+<td><a href="DiagnosticsPart1.html#21-uds-in-one-page">Diagnostics Part 1, 2.1</a></td>
+</tr>
+<tr>
+<td>Off (state)</td>
+<td>The mandatory initial state of every Function Group. No processes run in it.</td>
+<td><a href="ExecutionManagement.html#72-function-groups-and-function-group-states">EM, 7.2</a></td>
+</tr>
+<tr>
+<td>Operating System Interface</td>
+<td>The part of ARA that defines the operating system services available to Adaptive Applications (PSE51 and the C++ standard library), and the requirements on the operating system.</td>
+<td><a href="PlatformOverview.html#7-the-operating-system-interface">Platform Overview, 7</a></td>
+</tr>
+<tr>
+<td>Operation Cycle</td>
+<td>A period, such as one drive cycle, that Diagnostic Management uses to evaluate and age DTCs.</td>
+<td><a href="DiagnosticsPart2.html#71-operation-cycles">Diagnostics Part 2, 7.1</a></td>
+</tr>
+<tr>
+<td>OSEK OS</td>
+<td>The event-triggered automotive operating system with fixed priority-based scheduling, standardized as ISO 17356-3, on which the Classic OS is based.</td>
+<td><a href="PlatformOverview.html#22-why-the-classic-design-fits-its-problem">Platform Overview, 2.2</a></td>
+</tr>
+<tr>
+<td>OTA Client</td>
+<td>An Adaptive Application that connects the vehicle's update management to the backend.</td>
+<td>UCM</td>
+</tr>
+<tr>
+<td>P2, P2*</td>
+<td>Server response times of a diagnostic session: until the first response, and between response-pending messages.</td>
+<td><a href="DiagnosticsPart1.html#76-response-pending-p2-and-p2-and-the-pending-limit">Diagnostics Part 1, 7.6</a></td>
+</tr>
+<tr>
+<td>Partial model</td>
+<td>The content of one ARXML file; it shall validate against the schema but need not satisfy all constraints.</td>
+<td><a href="Manifests.html#37-many-files-one-model">Manifests, 3.7</a></td>
+</tr>
+<tr>
+<td>Partial Network</td>
+<td>A subset of the nodes of a network that can be woken up and put to sleep independently of the rest.</td>
+<td>NM/TSync/RDS</td>
+</tr>
+<tr>
+<td>Partial SOME/IP Header</td>
+<td>The first 8 bytes of a SOME/IP header (Message ID and Length) in front of a signal-based PDU on Ethernet.</td>
+<td><a href="NetworkBindings.html">Network Bindings</a></td>
+</tr>
+<tr>
+<td>Persistency user</td>
+<td>An Adaptive Application or a functional cluster that uses Persistency.</td>
+<td><a href="Persistency.html#23-persistency-users-and-process-local-data">Persistency, 2.3</a></td>
+</tr>
+<tr>
+<td>Physical address</td>
+<td>A diagnostic target address of exactly one server.</td>
+<td><a href="DiagnosticsPart1.html#22-diagnostic-client-diagnostic-server-and-addresses">Diagnostics Part 1, 2.2</a></td>
+</tr>
+<tr>
+<td>Planned Dynamics</td>
+<td>The principle that dynamic behavior is allowed during development but can be limited to defined ways for production.</td>
+<td><a href="../index.html#the-adaptive-platform-in-one-page">Main page</a>, <a href="PlatformOverview.html#27-determinism-on-the-adaptive-platform">Platform Overview, 2.7</a></td>
+</tr>
+<tr>
+<td>Platform extension interface</td>
+<td>A standardized interface through which the OEM extends the platform: a callout, a callback or a plugin.</td>
+<td><a href="PlatformOverview.html#35-standardized-and-non-standardized-parts">Platform Overview, 3.5</a></td>
+</tr>
+<tr>
+<td>PLATFORM_CORE</td>
+<td>The category of the SoftwareCluster that carries <code>MachineFG</code>. There is exactly one per machine.</td>
+<td><a href="ExecutionManagement.html#73-machinefg-and-machine-states">EM, 7.3</a></td>
+</tr>
+<tr>
+<td>Policy Decision Point</td>
+<td>The logic of IAM that decides whether a request is allowed.</td>
+<td>IAM</td>
+</tr>
+<tr>
+<td>Policy Enforcement Point</td>
+<td>The logic of IAM that enforces the decision of the Policy Decision Point.</td>
+<td>IAM</td>
+</tr>
+<tr>
+<td>PortPrototype</td>
+<td>A port of a software component, provided (<code>PPortPrototype</code>) or required (<code>RPortPrototype</code>), typed by a port interface.</td>
+<td><a href="Manifests.html#52-ports-how-software-talks-to-the-outside">Manifests, 5.2</a></td>
+</tr>
+<tr>
+<td>Pre-mapping</td>
+<td>Loading a process completely before it runs, to avoid demand-loading delays.</td>
+<td><a href="ExecutionManagement.html#114-process-level-memory-settings">EM, 11.4</a></td>
+</tr>
+<tr>
+<td>Process</td>
+<td>The running OS process that EM creates from a Modelled Process.</td>
+<td><a href="ExecutionManagement.html#21-software-units-from-application-to-os-process">EM, 2.1</a></td>
+</tr>
+<tr>
+<td>Process State</td>
+<td>The state of a process as tracked by EM: <code>Idle</code>, <code>Starting</code>, <code>Running</code>, <code>Terminating</code>, <code>Terminated</code>.</td>
+<td><a href="ExecutionManagement.html#51-two-views-of-a-process-execution-state-and-process-state">EM, 5.1</a></td>
+</tr>
+<tr>
+<td>ProcessDesign</td>
+<td>The design-time stand-in for a process that will be defined in the Execution Manifest.</td>
+<td><a href="Manifests.html#54-process-design-a-stand-in-for-a-future-process">Manifests, 5.4</a></td>
+</tr>
+<tr>
+<td>Processed Manifest</td>
+<td>A manifest converted into a platform-specific format for fast reading at startup.</td>
+<td><a href="ExecutionManagement.html#41-where-the-configuration-lives">EM, 4.1</a>, <a href="Manifests.html#118-how-the-platform-consumes-manifests-at-run-time">Manifests, 11.8</a></td>
+</tr>
+<tr>
+<td>Profile check status</td>
+<td>The result of the E2E check of one received sample, <code>ara::com::e2e::ProfileCheckStatus</code>.</td>
+<td><a href="CommunicationManagement.html#122-events-check-status-per-sample-state-per-event">CM, 12.2</a></td>
+</tr>
+<tr>
+<td>Proxy (Service Proxy)</td>
+<td>The generated class with which a consumer uses a service, as if it were a local object.</td>
+<td><a href="CommunicationManagement.html#22-skeleton-and-proxy">CM, 2.2</a></td>
+</tr>
+<tr>
+<td>PSE51</td>
+<td>The minimal real-time POSIX profile. Adaptive Applications may use only this part of the OS API.</td>
+<td><a href="PlatformOverview.html#72-pse51-for-applications-full-posix-for-the-platform">Platform Overview, 7.2</a></td>
+</tr>
+<tr>
+<td>Qualified Security Event (QSEv)</td>
+<td>A security event that the IdsM has filtered and qualified by its rules.</td>
+<td>IDSM and Firewall</td>
+</tr>
+<tr>
+<td>Raw Data Stream</td>
+<td>Unstructured bytes exchanged with an external device, such as a sensor, over TCP, UDP or IEEE 1722. It is a functional cluster of its own, no longer part of Communication Management.</td>
+<td>NM/TSync/RDS</td>
+</tr>
+<tr>
+<td>Rebind</td>
+<td>The assignment behavior of <code>Optional&lt;T&amp;&gt;</code> and <code>Result&lt;T&amp;&gt;</code>: the object refers to the new target afterwards</td>
+<td><a href="CoreAndGeneral.html#115-optional-and-variant">Core, 11.5</a></td>
+</tr>
+<tr>
+<td>Receive handler</td>
+<td>A callback that Communication Management calls when new event data, field notifications or triggers have arrived.</td>
+<td><a href="CommunicationManagement.html#75-polling-or-event-driven-reception">CM, 7.5</a></td>
+</tr>
+<tr>
+<td>Recommended package</td>
+<td>The package name that the meta-model proposes for an element kind, for example <code>ServiceInterfaces</code>.</td>
+<td><a href="Manifests.html#32-packages-short-names-and-paths">Manifests, 3.2</a></td>
+</tr>
+<tr>
+<td>Recovery (Persistency)</td>
+<td>Best-effort restoration of a corrupted storage or element; the result may be current, outdated or initial data and must be validated.</td>
+<td><a href="Persistency.html#96-recover-or-reset">Persistency, 9.6</a></td>
+</tr>
+<tr>
+<td>Recovery notification</td>
+<td>The call of State Management's <code>RecoveryHandler</code> when a Global Supervision expires, and its configuration.</td>
+<td><a href="PlatformHealthManagement.html#12-recovery-notifying-state-management">PHM, 13</a></td>
+</tr>
+<tr>
+<td>Redundancy (Persistency)</td>
+<td>CRCs, hash values or copies that Persistency stores to detect and possibly repair corrupted data.</td>
+<td><a href="Persistency.html#91-detect-or-repair">Persistency, 9.1</a></td>
+</tr>
+<tr>
+<td>Registry</td>
+<td>An internal component that gives other clusters access to manifest information. Not used by applications.</td>
+<td><a href="PlatformOverview.html#57-configuration">Platform Overview, 5.7</a>, <a href="Manifests.html#118-how-the-platform-consumes-manifests-at-run-time">Manifests, 11.8</a></td>
+</tr>
+<tr>
+<td>Reporting Process</td>
+<td>A process that reports <code>kRunning</code> using <code>ExecutionClient</code>. This is the normal case.</td>
+<td><a href="ExecutionManagement.html#24-process-flavors">EM, 2.4</a></td>
+</tr>
+<tr>
+<td>RequestedState</td>
+<td>The target state of a transition.</td>
+<td><a href="ExecutionManagement.html#81-vocabulary">EM, 8.1</a></td>
+</tr>
+<tr>
+<td>Requirement ID</td>
+<td>The unique identifier of a requirement in a specification, such as <code>[SWS_EM_01050]</code>.</td>
+<td><a href="../index.html#requirement-and-constraint-ids">Main page</a></td>
+</tr>
+<tr>
+<td>Reset (Persistency)</td>
+<td>Returning a storage or an element to the state after installation with the current target configuration.</td>
+<td><a href="Persistency.html#96-recover-or-reset">Persistency, 9.6</a></td>
+</tr>
+<tr>
+<td>ResourceGroup</td>
+<td>A group of processes that share a CPU limit and a memory limit.</td>
+<td><a href="ExecutionManagement.html#113-resourcegroup-group-level-limits">EM, 11.3</a></td>
+</tr>
+<tr>
+<td>Response Pending</td>
+<td>The NRC <code>0x78</code>, sent by the server while it needs more time to answer.</td>
+<td><a href="DiagnosticsPart1.html#76-response-pending-p2-and-p2-and-the-pending-limit">Diagnostics Part 1, 7.6</a></td>
+</tr>
+<tr>
+<td>Response time</td>
+<td>The time between a task becoming ready and generating its response, including all preemptions.</td>
+<td><a href="PlatformOverview.html#231-what-determinism-means">Platform Overview, 2.3.1</a></td>
+</tr>
+<tr>
+<td>Rollback</td>
+<td>Returning to the previous software version after an update.</td>
+<td>UCM</td>
+</tr>
+<tr>
+<td>Rollback semantics</td>
+<td>A recoverability class: the failed call has no negative side effects; retrying is safe</td>
+<td><a href="CoreAndGeneral.html#66-recoverability-classes">Core, 6.6</a></td>
+</tr>
+<tr>
+<td>RootSwComponentPrototype</td>
+<td>The root of the component hierarchy inside an Executable; its short name is part of every <code>InstanceSpecifier</code>.</td>
+<td><a href="Manifests.html#53-the-executable-and-its-root-prototype">Manifests, 5.3</a></td>
+</tr>
+<tr>
+<td>Routine</td>
+<td>A function in the ECU that a tester starts, stops or queries with the UDS service RoutineControl.</td>
+<td><a href="DiagnosticsPart1.html#111-start-stop-and-request-results">Diagnostics Part 1, 11.1</a></td>
+</tr>
+<tr>
+<td>Runnable (Runnable Entity)</td>
+<td>In the Classic Platform, a part of a software component that the RTE can start and that is executed in the context of an OS task.</td>
+<td><a href="PlatformOverview.html#232-how-the-classic-platform-achieves-it">Platform Overview, 2.3.2</a></td>
+</tr>
+<tr>
+<td>Runtime Environment (RTE)</td>
+<td>In the Classic Platform, the generated layer between the application software components and the Basic Software.</td>
+<td><a href="PlatformOverview.html#22-why-the-classic-design-fits-its-problem">Platform Overview, 2.2</a></td>
+</tr>
+<tr>
+<td>S2R Hub</td>
+<td>The part of State Management that asks the S2R Satellites to enter or leave Suspend Mode and then tells the OS to suspend.</td>
+<td><a href="StateManagement.html#28-suspend-to-ram-terms">SM, 2.8</a></td>
+</tr>
+<tr>
+<td>S2R Satellite</td>
+<td>An object in an S2R-Aware application that registers with the S2R Hub and is notified before suspend and after wake-up.</td>
+<td><a href="StateManagement.html#28-suspend-to-ram-terms">SM, 2.8</a></td>
+</tr>
+<tr>
+<td>S3 timer</td>
+<td>Session timeout that returns a silent tester to the default session (5000 ms if not configured).</td>
+<td><a href="DiagnosticsPart1.html#81-diagnosticsessioncontrol-and-the-s3-timer">Diagnostics Part 1, 8.1</a></td>
+</tr>
+<tr>
+<td>Safe Translation</td>
+<td>A Signal-to-Service translation that preserves end-to-end protection (<code>safeTranslation</code>).</td>
+<td><a href="SecureAndSafeCommunication.html#141-safetranslation-and-securetranslation">Secure Communication, 14.1</a></td>
+</tr>
+<tr>
+<td>Safety Element out of Context (SEooC)</td>
+<td>A safety element developed without a specific vehicle context, based on assumptions; at best, the architecture of the Adaptive Platform can be considered one.</td>
+<td><a href="PlatformOverview.html#83-safety">Platform Overview, 8.3</a></td>
+</tr>
+<tr>
+<td>SampleAllocateePtr</td>
+<td>The smart pointer to memory that a provider gets from <code>Allocate()</code> and hands over with <code>Send</code>.</td>
+<td><a href="CommunicationManagement.html#71-sending-an-event">CM, 7.1</a></td>
+</tr>
+<tr>
+<td>SamplePtr</td>
+<td>The smart pointer, similar to <code>std::unique_ptr</code>, through which a consumer accesses one read-only sample.</td>
+<td><a href="CommunicationManagement.html#74-sampleptr-who-owns-a-sample">CM, 7.4</a></td>
+</tr>
+<tr>
+<td>ScheduleTable</td>
+<td>In the Classic OS, a statically defined set of expiry points that activate tasks or set events at fixed offsets.</td>
+<td><a href="PlatformOverview.html#232-how-the-classic-platform-achieves-it">Platform Overview, 2.3.2</a></td>
+</tr>
+<tr>
+<td>Secure Channel</td>
+<td>A communication channel that provides at least integrity and authenticity, and authenticates at least one side.</td>
+<td><a href="SecureAndSafeCommunication.html#22-secure-channel-and-security-association">Secure Communication</a>, Cryptography</td>
+</tr>
+<tr>
+<td>Secured I-PDU</td>
+<td>A message with SecOC authentication information: the authentic message, an optional freshness value and the authenticator.</td>
+<td><a href="SecureAndSafeCommunication.html#72-the-secured-message-byte-by-byte">Secure Communication, 7.2</a></td>
+</tr>
+<tr>
+<td>Security Event</td>
+<td>An event related to the security of the ECU that should be reported for later analysis.</td>
+<td>IDSM and Firewall</td>
+</tr>
+<tr>
+<td>Security Level (diagnostics)</td>
+<td>A level of a Diagnostic Conversation unlocked with SecurityAccess (<code>0x27</code>) by a seed-and-key exchange.</td>
+<td><a href="DiagnosticsPart1.html#82-securityaccess-seed-and-key-aradiagsecurityaccess">Diagnostics Part 1, 8.2</a></td>
+</tr>
+<tr>
+<td>Self-terminating Process</td>
+<td>A process that is allowed to exit on its own, typically a one-shot job.</td>
+<td><a href="ExecutionManagement.html#56-self-terminating-processes">EM, 5.6</a></td>
+</tr>
+<tr>
+<td>Server</td>
+<td>A software entity that provides services to clients.</td>
+<td><a href="CommunicationManagement.html#21-service-interface-service-instance-provider-and-consumer">CM, 2.1</a></td>
+</tr>
+<tr>
+<td>Service</td>
+<td>Functionality with a published interface and behavior that a provider offers to consumers.</td>
+<td><a href="CommunicationManagement.html#21-service-interface-service-instance-provider-and-consumer">CM, 2.1</a></td>
+</tr>
+<tr>
+<td>Service contract version</td>
+<td>The <code>majorVersion</code> and <code>minorVersion</code> of a service interface; an incompatible change increases the major version.</td>
+<td><a href="CommunicationManagement.html#68-service-contract-versioning">CM, 6.8</a></td>
+</tr>
+<tr>
+<td>Service Discovery</td>
+<td>The Communication Management mechanism with which applications find each other's services. It is the preferred way to sequence applications.</td>
+<td><a href="ExecutionManagement.html#66-prefer-service-discovery-for-applications">EM, 6.6</a>, <a href="CommunicationManagement.html#6-service-discovery-offering-and-finding-services">CM, 6</a></td>
+</tr>
+<tr>
+<td>Service Instance</td>
+<td>One concrete provision of a service interface, with its own identity.</td>
+<td><a href="CommunicationManagement.html#21-service-interface-service-instance-provider-and-consumer">CM, 2.1</a></td>
+</tr>
+<tr>
+<td>Service Instance Manifest</td>
+<td>The configuration of how service-oriented communication is deployed on the network, including E2E, security and logging settings.</td>
+<td><a href="ExecutionManagement.html#41-where-the-configuration-lives">EM, 4.1</a>, <a href="Manifests.html#9-the-service-instance-manifest-and-the-instancespecifier">Manifests, 9</a>, <a href="NetworkBindings.html">Network Bindings</a></td>
+</tr>
+<tr>
+<td>Service Interface</td>
+<td>The definition of a service: its events, methods and fields.</td>
+<td><a href="CommunicationManagement.html#21-service-interface-service-instance-provider-and-consumer">CM, 2.1</a></td>
+</tr>
+<tr>
+<td>Service Registry</td>
+<td>The part of Communication Management with which providers register their services and consumers find them.</td>
+<td><a href="CommunicationManagement.html#33-service-discovery-inside-the-machine">CM, 3.3</a></td>
+</tr>
+<tr>
+<td>Service-based</td>
+<td>A functional cluster that offers its functions as services through Communication Management.</td>
+<td><a href="PlatformOverview.html#42-library-based-and-service-based-functional-clusters">Platform Overview, 4.2</a></td>
+</tr>
+<tr>
+<td>Service-Oriented Communication</td>
+<td>Communication in which partners are not fixed at design time but are discovered and bound at run time.</td>
+<td><a href="CommunicationManagement.html#11-what-is-communication-management">CM, 1.1</a></td>
+</tr>
+<tr>
+<td>ServiceInstanceToPortPrototypeMapping</td>
+<td>The element that connects one port, in one process, to one service instance.</td>
+<td><a href="Manifests.html#93-connecting-a-port-to-a-service-instance">Manifests, 9.3</a></td>
+</tr>
+<tr>
+<td>ServiceInterfaceDeployment</td>
+<td>The representation of a service interface on one transport, for example its SOME/IP IDs.</td>
+<td><a href="Manifests.html#91-service-interface-deployment">Manifests, 9.1</a></td>
+</tr>
+<tr>
+<td>Session Handling</td>
+<td>Counting the Session ID of SOME/IP messages; active for requests, responses and segmented messages.</td>
+<td><a href="NetworkBindings.html">Network Bindings</a></td>
+</tr>
+<tr>
+<td>Session ID</td>
+<td>The identifier of one instance of a software component that runs several times.</td>
+<td><a href="LogAndTrace.html#55-session-id">Log and Trace, 5.5</a></td>
+</tr>
+<tr>
+<td>Setter</td>
+<td>The accessor of a field with which a consumer asks the provider to change its value (<code>Set</code>).</td>
+<td><a href="CommunicationManagement.html#94-set-and-the-mandatory-sethandler">CM, 9.4</a></td>
+</tr>
+<tr>
+<td>Shared handle</td>
+<td><code>ara::per::SharedHandle</code>: the copyable owner of an open Key-Value Storage or File Storage.</td>
+<td><a href="Persistency.html#53-sharedhandle-and-uniquehandle">Persistency, 5.3</a></td>
+</tr>
+<tr>
+<td>Shared state</td>
+<td>The object shared by a <code>Promise</code> and its <code>Future</code> that holds the value or error</td>
+<td><a href="CoreAndGeneral.html#91-future-and-promise-in-plain-words">Core, 9.1</a></td>
+</tr>
+<tr>
+<td>Short name</td>
+<td>The identifier of a model element within its name space; a C identifier, unique case-insensitively.</td>
+<td><a href="Manifests.html#32-packages-short-names-and-paths">Manifests, 3.2</a></td>
+</tr>
+<tr>
+<td>Signal</td>
+<td>A piece of data, such as the vehicle speed, that is exchanged in signal-based communication, typically in a PDU on CAN.</td>
+<td><a href="NetworkBindings.html">Network Bindings</a></td>
+</tr>
+<tr>
+<td>Signal-Based Network Binding</td>
+<td>The binding of Communication Management that performs Signal-to-Service translation; variants Signal-Based SOME/IP, Signal-Based Static and Signal-Based IEEE1722 ACF.</td>
+<td><a href="NetworkBindings.html">Network Bindings</a></td>
+</tr>
+<tr>
+<td>Signal-to-Service Translation</td>
+<td>The standardized mapping between signal-based communication and service-oriented communication, in both directions.</td>
+<td><a href="NetworkBindings.html">Network Bindings</a></td>
+</tr>
+<tr>
+<td>Skeleton (Service Skeleton)</td>
+<td>The generated base class from which a provider implements a service and connects it to Communication Management.</td>
+<td><a href="CommunicationManagement.html#22-skeleton-and-proxy">CM, 2.2</a></td>
+</tr>
+<tr>
+<td>SMControlApplication</td>
+<td>The project-specific application that decides which StateMachine transitions to request; it also decides whether an update is allowed.</td>
+<td><a href="StateManagement.html#26-smcontrolapplication">SM, 2.6</a></td>
+</tr>
+<tr>
+<td>Snapshot Record</td>
+<td>Environmental data, such as the vehicle speed, that Diagnostic Management stores when a DTC occurs.</td>
+<td><a href="DiagnosticsPart2.html#93-snapshot-records">Diagnostics Part 2, 9.3</a></td>
+</tr>
+<tr>
+<td>Software Cluster</td>
+<td>The unit of deployment and update: a set of executables, manifests and data, which claims Function Groups. It is installed as one Software Package. The meta-class is <code>SoftwareCluster</code>.</td>
+<td><a href="RunningExample.html#13-the-hpc-machine">Running Example, 1.3</a>, <a href="Manifests.html#102-software-cluster-the-uploadable-unit">Manifests, 10.2</a>, UCM</td>
+</tr>
+<tr>
+<td>Software Cluster Design</td>
+<td>The OEM's design-level contract for a Software Cluster (meta-class <code>SoftwareClusterDesign</code>).</td>
+<td><a href="Manifests.html#101-software-cluster-design-the-oems-contract">Manifests, 10.1</a></td>
+</tr>
+<tr>
+<td>Software Package</td>
+<td>The unit that UCM installs: one Software Cluster plus the metadata to install it. It is digitally signed.</td>
+<td>UCM, <a href="Manifests.html#103-software-package-and-vehicle-package">Manifests, 10.3</a></td>
+</tr>
+<tr>
+<td>SOME/IP</td>
+<td>An AUTOSAR protocol for service-oriented communication over IP, with its own service discovery (SOME/IP-SD).</td>
+<td><a href="NetworkBindings.html">Network Bindings</a></td>
+</tr>
+<tr>
+<td>SOME/IP-TP</td>
+<td>The segmentation of large SOME/IP messages over UDP.</td>
+<td><a href="NetworkBindings.html">Network Bindings</a></td>
+</tr>
+<tr>
+<td>SOVD</td>
+<td>Service-Oriented Vehicle Diagnostics, an ASAM standard for diagnostics over web technologies.</td>
+<td><a href="DiagnosticsPart2.html#27-sovd-in-one-page">Diagnostics Part 2, 2.7</a></td>
+</tr>
+<tr>
+<td>Stack</td>
+<td>An implementation of the Adaptive Platform standard by a platform vendor.</td>
+<td><a href="PlatformOverview.html#13-what-the-standard-defines-and-what-it-leaves-open">Platform Overview, 1.3</a></td>
+</tr>
+<tr>
+<td>Standardized M1 model</td>
+<td>Model content published by AUTOSAR in the top-level package <code>AUTOSAR</code>, for example <code>/AUTOSAR/StdTypes</code>.</td>
+<td><a href="Manifests.html#21-meta-levels-meta-model-model-and-xml-schema">Manifests, 2.1</a></td>
+</tr>
+<tr>
+<td>Standardized Violation</td>
+<td>A Violation defined by AUTOSAR, with a standardized DLT message</td>
+<td><a href="CoreAndGeneral.html#63-violations-fail-early">Core, 6.3</a></td>
+</tr>
+<tr>
+<td>StartupConfig</td>
+<td>A reusable set of start parameters for a process.</td>
+<td><a href="ExecutionManagement.html#135-startupconfig">EM, 13.5</a></td>
+</tr>
+<tr>
+<td>State Management</td>
+<td>The functional cluster that decides which Function Group States are requested.</td>
+<td><a href="ExecutionManagement.html#74-division-of-responsibilities-sm-decides-em-executes">EM, 7.4</a>, <a href="StateManagement.html#11-what-is-state-management">SM, 1.1</a></td>
+</tr>
+<tr>
+<td>StateClientInterface</td>
+<td>The port interface of the R-port through which State Management controls one Function Group (status draft in R25-11).</td>
+<td><a href="ExecutionManagement.html#1310-state-management-access-stateclientinterface-and-functiongroupportmapping">EM, 13.10</a></td>
+</tr>
+<tr>
+<td>StateDependentStartupConfig</td>
+<td>Links a process to a <code>StartupConfig</code> for a set of Function Group States, with dependencies and resources.</td>
+<td><a href="ExecutionManagement.html#134-statedependentstartupconfig-and-executiondependency">EM, 13.4</a>, <a href="Manifests.html#82-state-dependent-startup-configuration">Manifests, 8.2</a></td>
+</tr>
+<tr>
+<td>StateMachine (State Management)</td>
+<td>A configurable state machine of State Management that covers standard cases with little code. A project-specific application requests its transitions.</td>
+<td><a href="StateManagement.html#22-statemachine-statemachine-state-and-initial-state">SM, 2.2</a></td>
+</tr>
+<tr>
+<td>StateMachine State</td>
+<td>A state of a State Management StateMachine (a <code>ModeDeclaration</code>); entering it executes its ActionList. Not the same as a Function Group State.</td>
+<td><a href="StateManagement.html#22-statemachine-statemachine-state-and-initial-state">SM, 2.2</a></td>
+</tr>
+<tr>
+<td>Static Service Connection</td>
+<td>SOME/IP communication with pre-configured endpoints instead of service discovery.</td>
+<td><a href="NetworkBindings.html">Network Bindings</a></td>
+</tr>
+<tr>
+<td>Storage header</td>
+<td>The header that a logging client adds in front of each stored DLT message.</td>
+<td><a href="LogAndTrace.html#119-storing-messages-in-files-the-storage-header">Log and Trace, 11.9</a></td>
+</tr>
+<tr>
+<td>strictMode</td>
+<td>Trusted-platform mode in which software that fails a check is never launched.</td>
+<td><a href="ExecutionManagement.html#123-launch-behavior-modes">EM, 12.3</a></td>
+</tr>
+<tr>
+<td>Subscription state</td>
+<td>The state of a subscription: <code>kSubscribed</code>, <code>kNotSubscribed</code> or <code>kSubscriptionPending</code>.</td>
+<td><a href="CommunicationManagement.html#72-subscribing-to-an-event">CM, 7.2</a></td>
+</tr>
+<tr>
+<td>Supervised Entity</td>
+<td>A whole or a part of a software component type that is supervised; a collection of checkpoints.</td>
+<td><a href="PlatformHealthManagement.html#21-supervised-entity-checkpoint-and-supervised-entity-instance">PHM, 2.1</a></td>
+</tr>
+<tr>
+<td>Supervised Entity Instance</td>
+<td>One occurrence of a Supervised Entity, identified by its port in an executable and its process.</td>
+<td><a href="PlatformHealthManagement.html#55-multiple-instances-of-a-supervised-entity">PHM, 5.5</a></td>
+</tr>
+<tr>
+<td>Supervised Process</td>
+<td>A process that PHM supervises. EM informs PHM about its lifecycle.</td>
+<td><a href="ExecutionManagement.html#59-synchronization-with-platform-health-management">EM, 5.9</a></td>
+</tr>
+<tr>
+<td>Supervision Mode</td>
+<td>A state of the machine or a Function Group in which supervisions are performed with a specific set of parameters.</td>
+<td><a href="PlatformHealthManagement.html#11-supervision-modes-and-function-group-state-changes">PHM, 12</a></td>
+</tr>
+<tr>
+<td>Support data value</td>
+<td>Optional vendor-specific data inside an <code>ErrorCode</code>; ignored by comparisons</td>
+<td><a href="CoreAndGeneral.html#71-errorcode-value-domain-and-support-data">Core, 7.1</a></td>
+</tr>
+<tr>
+<td>Suspend-to-RAM (S2R)</td>
+<td>A low-power mode in which RAM keeps the system state while most of the machine is powered down, for a fast wake-up.</td>
+<td><a href="StateManagement.html#28-suspend-to-ram-terms">SM, 2.8</a></td>
+</tr>
+<tr>
+<td>Target configuration</td>
+<td>Model content whose scope is mostly local to one compute node, usually created during integration. Formerly called &quot;deployment&quot;.</td>
+<td><a href="Manifests.html#12-design-models-and-target-configuration">Manifests, 1.2</a></td>
+</tr>
+<tr>
+<td>Target Configuration version</td>
+<td>The version of the deployed content of a storage (<code>PersistencyCommon.Version</code>); it decides between installation, update and roll-back.</td>
+<td><a href="Persistency.html#25-contract-version-and-target-configuration-version">Persistency, 2.5</a></td>
+</tr>
+<tr>
+<td>Task (OS)</td>
+<td>The smallest schedulable unit managed by the operating system; a thread in POSIX terms.</td>
+<td><a href="PlatformOverview.html#710-os-tracing-with-arti">Platform Overview, 7.10</a></td>
+</tr>
+<tr>
+<td>Termination handler</td>
+<td>The callback that <code>ExecutionClient</code> invokes, in a background thread, when <code>SIGTERM</code> arrives.</td>
+<td><a href="ExecutionManagement.html#55-terminating-a-process">EM, 5.5</a></td>
+</tr>
+<tr>
+<td>Temporary storage</td>
+<td>The in-memory working copy of an open Key-Value Storage; changes become persistent only with <code>SyncToStorage</code>.</td>
+<td><a href="Persistency.html#61-the-temporary-storage">Persistency, 6.1</a></td>
+</tr>
+<tr>
+<td>Thread-safe</td>
+<td>Callable concurrently on the same object by several threads without synchronization by the caller</td>
+<td><a href="CoreAndGeneral.html#126-thread-safety">Core, 12.6</a></td>
+</tr>
+<tr>
+<td>Threshold</td>
+<td>The minimum log level that a logger lets through.</td>
+<td><a href="LogAndTrace.html#21-log-message-log-level-and-threshold">Log and Trace, 2.1</a></td>
+</tr>
+<tr>
+<td>Time Base</td>
+<td>A synchronized time, such as <code>VehicleTime</code>, that Time Synchronization offers to applications.</td>
+<td>NM/TSync/RDS</td>
+</tr>
+<tr>
+<td>Timing protection</td>
+<td>In the Classic OS, the run-time enforcement of statically configured execution budgets, lock budgets and minimum inter-arrival times.</td>
+<td><a href="PlatformOverview.html#232-how-the-classic-platform-achieves-it">Platform Overview, 2.3.2</a></td>
+</tr>
+<tr>
+<td>Trace status</td>
+<td>The on/off switch for trace messages of a context, controlled by control messages.</td>
+<td><a href="LogAndTrace.html#95-trace-status">Log and Trace, 9.5</a></td>
+</tr>
+<tr>
+<td>Trace switch</td>
+<td>The compile-time routing of a modeled message to the logger, ARTI, both or nowhere, configured by <code>TraceSwitchConfig</code>.</td>
+<td><a href="LogAndTrace.html#143-the-trace-switch">Log and Trace, 14.3</a></td>
+</tr>
+<tr>
+<td>TransitionRequestTable</td>
+<td>The rules of a StateMachine that map a requested value and the current StateMachine State to the next StateMachine State.</td>
+<td><a href="StateManagement.html#24-transitionrequesttable-and-errorrecoverytable">SM, 2.4</a></td>
+</tr>
+<tr>
+<td>Transport fault condition</td>
+<td>A transport-related fault reported to a handler: sample rejected, deadline missed or sample lost.</td>
+<td><a href="CommunicationManagement.html#115-transport-fault-conditions">CM, 11.5</a></td>
+</tr>
+<tr>
+<td>Transport Protocol Handler</td>
+<td>A plug-in of Diagnostic Management that implements a UDS transport protocol such as DoIP.</td>
+<td><a href="DiagnosticsPart1.html#51-transport-protocol-handlers-and-the-transport-protocol-manager">Diagnostics Part 1, 5.1</a></td>
+</tr>
+<tr>
+<td>Trigger</td>
+<td>A service element like an event, but without data.</td>
+<td><a href="CommunicationManagement.html#77-triggers">CM, 7.7</a></td>
+</tr>
+<tr>
+<td>Trust Anchor</td>
+<td>The root of trust, for example a public key in protected memory, from which all authenticity checks derive.</td>
+<td><a href="ExecutionManagement.html#121-trusted-platform-basics">EM, 12.1</a></td>
+</tr>
+<tr>
+<td>Trusted Platform</td>
+<td>A platform on which only software of verified integrity and authenticity runs.</td>
+<td><a href="ExecutionManagement.html#121-trusted-platform-basics">EM, 12.1</a></td>
+</tr>
+<tr>
+<td>UDS</td>
+<td>Unified Diagnostic Services, the diagnostic protocol of ISO 14229 that testers use.</td>
+<td><a href="DiagnosticsPart1.html#21-uds-in-one-page">Diagnostics Part 1, 2.1</a></td>
+</tr>
+<tr>
+<td>Undefined behavior</td>
+<td>No guarantees at all, as in the C++ standard; not detected, unlike a Violation</td>
+<td><a href="CoreAndGeneral.html#24-undefined-implementation-defined-and-vendor-specific-behavior">Core, 2.4</a></td>
+</tr>
+<tr>
+<td>Undefined Function Group State</td>
+<td>A Function Group state that is not one of the modelled states: during a transition, after a failed transition, or after a crash.</td>
+<td><a href="ExecutionManagement.html#103-undefined-function-group-state">EM, 10.3</a></td>
+</tr>
+<tr>
+<td>Unexpected Termination</td>
+<td>A process ended without a justified reason, for example without being asked to, or before it reported <code>kRunning</code>.</td>
+<td><a href="ExecutionManagement.html#25-termination-events">EM, 2.5</a></td>
+</tr>
+<tr>
+<td>Unique handle</td>
+<td><code>ara::per::UniqueHandle</code>: the move-only owner of an open file accessor.</td>
+<td><a href="Persistency.html#53-sharedhandle-and-uniquehandle">Persistency, 5.3</a></td>
+</tr>
+<tr>
+<td>Unrecoverable State</td>
+<td>EM's last resort: pre-cleanup, then terminate all processes, then post-cleanup.</td>
+<td><a href="ExecutionManagement.html#104-unrecoverable-state">EM, 10.4</a></td>
+</tr>
+<tr>
+<td>Update Bit</td>
+<td>A bit in a PDU that indicates whether a signal was actually updated in this transmission.</td>
+<td><a href="NetworkBindings.html">Network Bindings</a></td>
+</tr>
+<tr>
+<td>Update session</td>
+<td>The period, granted by State Management, during which UCM may change the software of the machine.</td>
+<td>UCM</td>
+</tr>
+<tr>
+<td>Update strategy</td>
+<td>What Persistency does with an existing element when a new configuration is deployed: keep existing, overwrite, or delete.</td>
+<td><a href="Persistency.html#26-update-strategies">Persistency, 2.6</a></td>
+</tr>
+<tr>
+<td>Uploadable element</td>
+<td>An element derived from <code>UploadablePackageElement</code>, which is uploaded to the Machine as part of a Software Cluster.</td>
+<td><a href="Manifests.html#24-design-elements-and-uploadable-elements">Manifests, 2.4</a></td>
+</tr>
+<tr>
+<td>Vehicle Package</td>
+<td>A package, assembled by the OEM backend, that describes an update campaign across several ECUs. V-UCM processes it.</td>
+<td>UCM</td>
+</tr>
+<tr>
+<td>Vehicle Services</td>
+<td>Functional clusters that provide vehicle-level functions: V-UCM, the Automotive API Gateway and Remote Persistency.</td>
+<td><a href="PlatformOverview.html#33-four-groups-of-functional-clusters">Platform Overview, 3.3</a></td>
+</tr>
+<tr>
+<td>Vehicle State Manager</td>
+<td>An OEM-specific application that controls the vehicle-level state and interacts with V-UCM during updates.</td>
+<td>UCM</td>
+</tr>
+<tr>
+<td>Vehicle Update and Configuration Management</td>
+<td>The functional cluster that coordinates software updates across all ECUs of a vehicle.</td>
+<td><a href="../index.html#topics-outside-the-series">Main page</a>, UCM</td>
+</tr>
+<tr>
+<td>Vendor-specific error</td>
+<td>An error that an implementation returns in addition to the specified ones, in a vendor-specific domain</td>
+<td><a href="CoreAndGeneral.html#76-vendor-specific-errors">Core, 7.6</a></td>
+</tr>
+<tr>
+<td>Verbose mode</td>
+<td>The DLT form in which a message carries type information, and optionally names and units, for each argument.</td>
+<td><a href="LogAndTrace.html#116-verbose-payload">Log and Trace, 11.6</a></td>
+</tr>
+<tr>
+<td>Violation</td>
+<td>A broken API contract, for example two <code>ExecutionClient</code> objects. It is logged, and the offending process is terminated.</td>
+<td><a href="ExecutionManagement.html#101-errors-and-violations">EM, 10.1</a>, <a href="CoreAndGeneral.html#63-violations-fail-early">Core, 6.3</a></td>
+</tr>
+<tr>
+<td>Violation message</td>
+<td>The standardized fatal DLT message of a Standardized Violation</td>
+<td><a href="CoreAndGeneral.html#153-violation-messages">Core, 15.3</a></td>
+</tr>
+<tr>
+<td>Watchdog</td>
+<td>A hardware or software timer that resets the system if it is not triggered in time. PHM triggers it.</td>
+<td><a href="PlatformHealthManagement.html#13-the-hardware-watchdog-and-critical-failures">PHM, 14</a></td>
+</tr>
+<tr>
+<td>Worst-case execution time (WCET)</td>
+<td>The longest possible execution time of a task or interrupt handler.</td>
+<td><a href="PlatformOverview.html#231-what-determinism-means">Platform Overview, 2.3.1</a></td>
+</tr>
+<tr>
+<td>Write-only-once</td>
+<td>Access mode, new in R25-11, that allows adding elements to a storage but never changing existing ones.</td>
+<td><a href="Persistency.html#28-access-modes">Persistency, 2.8</a></td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="appendix-a-references">Appendix A. References<a class="anchor" href="#appendix-a-references" aria-label="Link to this section">#</a></h2>
+<p><strong>AUTOSAR documents (R25-11):</strong></p>
+<ul>
+<li><em>Glossary</em> (<code>AUTOSAR_FO_TR_Glossary</code>), Foundation</li>
+<li><em>Explanation of Adaptive Platform Design</em> (<code>AUTOSAR_AP_EXP_PlatformDesign</code>), Adaptive Platform</li>
+<li><em>Explanation of Adaptive Platform Software Architecture</em> (<code>AUTOSAR_AP_EXP_SWArchitecture</code>), Adaptive Platform</li>
+<li>The specifications of the functional clusters, through the guides named in the column <em>Explained in</em></li>
+</ul>
+<hr />
+
+</article>
+<nav class="pager" aria-label="Previous and next guide"><a class="pager-prev" href="RunningExample.html"><span class="pager-label">← Previous</span><span class="pager-title">The Running Example</span></a><a class="pager-next" href="PlatformOverview.html"><span class="pager-label">Next →</span><span class="pager-title">Adaptive Platform Overview and Architecture</span></a></nav>
+<footer class="site-footer"><p>Based on the AUTOSAR Adaptive Platform and Foundation specifications, release R25-11.</p><p>Training material, not a normative reference. Where a guide and an AUTOSAR specification differ, the specification applies. Specifications: <a href="https://www.autosar.org/standards" target="_blank" rel="noopener">autosar.org/standards</a>.</p></footer>
+</main>
+<aside class="toc" aria-label="On this page"><p class="toc-label">On this page</p><ul><li class="lvl2"><a href="#about-this-guide">About This Guide</a></li><li class="lvl3"><a href="#how-to-read-this-guide">How to Read This Guide</a></li><li class="lvl2"><a href="#table-of-contents">Table of Contents</a></li><li class="lvl2"><a href="#1-acronyms">1. Acronyms</a></li><li class="lvl2"><a href="#2-glossary">2. Glossary</a></li><li class="lvl2"><a href="#appendix-a-references">Appendix A. References</a></li></ul></aside>
+</div>
+<button class="to-top" id="to-top" aria-label="Back to top" hidden>↑</button>
+<script src="../assets/search-index.js" defer></script>
+<script src="../assets/app.js" defer></script>
+</body>
+</html>

@@ -155,8 +155,6 @@ a:hover { text-decoration: underline; }
 }
 .guide-list a:hover, .sidebar-home:hover { background: var(--bg-soft); color: var(--fg); text-decoration: none; }
 .guide-list a.active, .sidebar-home.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
-.guide-list .num { flex: none; width: 2.2em; font-variant-numeric: tabular-nums; color: var(--fg-faint); font-weight: 600; }
-.guide-list a.active .num { color: inherit; }
 .guide-list code { font-size: .92em; }
 
 .toc ul { list-style: none; margin: 0; padding: 0; border-left: 1px solid var(--border-soft); }
@@ -179,15 +177,9 @@ a:hover { text-decoration: underline; }
 .eyebrow { margin: 0 0 8px; font-size: 13px; font-weight: 650; text-transform: uppercase; letter-spacing: .08em; color: var(--accent); }
 .hero h1 { margin: 0 0 16px; font-size: clamp(30px, 4.4vw, 44px); line-height: 1.15; letter-spacing: -.02em; }
 .lead { margin: 0 0 24px; font-size: 18px; color: var(--fg-muted); }
-.hero-actions { display: flex; flex-wrap: wrap; gap: 10px; }
-.btn {
-  display: inline-flex; align-items: center; height: 40px; padding: 0 18px;
-  border: 1px solid var(--border); border-radius: 8px;
-  color: var(--fg); background: var(--bg); font-weight: 600; font-size: 15px;
-}
-.btn:hover { background: var(--bg-soft); text-decoration: none; }
-.btn-primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
-.btn-primary:hover { background: var(--accent); filter: brightness(1.08); }
+.page-home .hero h1 { font-size: clamp(28px, 4vw, 40px); }
+.page-home .lead { font-size: 15px; }
+.page-home .markdown { font-size: 15px; }
 
 .cards {
   list-style: none; margin: 20px 0 8px; padding: 0;
@@ -195,22 +187,19 @@ a:hover { text-decoration: underline; }
 }
 .markdown .cards li { margin: 0; }
 .card {
-  display: grid; grid-template-columns: auto 1fr; grid-template-rows: 1fr auto; column-gap: 12px; row-gap: 10px;
+  display: grid; grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; row-gap: 6px;
   height: 100%; padding: 14px 16px;
   border: 1px solid var(--border); border-radius: 10px;
   background: var(--bg-elev); color: var(--fg);
   transition: border-color .15s, box-shadow .15s, transform .15s;
 }
 a.card:hover { border-color: var(--accent); box-shadow: var(--shadow); text-decoration: none; transform: translateY(-1px); }
-.card-num {
-  grid-row: 1 / 3; align-self: start;
-  min-width: 40px; padding: 4px 0; border-radius: 6px; text-align: center;
-  background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums;
-}
 .card-title { font-weight: 600; line-height: 1.4; }
+.card-desc { font-size: 13.5px; line-height: 1.45; color: var(--fg-muted); }
+.card-desc code { font-size: .92em; }
+.card .badge { margin-top: 4px; }
 .card-planned { color: var(--fg-muted); background: var(--bg-soft); border-style: dashed; }
-.card-planned .card-num { background: var(--border-soft); color: var(--fg-faint); }
-.badge {
+.card-planned .badge {
   justify-self: start; align-self: end;
   font-size: 12px; font-weight: 600; padding: 1px 8px; border-radius: 999px; border: 1px solid currentColor;
 }
@@ -322,9 +311,9 @@ pre.mermaid svg { max-width: 100%; height: auto; }
 .pager { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 48px; }
 .pager a {
   display: flex; flex-direction: column; gap: 2px; padding: 12px 16px;
-  border: 1px solid var(--border); border-radius: 10px; color: var(--fg);
+  border-radius: 10px; color: var(--fg);
 }
-.pager a:hover { border-color: var(--accent); text-decoration: none; }
+.pager a:hover { background: var(--bg-soft); text-decoration: none; }
 .pager-next { text-align: right; grid-column: 2; }
 .pager-label { font-size: 13px; color: var(--fg-muted); }
 .pager-title { font-weight: 600; color: var(--accent); }

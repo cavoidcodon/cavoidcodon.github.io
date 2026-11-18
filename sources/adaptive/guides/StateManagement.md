@@ -10,7 +10,7 @@
 >
 > **Version:** 1.0 (draft, pending review)
 >
-> **Part of the series:** [AUTOSAR Adaptive Platform Training Guides](00_LearningPath.md). Previous: [04 Execution Management](04_ExecutionManagement.md). Next: [06 Platform Health Management](06_PlatformHealthManagement.md).
+> **Part of the series:** [AUTOSAR Adaptive Platform Training Guides](../README.md). Previous: [Execution Management](ExecutionManagement.md). Next: [Platform Health Management](PlatformHealthManagement.md).
 
 ## About This Guide
 
@@ -23,7 +23,7 @@ State Management (SM) is the functional cluster of the AUTOSAR Adaptive Platform
 - **Platform developers**, in particular of EM, PHM and UCM, who need to know what SM expects from them and what it answers.
 - **System and safety engineers** who need to know which state behavior is standardized and which is a project decision.
 
-Assumed background: modern C++, plus basic Linux/POSIX knowledge (processes, signals, power management). You do not need prior AUTOSAR Adaptive knowledge. Four guides of the series make this one easier: [01 Adaptive Platform Overview and Architecture](01_PlatformOverview.md) for the big picture, [02 Manifests and Methodology](02_Manifests.md) for how the model is written, [03 `ara::core` and General Conventions](03_CoreAndGeneral.md) for `Result`, `Future` and error domains, and above all [04 Execution Management](04_ExecutionManagement.md), which explains the Function Group State transitions that SM requests.
+Assumed background: modern C++, plus basic Linux/POSIX knowledge (processes, signals, power management). You do not need prior AUTOSAR Adaptive knowledge. Four guides of the series make this one easier: [Adaptive Platform Overview and Architecture](PlatformOverview.md) for the big picture, [Manifests and Methodology](Manifests.md) for how the model is written, [`ara::core` and General Conventions](CoreAndGeneral.md) for `Result`, `Future` and error domains, and above all [Execution Management](ExecutionManagement.md), which explains the Function Group State transitions that SM requests.
 
 ### Learning Objectives
 
@@ -58,15 +58,15 @@ The chapters build on each other. Chapters 1 and 2 introduce the concepts and dr
 
 ### The Running Example
 
-All guides of the series use the same invented system. A high-performance ECU called **`HPC`** runs an ADAS feature. [Guide 00, Chapter 6](00_LearningPath.md#6-the-running-example-the-hpc-reference-system) defines the complete example; this section recaps the part that SM needs.
+All guides of the series use the same invented system. A high-performance ECU called **`HPC`** runs an ADAS feature. The [Running Example guide](RunningExample.md) defines the complete example; this section recaps the part that SM needs.
 
-- **Two Function Groups.** `MachineFG` with the Machine States `Off`, `Startup`, `Driving`, `Shutdown`, `Restart` and `Verify`, and `ADAS` with the states `Off`, `Normal`, `Degraded` and `Verify` ([guide 00, Section 6.4](00_LearningPath.md#64-function-groups-and-states)).
-- **`StateManager`** is the SM daemon (`functionClusterAffiliation = STATE_MANAGEMENT`) of the Software Cluster `HpcPlatformCore`. It controls the two Function Groups through the R-ports `MachineFgPort` and `AdasFgPort` ([EM guide, Section 13.10](04_ExecutionManagement.md#1310-state-management-access-stateclientinterface-and-functiongroupportmapping)).
+- **Two Function Groups.** `MachineFG` with the Machine States `Off`, `Startup`, `Driving`, `Shutdown`, `Restart` and `Verify`, and `ADAS` with the states `Off`, `Normal`, `Degraded` and `Verify` (the [Running Example guide, Section 1.4](RunningExample.md#14-function-groups-and-states)).
+- **`StateManager`** is the SM daemon (`functionClusterAffiliation = STATE_MANAGEMENT`) of the Software Cluster `HpcPlatformCore`. It controls the two Function Groups through the R-ports `MachineFgPort` and `AdasFgPort` ([EM guide, Section 13.10](ExecutionManagement.md#1310-state-management-access-stateclientinterface-and-functiongroupportmapping)).
 - **`Fusion`** runs in `ADAS.Normal`; its `processExecutionError` is 42 (`FusionFailed`). In `ADAS.Degraded`, **`FusionLite`** replaces it and uses only radar and vehicle data. **`CameraDriver`** runs in both states with one shared startup configuration.
-- **PHM** supervises `Fusion` and `CameraDriver` and sends its recovery notification `AdasRecovery` (timeout 6 s) to the P-port `PhmRecoveryPort` of `StateManager` ([guide 06, Chapter 12](06_PlatformHealthManagement.md#12-recovery-notifying-state-management)).
+- **PHM** supervises `Fusion` and `CameraDriver` and sends its recovery notification `AdasRecovery` (timeout 6 s) to the P-port `PhmRecoveryPort` of `StateManager` (the [PHM guide, Chapter 12](PlatformHealthManagement.md#12-recovery-notifying-state-management)).
 - **The partial network `AdasPn`** connects `HPC`, `FrontRadar` and `Cockpit`; the signal `PowerMode` of `CentralGateway` arrives as the service `PowerModeService`.
 
-This guide adds the State Management design of `HPC`. It was first added to guide 00 ([Section 6.4](00_LearningPath.md#64-function-groups-and-states) and [Section 6.5](00_LearningPath.md#65-processes)). All values are illustrative.
+This guide adds the State Management design of `HPC`. It was first added to the Running Example guide ([Section 1.4](RunningExample.md#14-function-groups-and-states) and [Section 1.5](RunningExample.md#15-processes)). All values are illustrative.
 
 | Element | What it is | Used in |
 | --- | --- | --- |
@@ -228,12 +228,12 @@ The following table lists SM's responsibilities.
 
 | Not SM's job | Who does it instead |
 | --- | --- |
-| Start, stop and configure processes; perform a Function Group State transition | Execution Management ([EM guide, Chapter 8](04_ExecutionManagement.md#8-function-group-state-transitions-step-by-step)) |
-| Shut down or reboot the machine itself | A project-specific process that runs in `MachineFG.Shutdown` or `Restart`, such as `PowerControl` ([EM guide, Section 9.4](04_ExecutionManagement.md#94-shutdown-and-restart)) |
-| Supervise processes at run time | Platform Health Management ([guide 06](06_PlatformHealthManagement.md)) |
-| Install, update or remove software | Update and Configuration Management (guide 13, `13_UpdateAndConfigManagement.md`, planned) |
-| Run network management protocols | Network Management (guide 09, `09_NM_TimeSync_RawDataStream.md`, planned) |
-| Handle diagnostic requests | Diagnostic Management ([guide 12a](12a_Diagnostics.md)). The interaction with SM is not yet specified in R25-11 ([Section 11.2](#112-diagnostics-ecu-reset-and-communication-control)). |
+| Start, stop and configure processes; perform a Function Group State transition | Execution Management ([EM guide, Chapter 8](ExecutionManagement.md#8-function-group-state-transitions-step-by-step)) |
+| Shut down or reboot the machine itself | A project-specific process that runs in `MachineFG.Shutdown` or `Restart`, such as `PowerControl` ([EM guide, Section 9.4](ExecutionManagement.md#94-shutdown-and-restart)) |
+| Supervise processes at run time | Platform Health Management (the [PHM guide](PlatformHealthManagement.md)) |
+| Install, update or remove software | Update and Configuration Management (the UCM guide, `UpdateAndConfigManagement.md`, planned) |
+| Run network management protocols | Network Management (the NM/TSync/RDS guide, `NM_TimeSync_RawDataStream.md`, planned) |
+| Handle diagnostic requests | Diagnostic Management (the [Diagnostics Part 1 guide](DiagnosticsPart1.md)). The interaction with SM is not yet specified in R25-11 ([Section 11.2](#112-diagnostics-ecu-reset-and-communication-control)). |
 | Decide *project-specific* conditions, for example "allow an update only at standstill" | A project-specific application: the SMControlApplication ([Section 2.6](#26-smcontrolapplication)) |
 
 AUTOSAR also deliberately does **not** standardize the arbitration logic itself. Unlike the Basic Software Mode Manager (BswM) of the Classic Platform, SM on the Adaptive Platform has no standardized rule engine for arbitrary project logic (SWS, Section 7.1.3).
@@ -427,7 +427,7 @@ The following table is the short answer to the question "what does AUTOSAR fix, 
 
 ### 3.1 Where State Management Sits in the Platform
 
-SM is a platform service that runs as a daemon. It belongs to the Software Cluster of category `PLATFORM_CORE`, which contains at least EM, SM and UCM, because these are needed to install any further software ([guide 00, Section 6.3](00_LearningPath.md#63-the-hpc-machine)).
+SM is a platform service that runs as a daemon. It belongs to the Software Cluster of category `PLATFORM_CORE`, which contains at least EM, SM and UCM, because these are needed to install any further software (the [Running Example guide, Section 1.3](RunningExample.md#13-the-hpc-machine)).
 
 Three rules place SM in the lifecycle of the machine:
 
@@ -454,13 +454,13 @@ The table in the SWS lists only `UpdateRequest` as provided to other *functional
 
 | Cluster | Interface | Purpose | Guide |
 | --- | --- | --- | --- |
-| Execution Management | `StateClient`, `FunctionGroup`, `FunctionGroupState` | Request Function Group State transitions and learn about failures | [04, 14.4](04_ExecutionManagement.md#144-functiongroup-and-functiongroupstate), [14.5](04_ExecutionManagement.md#145-stateclient) |
-| Execution Management | `ExecutionClient` | Report the execution state of SM's own processes | [04, 14.2](04_ExecutionManagement.md#142-executionstate) |
-| Platform Health Management | `RecoveryAction` | Receive recovery requests (SM implements it) | [06, 15.4](06_PlatformHealthManagement.md#154-recoveryaction) |
-| Platform Health Management | `SupervisedEntity` | Report SM's own checkpoints | [06, 15.3](06_PlatformHealthManagement.md#153-supervisedentity) |
-| Network Management | `NetworkHandle` (C++ API) | Read and set the state of network handles | 09 |
-| Persistency | `KeyValueStorage` | Store SM's internal state, for example the update session | 11 |
-| Log and Trace | `Logger` | Log messages | 10 |
+| Execution Management | `StateClient`, `FunctionGroup`, `FunctionGroupState` | Request Function Group State transitions and learn about failures | [EM, 14.4](ExecutionManagement.md#144-functiongroup-and-functiongroupstate), [14.5](ExecutionManagement.md#145-stateclient) |
+| Execution Management | `ExecutionClient` | Report the execution state of SM's own processes | [EM, 14.2](ExecutionManagement.md#142-executionstate) |
+| Platform Health Management | `RecoveryAction` | Receive recovery requests (SM implements it) | [PHM, 15.4](PlatformHealthManagement.md#154-recoveryaction) |
+| Platform Health Management | `SupervisedEntity` | Report SM's own checkpoints | [PHM, 15.3](PlatformHealthManagement.md#153-supervisedentity) |
+| Network Management | `NetworkHandle` (C++ API) | Read and set the state of network handles | NM/TSync/RDS |
+| Persistency | `KeyValueStorage` | Store SM's internal state, for example the update session | Persistency |
+| Log and Trace | `Logger` | Log messages | Log and Trace |
 | Operating system | `apext::sm::PowerStateInterface` | Suspend to RAM, wake-up notification | [Section 13.6](#136-apextsmpowerstateinterface) |
 
 ### 3.4 Interaction Map
@@ -501,12 +501,12 @@ Because SM's functions are critical, access from other applications must be secu
 
 | What is protected | How | Spec |
 | --- | --- | --- |
-| Requesting Function Group States from EM | Only the process that a `FunctionGroupPortMapping` names may control a Function Group; EM checks it | [EM guide, Section 12.6](04_ExecutionManagement.md#126-function-group-access-control) |
+| Requesting Function Group States from EM | Only the process that a `FunctionGroupPortMapping` names may control a Function Group; EM checks it | [EM guide, Section 12.6](ExecutionManagement.md#126-function-group-access-control) |
 | `UpdateRequest` | At most one port per machine; the integrator restricts its use to UCM with IAM | [SWS_SM_CONSTR_00020], SWS Section 7.3 |
 | `StateMachineService` and `UpdateAllowedService` | IAM configuration of the project; several SMControlApplications could otherwise change `UpdateAllowed` at the same time | SWS Sections 7.7.1, 7.7.14 |
 | S2R Hub and satellites | IAM checks in the constructors; the security event `SEV_ACCESS_CONTROL_SM_IAM_ACCESS_DENIED` | [SWS_SM_00706], [SWS_SM_00712], [SWS_SM_70000] |
 
-In `HPC`, only `StateManager` uses `StateClient`, and only `SmControl` may request transitions and set `UpdateAllowed` ([guide 00, Section 6.12](00_LearningPath.md#612-security)). Guide 15 configures the IAM rules.
+In `HPC`, only `StateManager` uses `StateClient`, and only `SmControl` may request transitions and set `UpdateAllowed` (the [Running Example guide, Section 1.12](RunningExample.md#112-security)). The IAM guide configures the IAM rules.
 
 > **Key takeaways**
 >
@@ -688,7 +688,7 @@ In `HPC`, `SmControl` subscribes to `CurrentState` of `AdasAgent` and derives th
 
 ### 5.5 Worked Example: SmControl Brings HPC from Startup to Driving
 
-The vehicle is switched on. The following sequence shows how `HPC` reaches `MachineFG.Driving` and `ADAS.Normal`. It continues the startup of the [EM guide, Section 9.3](04_ExecutionManagement.md#93-handing-over-control-to-state-management).
+The vehicle is switched on. The following sequence shows how `HPC` reaches `MachineFG.Driving` and `ADAS.Normal`. It continues the startup of the [EM guide, Section 9.3](ExecutionManagement.md#93-handing-over-control-to-state-management).
 
 ```mermaid
 sequenceDiagram
@@ -761,7 +761,7 @@ flowchart LR
 
 ### 6.2 Function Group State Items
 
-When SM finds a Function Group State item, it requests the configured Function Group State from EM ([SWS_SM_00608]). The item names the state to request (`setFunctionGroupState`) and the R-port through which the request is sent (`rPortPrototype`). In `HPC`, that port is `MachineFgPort` or `AdasFgPort`, typed by a `StateClientInterface`, and the `FunctionGroupPortMapping` tells EM which Function Group it controls ([EM guide, Section 13.10](04_ExecutionManagement.md#1310-state-management-access-stateclientinterface-and-functiongroupportmapping)).
+When SM finds a Function Group State item, it requests the configured Function Group State from EM ([SWS_SM_00608]). The item names the state to request (`setFunctionGroupState`) and the R-port through which the request is sent (`rPortPrototype`). In `HPC`, that port is `MachineFgPort` or `AdasFgPort`, typed by a `StateClientInterface`, and the `FunctionGroupPortMapping` tells EM which Function Group it controls ([EM guide, Section 13.10](ExecutionManagement.md#1310-state-management-access-stateclientinterface-and-functiongroupportmapping)).
 
 For EM, Function Groups are independent of each other. Dependencies between them exist only in SM (SWS, Section 7.1.2), and the ActionLists are the place to express them: give the items in the needed order and put a SYNC where one transition must be finished before the next starts (SWS, Figure 7.17). Without a SYNC, the items run in parallel.
 
@@ -809,9 +809,9 @@ An ActionList can take too long without any explicit error, for example because 
 - The limit is `StateManagementActionList.maxActionListDuration`. If a list has none, SM uses the machine-wide `StateManagementModuleInstantiation.maxActionListDuration` ([SWS_SM_00668]), which must exist ([constr_10641]).
 - On a timeout, the StateMachine uses the list's `maxDurationExceededError` as an error code ([SWS_SM_00673]), or 1 if none is configured ([SWS_SM_00674]). The error code then goes through the ErrorRecoveryTable ([Chapter 8](#8-error-handling-and-recovery)).
 
-In `HPC`, the machine-wide limit is 10 s. The list of `AdasAgent.Degraded`, which is the target of the recovery from a supervision failure, has its own limit of 6 s, equal to PHM's `recoveryNotificationTimeout`. Both cover the worst case of the EM timeouts for `ADAS.Normal` → `ADAS.Degraded`, about 5.5 s ([guide 06, Section 12.4](06_PlatformHealthManagement.md#124-when-the-notification-fails)). All lists of `AdasAgent` report a timeout with `AdasStateTimeout` (60), which leads to `Off`.
+In `HPC`, the machine-wide limit is 10 s. The list of `AdasAgent.Degraded`, which is the target of the recovery from a supervision failure, has its own limit of 6 s, equal to PHM's `recoveryNotificationTimeout`. Both cover the worst case of the EM timeouts for `ADAS.Normal` → `ADAS.Degraded`, about 5.5 s (the [PHM guide, Section 12.4](PlatformHealthManagement.md#124-when-the-notification-fails)). All lists of `AdasAgent` report a timeout with `AdasStateTimeout` (60), which leads to `Off`.
 
-> **Pitfall:** Derive the timeouts from measured durations with a margin, and check them against the EM timeouts of the processes involved ([EM guide, Section 13.11](04_ExecutionManagement.md#1311-the-running-example-complete-configuration)) and against PHM's recovery timeout ([guide 06, Section 12.4](06_PlatformHealthManagement.md#124-when-the-notification-fails)). A Sleep item counts towards the duration of its list.
+> **Pitfall:** Derive the timeouts from measured durations with a margin, and check them against the EM timeouts of the processes involved ([EM guide, Section 13.11](ExecutionManagement.md#1311-the-running-example-complete-configuration)) and against PHM's recovery timeout (the [PHM guide, Section 12.4](PlatformHealthManagement.md#124-when-the-notification-fails)). A Sleep item counts towards the duration of its list.
 
 ### 6.6 Worked Example: The ActionLists of AdasAgent
 
@@ -1050,13 +1050,13 @@ If the StateMachine *is* affected by an update session, it ignores an `Execution
 
 **Formally:** if a new issue must be handled by a StateMachine whose ErrorRecoveryOngoing flag is set, this is a *nested recovery* ([SWS_SM_00666]). The StateMachine reacts to the new error as to any error: it evaluates its table again and switches immediately (SWS, Figure 7.28). For PHM, SM gives the same result to all `RecoveryHandler` calls that concern the same StateMachine, based on the result when the recovery action of the *last* call has finished ([SWS_SM_00031]).
 
-**Example in `HPC`.** `Fusion` stalls; PHM reports 42, and `AdasAgent` switches to `Degraded`. While EM is still starting `FusionLite`, the alive supervision of `CameraDriver` expires; PHM reports 1. `AdasAgent` evaluates 1, enters `Degraded` again and restarts its list. When that list has finished, SM completes both `RecoveryHandler` calls with the same result. Both calls must be answered within PHM's `recoveryNotificationTimeout`, measured from the detection of each failure ([guide 06, Section 12.4](06_PlatformHealthManagement.md#124-when-the-notification-fails)).
+**Example in `HPC`.** `Fusion` stalls; PHM reports 42, and `AdasAgent` switches to `Degraded`. While EM is still starting `FusionLite`, the alive supervision of `CameraDriver` expires; PHM reports 1. `AdasAgent` evaluates 1, enters `Degraded` again and restarts its list. When that list has finished, SM completes both `RecoveryHandler` calls with the same result. Both calls must be answered within PHM's `recoveryNotificationTimeout`, measured from the detection of each failure (the [PHM guide, Section 12.4](PlatformHealthManagement.md#124-when-the-notification-fails)).
 
 > **Pitfall:** A StateMachine has no counter of failures. If the process that fails is also part of the recovery state, for example `FusionLite` in `Degraded`, each failure leads to `Degraded` again, possibly forever. Break such loops in the design: give the fallback process its own `processExecutionError` that maps to `Off`, or let the SMControlApplication watch `CurrentState` and act when the StateMachine is calm again.
 
 ### 8.5 State Management's Side of RecoveryHandler
 
-PHM tells SM about a failed Global Supervision by calling `RecoveryHandler` of an `ara::phm::RecoveryAction` object that SM implements ([guide 06, Section 12.2](06_PlatformHealthManagement.md#122-what-state-management-receives)). In `HPC`, `StateManager` constructs it with the instance specifier `/state_manager/Root/PhmRecoveryPort` and calls `Offer()` at startup.
+PHM tells SM about a failed Global Supervision by calling `RecoveryHandler` of an `ara::phm::RecoveryAction` object that SM implements (the [PHM guide, Section 12.2](PlatformHealthManagement.md#122-what-state-management-receives)). In `HPC`, `StateManager` constructs it with the instance specifier `/state_manager/Root/PhmRecoveryPort` and calls `Offer()` at startup.
 
 The call carries an `ExecutionErrorEvent`, with the Function Group of the Global Supervision and the `ExecutionError` of the failed process, and the kind of supervision that failed. SM handles it as follows:
 
@@ -1067,13 +1067,13 @@ The call carries an `ExecutionErrorEvent`, with the Function Group of the Global
 | The StateMachine is "ImpactedByUpdate" | Ignore the request; log it | [SWS_SM_00664] |
 | A recovery of the same StateMachine is already running | Nested recovery: same result for all calls when the last action has finished | [SWS_SM_00031] |
 
-SM answers through the `Future` that `RecoveryHandler` returns. A value means that the recovery is handled; `kSMCanNotHandleRecovery` asks PHM to fire the watchdog reaction as a last resort (SWS, Section 7.2). PHM watches the answer with a configurable timeout ([guide 06, Section 12.4](06_PlatformHealthManagement.md#124-when-the-notification-fails)).
+SM answers through the `Future` that `RecoveryHandler` returns. A value means that the recovery is handled; `kSMCanNotHandleRecovery` asks PHM to fire the watchdog reaction as a last resort (SWS, Section 7.2). PHM watches the answer with a configurable timeout (the [PHM guide, Section 12.4](PlatformHealthManagement.md#124-when-the-notification-fails)).
 
 > **Note:** Apart from nested recovery, the SWS does not say exactly *when* SM completes the `Future`, nor what it answers when it ignores a request during an update session. This series assumes that SM answers when the ActionList of the recovery state has finished. Then the recovery state's list must fit into PHM's timeout, which is why `AdasAgent.Degraded` has a list limit of 6 s ([Section 6.5](#65-actionlisttimeout)).
 
 ### 8.6 Failures Reported by Execution Management
 
-SM requests every Function Group State, including the Machine State, through EM's `StateClient` ([SWS_SM_00400]), and it must evaluate the results ([SWS_SM_00401]). EM reports failures in two ways ([EM guide, Section 10.3](04_ExecutionManagement.md#103-undefined-function-group-state)): during a requested transition through the result of `SetState`, and outside a transition through the `undefinedStateCallback`. In both cases SM can fetch the `ExecutionErrorEvent` with `GetExecutionError`.
+SM requests every Function Group State, including the Machine State, through EM's `StateClient` ([SWS_SM_00400]), and it must evaluate the results ([SWS_SM_00401]). EM reports failures in two ways ([EM guide, Section 10.3](ExecutionManagement.md#103-undefined-function-group-state)): during a requested transition through the result of `SetState`, and outside a transition through the `undefinedStateCallback`. In both cases SM can fetch the `ExecutionErrorEvent` with `GetExecutionError`.
 
 | EM reports | Meaning | ErrorCode in the StateMachine approach |
 | --- | --- | --- |
@@ -1085,7 +1085,7 @@ SM requests every Function Group State, including the Machine State, through EM'
 
 ### 8.7 Worked Example: Fusion Fails and ADAS Goes to Degraded
 
-This is the State Management side of the failure that [guide 06, Section 12.6](06_PlatformHealthManagement.md#126-worked-example-fusion-stalls-and-adas-goes-to-degraded) shows from PHM's side. `Fusion` misses its compute deadline, and `FusionSupervision` expires.
+This is the State Management side of the failure that the [PHM guide, Section 12.6](PlatformHealthManagement.md#126-worked-example-fusion-stalls-and-adas-goes-to-degraded) shows from PHM's side. `Fusion` misses its compute deadline, and `FusionSupervision` expires.
 
 ```mermaid
 sequenceDiagram
@@ -1114,7 +1114,7 @@ If `Fusion` had crashed instead, EM would have reported it through the `undefine
 
 ### 8.8 Worked Example: A Stuck CameraDriver
 
-Now the alive supervision of `CameraDriver` expires because its image loop hangs, but the process does not crash ([guide 06, Section 12.7](06_PlatformHealthManagement.md#127-known-limitation-successive-failures)).
+Now the alive supervision of `CameraDriver` expires because its image loop hangs, but the process does not crash (the [PHM guide, Section 12.7](PlatformHealthManagement.md#127-known-limitation-successive-failures)).
 
 1. PHM calls `RecoveryHandler` with `ADAS` and the `ExecutionError` 1, because `CameraDriver` has no `processExecutionError`.
 2. `AdasAgent` maps 1 to `Degraded` and requests `ADAS.Degraded`.
@@ -1144,7 +1144,7 @@ With an individual implementation of SM, the reactions are project code. The SWS
 
 The SWS adds that these reactions are valid only for an individual implementation; with the StateMachine approach, a StateMachine State change is configured as error reaction. [SWS_SM_00030] and [SWS_SM_00031] apply to both approaches.
 
-> **Note:** This list of the SWS also names the error codes `kMetaModelError`, `kGeneralError` and `kCommunicationError`. The `ExecErrc` of R25-11 does not define them ([EM guide, Section 10.2](04_ExecutionManagement.md#102-error-codes-execerrc)); read them as examples of the kind of error.
+> **Note:** This list of the SWS also names the error codes `kMetaModelError`, `kGeneralError` and `kCommunicationError`. The `ExecErrc` of R25-11 does not define them ([EM guide, Section 10.2](ExecutionManagement.md#102-error-codes-execerrc)); read them as examples of the kind of error.
 
 > **Key takeaways**
 >
@@ -1158,7 +1158,7 @@ The SWS adds that these reactions are valid only for an individual implementatio
 
 ## 9. Software Updates: State Management's Side
 
-> **Why this matters:** During an update, UCM changes the software under the feet of SM. SM must stop the affected functions, let UCM install, check the new software and survive resets in between, without letting normal requests or error reactions interfere. This chapter shows SM's part; guide 13 (`13_UpdateAndConfigManagement.md`, planned) tells the whole update story.
+> **Why this matters:** During an update, UCM changes the software under the feet of SM. SM must stop the affected functions, let UCM install, check the new software and survive resets in between, without letting normal requests or error reactions interfere. This chapter shows SM's part; the UCM guide (`UpdateAndConfigManagement.md`, planned) tells the whole update story.
 
 ### 9.1 The UpdateRequest Interface
 
@@ -1174,7 +1174,7 @@ SM provides the service interface `UpdateRequest` to UCM ([SWS_SM_91017]). The s
 | `ResetMachine()` | Request a reset of the machine; fire-and-forget | `kOperationRejected` | [SWS_SM_00202], [SWS_SM_91100] |
 | Field `ResetMachineNotifier` | The status of the last `ResetMachine`: `kIdle`, `kRejected`, `kSuccessful`, `kFailed`; default `kIdle` | | [SWS_SM_00211], [SWS_SM_00212], [SWS_SM_91106] |
 
-The Function Groups are passed as a list of strings, each the fully qualified short name of a Function Group ([SWS_SM_91018], [SWS_SM_91019]). The SWS does not show an example; in the model of guide 02, the path of `ADAS` is `/HPC/FunctionGroupSets/AdasFunctionGroups/ADAS`.
+The Function Groups are passed as a list of strings, each the fully qualified short name of a Function Group ([SWS_SM_91018], [SWS_SM_91019]). The SWS does not show an example; in the model of the Manifests guide, the path of `ADAS` is `/HPC/FunctionGroupSets/AdasFunctionGroups/ADAS`.
 
 The following rules apply to every implementation of SM, with or without StateMachines (SWS, Section 7.3):
 
@@ -1277,7 +1277,7 @@ In `HPC`, the list of `HpcController.AfterUpdate` is `MachineFG.Driving`, SYNC, 
 
 ### 9.7 Worked Example: Updating AdasCluster to 1.1.0
 
-The vehicle is parked, and V-UCM starts the update of `AdasCluster` from 1.0.0 to 1.1.0 ([guide 00, Section 6.11](00_LearningPath.md#611-software-updates)). The following sequence shows SM's part; which processes run in `ADAS.Verify` and how UCM decides about the rollback is the subject of guide 13.
+The vehicle is parked, and V-UCM starts the update of `AdasCluster` from 1.0.0 to 1.1.0 (the [Running Example guide, Section 1.11](RunningExample.md#111-software-updates)). The following sequence shows SM's part; which processes run in `ADAS.Verify` and how UCM decides about the rollback is the subject of the UCM guide.
 
 ```mermaid
 sequenceDiagram
@@ -1472,7 +1472,7 @@ Because the configuration contains an S2R item, SM creates an `S2RHub` ([SWS_SM_
 Adaptive Applications should not need to know which networks they use; on a different ECU, the networks may be configured differently. Network Management (NM) therefore provides **network handles**: each handle (`NmNetworkHandle`) represents a set of partial networks or VLANs that are controlled together (SWS, Sections 2 and 7.4). SM controls the handles through NM's C++ API and can react to their changes.
 
 - With StateMachines, SM switches handles with SetNetworkHandle items ([Section 6.3](#63-network-handle-items-and-afterrun)) and can use handle changes as triggers ([Section 5.3](#53-triggers-from-network-management)).
-- The *Manifest Specification* also has a mapping between network handles and Function Group States on the NM side, `NmHandleToFunctionGroupStateMapping` (TPS, Section 12.7.3). The R25-11 SM specification does not use it; the older SM requirements on network handles were removed in R24-11 ([Appendix D](#appendix-d-notable-changes-in-recent-releases)). Guide 09 explains NM's side.
+- The *Manifest Specification* also has a mapping between network handles and Function Group States on the NM side, `NmHandleToFunctionGroupStateMapping` (TPS, Section 12.7.3). The R25-11 SM specification does not use it; the older SM requirements on network handles were removed in R24-11 ([Appendix D](#appendix-d-notable-changes-in-recent-releases)). The NM/TSync/RDS guide explains NM's side.
 
 In `HPC`, `AdasAgent` requests `AdasPnHandle` as `FullCom` in `Normal`, `Degraded` and `VerifyUpdate`, and releases it to `NoCom` 2 s after `ADAS` has reached `Off`.
 
@@ -1484,7 +1484,7 @@ In `HPC`, `AdasAgent` requests `AdasPnHandle` as `FullCom` in `Normal`, `Degrade
 
 **What Diagnostic Management does.** The *Specification of Diagnostics* of R25-11 does not mention SM. For the UDS service ECUReset (`0x11`), Diagnostic Management calls `ara::diag::EcuResetRequest::RequestReset` of an application that implements this class ([SWS_DM_00235], [SWS_DM_01009]). It sends the positive response before or after the reset, depending on its configuration ([SWS_DM_00268], [SWS_DM_00360]), and calls `ExecuteReset` of the same class to perform the reset ([SWS_DM_01023], [SWS_DM_01090]). The sub-functions for rapid power shutdown call `EnableRapidShutdown` ([SWS_DM_01020], [SWS_DM_01021]). Similarly, the UDS service CommunicationControl (`0x28`) is delivered to an application through `ara::diag::CommunicationControl` ([SWS_DM_00140], [SWS_DM_00804]). Who implements these classes is a project decision.
 
-**What `HPC` does.** `SmControl` implements `ara::diag::EcuResetRequest`. When the tester requests an ECU reset, `SmControl` requests `Reset` (3) from `HpcController`, whose `Restart` state stops `AdasAgent` and requests `MachineFG.Restart`. [Guide 12a](12a_Diagnostics.md#126-worked-example-ecu-reset-through-smcontrol) shows the Diagnostic Management side, including the response timing. The diagnostic request that switches `ADAS` to `Degraded` ([guide 00, Section 6.4](00_LearningPath.md#64-function-groups-and-states)) also ends in `SmControl`, which sends `Degrade` (10) to `AdasAgent`; its trigger is the routine `DegradeAdas` ([guide 12a, Section 12.7](12a_Diagnostics.md#127-worked-example-degradeadas)). `HPC` does not use CommunicationControl through SM.
+**What `HPC` does.** `SmControl` implements `ara::diag::EcuResetRequest`. When the tester requests an ECU reset, `SmControl` requests `Reset` (3) from `HpcController`, whose `Restart` state stops `AdasAgent` and requests `MachineFG.Restart`. The [Diagnostics Part 1 guide](DiagnosticsPart1.md#126-worked-example-ecu-reset-through-smcontrol) shows the Diagnostic Management side, including the response timing. The diagnostic request that switches `ADAS` to `Degraded` (the [Running Example guide, Section 1.4](RunningExample.md#14-function-groups-and-states)) also ends in `SmControl`, which sends `Degrade` (10) to `AdasAgent`; its trigger is the routine `DegradeAdas` (the [Diagnostics Part 1 guide, Section 12.7](DiagnosticsPart1.md#127-worked-example-degradeadas)). `HPC` does not use CommunicationControl through SM.
 
 ```mermaid
 sequenceDiagram
@@ -1512,7 +1512,7 @@ sequenceDiagram
 
 **Logging.** SM uses Log and Trace for its messages, but defines no standardized (modelled) log messages ([Chapter 14](#14-logging-security-events-and-violations)). An error that a StateMachine ignores during an update session is logged if logging is activated ([SWS_SM_00664]).
 
-**Supervision of SM.** SM is the central entity of the machine; if its daemon crashes, the machine becomes unusable. SM should therefore be supervised by PHM with checkpoints, and PHM may trigger the watchdog reaction when SM misbehaves (SWS, Sections 7.2 and 7.8.5). In `HPC`, `StateManager` reports the checkpoint `MainLoop` of the Supervised Entity `StateManagerHeartbeat`, and a hang ends in a watchdog reset ([guide 06, Section 13.6](06_PlatformHealthManagement.md#136-worked-example-statemanager-hangs)).
+**Supervision of SM.** SM is the central entity of the machine; if its daemon crashes, the machine becomes unusable. SM should therefore be supervised by PHM with checkpoints, and PHM may trigger the watchdog reaction when SM misbehaves (SWS, Sections 7.2 and 7.8.5). In `HPC`, `StateManager` reports the checkpoint `MainLoop` of the Supervised Entity `StateManagerHeartbeat`, and a hang ends in a watchdog reset (the [PHM guide, Section 13.6](PlatformHealthManagement.md#136-worked-example-statemanager-hangs)).
 
 > **Key takeaways**
 >
@@ -1533,8 +1533,8 @@ All meta-classes of this chapter have the status *draft* in R25-11, the Suspend-
 
 The following checklist is the smallest configuration with which the StateMachine approach works for `HPC`.
 
-1. **SM process in every Machine State** (mandatory). The process `StateManager` with `functionClusterAffiliation = STATE_MANAGEMENT` runs in every `MachineFG` state except `Off` ([SWS_SM_CONSTR_00001]). Execution Manifest; see the [EM guide, Section 13.3](04_ExecutionManagement.md#133-process).
-2. **Access to the Function Groups** (mandatory). R-ports `MachineFgPort` and `AdasFgPort` typed by `StateClientInterface`s, and one `FunctionGroupPortMapping` per Function Group ([EM guide, Section 13.10](04_ExecutionManagement.md#1310-state-management-access-stateclientinterface-and-functiongroupportmapping)).
+1. **SM process in every Machine State** (mandatory). The process `StateManager` with `functionClusterAffiliation = STATE_MANAGEMENT` runs in every `MachineFG` state except `Off` ([SWS_SM_CONSTR_00001]). Execution Manifest; see the [EM guide, Section 13.3](ExecutionManagement.md#133-process).
+2. **Access to the Function Groups** (mandatory). R-ports `MachineFgPort` and `AdasFgPort` typed by `StateClientInterface`s, and one `FunctionGroupPortMapping` per Function Group ([EM guide, Section 13.10](ExecutionManagement.md#1310-state-management-access-stateclientinterface-and-functiongroupportmapping)).
 3. **One `ModeDeclarationGroup` per kind of StateMachine** (mandatory), with all StateMachine States and an `initialMode`.
 4. **One `StateManagementModuleInstantiation`** in the Machine (mandatory, at most one per Machine), with `maxActionListDuration` ([constr_10489], [constr_10641]); its `ProcessToMachineMapping` connects it to the SM process.
 5. **One `StateManagementStateNotification` per StateMachine** (mandatory), each with its `stateMachine` and its `notificationPort`; exactly one has the category `STATE_MANAGEMENT_CONTROLLER` ([SWS_SM_CONSTR_00031], [constr_10391]).
@@ -1677,7 +1677,7 @@ The error code is the `errorCode` of the referenced `ApApplicationError`. The Er
 | `NmInteractsWithSmMapping.nmNetworkHandle` | The handle whose changes are reported | Reference to `NmNetworkHandle` | `0..1` | Must exist ([constr_10516]) | Triggers [SWS_SM_00620], [SWS_SM_00621] |
 | `NmInteractsWithSmMapping.stateRequest` | The trigger request that receives the change | Reference to `StateManagementStateRequest` | `0..1` | Must exist ([constr_10515]); that request has no `stateRequestPort` ([constr_10511]) | |
 
-Each SetNetworkHandle item needs its own `SmInteractsWithNmMapping`. `AdasAgent` has six items for `AdasPnHandle`, so `HPC` has six mappings. The `NmNetworkHandle` itself belongs to the NM configuration (`NmInstantiation.networkHandle`), which guide 09 explains.
+Each SetNetworkHandle item needs its own `SmInteractsWithNmMapping`. `AdasAgent` has six items for `AdasPnHandle`, so `HPC` has six mappings. The `NmNetworkHandle` itself belongs to the NM configuration (`NmInstantiation.networkHandle`), which the NM/TSync/RDS guide explains.
 
 ### 12.9 Port Interfaces and Ports
 
@@ -1685,7 +1685,7 @@ Each SetNetworkHandle item needs its own `SmInteractsWithNmMapping`. `AdasAgent`
 
 | Port interface | Kind | Attributes | Used for | Spec |
 | --- | --- | --- | --- | --- |
-| `StateClientInterface` | `StateManagementNotificationInterface` | `functionGroupType` (must exist) | R-port through which SM switches one Function Group | [TPS_MANI_01473], [constr_10616]; [EM guide, Section 13.10](04_ExecutionManagement.md#1310-state-management-access-stateclientinterface-and-functiongroupportmapping) |
+| `StateClientInterface` | `StateManagementNotificationInterface` | `functionGroupType` (must exist) | R-port through which SM switches one Function Group | [TPS_MANI_01473], [constr_10616]; [EM guide, Section 13.10](ExecutionManagement.md#1310-state-management-access-stateclientinterface-and-functiongroupportmapping) |
 | `StateManagementFunctionGroupSwitchNotificationInterface` | `StateManagementNotificationInterface` | `modeGroup` (must exist) | Notification of a Function Group switch | [constr_10389]; see the Note in [Section 12.6](#126-action-items) |
 | `StateManagementEmErrorInterface`, `StateManagementPhmErrorInterface` | `StateManagementErrorInterface` | none | Ports of error requests | TPS Section 4.5.4 |
 | `StateManagementDiagTriggerInterface` | `StateManagementTriggerInterface` | none | Diagnostic triggers; not used by the SWS SM | TPS Section 4.5.3 |
@@ -1704,12 +1704,12 @@ The ports of `HPC` (instance specifiers `/state_manager/Root/<port>` and `/sm_co
 | `StateManagerSwc` | `ControllerTriggerPort`, `AdasTriggerPort` | R, `StateMachineService` | `stateRequestPort` of the trigger requests (TPS model) |
 | `StateManagerSwc` | `ControllerErrorPort`, `AdasErrorPort` | R, `SmEmErrors`, `SmPhmErrors` | `stateRequestPort` of the error requests |
 | `StateManagerSwc` | `S2rHubPort` | P, `S2rHub` (`SuspendToRamHubInterface`) | The S2R Hub ([Section 12.10](#1210-suspend-to-ram-configuration)) |
-| `StateManagerSwc` | `PhmRecoveryPort`, `HeartbeatPort` | P and R | Recovery and supervision ([guide 06, Section 14.3](06_PlatformHealthManagement.md#143-phmsupervisionrecoverynotificationinterface)) |
+| `StateManagerSwc` | `PhmRecoveryPort`, `HeartbeatPort` | P and R | Recovery and supervision (the [PHM guide, Section 14.3](PlatformHealthManagement.md#143-phmsupervisionrecoverynotificationinterface)) |
 | `SmControlSwc` | `ControllerRequestRPort`, `AdasRequestRPort` | R, `StateMachineService` | `RequestTransition` |
 | `SmControlSwc` | `AdasStateRPort` | R, `StateMachineNotification` | `CurrentState` of `AdasAgent` |
 | `SmControlSwc` | `UpdateAllowedRPort` | R, `UpdateAllowedService` | Set `UpdateAllowed` |
 | `SmControlSwc` | `PowerModeRPort`, `VehicleDynamicsRPort`, `AdasStatusPPort` | R, R, P | `PowerModeService`, `VehicleDynamicsService`, `AdasStatusService` |
-| `SmControlSwc` | `EcuResetPort` | typed by `DiagnosticEcuResetInterface` | `ara::diag::EcuResetRequest` (guide 12a) |
+| `SmControlSwc` | `EcuResetPort` | typed by `DiagnosticEcuResetInterface` | `ara::diag::EcuResetRequest` (the Diagnostics Part 1 guide) |
 
 > **Pitfall:** A machine may have at most one port typed by `UpdateRequest` ([SWS_SM_CONSTR_00020]), and only the process of the Controller may provide it ([SWS_SM_00629]). A second SM process with an `UpdateRequest` port makes the configuration invalid.
 
@@ -1730,13 +1730,13 @@ The ports of `HPC` (instance specifiers `/state_manager/Root/<port>` and `/sm_co
 
 | Setting | Where | Why it matters for SM | Details in |
 | --- | --- | --- | --- |
-| `Process.functionClusterAffiliation = STATE_MANAGEMENT` | Execution Manifest | Marks the SM process; required in every Machine State ([SWS_SM_CONSTR_00001]) | [EM guide, Section 13.3](04_ExecutionManagement.md#133-process) |
+| `Process.functionClusterAffiliation = STATE_MANAGEMENT` | Execution Manifest | Marks the SM process; required in every Machine State ([SWS_SM_CONSTR_00001]) | [EM guide, Section 13.3](ExecutionManagement.md#133-process) |
 | `ProcessToMachineMapping.nonOsModuleInstantiation` | Execution Manifest | Connects the SM process to `StateManagementModuleInstantiation` | TPS Figure 12.69 |
-| `StartupConfig.processExecutionError` | Execution Manifest | The error code of a failed process ([SWS_SM_00670]) | [EM guide, Section 13.5](04_ExecutionManagement.md#135-startupconfig) |
-| `FunctionGroupPortMapping` | Machine level | Gives the SM process access to a Function Group | [EM guide, Section 13.10](04_ExecutionManagement.md#1310-state-management-access-stateclientinterface-and-functiongroupportmapping) |
-| `Verify` state in every Function Group | Function Group definition | Target of `VerifyUpdate` ([constr_10023]) | [EM guide, Section 7.2](04_ExecutionManagement.md#72-function-groups-and-function-group-states) |
-| `RecoveryNotificationToPPortPrototypeMapping` | PHM contribution | Delivers PHM's recovery notification to SM's port | [guide 06, Section 14.13](06_PlatformHealthManagement.md#1413-recoverynotification-and-recoverynotificationtopportprototypemapping) |
-| `NmNetworkHandle` | NM configuration | The handles that SM switches | guide 09 |
+| `StartupConfig.processExecutionError` | Execution Manifest | The error code of a failed process ([SWS_SM_00670]) | [EM guide, Section 13.5](ExecutionManagement.md#135-startupconfig) |
+| `FunctionGroupPortMapping` | Machine level | Gives the SM process access to a Function Group | [EM guide, Section 13.10](ExecutionManagement.md#1310-state-management-access-stateclientinterface-and-functiongroupportmapping) |
+| `Verify` state in every Function Group | Function Group definition | Target of `VerifyUpdate` ([constr_10023]) | [EM guide, Section 7.2](ExecutionManagement.md#72-function-groups-and-function-group-states) |
+| `RecoveryNotificationToPPortPrototypeMapping` | PHM contribution | Delivers PHM's recovery notification to SM's port | [PHM guide, Section 14.13](PlatformHealthManagement.md#1413-recoverynotification-and-recoverynotificationtopportprototypemapping) |
+| `NmNetworkHandle` | NM configuration | The handles that SM switches | NM/TSync/RDS guide |
 
 ### 12.12 The Running Example: Complete Configuration
 
@@ -1745,7 +1745,7 @@ The following conceptual view is the complete SM configuration of `HPC`. Element
 ```yaml
 # Conceptual view of the State Management configuration of HPC. NOT real ARXML syntax.
 
-# --- Execution Manifest (guide 04) ---------------------------------------------
+# --- Execution Manifest (the EM guide) ---------------------------------------------
 Process StateManager:
   functionClusterAffiliation: STATE_MANAGEMENT
   states: MachineFG.[Startup, Driving, Shutdown, Restart, Verify]   # all but Off
@@ -1848,7 +1848,7 @@ The following table explains the values that are not obvious.
 | Sleep 2 s in `AdasAgent_Off` | Afterrun for the last messages on `AdasPn` |
 | `LeaveSuspend` with LeaveSuspendToRam, hub mapping | Required by DRAFT constraints even without S2R ([Section 10.8](#108-what-hpc-does)) |
 
-**ARXML excerpts.** The following excerpts show the real syntax for the unambiguous parts of the configuration. They come from one file that validates against the R25-11 XML schema (`AUTOSAR_00054.xsd`), and whose references were checked together with the ARXML of [guide 02](02_Manifests.md#1216-the-running-example-complete-configuration) and [guide 06](06_PlatformHealthManagement.md#1415-the-running-example-complete-configuration). The elements are split parts: the `Machine` `HPC` and the component `StateManagerSwc` merge with their definitions in those guides. References to the service ports `ControllerStatePort`, `AdasStatePort` and `AdasTriggerPort` and to the network handle point to elements that the excerpts leave out. The `ANY` rows cannot be written in ARXML ([Section 4.3](#43-from-tables-to-model-elements)).
+**ARXML excerpts.** The following excerpts show the real syntax for the unambiguous parts of the configuration. They come from one file that validates against the R25-11 XML schema (`AUTOSAR_00054.xsd`), and whose references were checked together with the ARXML of the [Manifests guide](Manifests.md#1216-the-running-example-complete-configuration) and the [PHM guide](PlatformHealthManagement.md#1415-the-running-example-complete-configuration). The elements are split parts: the `Machine` `HPC` and the component `StateManagerSwc` merge with their definitions in those guides. References to the service ports `ControllerStatePort`, `AdasStatePort` and `AdasTriggerPort` and to the network handle point to elements that the excerpts leave out. The `ANY` rows cannot be written in ARXML ([Section 4.3](#43-from-tables-to-model-elements)).
 
 <details>
 <summary><code>AdasAgentStates</code>: the type of the StateMachine AdasAgent (30 lines)</summary>
@@ -2120,11 +2120,11 @@ The following table explains the values that are not obvious.
 | S2R Hub | `ara/sm/s2r/S2RHub.h` | `ara::sm::s2r::S2RHub` | SMControlApplications without StateMachines |
 | Platform extension | `apext/sm/power_state_interface.h` (forward header `apext/sm/sm_fwd.h`) | `apext::sm::PowerStateInterface`, `PowerState`, `WakeUpHandler` | Platform vendor |
 
-SM itself uses `ara::exec::StateClient` ([EM guide, Section 14.5](04_ExecutionManagement.md#145-stateclient)) and implements `ara::phm::RecoveryAction` ([guide 06, Section 15.4](06_PlatformHealthManagement.md#154-recoveryaction)); these are documented in their guides.
+SM itself uses `ara::exec::StateClient` ([EM guide, Section 14.5](ExecutionManagement.md#145-stateclient)) and implements `ara::phm::RecoveryAction` (the [PHM guide, Section 15.4](PlatformHealthManagement.md#154-recoveryaction)); these are documented in their guides.
 
 ### 13.2 The Service Interfaces and Their Data Types
 
-The service interfaces are defined in the model (SWS, Chapter 9). Applications use the proxies that the `ara::com` generator creates from them; [guide 07](07_CommunicationManagement.md#22-skeleton-and-proxy) explains proxies.
+The service interfaces are defined in the model (SWS, Chapter 9). Applications use the proxies that the `ara::com` generator creates from them; the [CM guide](CommunicationManagement.md#22-skeleton-and-proxy) explains proxies.
 
 **`StateMachineService`** ([SWS_SM_91022]), one per StateMachine ([SWS_SM_00600]):
 
@@ -2206,7 +2206,7 @@ class SmException : public ara::core::Exception {...};                    // [SW
 
 The identifier of `SmErrorDomain` is `0x8000'0000'0000'0301`, defined in the SWS Core ([SWS_CORE_90023]).
 
-> **Pitfall:** The codes 5 and 6 mean `kOperationRejected` and `kOperationFailed` for the services, but `kAtLeastOneRejected` and `kAtLeastOneHadIssuesToLeave` in `SmErrc`. The SWS does not say whether the application errors of the services belong to the same error domain identifier. Never compare only the number: compare `ara::core::ErrorCode` objects, which compare domain and value ([guide 03, Section 7.1](03_CoreAndGeneral.md#71-errorcode-value-domain-and-support-data)).
+> **Pitfall:** The codes 5 and 6 mean `kOperationRejected` and `kOperationFailed` for the services, but `kAtLeastOneRejected` and `kAtLeastOneHadIssuesToLeave` in `SmErrc`. The SWS does not say whether the application errors of the services belong to the same error domain identifier. Never compare only the number: compare `ara::core::ErrorCode` objects, which compare domain and value (the [Core guide, Section 7.1](CoreAndGeneral.md#71-errorcode-value-domain-and-support-data)).
 
 ### 13.4 S2RSatellite
 
@@ -2340,7 +2340,7 @@ All three functions are documented as not thread-safe.
 
 ### 13.7 Example: The Main Loop of SmControl
 
-The following sketch shows how `SmControl` uses the services of SM. It is simplified: the proxy class names follow the `ara::com` naming rules for the namespace `ara::sm`, but generated headers, service discovery and error handling differ between tools; guide 07 explains them. Only the SM logic is complete.
+The following sketch shows how `SmControl` uses the services of SM. It is simplified: the proxy class names follow the `ara::com` naming rules for the namespace `ara::sm`, but generated headers, service discovery and error handling differ between tools; the CM guide explains them. Only the SM logic is complete.
 
 ```cpp
 // Illustrative sketch of SmControl, the SMControlApplication of HPC.
@@ -2385,7 +2385,7 @@ public:
         // "inTransition": keep the last published value (Section 5.4)
     }
 
-    // ECU reset requested by Diagnostic Management (ara::diag::EcuResetRequest, guide 12a).
+    // ECU reset requested by Diagnostic Management (ara::diag::EcuResetRequest, the Diagnostics Part 1 guide).
     void OnEcuReset() { Request(controller_, kReset); }
 
 private:
@@ -2423,7 +2423,7 @@ Four details of the sketch are worth noting:
 - **`RequestTransition` blocks until the new ActionList is done.** Do not call it from a callback that must return quickly; use a worker thread or `Future::then`.
 - **`UpdateAllowed` is set immediately at startup**, because the SWS defines no initial value ([Section 9.2](#92-granting-a-session-updateallowed)).
 - **The names compared in `OnAdasState` are configuration names.** A renamed StateMachine State silently breaks this code; generate the constants from the configuration if your tool allows it.
-- **`AdasStatusType` is a generated enumeration.** Its enumerators take the literal names of the model (`Off`, `Active`, `Degraded`, `Unavailable`), without a `k` prefix ([SWS_LBAP_00028]; [guide 07, Section 5.5](07_CommunicationManagement.md#55-data-types)).
+- **`AdasStatusType` is a generated enumeration.** Its enumerators take the literal names of the model (`Off`, `Active`, `Degraded`, `Unavailable`), without a `k` prefix ([SWS_LBAP_00028]; the [CM guide, Section 5.5](CommunicationManagement.md#55-data-types)).
 
 > **Key takeaways**
 >
@@ -2445,7 +2445,7 @@ Four details of the sketch are worth noting:
 | Log messages | SM defines no modelled (non-verbose) log messages | SWS, Section 7.9.2 |
 | Production errors | SM defines no diagnostic events | SWS, Section 7.9.4 |
 
-The violations are raised by the constructors of `S2RHub` and `S2RSatellite`, for example when an instance specifier does not resolve to a port or the calling process does not match the IAM mapping. A violation terminates the offending process ([guide 03, Section 6.3](03_CoreAndGeneral.md#63-violations-fail-early)). Implementations may add non-standardized violations.
+The violations are raised by the constructors of `S2RHub` and `S2RSatellite`, for example when an instance specifier does not resolve to a port or the calling process does not match the IAM mapping. A violation terminates the offending process (the [Core guide, Section 6.3](CoreAndGeneral.md#63-violations-fail-early)). Implementations may add non-standardized violations.
 
 Everything else, for example "transition requested", "ErrorCode 42 mapped to `Degraded`" or "recovery ignored during update", appears only in the verbose log of your SM implementation. Agree with your vendor which messages it logs and at which level, and use `CurrentState` notifications as a second, standardized trace.
 
