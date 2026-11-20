@@ -1,0 +1,18 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "Adaptive Application\n(for example Fusion)" as APP
+rectangle "Libraries of other clusters\n(ara::com, ara::exec, ara::per, ...)" as FCL
+rectangle "ara::core\n(in the same process)" as CORE
+rectangle "stderr of the process" as ERR
+rectangle "Log and Trace\n(DLT, context ID of core,\nof the cluster or of EM)" as DLT
+rectangle "Execution Management" as EM
+rectangle "State Management" as SM
+APP --> CORE : Initialize, Result, Future,\nErrorCode, types
+APP --> FCL : cluster APIs
+FCL --> CORE : Result, Future, ErrorCode,\nViolations
+CORE ..> ERR : Abort: message
+CORE ..> DLT : AbortMessage, violation messages
+CORE ..> EM : process terminates abnormally
+EM ..> SM : Undefined Function Group State
+@enduml

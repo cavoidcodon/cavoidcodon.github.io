@@ -1,0 +1,17 @@
+@startuml
+!include ../_style.puml
+autonumber
+participant "DiagnosticTester" as DT
+participant "Diagnostic Management" as DM
+participant "SmControl" as SC
+participant "StateManager" as SM
+participant "Execution Management" as EM
+DT -> DM : UDS ECUReset (0x11)
+DM -> SC : EcuResetRequest: RequestReset
+SC --> DM : accepted
+DM --> DT : positive response (before the reset)
+DM -> SC : EcuResetRequest: ExecuteReset
+SC -> SM : RequestTransition(3) on HpcController
+SM -> SM : Restart: stop AdasAgent, SYNC
+SM -> EM : SetState(MachineFG.Restart)
+@enduml

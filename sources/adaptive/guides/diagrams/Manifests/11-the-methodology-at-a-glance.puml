@@ -1,0 +1,27 @@
+@startuml
+!include ../_style.puml
+rectangle "High Level Architecture" as HLA
+rectangle "System Design" as SD
+rectangle "Service Interface Design" as SID
+rectangle "Diagnostic Design" as DD
+rectangle "Machine Design" as MD
+rectangle "Application Design" as AD
+rectangle "Machine Manifest" as MM
+rectangle "SW Cluster Design" as SCD
+rectangle "Adaptive Software Implementation" as IMP
+rectangle "SW Cluster Integration" as SCI
+rectangle "SW Packaging" as PKG
+SD --> HLA
+MD --> SD
+AD --> SID
+MM --> MD
+SCD --> MD
+SCD --> DD
+SCD --> SID
+SCD --> AD
+IMP --> AD
+SCI --> MM
+SCI --> SCD
+SCI --> IMP
+PKG --> SCI
+@enduml

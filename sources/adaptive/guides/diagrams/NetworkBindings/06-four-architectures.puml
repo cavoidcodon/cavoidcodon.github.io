@@ -1,0 +1,16 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "ChassisECU (CAN)" as CH
+rectangle "CentralGateway\n(PDU routing, SOME/IP-SD)" as GW
+rectangle "CM on HPC:\nSignal-Based SOME/IP binding" as CM
+rectangle "Fusion, FusionLite, SmControl" as APP
+rectangle "SmControl" as SMC
+rectangle "InstrumentCluster (CAN)" as IC
+CH --> GW : ChassisDynamics 0x101
+GW --> CM : PDU behind Partial SOME/IP Header\nUDP to HPC:30601
+CM --> APP : VehicleDynamicsService
+SMC --> CM : AdasStatus
+CM --> GW : AdasHmi behind Partial SOME/IP Header
+GW --> IC : AdasHmi 0x2A0
+@enduml

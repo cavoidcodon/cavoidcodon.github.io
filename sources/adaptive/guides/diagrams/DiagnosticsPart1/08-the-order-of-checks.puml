@@ -1,0 +1,28 @@
+@startuml
+!include ../_style.puml
+rectangle "Request" as Q
+rectangle "Manufacturer checks (ServiceValidation) OK?" as M1 <<decision>>
+rectangle "NRC from the callout, or no response" as X1
+rectangle "SID supported?" as S1 <<decision>>
+rectangle "0x11 serviceNotSupported" as N11
+rectangle "SID allowed in active session?" as S2 <<decision>>
+rectangle "0x7F serviceNotSupportedInActiveSession" as N7F
+rectangle "Security level OK?" as S3 <<decision>>
+rectangle "0x33 securityAccessDenied" as N33
+rectangle "Supplier checks (ServiceValidation) OK?" as SUP <<decision>>
+rectangle "NRC from the callout, or no response" as X2
+rectangle "Service-specific checks: length 0x13, sub-function 0x12 or 0x7E, identifiers 0x31, conditions 0x22" as SPEC
+rectangle "Processing (internal or application)" as PROC
+Q --> M1
+M1 --> X1 : no
+M1 --> S1 : yes
+S1 --> N11 : no
+S1 --> S2 : yes
+S2 --> N7F : no
+S2 --> S3 : yes
+S3 --> N33 : no
+S3 --> SUP : yes
+SUP --> X2 : no
+SUP --> SPEC : yes
+SPEC --> PROC
+@enduml

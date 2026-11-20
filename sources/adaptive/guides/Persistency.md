@@ -56,7 +56,7 @@ If you write application code, read Chapters 1, 2, 5 to 8, 13, 15 and 17 first. 
 | **Note (implementation example)** | How a typical implementation, often on Linux, *might* realize something. This is not mandated by AUTOSAR. |
 | **Pitfall** | A common mistake seen in real projects. |
 | **Key takeaways** | A short summary at the end of each chapter. |
-| Diagrams | Written in Mermaid. They render natively on GitHub and GitLab. In VS Code, install the *Markdown Preview Mermaid Support* extension. |
+| Diagrams | Drawn in PlantUML and inserted as SVG images, so they show in any Markdown viewer. Click an image to open it at full size. |
 
 > **Note:** The code in this guide is illustrative C++17. It follows the R25-11 API tables of the specification exactly, but vendor headers may differ in detail, for example in the names of generated headers. In the text, the configuration uses the APMC names of the target configuration (`PersistencyCommon.UpdateStrategy`), as the specification does; [Section 14.12](#1412-the-legacy-m2-target-configuration) gives the corresponding names of the older meta-model. All values of the running example, such as sizes, URIs and versions, are invented for teaching.
 
@@ -267,22 +267,7 @@ Persistency is typically a library that runs in the process of the Persistency u
 
 The diagram shows the parts inside one process.
 
-```mermaid
-flowchart LR
-    subgraph P["Process Storage"]
-        APP["Application code"]
-        subgraph PER["Persistency library (ara::per)"]
-            KVS["KeyValueStorage CalibrationKvs"]
-            FS["FileStorage Recordings"]
-        end
-        APP -->|"SharedHandle"| KVS
-        APP -->|"SharedHandle, UniqueHandle"| FS
-    end
-    CFG["Target configuration (read at Initialize)"] --> PER
-    PER --> NVM[("Non-volatile memory")]
-    PER -.->|"MAC, encryption"| CRY["Cryptography"]
-    PER -.->|"log messages"| LT["Log and Trace"]
-```
+![Flowchart: Persistency and ARA](diagrams/Persistency/01-persistency-and-ara.svg)
 
 The header files are `ara/per/key_value_storage.h`, `ara/per/file_storage.h`, `ara/per/read_accessor.h`, `ara/per/write_accessor.h`, `ara/per/read_write_accessor.h`, `ara/per/file_accessor.h`, `ara/per/shared_handle.h`, `ara/per/unique_handle.h`, `ara/per/recovery.h`, `ara/per/update.h` and `ara/per/per_error_domain.h` (SWS, Chapter 8). All functions are `noexcept` and return `ara::core::Result` ([Chapter 13](#13-error-handling)).
 
@@ -427,15 +412,7 @@ The specification does not prescribe an architecture. It describes four variants
 | Based on a file system | Library or daemon use the POSIX file system services. | Mount options outside Persistency's control decide when data really reaches the medium ([Chapter 8](#8-durability-what-stored-really-means)). |
 | Direct access to storage hardware | Persistency drives flash memory directly. | It must care about wear leveling; usually the OS's flash file system or driver does this instead. |
 
-```mermaid
-flowchart TB
-    APP["Persistency user (process)"] --> LIB["ara::per library"]
-    LIB -->|"variant: library only"| FSYS["File system of the OS"]
-    LIB -->|"variant: central daemon (IPC)"| D["Persistency daemon"]
-    D --> FSYS
-    LIB -.->|"variant: direct access"| FLASH[("Flash memory")]
-    FSYS --> DEV[("Storage device: eMMC, NAND, SSD")]
-```
+![Flowchart: Where Persistency Sits in the Platform](diagrams/Persistency/02-where-persistency-sits-in-the-platfo.svg)
 
 Wear leveling exists because flash cells degrade with the number of writes, while the writes of a typical system are very unevenly distributed; frequent updates of single elements should therefore be spread over the whole memory (SWS, Section 4.2.4).
 
@@ -477,16 +454,7 @@ Persistency creates these storages at installation like port-based ones ([SWS_PE
 
 Because persistent data is private to one process, data that several processes need must be owned by one of them and offered through a service interface (SWS, Section 7.2.2). The running example follows this rule: `Storage` owns `CalibrationKvs` and offers `CalibrationDataService`; `CameraDriver`, `CalibrationCheck`, `Fusion` and `FusionLite` use the service (the [CM guide, Section 13.5](CommunicationManagement.md#135-worked-example-calibrationdataservice-over-local-ipc)).
 
-```mermaid
-flowchart LR
-    CD["CameraDriver"] -->|"SetCalibration"| ST
-    CC["CalibrationCheck"] -->|"GetCalibration"| ST
-    FU["Fusion, FusionLite"] -->|"GetCalibration; CalibrationUpdated"| ST
-    subgraph ST["Process Storage"]
-        SVC["CalibrationDataService skeleton"] --> CS["CalibrationStore"]
-        CS --> KVS[("CalibrationKvs")]
-    end
-```
+![Flowchart: Sharing Data Between Processes: Use a Service](diagrams/Persistency/03-sharing-data-between-processes-use-a.svg)
 
 The owner also becomes the single place for plausibility checks, access control (only `CameraDriver` may call `SetCalibration`, the IAM guide) and the decision when to commit.
 
@@ -519,27 +487,7 @@ The software package that UCM installs carries the configuration and the initial
 
 The diagram shows the main elements and references for one Key-Value Storage of an application.
 
-```mermaid
-flowchart LR
-    subgraph AD["Application Design (M2)"]
-        SWC["StorageSwc"] --> PORT["R-port CalibrationKvsPort"]
-        PORT -->|"typed by"| ITF["PersistencyKeyValueStorageInterface CalibrationKvsInterface"]
-        ITF --> DE["PersistencyDataElement CameraExtrinsics"]
-        PORT --> CS["PersistencyDataRequiredComSpec: accessMode, initValue"]
-    end
-    subgraph TC["Target configuration (APMC)"]
-        PER["Persistency StoragePersistency"] --> GEN["PersistencyGeneral: central storage URI, process"]
-        PER --> KVS["PersistencyKeyValueStorage CalibrationKvs"]
-        KVS --> COM["PersistencyCommon: version, sizes, update strategy"]
-        KVS --> KVP["PersistencyKeyValuePair CameraExtrinsics"]
-        COM --> RED["Redundancy handling"]
-        COM --> CKS["PersistencyCryptoKeySlotProps"]
-        COM --> URI["UriCollection"]
-    end
-    COM -->|"PortPrototypeInstanceRef"| PORT
-    GEN -->|"ForeignProcessRef"| PROC["Process Storage"]
-    CKS -->|"ForeignCryptoKeySlotRef"| SLOT["CryptoKeySlot CalibrationMacKeySlot"]
-```
+![Flowchart: How the Elements Relate](diagrams/Persistency/04-how-the-elements-relate.svg)
 
 Three links tie the two worlds together: `PersistencyCommon.PortPrototypeInstanceRef` connects a configured storage to the port of the design, `PersistencyGeneral.ForeignProcessRef` connects the whole `Persistency` instance to one process, and key-value pairs or files with the same short name or file name are matched with the elements of the design.
 
@@ -558,12 +506,7 @@ Three links tie the two worlds together: `PersistencyCommon.PortPrototypeInstanc
 
 Elements and update strategies can be defined at four places. The more specific and the later definition wins.
 
-```mermaid
-flowchart LR
-    A["1 Design, storage level: PersistencyInterface.updateStrategy (recommendation only)"] --> B["2 Design, element level: PersistencyInterfaceElement.updateStrategy, initValue, contentUri"]
-    B --> C["3 Target configuration, storage level: PersistencyCommon.UpdateStrategy"]
-    C --> D["4 Target configuration, element level: ElementUpdateStrategy, InitValueRef, ContentUri"]
-```
+![Flowchart: Precedence in One Picture](diagrams/Persistency/05-precedence-in-one-picture.svg)
 
 The rules behind the picture:
 
@@ -673,22 +616,7 @@ The thread safety of each function is stated in its API table ([Section 15.5](#1
 
 **Formally:** `OpenKeyValueStorage` creates a *temporary storage* that provides access to the Key-Value Storage, and returns a `SharedHandle` ([SWS_PER_00506]). All operations work on this temporary storage. Modifications that were not persisted with `SyncToStorage` are discarded when the storage is closed or the system restarts, as if `DiscardPendingChanges` had been called ([SWS_PER_00331]). `SyncToStorage` stores all changes since the last sync or since opening, and updates the configured redundancy in the same call ([SWS_PER_00494]). `DiscardPendingChanges` resets the storage to the last persisted state ([SWS_PER_00495]). Because all threads share one temporary storage, a sync persists the changes of all threads, and a discard resets them for all threads (SWS, Section 7.3).
 
-```mermaid
-sequenceDiagram
-    participant App as Storage (application)
-    participant Tmp as Temporary storage
-    participant NVM as Persistent memory
-    App->>Tmp: OpenKeyValueStorage (load last stored state)
-    NVM-->>Tmp: CameraExtrinsics = old
-    App->>Tmp: SetValue(CameraExtrinsics, new)
-    App->>Tmp: GetValue(CameraExtrinsics)
-    Tmp-->>App: new (not yet persisted)
-    App->>Tmp: SyncToStorage
-    Tmp->>NVM: write changes and redundancy
-    App->>Tmp: SetValue(RadarAlignment, x)
-    Note over App,Tmp: SharedHandle destroyed without sync
-    Tmp--xNVM: RadarAlignment change discarded
-```
+![Sequence diagram: The Temporary Storage](diagrams/Persistency/06-the-temporary-storage.svg)
 
 ### 6.2 Reading Values
 
@@ -866,13 +794,7 @@ Only some combinations are valid. Any other combination fails with `kInvalidOpen
 
 The open functions return accessors. Their class hierarchy was reworked in R25-11 (SWS, Section 8):
 
-```mermaid
-flowchart BT
-    RA["ReadAccessor: PeekChar, GetChar, ReadText, ReadLine, PeekByte, GetByte, ReadBinary"] -->|"public virtual"| FA["FileAccessor: GetPosition, SetPosition, MovePosition, IsEof, GetSize"]
-    WA["WriteAccessor (declared final): WriteText, stream operator, WriteBinary, SetFileSize, SyncToFile"] -->|"public virtual"| FA
-    RWA["ReadWriteAccessor (final)"] -->|"public"| RA
-    RWA -->|"public"| WA
-```
+![Flowchart: The Accessor Classes](diagrams/Persistency/07-the-accessor-classes.svg)
 
 `FileAccessor` holds the position functions. `ReadAccessor` adds reading, `WriteAccessor` adds writing, and `ReadWriteAccessor` combines both. Virtual inheritance from `FileAccessor` ensures that a `ReadWriteAccessor` has one position, not two.
 
@@ -1028,11 +950,7 @@ The class keeps the `SharedHandle` of the File Storage as long as the file handl
 
 Data passes three levels on its way to the medium:
 
-```mermaid
-flowchart LR
-    L1["1 In the process: temporary storage (KVS) or file buffer"] -->|"SyncToStorage, SyncToFile, close"| L2["2 Handed to the OS or the flash driver: page cache, file system journal"]
-    L2 -->|"fsync, file system commit, device cache flush"| L3["3 Physically on the medium"]
-```
+![Flowchart: Three Levels](diagrams/Persistency/08-three-levels.svg)
 
 - **Level 1** is under the control of the application: unsynced key-value changes and unsynced file content live here.
 - **Level 2** is under the control of Persistency and the operating system. After a sync, the data is usually here at least.
@@ -1164,18 +1082,7 @@ When automatic repair fails, the application has two kinds of tools. **Recover**
 
 After a recovery, "the Persistency user has to validate the restored data" (SWS, Section 7.2.4). The decision flow is:
 
-```mermaid
-flowchart TB
-    E["kValidationFailed or kIntegrityCorrupted"] --> Q1{"Element or whole storage?"}
-    Q1 -->|"element"| RK["RecoverKey / RecoverFile"]
-    Q1 -->|"storage"| CL["Close all handles"] --> RS["RecoverKeyValueStorage / RecoverAllFiles"]
-    RK --> V{"Data valid for the application?"}
-    RS --> V
-    V -->|"yes"| OK["Continue; report the event"]
-    V -->|"no, or recover failed"| Q2{"Initial value acceptable?"}
-    Q2 -->|"yes"| RST["ResetKey / ResetFile / Reset storage"]
-    Q2 -->|"no"| DEG["Degrade the function; request new data"]
-```
+![Flowchart: Recover or Reset](diagrams/Persistency/09-recover-or-reset.svg)
 
 > **Pitfall:** "Recovered" does not mean "correct". A recovered key may hold its initial value or an older value. For a calibration, an older value is a different, possibly wrong calibration. Validate recovered values with application knowledge, or prefer a reset to a known "not calibrated" state.
 
@@ -1214,20 +1121,7 @@ The registration function is not thread-safe; register the callback once, early,
 
 **Case 1: one copy is broken.** A flash error corrupts one copy in the second location. When `Storage` opens the storage, two copies still agree:
 
-```mermaid
-sequenceDiagram
-    participant ST as Storage
-    participant PER as Persistency
-    participant NVM as Locations 1 and 2
-    ST->>PER: RegisterRecoveryReportCallback(cb)
-    ST->>PER: OpenKeyValueStorage(/storage/Root/CalibrationKvsPort)
-    PER->>NVM: read 3 copies
-    NVM-->>PER: copy A = copy B, copy C differs
-    PER->>NVM: rewrite copy C (repair)
-    PER-->>ST: cb(CalibrationKvsPort, kKeyValueStorageRecovered, no elements, index of C)
-    PER-->>ST: SharedHandle (success)
-    ST->>ST: log the repair, increment counter
-```
+![Sequence diagram: Worked Example: CalibrationKvs with Two out of Three Copies](diagrams/Persistency/10-worked-example-calibrationkvs-with-t.svg)
 
 The application continues normally. Persistency also logs `KeyValueStorageRecovered` ([Section 16.1](#161-log-messages)).
 
@@ -1419,13 +1313,7 @@ Update and Configuration Management (UCM) handles the life cycle of applications
 
 Persistency does the work in one of two ways. The application can call `UpdatePersistency` explicitly during the verification phase that follows an installation or update, or it can rely on Persistency to do it implicitly when a storage is opened (SWS, Section 7.2.5). In both cases, Persistency compares the versions it stored last time with the versions of the current target configuration and acts accordingly.
 
-```mermaid
-flowchart LR
-    I["UCM installs or updates the package"] --> V["Verification phase: Function Group in Verify; application may call UpdatePersistency"]
-    V -->|"verification OK"| F["UCM finalizes; normal operation; first open may update implicitly; CleanUpPersistency"]
-    V -->|"verification failed"| R["UCM rolls back the software; next open restores the backup"]
-    F --> U["Later: removal by UCM using the URIs"]
-```
+![Flowchart: Persistent Data in the Software Life Cycle](diagrams/Persistency/11-persistent-data-in-the-software-life.svg)
 
 The UCM and State Management side of the verification phase is described in the [SM guide, Section 9.4](StateManagement.md#94-prepare-verify-and-roll-back); the UCM guide tells the UCM story.
 
@@ -1494,21 +1382,7 @@ After the update, Persistency informs the application in two ways:
 - **Data update indication.** If the application registered with `RegisterDataUpdateIndication`, the function is called for each updated element of each updated storage, limited to the storages and elements that the application asked to monitor ([SWS_PER_00579]).
 - **Application data update callback.** If the application registered with `RegisterApplicationDataUpdateCallback` and the contract version of the configuration is higher than the stored one, the callback is called for each updated storage, with the stored (old) contract version as argument ([SWS_PER_00387]).
 
-```mermaid
-sequenceDiagram
-    participant App as Fusion 1.1.0
-    participant PER as Persistency
-    participant NVM as Persistent memory
-    App->>PER: RegisterApplicationDataUpdateCallback(cb)
-    App->>PER: OpenKeyValueStorage(FusionParamsPort)
-    PER->>NVM: read central storage: target configuration version 1.0.0, contract 1.0.0
-    Note over PER: configuration now 1.1.0 / 1.1.0, so update
-    PER->>NVM: backup of all data of the process
-    PER->>NVM: apply update strategies (TrackerTuning: KEEP_EXISTING)
-    PER->>NVM: store versions 1.1.0 / 1.1.0
-    PER-->>App: cb(FusionParamsPort, old contract version 1.0.0)
-    PER-->>App: SharedHandle
-```
+![Sequence diagram: The Update Sequence](diagrams/Persistency/12-the-update-sequence.svg)
 
 **Explicit or implicit?** `UpdatePersistency` updates all storages of the process at once ([SWS_PER_00469]). It succeeds only when no storage is open and no other thread modifies a storage; otherwise it returns `kResourceBusy` ([SWS_PER_00545]). While it runs, `OpenKeyValueStorage` and `OpenFileStorage` succeed only inside the update callback and only with the specifier that the callback received (API tables of [SWS_PER_00052] and [SWS_PER_00116]). The implicit update happens per storage, at its first open ([SWS_PER_00470], [SWS_PER_00471]).
 
@@ -1554,14 +1428,7 @@ The specification describes a second path as well: Persistency frees the backup 
 
 When a storage is opened and the target configuration version of the configuration is *lower* than the stored one, the software was rolled back. Persistency then compares the configuration's version with the version stored in the backup. If they match, it restores the backup. Otherwise it removes all storages and re-installs the persistent data from the target configuration ([SWS_PER_00396]).
 
-```mermaid
-flowchart TB
-    O["Open storage"] --> C{"Configuration version lower than stored version?"}
-    C -->|"no"| N["Normal open, install or update"]
-    C -->|"yes"| B{"Backup exists with the same version as the configuration?"}
-    B -->|"yes"| RB["Restore the backup: data as before the update"]
-    B -->|"no"| RI["Remove all storages; install again from the configuration: initial values"]
-```
+![Flowchart: Roll-Back](diagrams/Persistency/13-roll-back.svg)
 
 Data written by the new software after the update is lost in both cases. With a backup, the old values return; without one, the initial values return.
 
@@ -1611,20 +1478,7 @@ The configuration changes as follows ([Section 14.13](#1413-the-running-example-
 
 `Fusion` runs only in `ADAS.Normal`, so it opens `FusionParams` for the first time after the verification phase, and the update is implicit. The sequence:
 
-```mermaid
-sequenceDiagram
-    participant F as Fusion 1.1.0
-    participant PER as Persistency
-    F->>PER: RegisterApplicationDataUpdateCallback(note old contract version)
-    F->>PER: OpenKeyValueStorage(/fusion/Root/FusionParamsPort)
-    Note over PER: version 1.1.0 higher than 1.0.0, so backup, keep TrackerTuning (still TrackerTuningV1)
-    PER-->>F: callback(FusionParamsPort, 1.0.0)
-    PER-->>F: SharedHandle
-    F->>PER: GetValue of TrackerTuning as TrackerTuningV1
-    F->>PER: RemoveKey, SetValue as TrackerTuningV2, SyncToStorage
-    F->>PER: release handle, then CleanUpPersistency
-    F->>PER: OpenKeyValueStorage again, normal operation
-```
+![Sequence diagram: Worked Example: FusionParams and the Update to AdasCluster 1.1.0](diagrams/Persistency/14-worked-example-fusionparams-and-the.svg)
 
 The code is in [Section 15.6](#156-complete-example-fusion-loads-uses-and-migrates-fusionparams). Two consequences are worth knowing:
 

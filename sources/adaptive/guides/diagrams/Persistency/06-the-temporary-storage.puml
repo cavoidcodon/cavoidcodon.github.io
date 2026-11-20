@@ -1,0 +1,16 @@
+@startuml
+!include ../_style.puml
+participant "Storage (application)" as App
+participant "Temporary storage" as Tmp
+participant "Persistent memory" as NVM
+App -> Tmp : OpenKeyValueStorage (load last stored state)
+NVM --> Tmp : CameraExtrinsics = old
+App -> Tmp : SetValue(CameraExtrinsics, new)
+App -> Tmp : GetValue(CameraExtrinsics)
+Tmp --> App : new (not yet persisted)
+App -> Tmp : SyncToStorage
+Tmp -> NVM : write changes and redundancy
+App -> Tmp : SetValue(RadarAlignment, x)
+note over App, Tmp : SharedHandle destroyed without sync
+Tmp -->x NVM : RadarAlignment change discarded
+@enduml

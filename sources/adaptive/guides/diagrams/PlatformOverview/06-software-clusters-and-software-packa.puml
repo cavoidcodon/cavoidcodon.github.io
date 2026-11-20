@@ -1,0 +1,9 @@
+@startuml
+!include ../_style.puml
+rectangle "Machine HPC" as M {
+  rectangle "HpcPlatformCore 1.0.0\ncategory PLATFORM_CORE\nOS, Execution Management, StateManager,\nSmControl, PlatformHealth, PowerControl,\nplatform daemons and libraries\nFunction Group MachineFG" as PC
+  rectangle "AdasCluster 1.0.0\ncategory APPLICATION_LAYER\nthe seven ADAS processes\nFunction Group ADAS" as AC
+}
+AC ..> PC : may depend on
+PC --> AC : UCM installs and updates
+@enduml

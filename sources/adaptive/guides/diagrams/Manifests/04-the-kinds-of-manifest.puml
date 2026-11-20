@@ -1,0 +1,19 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "AdasCluster (application software)" as AC {
+  rectangle "fusion, camera_driver\n(binaries)" as BIN
+  rectangle "Execution Manifest" as EM1
+  rectangle "Service Instance Manifest" as SIM
+}
+rectangle "HpcPlatformCore (platform software)" as PC {
+  rectangle "EM, SM, CM, UCM, ...\n(binaries)" as PBIN
+  rectangle "Machine Manifest" as MM
+}
+rectangle "Application design\n(interfaces, types, components)" as DES
+rectangle "Software Distribution\n(SoftwareCluster, SoftwarePackage)" as SD
+DES ..> EM1 : needed by
+DES ..> SIM : needed by
+SD --> AC : describes
+SD --> PC : describes
+@enduml

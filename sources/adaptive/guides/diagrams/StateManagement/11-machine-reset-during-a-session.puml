@@ -1,0 +1,18 @@
+@startuml
+!include ../_style.puml
+autonumber
+participant "UCM" as UCM
+participant "StateManager" as SM
+participant "Execution Management" as EM
+UCM -> SM : ResetMachine()
+SM -> SM : HpcController → Restart:\nstop AdasAgent, SYNC, MachineFG.Restart
+SM -> EM : SetState(MachineFG.Restart)
+note over EM : machine reboots
+EM -> SM : start in MachineFG.Startup
+SM -> SM : read the session status: active
+SM -> SM : start HpcController in ContinueUpdate
+SM -> EM : SetState(MachineFG.Startup)
+EM --> SM : done
+SM --> UCM : ResetMachineNotifier = kSuccessful
+UCM -> SM : continue, for example VerifyUpdate(list)
+@enduml

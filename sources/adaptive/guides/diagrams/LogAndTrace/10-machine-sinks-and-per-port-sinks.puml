@@ -1,0 +1,21 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "DltLogSinkToPortPrototypeMappings" as MAP {
+  rectangle "Fusion MainLogPort (MAIN)" as M1
+  rectangle "Fusion TrackLogPort (TRCK)" as M2
+  rectangle "CameraDriver ImageLogPort (IMGS)" as M3
+}
+rectangle "HpcRemoteInfo\nREMOTE, channel HPCN, info" as RI
+rectangle "HpcRemoteWarn\nREMOTE, channel HPCN, warn" as RW
+rectangle "HpcDltChannel\nDLT, channel HPCN,\nTCP 3490 on BackboneConnector" as CH
+rectangle "LogAndTraceInstantiation\nHpcLogAndTrace" as INST
+rectangle "HpcConsole\nCONSOLE, warn" as CON
+M1 --> RI
+M2 --> RW
+M3 --> RW
+RI ..> CH
+RW ..> CH
+INST --> CH
+INST --> CON
+@enduml

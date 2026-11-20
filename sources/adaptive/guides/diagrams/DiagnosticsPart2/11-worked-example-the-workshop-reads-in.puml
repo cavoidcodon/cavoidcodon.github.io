@@ -1,0 +1,20 @@
+@startuml
+!include ../_style.puml
+participant "DiagnosticTester" as T
+participant "Diagnostic Management" as DM
+participant "SmControl" as SC
+participant "CameraDriver" as CD
+T -> DM : 19 02 08 (confirmed DTCs)
+DM --> T : 59 02 FF 9A 10 11 2F
+T -> DM : 19 04 9A 10 11 FF (all snapshot records)
+DM --> T : 59 04 9A 10 11 2F 01 01 01 02 13 88 02 01 01 02 1F 40
+T -> DM : 19 06 9A 10 11 FF (all extended data records)
+DM --> T : 59 06 9A 10 11 2F 01 02 02 00 03 7F
+note over T : technician cleans the camera
+T -> DM : 14 FF FF FF (clear all DTCs)
+DM -> DM : clear condition VehicleStandstill is true, clear HpcPrimaryMemory
+DM --> CD : initMonitor kClear
+DM --> T : 54
+T -> DM : 19 02 08
+DM --> T : 59 02 FF (no confirmed DTC)
+@enduml

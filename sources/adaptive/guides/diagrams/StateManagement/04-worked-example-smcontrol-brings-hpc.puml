@@ -1,0 +1,29 @@
+@startuml
+!include ../_style.puml
+autonumber
+participant "Execution Management" as EM
+participant "StateManager" as SM
+participant "SmControl" as SC
+participant "Network Management" as NM
+EM -> SM : start in MachineFG.Startup
+EM -> SC : start in MachineFG.Startup
+SM -> SM : read the update session status (Persistency)
+SM -> EM : ReportExecutionState(kRunning)
+SM -> SM : start HpcController in Init, offer its services
+SM -> EM : SetState(MachineFG.Startup)
+note over SM : SYNC, then stop AdasAgent: not running, skipped
+SC -> EM : ReportExecutionState(kRunning)
+SC -> SC : PowerMode = On
+SC -> SM : RequestTransition(1) on HpcController
+SM --> SC : CurrentState "inTransition"
+SM -> EM : SetState(MachineFG.Driving)
+EM --> SM : done
+SM -> SM : SYNC, then start AdasAgent in Normal, offer its services
+SM --> SC : RequestTransition(1): success
+SM --> SC : CurrentState "Driving"
+SM -> NM : AdasPnHandle: FullCom
+SM -> EM : SetState(ADAS.Normal)
+EM --> SM : done
+SM --> SC : AdasAgent CurrentState "Normal"
+SC -> SC : AdasStatus = Active
+@enduml

@@ -1,0 +1,16 @@
+@startuml
+!include ../_style.puml
+rectangle "User applications: Adaptive Applications" as APP
+rectangle "ARA: AUTOSAR Runtime for Adaptive Applications" as ARA {
+  rectangle "Operating System Interface\nPOSIX PSE51,\nC++ standard library" as OSI
+  rectangle "Platform Foundation clusters\nara::com, ara::exec, ara::diag,\nara::idsm, ara::nm, ara::per,\nara::tsync, ara::crypto, ara::rds,\nara::phm, ara::log, ara::shwa,\nara::fw, ara::core" as FND
+  rectangle "Platform Service clusters\nara::ucm, ara::sm" as SVC
+  rectangle "Standardized application\nand interface clusters\nara::adi::sensoritf" as STD
+  rectangle "Vehicle Service clusters\nara::vucm, ara::aag, ara::rper" as VEH
+}
+rectangle "Base software: POSIX operating system" as OS
+rectangle "Machine: physical ECU, virtual machine or container" as MCH
+APP --> ARA
+ARA --> OS
+OS --> MCH
+@enduml

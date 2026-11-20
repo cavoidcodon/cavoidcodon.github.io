@@ -1,0 +1,27 @@
+@startuml
+!include ../_style.puml
+rectangle "DiagnosticEvent" as EV
+rectangle "DiagnosticOperationCycle" as OC
+rectangle "DiagnosticDebounceAlgorithmProps" as DB
+rectangle "DiagnosticEnableConditionGroup" as ECG
+rectangle "DiagnosticTroubleCodeUds" as DTC
+rectangle "R-port of the monitor process" as MP
+rectangle "DiagnosticTroubleCodeProps" as PR
+rectangle "DiagnosticClearConditionGroup" as CCG
+rectangle "DiagnosticMemoryDestination" as MEM
+rectangle "DiagnosticDataIdentifierSet" as SS
+rectangle "DiagnosticExtendedDataRecord" as EDR
+rectangle "DiagnosticAging" as AG
+EV --> OC : DiagnosticEventToOperationCycleMapping
+EV --> DB : DiagnosticEventToDebounceAlgorithmMapping
+EV --> ECG : DiagnosticEventToEnableConditionGroupMapping
+EV --> DTC : DiagnosticEventToTroubleCodeUdsMapping
+EV --> MP : DiagnosticMonitorPortMapping
+DTC --> PR
+DTC --> CCG : DiagnosticTroubleCodeUdsToClearConditionGroupMapping
+PR --> MEM : diagnosticMemory
+PR --> SS : snapshotRecordContent
+PR --> EDR : extendedDataRecord
+PR --> AG : aging
+AG --> OC : agingCycle
+@enduml

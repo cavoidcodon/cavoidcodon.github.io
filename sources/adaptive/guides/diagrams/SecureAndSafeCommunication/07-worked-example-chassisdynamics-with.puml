@@ -1,0 +1,17 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "ChassisECU: E2E protect P11\n(counter, CRC, Data ID 0x101)" as CH
+rectangle "CentralGateway:\nroutes PDU unchanged" as GW
+rectangle "HPC: Signal-Based SOME/IP\nreceives ChassisDynamics" as RX
+rectangle "P11 check OK?\n[TPS_MANI_03600]" as CHK <<decision>>
+rectangle "Events VehicleSpeed, SteeringAngle,\nYawRate for Fusion, FusionLite, SmControl" as EV
+rectangle "Events reflect the E2E error\n[TPS_MANI_03602]" as ERR
+rectangle "Nothing forwarded\n[TPS_MANI_03601]" as NONE
+CH --> GW
+GW --> RX
+RX --> CHK
+CHK --> EV : OK
+CHK --> ERR : error
+CHK --> NONE : timeout
+@enduml

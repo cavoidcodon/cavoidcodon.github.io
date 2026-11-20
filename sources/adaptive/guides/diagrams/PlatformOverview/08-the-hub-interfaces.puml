@@ -1,0 +1,21 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "A daemon-based cluster,\nfor example UCM" as D
+rectangle "Execution Management" as EM
+rectangle "Log and Trace" as LT
+rectangle "Registry" as REG
+rectangle "Cryptography" as CRY
+rectangle "Persistency" as PER
+rectangle "Platform Health Management" as PHM
+rectangle "Time Synchronization" as TS
+rectangle "State Management" as SM
+D --> EM : ExecutionClient
+D --> LT : Logger
+D --> REG : ManifestAccessor
+D --> CRY : CryptoStack
+D --> PER : KeyValueStorage, FileStorage
+D --> PHM : SupervisedEntity
+D --> TS : SynchronizedTimeBaseConsumer
+D --> SM : UpdateRequest
+@enduml

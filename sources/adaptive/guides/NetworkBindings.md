@@ -55,7 +55,7 @@ If you only need to deploy services over SOME/IP, read Chapters 1 to 7, 9 and 14
 | **Note (Classic Platform background)** | Background about the Classic Platform, given only to help readers without a Classic background. The normative content of this guide comes from the Adaptive specifications. |
 | **Pitfall** | A common mistake seen in real projects. |
 | **Key takeaways** | A short summary at the end of each chapter. |
-| Diagrams | Written in Mermaid. They render natively on GitHub and GitLab. In VS Code, install the *Markdown Preview Mermaid Support* extension. |
+| Diagrams | Drawn in PlantUML and inserted as SVG images, so they show in any Markdown viewer. Click an image to open it at full size. |
 
 > **Note:** All IDs, ports, addresses and signal layouts in this guide belong to the invented running example and are illustrative. Byte layouts are taken from the R25-11 protocol specifications. Configuration excerpts in ARXML are taken from a model of the running example that was validated against the R25-11 XML schema.
 
@@ -346,19 +346,7 @@ A **SOME/IP eventgroup** is a set of events and field notifiers that a client su
 
 The bindings are part of Communication Management. They sit between the API of the CM guide and the operating system's network stack, as the following diagram shows.
 
-```mermaid
-flowchart TB
-    APP["Adaptive Application<br/>(proxy and skeleton code)"] --> API["ara::com API and language binding"]
-    API --> DISP["CM: dispatching and discovery"]
-    DISP --> LOC["Local binding<br/>(implementation-specific IPC)"]
-    DISP --> SOMEIP["SOME/IP binding<br/>and Signal-Based SOME/IP"]
-    DISP --> STAT["Signal-Based Static<br/>and IEEE1722 ACF"]
-    DISP --> DDS["DDS binding"]
-    SOMEIP --> NET["OS network stack: UDP, TCP, IP"]
-    STAT --> NET
-    DDS --> NET
-    NET --> ETH["Ethernet (EthernetCommunicationConnector)"]
-```
+![Flowchart: Where the Bindings Sit](diagrams/NetworkBindings/01-where-the-bindings-sit.svg)
 
 A binding has three kinds of work: **discovery** (offer, find, subscribe), **transport** (sending and receiving messages on sockets) and **serialization**. How these are organized inside an implementation is not specified.
 
@@ -390,16 +378,7 @@ The one exception is the SOME/IP major version: a new `SomeipServiceVersion.majo
 
 The following diagram shows what the bindings read and whom they serve.
 
-```mermaid
-flowchart LR
-    SIM["Service Instance Manifest<br/>(deployments, instances, mappings)"] --> B["Network bindings"]
-    MM["Machine Manifest and Machine Design<br/>(connectors, endpoints, ports, SD config)"] --> B
-    CM["Classic communication matrix<br/>(ISignals, ISignalIPdus, triggerings)"] --> B
-    B --> API["ara::com API (the CM guide)"]
-    IAM["Identity and Access Management (the IAM guide)"] -.-> B
-    SEC["Secure channels and E2E (the Secure Communication guide)"] -.-> B
-    NM["Network Management (the NM/TSync/RDS guide)"] -.-> B
-```
+![Flowchart: Interaction Map](diagrams/NetworkBindings/02-interaction-map.svg)
 
 Every binding discards a message that it identifies as malformed, and does not report the error to the application ([SWS_CM_10416]). This is worth remembering when "nothing arrives".
 
@@ -434,19 +413,7 @@ The *Methodology* TR describes the design of signal/service translation as a tas
 
 The following diagram shows the elements of a SOME/IP or DDS deployment and, at the bottom, the extra elements of the Signal-Based binding.
 
-```mermaid
-flowchart TB
-    SI["ServiceInterface"] --> SID["ServiceInterfaceDeployment<br/>(Someip / Dds / UserDefined)"]
-    SID --> ED["event, method and field deployments<br/>(IDs, topics, protocol, serializer)"]
-    SID --> INST["Provided / Required service instance<br/>(instance ID, SD config, version, category)"]
-    INST --> PPM["ServiceInstanceToPortPrototypeMapping<br/>(process and port)"]
-    INST --> M2M["ServiceInstanceToMachineMapping<br/>(connector, UDP/TCP ports)"]
-    M2M --> CON["EthernetCommunicationConnector<br/>(endpoints, ISignalPorts)"]
-    INST --> S2S["ServiceInstanceToSignalMapping<br/>(Signal-Based only)"]
-    S2S --> TRIG["ISignalTriggering"]
-    TRIG --> SIG["ISignal in an ISignalIPdu"]
-    TRIG --> CON
-```
+![Flowchart: How the Elements Relate](diagrams/NetworkBindings/03-how-the-elements-relate.svg)
 
 ### 4.3 Who Configures What, and When
 
@@ -637,16 +604,7 @@ The SD messages themselves use the SD port and the SD multicast address of the M
 
 For each service instance, SD goes through three phases ([PRS_SOMEIPSD_00395]):
 
-```mermaid
-stateDiagram-v2
-    [*] --> Down
-    Down --> InitialWait: OfferService() and link up
-    InitialWait --> Repetition: random initial delay expired, first offer sent
-    Repetition --> Main: initialRepetitionsMax repetitions sent
-    Main --> Main: offerCyclicDelay expired, offer sent
-    Main --> Down: StopOfferService(), StopOffer sent (TTL 0)
-    Repetition --> Down: StopOfferService()
-```
+![State diagram: The Three Phases on the Server](diagrams/NetworkBindings/04-the-three-phases-on-the-server.svg)
 
 - **Initial Wait Phase:** when the application calls `OfferService()` and the link is up, SD waits a random time between `initialDelayMinValue` and `initialDelayMaxValue`, then sends the first offer ([SWS_CM_00201], [TPS_MANI_03012]; [PRS_SOMEIPSD_00133]). The random delay avoids that all ECUs send at the same moment after power-up.
 - **Repetition Phase:** SD repeats the offer up to `initialRepetitionsMax` times, waiting `initialRepetitionsBaseDelay` before the first repetition and doubling the wait each time ([TPS_MANI_03013]; example in [PRS_SOMEIPSD_00416]).
@@ -710,24 +668,7 @@ The SWS lists SD features that Communication Management does not support in R25-
 
 `HPC` offers `CameraService` with the SD timing of the Manifests guide: initial delay 10 to 100 ms, repetition base delay 50 ms, three repetitions, cyclic offers every 1 s, TTL 3 s. `Cockpit` looks for the service and subscribes to the eventgroup `CameraEvents` (ID 1), which contains `Image` and the notifier of `CameraStatus`. Both elements use TCP. The following sequence shows a typical startup.
 
-```mermaid
-sequenceDiagram
-    participant CD as CameraDriver (HPC)
-    participant SD as CM on HPC (SD, 192.168.10.10)
-    participant CK as Cockpit (192.168.10.20)
-    CD->>SD: OfferService()
-    Note over SD: Initial Wait Phase: random 10..100 ms
-    SD-->>CK: Offer 0x1001/0x0001 v1.0, TTL 3, IPv4 Endpoint 192.168.10.10 TCP 30501 (multicast)
-    Note over SD: Repetition Phase: after 50, 100, 200 ms
-    CK->>SD: TCP connect to 192.168.10.10:30501
-    CK->>SD: SubscribeEventgroup 0x1001/0x0001 v1, eventgroup 1, TTL 3, IPv4 Endpoint of Cockpit TCP (unicast)
-    SD->>CK: SubscribeEventgroupAck eventgroup 1, TTL 3
-    CD->>SD: Image.Send(image)
-    SD->>CK: SOME/IP 0x1001/0x8001 NOTIFICATION over the TCP connection
-    Note over SD: Main Phase: Offer every 1 s
-    SD-->>CK: Offer (cyclic)
-    CK->>SD: SubscribeEventgroup (renewal)
-```
+![Sequence diagram: Worked Example: Cockpit Finds and Subscribes to CameraService](diagrams/NetworkBindings/05-worked-example-cockpit-finds-and-sub.svg)
 
 The OfferService entry in this sequence contains, field by field:
 
@@ -1052,15 +993,7 @@ The TPS describes four ways to connect the worlds (TPS, Section 9.1, Figures 9.1
 
 `HPC` uses **architecture B**: `CentralGateway` routes the PDUs between CAN and the backbone, and the translation runs on `HPC` (the Running Example guide, Section 1.8).
 
-```mermaid
-flowchart LR
-    CH["ChassisECU (CAN)"] -->|"ChassisDynamics 0x101"| GW["CentralGateway<br/>(PDU routing, SOME/IP-SD)"]
-    GW -->|"PDU behind Partial SOME/IP Header<br/>UDP to HPC:30601"| CM["CM on HPC:<br/>Signal-Based SOME/IP binding"]
-    CM -->|"VehicleDynamicsService"| APP["Fusion, FusionLite, SmControl"]
-    SMC["SmControl"] -->|"AdasStatus"| CM
-    CM -->|"AdasHmi behind Partial SOME/IP Header"| GW
-    GW -->|"AdasHmi 0x2A0"| IC["InstrumentCluster (CAN)"]
-```
+![Flowchart: Four Architectures](diagrams/NetworkBindings/06-four-architectures.svg)
 
 ### 10.4 Terms: Signal-Service Translation and S2S
 
@@ -1961,35 +1894,7 @@ Security events and violation messages of Communication Management are listed in
 
 ### 16.1 The Sequence
 
-```mermaid
-sequenceDiagram
-    participant GW as CentralGateway
-    participant CM as CM on HPC
-    participant SMC as SmControl
-    participant FU as Fusion
-    participant CK as Cockpit
-    Note over CM: MachineFG Startup: SmControl, CameraDriver start
-    SMC->>CM: StartFindService(VehicleDynamics, PowerMode), OfferService(AdasStatus x2)
-    GW-->>CM: Offer 0x2001 and 0x2002 (Signal-Based SOME/IP, SD)
-    CM->>GW: Subscribe eventgroups VehicleDynamicsEvents, PowerModeEvents
-    CM-->>GW: Offer 0x2003 (AdasStatus, signal-based)
-    GW->>CM: Subscribe AdasHmiEvents
-    GW->>CM: VehicleMode PDU, PowerMode = On (Partial SOME/IP Header)
-    CM->>SMC: PowerMode notification
-    Note over SMC: Requests MachineFG Driving, ADAS Normal (the SM guide)
-    CM-->>CK: Offer 0x1001 CameraService, 0x1002 AdasStatusService
-    CK->>CM: Subscribe CameraEvents (TCP) and AdasStatusEvents (UDP)
-    Note over FU: ADAS Normal: Fusion starts
-    FU->>CM: OfferService(ObjectListService) over DDS
-    CK->>CM: DDS discovery: reads ara.com://services/discovery, matches AdasObjectList
-    GW->>CM: ChassisDynamics PDU every 10 ms
-    CM->>FU: VehicleSpeed, SteeringAngle, YawRate events
-    FU->>CM: ObjectList.Send()
-    CM->>CK: DDS sample on ara.com://services/hpc_fusion_ObjectListService/1.0/AdasObjectList
-    SMC->>CM: AdasStatus.Update(Active)
-    CM->>CK: SOME/IP notification 0x1002/0x8001
-    CM->>GW: AdasHmi PDU behind Partial SOME/IP Header 0x2003/0x8001
-```
+![Sequence diagram: The Sequence](diagrams/NetworkBindings/07-the-sequence.svg)
 
 ### 16.2 Step by Step
 

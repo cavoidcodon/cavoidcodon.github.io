@@ -1,0 +1,24 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "Classic Platform ECUs" as CPW {
+  rectangle "ChassisECU\nVehicleSpeed, SteeringAngle, YawRate" as CH
+  rectangle "InstrumentCluster\nshows AdasStatus" as IC
+  rectangle "Control ECUs with actuators\n(not part of the example)" as ACT
+}
+rectangle "Adaptive Platform: HPC" as APW {
+  rectangle "Perception and fusion\n(Fusion)" as FU
+  rectangle "Object list\n(ObjectListService)" as OL
+  rectangle "ADAS status\n(SmControl)" as SMG
+}
+rectangle "Front camera" as CAM
+rectangle "FrontRadar\n(not AUTOSAR)" as FR
+rectangle "Cockpit" as CK
+CAM --> FU
+FR --> FU
+CH --> FU : CAN signals via CentralGateway,\nSignal-to-Service translation
+FU --> OL
+OL --> CK
+SMG --> IC : AdasStatus via\nSignal-to-Service translation
+OL ..> ACT : a full ADAS would send a\ntrajectory to control ECUs
+@enduml

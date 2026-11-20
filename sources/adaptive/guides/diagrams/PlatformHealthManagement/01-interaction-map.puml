@@ -1,0 +1,22 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "Fusion" as FU
+rectangle "Platform Health Management\n(PlatformHealth)" as PHM
+rectangle "CameraDriver" as CD
+rectangle "State Management\n(StateManager)" as SM
+rectangle "Execution Management" as EM
+rectangle "Log and Trace" as LT
+rectangle "IdsM" as IDSM
+rectangle "WatchdogInterface\n(hardware watchdog)" as WD
+FU --> PHM : ReportCheckpoint
+CD --> PHM : ReportCheckpoint
+SM --> PHM : ReportCheckpoint\n(own supervision)
+EM --> PHM : kRunning, SIGTERM announced,\nterminated (vendor-specific)
+EM --> PHM : own checkpoints\n(vendor-specific)
+PHM --> SM : RecoveryHandler
+SM --> EM : SetState
+PHM --> LT : log messages
+PHM --> IDSM : security event
+PHM --> WD : AliveNotification,\nFireWatchdogReaction
+@enduml

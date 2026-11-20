@@ -1,0 +1,28 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "SmControl\n(SMControlApplication)" as SC
+rectangle "Other applications,\nfor example Cockpit via AdasStatus" as APP
+rectangle "Update and Configuration\nManagement" as UCM
+rectangle "Platform Health\nManagement" as PHM
+rectangle "Network Management" as NM
+rectangle "Persistency" as PER
+rectangle "Operating system\n(PowerStateInterface)" as OS
+rectangle "StateManager (State Management)" as SMP {
+  rectangle "StateMachine\nHpcController" as CTRL
+  rectangle "StateMachine\nAdasAgent" as AG
+}
+rectangle "Execution Management" as EM
+SC --> SMP : RequestTransition,\nUpdateAllowed
+SMP ..> SC : CurrentState
+SMP ..> APP : CurrentState
+UCM --> SMP : UpdateRequest
+PHM --> SMP : RecoveryHandler
+SMP --> EM : SetState
+EM ..> SMP : result, undefinedStateCallback
+SMP --> NM : FullCom / NoCom
+NM ..> SMP : handle changes
+SMP --> PER : session status
+SMP --> OS : SetPowerState
+CTRL --> AG : start / stop
+@enduml

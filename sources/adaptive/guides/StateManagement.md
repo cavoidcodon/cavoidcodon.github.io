@@ -54,7 +54,7 @@ The chapters build on each other. Chapters 1 and 2 introduce the concepts and dr
 | **Note (implementation example)** | How a typical implementation, often on Linux, *might* realize something. This is not mandated by AUTOSAR. |
 | **Pitfall** | A common mistake seen in real projects. |
 | **Key takeaways** | A short summary at the end of each chapter. |
-| Diagrams | Written in Mermaid. They render natively on GitHub and GitLab. In VS Code, install the *Markdown Preview Mermaid Support* extension. |
+| Diagrams | Drawn in PlantUML and inserted as SVG images, so they show in any Markdown viewer. Click an image to open it at full size. |
 
 ### The Running Example
 
@@ -467,33 +467,7 @@ The table in the SWS lists only `UpdateRequest` as provided to other *functional
 
 The following diagram shows SM with its partners in `HPC`. Solid arrows are calls or requests; dashed arrows are notifications.
 
-```mermaid
-flowchart LR
-    SC["SmControl<br/>(SMControlApplication)"]
-    APP["Other applications,<br/>for example Cockpit via AdasStatus"]
-    UCM["Update and Configuration<br/>Management"]
-    PHM["Platform Health<br/>Management"]
-    NM["Network Management"]
-    PER["Persistency"]
-    OS["Operating system<br/>(PowerStateInterface)"]
-    subgraph SMP["StateManager (State Management)"]
-        CTRL["StateMachine<br/>HpcController"]
-        AG["StateMachine<br/>AdasAgent"]
-    end
-    EM["Execution Management"]
-    SC -->|"RequestTransition,<br/>UpdateAllowed"| SMP
-    SMP -.->|"CurrentState"| SC
-    SMP -.->|"CurrentState"| APP
-    UCM -->|"UpdateRequest"| SMP
-    PHM -->|"RecoveryHandler"| SMP
-    SMP -->|"SetState"| EM
-    EM -.->|"result, undefinedStateCallback"| SMP
-    SMP -->|"FullCom / NoCom"| NM
-    NM -.->|"handle changes"| SMP
-    SMP -->|"session status"| PER
-    SMP -->|"SetPowerState"| OS
-    CTRL -->|"start / stop"| AG
-```
+![Flowchart: Interaction Map](diagrams/StateManagement/01-interaction-map.svg)
 
 ### 3.5 Who May Talk to State Management
 
@@ -538,26 +512,7 @@ The SWS defines **no default values** for these attributes (SWS, Section 10.1). 
 
 The entry point is `StateManagementModuleInstantiation`. The following diagram shows what it aggregates and references.
 
-```mermaid
-flowchart TD
-    M["Machine HPC"] -->|"moduleInstantiation"| SMI["StateManagementModuleInstantiation<br/>maxActionListDuration"]
-    SMI -->|"notification"| N["StateManagementStateNotification"]
-    N -->|"stateMachine"| SMC["ModeDeclarationGroupPrototype<br/>category CONTROLLER or AGENT"]
-    SMC -->|"type"| MDG["ModeDeclarationGroup<br/>states, initialMode"]
-    N -->|"notificationPort"| NP["P-port (StateMachineNotification)"]
-    SMI -->|"request"| RT["StateManagementRequestTrigger"]
-    SMI -->|"request"| RE["StateManagementRequestError"]
-    RT -->|"rule"| RR["StateManagementRequestRule<br/>formula, nextState"]
-    RE -->|"rule"| RR
-    RT -->|"stateRequestPort"| RP["R-port"]
-    SMI -->|"actionItemList"| AL["StateManagementActionList<br/>affectedState, maxActionListDuration"]
-    AL -->|"actionItem (ordered)"| AI["Action items:<br/>FG state, start/stop, SYNC,<br/>sleep, NM, S2R"]
-    SMI -->|"functionGroupErrorMapping"| FEM["FunctionGroupErrorMapping"]
-    AI -->|"rPortPrototype"| SCP["R-port (StateClientInterface)"]
-    FGPM["FunctionGroupPortMapping"] -->|"rPortPrototypeInExecutable"| SCP
-    MAP["SmInteractsWithNmMapping"] -->|"actionItem"| AI
-    MAP -->|"nmNetworkHandle"| NH["NmNetworkHandle"]
-```
+![Flowchart: How the Elements Relate](diagrams/StateManagement/02-how-the-elements-relate.svg)
 
 Three points are worth knowing:
 
@@ -597,16 +552,7 @@ Each row becomes one `StateManagementRequestRule` with a `formula` that holds on
 
 A StateMachine has four parts. The following diagram shows them for `AdasAgent`.
 
-```mermaid
-flowchart LR
-    REQ["RequestTransition(value)<br/>from SmControl"] --> TRT["TransitionRequestTable"]
-    NMC["Network handle change"] --> TRT
-    ERR["ErrorCode from EM, PHM<br/>or SM itself"] --> ERT["ErrorRecoveryTable"]
-    TRT --> S["Current StateMachine State"]
-    ERT --> S
-    S --> AL["ActionList of the state:<br/>FG states, network handles,<br/>SYNC, Sleep"]
-    S --> CS["CurrentState field<br/>(StateMachineNotification)"]
-```
+![Flowchart: Anatomy of a StateMachine](diagrams/StateManagement/03-anatomy-of-a-statemachine.svg)
 
 1. **StateMachine States**, one of which is the Initial State.
 2. **One ActionList per state**, executed whenever the state is entered.
@@ -690,35 +636,7 @@ In `HPC`, `SmControl` subscribes to `CurrentState` of `AdasAgent` and derives th
 
 The vehicle is switched on. The following sequence shows how `HPC` reaches `MachineFG.Driving` and `ADAS.Normal`. It continues the startup of the [EM guide, Section 9.3](ExecutionManagement.md#93-handing-over-control-to-state-management).
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant EM as Execution Management
-    participant SM as StateManager
-    participant SC as SmControl
-    participant NM as Network Management
-    EM->>SM: start in MachineFG.Startup
-    EM->>SC: start in MachineFG.Startup
-    SM->>SM: read the update session status (Persistency)
-    SM->>EM: ReportExecutionState(kRunning)
-    SM->>SM: start HpcController in Init, offer its services
-    SM->>EM: SetState(MachineFG.Startup)
-    Note over SM: SYNC, then stop AdasAgent: not running, skipped
-    SC->>EM: ReportExecutionState(kRunning)
-    SC->>SC: PowerMode = On
-    SC->>SM: RequestTransition(1) on HpcController
-    SM-->>SC: CurrentState "inTransition"
-    SM->>EM: SetState(MachineFG.Driving)
-    EM-->>SM: done
-    SM->>SM: SYNC, then start AdasAgent in Normal, offer its services
-    SM-->>SC: RequestTransition(1): success
-    SM-->>SC: CurrentState "Driving"
-    SM->>NM: AdasPnHandle: FullCom
-    SM->>EM: SetState(ADAS.Normal)
-    EM-->>SM: done
-    SM-->>SC: AdasAgent CurrentState "Normal"
-    SC->>SC: AdasStatus = Active
-```
+![Sequence diagram: Worked Example: SmControl Brings HPC from Startup to Driving](diagrams/StateManagement/04-worked-example-smcontrol-brings-hpc.svg)
 
 Steps 9 to 15 are the transition `Init` → `Driving` of `HpcController`. The Controller regards `AdasAgent` as started as soon as it exists and offers its services; it does not wait for the Agent's initial ActionList (SWS, Section 7.7.8). That is why `RequestTransition(1)` succeeds before `ADAS` has reached `Normal`. `SmControl` learns that `ADAS` is running from the `CurrentState` of `AdasAgent`.
 
@@ -752,12 +670,7 @@ How parallel the processing really is depends on the implementation, the hardwar
 
 The following diagram shows the ActionList of `HpcController.Driving`.
 
-```mermaid
-flowchart LR
-    A["SetState<br/>MachineFG.Driving"] --> S1{{"SYNC:<br/>wait for the result"}}
-    S1 --> B["Start AdasAgent<br/>(Initial State Normal)"]
-    B --> E{{"implicit SYNC:<br/>list finished"}}
-```
+![Flowchart: Order, Parallelism and SYNC](diagrams/StateManagement/05-order-parallelism-and-sync.svg)
 
 ### 6.2 Function Group State Items
 
@@ -864,16 +777,7 @@ Only the Controller may use the items Start StateMachine and Stop StateMachine (
 
 What a Start StateMachine item does depends on whether the Agent already runs and whether the item has a parameter (`overrideInitialState`):
 
-```mermaid
-flowchart TD
-    S["Start StateMachine item"] --> R{"Agent already<br/>running?"}
-    R -- "no" --> P1{"Parameter<br/>given?"}
-    P1 -- "no" --> A["Start the Agent in its<br/>Initial State<br/>SWS_SM_00612"]
-    P1 -- "yes" --> B["Start the Agent in the<br/>given state<br/>SWS_SM_00622"]
-    R -- "yes" --> P2{"Parameter<br/>given?"}
-    P2 -- "no" --> C["Skip the item<br/>SWS_SM_00613"]
-    P2 -- "yes" --> D["Transition the Agent<br/>to the given state<br/>SWS_SM_00623"]
-```
+![Flowchart: Starting and Stopping Agents](diagrams/StateManagement/06-starting-and-stopping-agents.svg)
 
 A Stop StateMachine item works as follows:
 
@@ -910,22 +814,7 @@ Every Adaptive Application that talks to SM must have initialized ARA with `ara:
 
 In `HPC`, `SmControl` does not run in `Shutdown` and `Restart`, so EM terminates it during the transition to these states. `StateManager`, `PlatformHealth` and `PowerControl` run in both. The following diagram shows the shutdown:
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant SC as SmControl
-    participant SM as StateManager
-    participant EM as Execution Management
-    participant PC as PowerControl
-    SC->>SC: PowerMode = Off
-    SC->>SM: RequestTransition(2) on HpcController
-    SM->>SM: stop AdasAgent: its Off list<br/>(ADAS.Off, SYNC, Sleep 2 s, AdasPn NoCom)
-    SM->>EM: SetState(MachineFG.Shutdown)
-    EM->>SC: SIGTERM (not configured in Shutdown)
-    SC->>SC: ara::core::Deinitialize(), exit
-    EM->>PC: start
-    PC->>PC: power off through the operating system
-```
+![Sequence diagram: Startup, Shutdown and Restart of the Machine](diagrams/StateManagement/07-startup-shutdown-and-restart-of-the.svg)
 
 > **Pitfall:** If a Machine State does not contain an SM process, the machine can never leave that state ([SWS_SM_CONSTR_00001]). Check this for every project-specific Machine State.
 
@@ -948,34 +837,11 @@ sequenceDiagram
 
 The following diagram shows the transitions of `HpcController` that requests and errors cause. The update states are left out.
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> Init: SM starts
-    Init --> Driving: Drive (1)
-    Init --> Shutdown: PowerOff (2)
-    Init --> Restart: Reset (3)
-    Driving --> Shutdown: PowerOff (2)
-    Driving --> Restart: Reset (3)
-    Driving --> Restart: any error (ANY)
-    Shutdown --> [*]: machine off
-    Restart --> [*]: machine reboots
-```
+![State diagram: Worked Example: HpcController and AdasAgent](diagrams/StateManagement/08-worked-example-hpccontroller-and-ada.svg)
 
 `AdasAgent` exists only while `HpcController` is in `Driving` or `AfterUpdate`. The following diagram shows its operating states; [Section 6.6](#66-worked-example-the-actionlists-of-adasagent) lists the ActionLists.
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> Normal: started by HpcController
-    Normal --> Degraded: Degrade (10), error 42 or 1
-    Degraded --> Degraded: error 42 or 1 (list executed again)
-    Normal --> Off: other error (ANY)
-    Degraded --> Off: other error (ANY)
-    Normal --> Off: stopped by HpcController
-    Degraded --> Off: stopped by HpcController
-    Off --> [*]: Agent ceases to exist
-```
+![State diagram: Worked Example: HpcController and AdasAgent](diagrams/StateManagement/09-worked-example-hpccontroller-and-ada.svg)
 
 > **Key takeaways**
 >
@@ -1087,28 +953,7 @@ SM requests every Function Group State, including the Machine State, through EM'
 
 This is the State Management side of the failure that the [PHM guide, Section 12.6](PlatformHealthManagement.md#126-worked-example-fusion-stalls-and-adas-goes-to-degraded) shows from PHM's side. `Fusion` misses its compute deadline, and `FusionSupervision` expires.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant PHM as Platform Health Management
-    participant SM as StateManager (AdasAgent)
-    participant EM as Execution Management
-    participant SC as SmControl
-    PHM->>SM: RecoveryHandler(ADAS, ExecutionError 42, kDeadlineSupervision)
-    SM-->>PHM: Future (not yet ready)
-    SM->>SM: AdasAgent: set ErrorRecoveryOngoing,<br/>42 → Degraded
-    SM-->>SC: AdasAgent CurrentState "inTransition"
-    SM->>SM: AdasPnHandle: FullCom (unchanged)
-    SM->>EM: SetState(ADAS.Degraded)
-    SC->>SM: RequestTransition(10) on AdasAgent
-    SM-->>SC: kRecoveryTransitionOngoing
-    EM->>EM: terminate Fusion, start FusionLite
-    EM-->>SM: SetState done
-    SM->>SM: list finished, reset ErrorRecoveryOngoing
-    SM-->>PHM: Future ready with a value
-    SM-->>SC: AdasAgent CurrentState "Degraded"
-    SC->>SC: AdasStatus = Degraded
-```
+![Sequence diagram: Worked Example: Fusion Fails and ADAS Goes to Degraded](diagrams/StateManagement/10-worked-example-fusion-fails-and-adas.svg)
 
 If `Fusion` had crashed instead, EM would have reported it through the `undefinedStateCallback` with the same `ExecutionError` 42, and `AdasAgent` would have reacted in the same way, only without a `Future` for PHM. Steps 7 and 8 show a request of `SmControl` that arrives during the recovery: it is refused, not queued.
 
@@ -1244,24 +1089,7 @@ Sometimes UCM needs a machine reset, for example when SM, PHM or EM themselves a
 
 The SWS sketches two strategies (SWS, Section 7.7.14): if UCM runs in a Machine State, `ContinueUpdate` requests that state and stops the Agents; if UCM runs in a Function Group of an Agent, `ContinueUpdate` starts only that Agent. In `HPC`, the UCM daemon runs in `MachineFG.Startup`, so `ContinueUpdate` requests `MachineFG.Startup` and stops `AdasAgent`.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant UCM as UCM
-    participant SM as StateManager
-    participant EM as Execution Management
-    UCM->>SM: ResetMachine()
-    SM->>SM: HpcController → Restart:<br/>stop AdasAgent, SYNC, MachineFG.Restart
-    SM->>EM: SetState(MachineFG.Restart)
-    Note over EM: machine reboots
-    EM->>SM: start in MachineFG.Startup
-    SM->>SM: read the session status: active
-    SM->>SM: start HpcController in ContinueUpdate
-    SM->>EM: SetState(MachineFG.Startup)
-    EM-->>SM: done
-    SM-->>UCM: ResetMachineNotifier = kSuccessful
-    UCM->>SM: continue, for example VerifyUpdate(list)
-```
+![Sequence diagram: Machine Reset During a Session](diagrams/StateManagement/11-machine-reset-during-a-session.svg)
 
 ### 9.6 Ending the Session: AfterUpdate
 
@@ -1279,34 +1107,7 @@ In `HPC`, the list of `HpcController.AfterUpdate` is `MachineFG.Driving`, SYNC, 
 
 The vehicle is parked, and V-UCM starts the update of `AdasCluster` from 1.0.0 to 1.1.0 (the [Running Example guide, Section 1.11](RunningExample.md#111-software-updates)). The following sequence shows SM's part; which processes run in `ADAS.Verify` and how UCM decides about the rollback is the subject of the UCM guide.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant SC as SmControl
-    participant UCM as UCM
-    participant SM as StateManager
-    participant EM as Execution Management
-    SC->>SM: UpdateAllowed = kUpdateAllowed (standstill)
-    UCM->>SM: RequestUpdateSession()
-    SM-->>UCM: ok (active session, notifier kIdle)
-    UCM->>SM: PrepareUpdate([ADAS])
-    SM->>SM: mark AdasAgent, and HpcController indirectly
-    SM->>SM: AdasAgent → PrepareUpdate: ADAS.Off, SYNC, AdasPn NoCom
-    SM->>EM: SetState(ADAS.Off)
-    SM->>SM: stop AdasAgent (Off list)
-    SM-->>UCM: ok
-    UCM->>UCM: install AdasCluster 1.1.0
-    UCM->>SM: VerifyUpdate([ADAS])
-    SM->>SM: reload configuration, start AdasAgent in VerifyUpdate
-    SM->>EM: SetState(ADAS.Verify)
-    EM-->>SM: done (new fusion 1.1.0 checked)
-    SM-->>UCM: ok
-    UCM->>SM: StopUpdateSession()
-    SM->>SM: unmark, then HpcController → AfterUpdate:<br/>MachineFG.Driving, SYNC, start AdasAgent in Normal
-    SM->>EM: SetState(ADAS.Normal)
-    SM-->>UCM: ok
-    SC->>SM: RequestTransition(1): AfterUpdate → Driving
-```
+![Sequence diagram: Worked Example: Updating AdasCluster to 1.1.0](diagrams/StateManagement/12-worked-example-updating-adascluster.svg)
 
 If the verification fails, SM answers `VerifyUpdate` with `kOperationFailed` (step 15). UCM then calls `PrepareRollback([ADAS])`: `AdasAgent` enters `PrepareRollback` (`ADAS.Off`, SYNC, `AdasPn` `NoCom`) and is stopped. UCM restores 1.0.0 and finishes with `StopUpdateSession`, after which `AfterUpdate` starts `AdasAgent` in `Normal` with the old software.
 
@@ -1365,23 +1166,7 @@ A satellite that deregisters counts as a positive answer, because its process is
 
 The following diagram shows the entry into S2R when an SMControlApplication uses the hub API directly, without StateMachines (SWS, Figure 7.3).
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant SC as SMControlApplication
-    participant HUB as S2RHub (in SM)
-    participant SAT as S2R Satellites
-    participant PSI as PowerStateInterface
-    SAT->>HUB: Offer() (at startup)
-    SC->>SC: decide to suspend, terminate the<br/>not-supported processes through SM
-    SC->>HUB: RequestToEnterSuspendMode(timeout)
-    HUB->>SAT: EnterSuspendMode()
-    SAT-->>HUB: ok (Suspend Mode entered)
-    HUB-->>SC: Future ready: ok
-    SC->>HUB: EnterSuspendToRamOs()
-    HUB->>PSI: SetPowerState(kPmSuspendToRam)
-    Note over PSI: the machine sleeps, RAM is kept
-```
+![Sequence diagram: S2R Hub and S2R Satellites](diagrams/StateManagement/13-s2r-hub-and-s2r-satellites.svg)
 
 ### 10.4 Talking to the Operating System: PowerStateInterface
 
@@ -1414,14 +1199,7 @@ With StateMachines, the Controller orchestrates S2R, and SM uses the S2R Hub int
 | `Suspend` | stop `AdasAgent`; `MachineFG.Standby`; SYNC; EnterSuspendToRam; SYNC; EnterSuspendToRamOS |
 | `LeaveSuspend` | LeaveSuspendToRam; `MachineFG.Driving`; SYNC; start `AdasAgent` |
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    Driving --> Suspend: request Park (variant)
-    Suspend --> LeaveSuspend: OS wake-up or RequestUpdateSession
-    LeaveSuspend --> Driving: request Drive
-    note right of Suspend: stop Agents, Standby,<br/>notify satellites, suspend the OS
-```
+![State diagram: Suspend-to-RAM in the StateMachine Approach](diagrams/StateManagement/14-suspend-to-ram-in-the-statemachine-a.svg)
 
 Stopping `AdasAgent` terminates the ADAS processes, which would be the right choice for `suspendToRamNotSupported` executables. S2R-aware processes would keep running in `Standby` and receive `EnterSuspendMode`.
 
@@ -1486,23 +1264,7 @@ In `HPC`, `AdasAgent` requests `AdasPnHandle` as `FullCom` in `Normal`, `Degrade
 
 **What `HPC` does.** `SmControl` implements `ara::diag::EcuResetRequest`. When the tester requests an ECU reset, `SmControl` requests `Reset` (3) from `HpcController`, whose `Restart` state stops `AdasAgent` and requests `MachineFG.Restart`. The [Diagnostics Part 1 guide](DiagnosticsPart1.md#126-worked-example-ecu-reset-through-smcontrol) shows the Diagnostic Management side, including the response timing. The diagnostic request that switches `ADAS` to `Degraded` (the [Running Example guide, Section 1.4](RunningExample.md#14-function-groups-and-states)) also ends in `SmControl`, which sends `Degrade` (10) to `AdasAgent`; its trigger is the routine `DegradeAdas` (the [Diagnostics Part 1 guide, Section 12.7](DiagnosticsPart1.md#127-worked-example-degradeadas)). `HPC` does not use CommunicationControl through SM.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant DT as DiagnosticTester
-    participant DM as Diagnostic Management
-    participant SC as SmControl
-    participant SM as StateManager
-    participant EM as Execution Management
-    DT->>DM: UDS ECUReset (0x11)
-    DM->>SC: EcuResetRequest: RequestReset
-    SC-->>DM: accepted
-    DM-->>DT: positive response (before the reset)
-    DM->>SC: EcuResetRequest: ExecuteReset
-    SC->>SM: RequestTransition(3) on HpcController
-    SM->>SM: Restart: stop AdasAgent, SYNC
-    SM->>EM: SetState(MachineFG.Restart)
-```
+![Sequence diagram: Diagnostics: ECU Reset and Communication Control](diagrams/StateManagement/15-diagnostics-ecu-reset-and-communicat.svg)
 
 > **Note:** Because the path is project-specific, check how your SMControlApplication behaves during an update session: the Controller then answers `kUpdateInProgress` ([Section 9.3](#93-impactedbyupdate)), and the ECU reset would have to be refused or delayed.
 

@@ -103,7 +103,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 <tr>
 <td>Diagrams</td>
-<td>Written in Mermaid. They render natively on GitHub and GitLab. In VS Code, install the <em>Markdown Preview Mermaid Support</em> extension.</td>
+<td>Drawn in PlantUML and inserted as SVG images, so they show in any Markdown viewer. Click an image to open it at full size.</td>
 </tr>
 </tbody>
 </table></div>
@@ -465,17 +465,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </table></div>
 <h3 id="14-log-and-trace-and-ara">1.4 Log and Trace and ARA<a class="anchor" href="#14-log-and-trace-and-ara" aria-label="Link to this section">#</a></h3>
 <p><code>ara::log</code> is a library. Every process that logs links it, and each call runs in the calling thread of that process. Behind the library, an implementation-specific <em>logging backend</em> turns the messages into DLT messages and sends them. A <em>logging client</em>, usually a PC tool, receives them. The diagram shows the four parts and the standards that define them.</p>
-<pre class="mermaid">flowchart LR
-    subgraph P[&quot;Process (for example Fusion)&quot;]
-        APP[&quot;Application code&quot;] --&gt;|&quot;ara::log API (SWS)&quot;| LIB[&quot;ara::log library&quot;]
-    end
-    LIB --&gt;|&quot;implementation-specific path&quot;| BE[&quot;Logging backend&lt;br/&gt;(for example a DLT daemon)&quot;]
-    BE --&gt;|&quot;DLT messages (PRS)&lt;br/&gt;over Ethernet&quot;| CL[&quot;Logging client&lt;br/&gt;(viewer on a PC)&quot;]
-    CL --&gt;|&quot;control messages (PRS)&quot;| BE
-    CFG[&quot;Manifest: IDs, sinks, messages&lt;br/&gt;(TPS Manifest, TPS Log And Trace Extract)&quot;] -.-&gt; LIB
-    CFG -.-&gt; BE
-    CFG -.-&gt;|&quot;Log and Trace Extract&lt;br/&gt;for non-verbose decoding&quot;| CL
-</pre>
+<p><a class="figure" href="diagrams/LogAndTrace/01-log-and-trace-and-ara.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/LogAndTrace/01-log-and-trace-and-ara.svg" alt="Flowchart: Log and Trace and ARA" loading="lazy"></a></p>
 <p>The SWS uses a few names for these parts that you will meet again: the <em>Logging framework</em> is the implementation as a whole, the <em>Logging backend</em> is the implementation of the LT protocol (for example DLT), and the <em>Logging client</em> is the external tool that can remotely interact with the framework (SWS, Table 2.1).</p>
 <blockquote>
 <p><strong>Key takeaways</strong></p>
@@ -610,15 +600,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p>Source: SWS, Section 5.2 and Figure 5.2. Only the interface to Time Synchronization is a public ARA interface; the others are marked internal.</p>
 <h3 id="34-interaction-map">3.4 Interaction Map<a class="anchor" href="#34-interaction-map" aria-label="Link to this section">#</a></h3>
 <p>The following diagram shows who talks to whom. Applications and platform clusters log through <code>Logger</code>; Log and Trace reads the time from Time Synchronization and sends DLT messages to the logging client, which sends control messages back.</p>
-<pre class="mermaid">flowchart LR
-    APP[&quot;Adaptive Applications&lt;br/&gt;(Fusion, CameraDriver, SmControl, ...)&quot;] --&gt;|&quot;Logger&quot;| LT[&quot;Log and Trace&lt;br/&gt;(ara::log + backend)&quot;]
-    FC[&quot;Platform clusters&lt;br/&gt;(EM, SM, PHM, CM, DM, UCM, ...)&quot;] --&gt;|&quot;Logger: standardized messages&quot;| LT
-    TS[&quot;Time Synchronization&quot;] --&gt;|&quot;SynchronizedTimeBaseConsumer&quot;| LT
-    OS[&quot;OS adapter (ARTI)&quot;] --&gt;|&quot;OS trace events&quot;| LT
-    LT --&gt;|&quot;DLT messages&quot;| CL[&quot;Logging client&quot;]
-    CL --&gt;|&quot;control messages&quot;| LT
-    LT --&gt;|&quot;modeled messages&quot;| ARTI[&quot;Trace tool (ARTI)&quot;]
-</pre>
+<p><a class="figure" href="diagrams/LogAndTrace/02-interaction-map.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/LogAndTrace/02-interaction-map.svg" alt="Flowchart: Interaction Map" loading="lazy"></a></p>
 <h3 id="35-how-platform-clusters-log">3.5 How Platform Clusters Log<a class="anchor" href="#35-how-platform-clusters-log" aria-label="Link to this section">#</a></h3>
 <p>The libraries and daemons of the platform clusters log with standardized context IDs and message ID ranges. AUTOSAR reserves the prefix <code>#</code> for context IDs of messages standardized by AUTOSAR ([PRS_Dlt_01054]), and SWS Core assigns one context ID and one range of message IDs to each cluster ([SWS_CORE_90024], status DRAFT): for example <code>#EXE</code> with <code>0x8000'4000</code> to <code>0x8000'4fff</code> for Execution Management and <code>#LOG</code> with <code>0x8000'6000</code> to <code>0x8000'6fff</code> for Log and Trace itself. The <a href="CoreAndGeneral.html#125-logging-and-tracing-conventions">Core guide, Section 12.5</a> has the table; Appendix B of this guide repeats it.</p>
 <p>Two meta-classes connect a cluster to a sink in the model (<a href="#1510-mappings-for-functional-clusters">Section 15.10</a>):</p>
@@ -689,22 +671,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </blockquote>
 <h3 id="42-how-the-elements-relate">4.2 How the Elements Relate<a class="anchor" href="#42-how-the-elements-relate" aria-label="Link to this section">#</a></h3>
 <p>The following diagram shows the chain from a port in the code to a sink and to the IDs on the wire.</p>
-<pre class="mermaid">flowchart TB
-    LTI[&quot;LogAndTraceInterface&lt;br/&gt;(FusionLog, namespace hpc::fusion)&quot;] --&gt;|&quot;types&quot;| PORT[&quot;R-port MainLogPort&lt;br/&gt;of FusionSwc&quot;]
-    PORT --&gt;|&quot;in root of executable fusion&quot;| SPEC[&quot;InstanceSpecifier&lt;br/&gt;/fusion/Root/MainLogPort&quot;]
-    LTM[&quot;LTMessageCollectionToPortPrototypeMapping&quot;] --&gt;|&quot;rPort&quot;| PORT
-    LTM --&gt;|&quot;logAndTraceMessageCollectionSet&quot;| SET[&quot;LogAndTraceMessageCollectionSet&lt;br/&gt;FusionMessages (DltMessages)&quot;]
-    MAP[&quot;DltLogSinkToPortPrototypeMapping&lt;br/&gt;(process Fusion)&quot;] --&gt;|&quot;rPortPrototype&quot;| PORT
-    MAP --&gt;|&quot;dltContext&quot;| CTX[&quot;DltContext FusionMain&lt;br/&gt;contextId MAIN&quot;]
-    MAP --&gt;|&quot;dltLogSink&quot;| RS[&quot;DltLogSink HpcRemoteInfo&lt;br/&gt;(REMOTE, channel HPCN)&quot;]
-    APM[&quot;DltApplicationToProcessMapping&quot;] --&gt;|&quot;process&quot;| PROC[&quot;Process Fusion&quot;]
-    APM --&gt;|&quot;dltApplication&quot;| APP[&quot;DltApplication FusionDltApp&lt;br/&gt;applicationId FUSN&quot;]
-    ECU[&quot;DltEcu HpcDltEcu&lt;br/&gt;ecuId HPC1&quot;] --&gt;|&quot;application&quot;| APP
-    APP --&gt;|&quot;context&quot;| CTX
-    INST[&quot;LogAndTraceInstantiation HpcLogAndTrace&lt;br/&gt;(Machine HPC)&quot;] --&gt;|&quot;dltEcu&quot;| ECU
-    INST --&gt;|&quot;logSink&quot;| DS[&quot;DltLogSink HpcDltChannel&lt;br/&gt;(DLT, channel HPCN, TCP 3490)&quot;]
-    RS -.-&gt;|&quot;same log channel&quot;| DS
-</pre>
+<p><a class="figure" href="diagrams/LogAndTrace/03-how-the-elements-relate.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/LogAndTrace/03-how-the-elements-relate.svg" alt="Flowchart: How the Elements Relate" loading="lazy"></a></p>
 <p>At run time, <code>CreateLogger</code> with the instance specifier <code>/fusion/Root/MainLogPort</code> makes the framework find the <code>DltLogSinkToPortPrototypeMapping</code> of the current process for that port. From it, the framework takes the context ID and the sinks; from the <code>DltApplicationToProcessMapping</code> of the process, the application ID; and from the <code>LogAndTraceInstantiation</code>, the ECU ID ([SWS_LOG_00251]).</p>
 <h3 id="43-who-configures-what-and-when">4.3 Who Configures What, and When<a class="anchor" href="#43-who-configures-what-and-when" aria-label="Link to this section">#</a></h3>
 <div class="table-wrap"><table>
@@ -807,20 +774,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </blockquote>
 <h3 id="57-worked-example-the-ids-of-hpc">5.7 Worked Example: the IDs of HPC<a class="anchor" href="#57-worked-example-the-ids-of-hpc" aria-label="Link to this section">#</a></h3>
 <p>The following diagram shows the identifiers that <code>HPC</code> uses for its applications. The platform daemons log under vendor-specific application IDs with the standardized context IDs of their clusters.</p>
-<pre class="mermaid">flowchart TB
-    ECU[&quot;ECU ID HPC1&lt;br/&gt;(DltEcu HpcDltEcu)&quot;] --&gt; FUSN[&quot;FUSN&lt;br/&gt;Fusion&quot;]
-    ECU --&gt; FUSL[&quot;FUSL&lt;br/&gt;FusionLite&quot;]
-    ECU --&gt; CAMD[&quot;CAMD&lt;br/&gt;CameraDriver&quot;]
-    ECU --&gt; SMCT[&quot;SMCT&lt;br/&gt;SmControl&quot;]
-    ECU --&gt; PLAT[&quot;vendor-specific IDs&lt;br/&gt;EM, SM, PHM daemons&quot;]
-    FUSN --&gt; F1[&quot;MAIN: cycle control&quot;]
-    FUSN --&gt; F2[&quot;TRCK: object tracking&quot;]
-    FUSL --&gt; L1[&quot;MAIN&quot;]
-    CAMD --&gt; C1[&quot;MAIN: camera control&quot;]
-    CAMD --&gt; C2[&quot;IMGS: image acquisition&quot;]
-    SMCT --&gt; S1[&quot;MAIN&quot;]
-    PLAT --&gt; P1[&quot;#EXE, #SMX, #PHM&quot;]
-</pre>
+<p><a class="figure" href="diagrams/LogAndTrace/04-worked-example-the-ids-of-hpc.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/LogAndTrace/04-worked-example-the-ids-of-hpc.svg" alt="Flowchart: Worked Example: the IDs of HPC" loading="lazy"></a></p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -919,13 +873,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p>The <code>InstanceSpecifier</code> must name a port typed by a <code>LogAndTraceInterface</code> or by a <code>ServiceInterface</code> ([SWS_LOG_00251], [constr_5286], [constr_5287]). If it cannot be resolved, refers to the wrong kind of element, or is already in use in the process, <code>CreateLogger</code> raises a violation and the process is terminated ([SWS_LOG_00256]; the <a href="CoreAndGeneral.html#63-violations-fail-early">Core guide, Section 6.3</a>).</p>
 <h3 id="63-where-the-threshold-comes-from">6.3 Where the Threshold Comes From<a class="anchor" href="#63-where-the-threshold-comes-from" aria-label="Link to this section">#</a></h3>
 <p>The flowchart summarizes how a new logger gets its initial threshold. Afterwards, the application can change it with <code>Logger::SetThreshold</code> ([SWS_LOG_00254]), and a logging client can change it with control messages (<a href="#94-changing-levels-at-run-time">Section 9.4</a>).</p>
-<pre class="mermaid">flowchart TB
-    START[&quot;CreateLogger called&quot;] --&gt; Q1{&quot;Overload with&lt;br/&gt;ctxDefLogLevel?&quot;}
-    Q1 -- &quot;yes&quot; --&gt; L1[&quot;Threshold = given level&lt;br/&gt;[SWS_LOG_00006]&quot;]
-    Q1 -- &quot;no&quot; --&gt; Q2{&quot;DltLogSink.defaultLogThreshold&lt;br/&gt;configured for this context?&quot;}
-    Q2 -- &quot;yes&quot; --&gt; L2[&quot;Threshold = defaultLogThreshold&lt;br/&gt;[SWS_LOG_00253]&quot;]
-    Q2 -- &quot;no&quot; --&gt; L3[&quot;Threshold = kWarn&lt;br/&gt;[SWS_LOG_00253]&quot;]
-</pre>
+<p><a class="figure" href="diagrams/LogAndTrace/05-where-the-threshold-comes-from.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/LogAndTrace/05-where-the-threshold-comes-from.svg" alt="Flowchart: Where the Threshold Comes From" loading="lazy"></a></p>
 <blockquote>
 <p><strong>Note:</strong> [SWS_LOG_00253] takes the threshold from &quot;the DltLogSink that corresponds to the given context ID&quot;. The model maps sinks to <em>ports</em> (with a <code>DltContext</code>), not to context strings, and a port can have several sinks with different thresholds. Which threshold applies in those cases is not specified in R25-11. If the threshold matters, use the <code>InstanceSpecifier</code> overload with one sink per mapping, or pass the level explicitly.</p>
 </blockquote>
@@ -936,19 +884,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </blockquote>
 <h3 id="65-before-the-backend-is-ready-the-queue">6.5 Before the Backend Is Ready: the Queue<a class="anchor" href="#65-before-the-backend-is-ready-the-queue" aria-label="Link to this section">#</a></h3>
 <p>Messages logged while the framework cannot process them yet, for example because the connection to a log daemon is not established or the framework is not fully initialized, shall be queued. The queue size is <code>DltLogSink.queueSize</code>, counted in messages; when it is exceeded, the oldest entries are discarded ([SWS_LOG_00001]). The same rule applies when the log daemon crashes (SWS, Section 7.8.3).</p>
-<pre class="mermaid">sequenceDiagram
-    participant A as Fusion
-    participant L as ara::log library
-    participant D as Logging backend
-    A-&gt;&gt;L: ara::core::Initialize(argc, argv)
-    A-&gt;&gt;L: CreateLogger(&quot;/fusion/Root/MainLogPort&quot;)
-    A-&gt;&gt;L: LogInfo() &lt;&lt; &quot;starting&quot;
-    Note over L: backend not connected:&lt;br/&gt;queue (queueSize), drop oldest
-    L-&gt;&gt;D: connection established
-    L-&gt;&gt;D: queued messages, then live messages
-    A-&gt;&gt;L: ara::core::Deinitialize()
-    L-&gt;&gt;D: all queued messages are passed on [SWS_LOG_00123]
-</pre>
+<p><a class="figure" href="diagrams/LogAndTrace/06-before-the-backend-is-ready-the-queu.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/LogAndTrace/06-before-the-backend-is-ready-the-queu.svg" alt="Sequence diagram: Before the Backend Is Ready: the Queue" loading="lazy"></a></p>
 <h3 id="66-shutdown-and-daemon-crash">6.6 Shutdown and Daemon Crash<a class="anchor" href="#66-shutdown-and-daemon-crash" aria-label="Link to this section">#</a></h3>
 <p>When <code>ara::core::Deinitialize()</code> is called, the framework passes all queued messages to the configured sinks ([SWS_LOG_00123]). After that, the application must not use the logging API any more (SWS, Section 7.8.2). The <a href="CoreAndGeneral.html#54-what-works-before-initialize-and-after-deinitialize">Core guide, Section 5.4</a> explains why the return value of <code>Deinitialize</code> is the only error report you can still rely on at that point.</p>
 <h3 id="67-knowing-whether-someone-listens">6.7 Knowing Whether Someone Listens<a class="anchor" href="#67-knowing-whether-someone-listens" aria-label="Link to this section">#</a></h3>
@@ -1297,16 +1233,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p>Their disadvantage: the model must exist before the code, which is why non-modeled messages are &quot;mainly used during development&quot; (SWS, Section 7.2). Both classes can be used in the same application.</p>
 <h3 id="82-the-message-model">8.2 The Message Model<a class="anchor" href="#82-the-message-model" aria-label="Link to this section">#</a></h3>
 <p>The following diagram shows the meta-classes of the Log and Trace Extract that describe messages (TPS Log And Trace Extract, Chapter 3).</p>
-<pre class="mermaid">flowchart TB
-    SET[&quot;LogAndTraceMessageCollectionSet&lt;br/&gt;(FusionMessages)&quot;] --&gt;|&quot;dltMessage *&quot;| MSG[&quot;DltMessage&lt;br/&gt;messageId, messageTypeInfo,&lt;br/&gt;messageSourceFile, messageLineNumber&quot;]
-    MSG --&gt;|&quot;dltArgument * (ordered)&quot;| ARG[&quot;DltArgument&lt;br/&gt;predefinedText, optional&quot;]
-    MSG --&gt;|&quot;privacyLevel 0..1&quot;| PRIV[&quot;PrivacyLevel&lt;br/&gt;privacyLevel 0..255&quot;]
-    ARG --&gt;|&quot;dltArgumentProps 0..1&quot;| PROPS[&quot;DltArgumentProps&lt;br/&gt;length, variableLength&quot;]
-    PROPS --&gt;|&quot;networkRepresentation&quot;| SDDP[&quot;SwDataDefProps&lt;br/&gt;baseType, unit, compuMethod,&lt;br/&gt;swTextProps, displayFormat&quot;]
-    PROPS --&gt;|&quot;dltArgumentEntry *&quot;| PROPS
-    PSET[&quot;DltArgumentPropsSet&quot;] --&gt;|&quot;dltArgumentProps *&quot;| PROPS
-    CTX[&quot;DltContext&quot;] --&gt;|&quot;dltMessage *&quot;| MSG
-</pre>
+<p><a class="figure" href="diagrams/LogAndTrace/07-the-message-model.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/LogAndTrace/07-the-message-model.svg" alt="Flowchart: The Message Model" loading="lazy"></a></p>
 <p>One log or trace message is one <code>DltMessage</code> ([TPS_DLTXT_00001]). Its message type and message info (the log level or trace type) come from <code>messageTypeInfo</code>, and its source position from <code>messageSourceFile</code> and <code>messageLineNumber</code> ([TPS_DLTXT_00002]). The user data are the ordered <code>DltArgument</code>s ([TPS_DLTXT_00003]). Only the standardized values may be used in <code>messageTypeInfo</code>, for example <code>DLT_LOG_WARN</code> or <code>DLT_TRACE_FUNCTION_IN</code>; custom values are not allowed ([TPS_DLTXT_00008]).</p>
 <blockquote>
 <p><strong>Note:</strong> Since R25-11, the properties that describe an argument's representation live in a separate, reusable <code>DltArgumentProps</code>, typically collected in a <code>DltArgumentPropsSet</code> ([TPS_DLTXT_00015]). The AUTOSAR standard model of the platform's own messages uses one shared collection for all clusters (<em>Standardized M1 Models used for the Definition of AUTOSAR</em>, Foundation R25-11).</p>
@@ -1511,15 +1438,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <span class="nt">&lt;/DLT-ARGUMENT-PROPS&gt;</span>
 </code></pre></div>
 <p>The flow from model to wire:</p>
-<pre class="mermaid">flowchart LR
-    ARXML[&quot;FusionMessages&lt;br/&gt;(ARXML)&quot;] --&gt; GEN[&quot;ara::log Modeled&lt;br/&gt;Message Generator&quot;]
-    GEN --&gt; HDR[&quot;hpc/fusion/fusionmessages/&lt;br/&gt;messages.h&quot;]
-    HDR --&gt; CODE[&quot;mainLog.Log(FusionCycleOverrun,&lt;br/&gt;61240, 50000)&quot;]
-    CODE --&gt; WIRE[&quot;DLT: MSID 0x00010001&lt;br/&gt;+ 8 bytes of values&quot;]
-    ARXML --&gt; VIEW[&quot;Viewer reads the Extract&quot;]
-    WIRE --&gt; VIEW
-    VIEW --&gt; TXT[&quot;FUSN MAIN warn: cycle overrun&lt;br/&gt;cycleTime=61240 us budget=50000 us&quot;]
-</pre>
+<p><a class="figure" href="diagrams/LogAndTrace/08-worked-example-fusioncycleoverrun-fr.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/LogAndTrace/08-worked-example-fusioncycleoverrun-fr.svg" alt="Flowchart: Worked Example: FusionCycleOverrun from Model to Wire" loading="lazy"></a></p>
 <p>On the wire, the message has 25 bytes of headers and 8 bytes of payload (<a href="#118-byte-by-byte-two-messages-of-hpc">Section 11.8</a>). The same information as a verbose message, with the text, two names and two units, needs 62 bytes of payload: 19 for the string, 23 and 20 for the two named integers with their units.</p>
 <blockquote>
 <p><strong>Key takeaways</strong></p>
@@ -1646,15 +1565,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </table></div>
 <h3 id="93-where-filtering-happens">9.3 Where Filtering Happens<a class="anchor" href="#93-where-filtering-happens" aria-label="Link to this section">#</a></h3>
 <p>A message can be filtered at several points on its way. The first one is the logger's own threshold; the others depend on the implementation and the tool.</p>
-<pre class="mermaid">flowchart LR
-    CALL[&quot;LogDebug() &lt;&lt; ...&lt;br/&gt;or Log(msg, ...)&quot;] --&gt; T1{&quot;Logger threshold&lt;br/&gt;(defaultLogThreshold,&lt;br/&gt;SetThreshold, control msg)&quot;}
-    T1 -- &quot;below&quot; --&gt; X1[&quot;discarded in the process&quot;]
-    T1 -- &quot;passes&quot; --&gt; BE[&quot;Backend&quot;]
-    BE --&gt; T2{&quot;Implementation-specific&lt;br/&gt;filters per sink or channel&quot;}
-    T2 -- &quot;passes&quot; --&gt; NET[&quot;DLT on the network&quot;]
-    NET --&gt; T3{&quot;Viewer filters&lt;br/&gt;(app, context, level, tag)&quot;}
-    T3 --&gt; SCREEN[&quot;Shown to the user&quot;]
-</pre>
+<p><a class="figure" href="diagrams/LogAndTrace/09-where-filtering-happens.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/LogAndTrace/09-where-filtering-happens.svg" alt="Flowchart: Where Filtering Happens" loading="lazy"></a></p>
 <p>The threshold acts as a reporting filter: only messages with the same or a higher severity are processed, and the others are ignored (SWS, Section 7.1.2). The application-wide level and the context levels shall be adjustable at run time; the SWS leaves the realization to the backend, for example remotely through a logging client (SWS, Section 7.1.2).</p>
 <h3 id="94-changing-levels-at-run-time">9.4 Changing Levels at Run Time<a class="anchor" href="#94-changing-levels-at-run-time" aria-label="Link to this section">#</a></h3>
 <div class="table-wrap"><table>
@@ -1756,20 +1667,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </blockquote>
 <h3 id="102-machine-sinks-and-per-port-sinks">10.2 Machine Sinks and Per-Port Sinks<a class="anchor" href="#102-machine-sinks-and-per-port-sinks" aria-label="Link to this section">#</a></h3>
 <p>The two DLT categories work together. A <code>DLT_LOGSINK_DLT</code> sink belongs to the machine: it defines a log channel and the network endpoint of that channel. A <code>DLT_LOGSINK_REMOTE</code> sink belongs to a port mapping: it names the log channel to which that port's messages go, and can carry its own default threshold. The following diagram shows the structure of <code>HPC</code>.</p>
-<pre class="mermaid">flowchart LR
-    subgraph MAP[&quot;DltLogSinkToPortPrototypeMappings&quot;]
-        M1[&quot;Fusion MainLogPort (MAIN)&quot;]
-        M2[&quot;Fusion TrackLogPort (TRCK)&quot;]
-        M3[&quot;CameraDriver ImageLogPort (IMGS)&quot;]
-    end
-    M1 --&gt; RI[&quot;HpcRemoteInfo&lt;br/&gt;REMOTE, channel HPCN, info&quot;]
-    M2 --&gt; RW[&quot;HpcRemoteWarn&lt;br/&gt;REMOTE, channel HPCN, warn&quot;]
-    M3 --&gt; RW
-    RI -.-&gt; CH[&quot;HpcDltChannel&lt;br/&gt;DLT, channel HPCN,&lt;br/&gt;TCP 3490 on BackboneConnector&quot;]
-    RW -.-&gt; CH
-    INST[&quot;LogAndTraceInstantiation&lt;br/&gt;HpcLogAndTrace&quot;] --&gt; CH
-    INST --&gt; CON[&quot;HpcConsole&lt;br/&gt;CONSOLE, warn&quot;]
-</pre>
+<p><a class="figure" href="diagrams/LogAndTrace/10-machine-sinks-and-per-port-sinks.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/LogAndTrace/10-machine-sinks-and-per-port-sinks.svg" alt="Flowchart: Machine Sinks and Per-Port Sinks" loading="lazy"></a></p>
 <p>The connection from a REMOTE sink to the DLT sink is the log channel ID. The TPS does not define a meta-model reference between the two; the matching ID is what connects them ([TPS_MANI_02384], [TPS_MANI_02385]).</p>
 <h3 id="103-the-network-sink">10.3 The Network Sink<a class="anchor" href="#103-the-network-sink" aria-label="Link to this section">#</a></h3>
 <p>The output channel on Ethernet is configured with a <code>PlatformModuleEthernetEndpointConfiguration</code>, referenced by the DLT sink as <code>endpointConfiguration</code> ([TPS_MANI_03163]). Its <code>tcpPort</code> or <code>udpPort</code> reference an <code>ApApplicationEndpoint</code> of the communication connector, which selects the transport protocol and the port number; the IP address comes from the <code>NetworkEndpoint</code> of the connector. The PRS does not prescribe a transport or a port.</p>
@@ -1926,20 +1824,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </blockquote>
 <h3 id="111-message-layout">11.1 Message Layout<a class="anchor" href="#111-message-layout" aria-label="Link to this section">#</a></h3>
 <p>Every DLT message, data or control, has the same format: a <em>Base Header</em>, an optional <em>Extension Header</em> and a <em>Payload</em> (PRS, Table 5.1). Both headers use network byte order, that is big-endian ([PRS_Dlt_01000]).</p>
-<pre class="mermaid">flowchart LR
-    subgraph BH[&quot;Base Header (7 to 20 bytes)&quot;]
-        direction TB
-        H1[&quot;HTYP2 4 B&quot;] --&gt; H2[&quot;MCNT 1 B&quot;] --&gt; H3[&quot;LEN 2 B&quot;] --&gt; H4[&quot;MSIN 1 B (c)&quot;] --&gt; H5[&quot;NOAR 1 B (c)&quot;] --&gt; H6[&quot;TMSP2 9 B (c)&quot;] --&gt; H7[&quot;MSID 4 B (c)&quot;]
-    end
-    subgraph EH[&quot;Extension Header (optional)&quot;]
-        direction TB
-        E1[&quot;ECU&quot;] --&gt; E2[&quot;APID, CTID&quot;] --&gt; E3[&quot;SEID&quot;] --&gt; E4[&quot;FINA, LINR&quot;] --&gt; E5[&quot;TAGS&quot;] --&gt; E6[&quot;PRIV&quot;] --&gt; E7[&quot;SGMT&quot;]
-    end
-    subgraph PL[&quot;Payload&quot;]
-        P1[&quot;arguments, values or commands&quot;]
-    end
-    BH --&gt; EH --&gt; PL
-</pre>
+<p><a class="figure" href="diagrams/LogAndTrace/11-message-layout.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/LogAndTrace/11-message-layout.svg" alt="Flowchart: Message Layout" loading="lazy"></a></p>
 <p>The fields marked (c) are conditional; their presence depends on the kind of message. All fields of the extension header are optional; flags in the base header announce them.</p>
 <h3 id="112-the-base-header">11.2 The Base Header<a class="anchor" href="#112-the-base-header" aria-label="Link to this section">#</a></h3>
 <p>The base header always starts with the 32-bit header type <code>HTYP2</code>, the 8-bit message counter <code>MCNT</code> and the 16-bit length <code>LEN</code> ([PRS_Dlt_01001]). The conditional fields follow in a fixed order without gaps ([PRS_Dlt_01002]).</p>
@@ -2622,18 +2507,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </table></div>
 <h3 id="128-worked-example-debugging-trck-for-one-drive">12.8 Worked Example: Debugging TRCK for One Drive<a class="anchor" href="#128-worked-example-debugging-trck-for-one-drive" aria-label="Link to this section">#</a></h3>
 <p>On a test drive, <code>Fusion</code> loses a tracked pedestrian now and then. The context <code>TRCK</code> is mapped to <code>HpcRemoteWarn</code>, so its Debug messages, such as <code>TrackListSummary</code>, are normally filtered. The engineer raises the level for one drive without changing the software:</p>
-<pre class="mermaid">sequenceDiagram
-    participant V as Logging client
-    participant B as Logging backend (HPC1)
-    participant F as Fusion (FUSN)
-    V-&gt;&gt;B: Control request 0x01 SetLogLevel(FUSN, TRCK, 5 = DEBUG)
-    B-&gt;&gt;F: new threshold for TRCK (implementation-specific)
-    B--&gt;&gt;V: Control response status 0 (OK)
-    F-&gt;&gt;B: Log(TrackListSummary, 17) passes the threshold
-    B--&gt;&gt;V: non-verbose MSID 0x00010002
-    V-&gt;&gt;B: Control request 0x01 SetLogLevel(FUSN, TRCK, -1 = default)
-    B--&gt;&gt;V: status 0 (OK)
-</pre>
+<p><a class="figure" href="diagrams/LogAndTrace/12-worked-example-debugging-trck-for-on.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/LogAndTrace/12-worked-example-debugging-trck-for-on.svg" alt="Sequence diagram: Worked Example: Debugging TRCK for One Drive" loading="lazy"></a></p>
 <p>Because the change is not stored (no <code>StoreConfiguration</code>), <code>TRCK</code> falls back to its configured threshold after the next restart.</p>
 <blockquote>
 <p><strong>Key takeaways</strong></p>
@@ -2782,14 +2656,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </table></div>
 <h3 id="143-the-trace-switch">14.3 The Trace Switch<a class="anchor" href="#143-the-trace-switch" aria-label="Link to this section">#</a></h3>
 <p>A <code>TraceSwitchConfig</code> maps one <code>DltMessage</code>, in the context of one <code>Executable</code>, to a trace switch value ([TPS_MANI_03336]). It is used for the compile-time configuration of ARTI trace and is not needed for normal logging. The evaluation is done at compile time ([SWS_LOG_20001] to [SWS_LOG_20004]):</p>
-<pre class="mermaid">flowchart TB
-    CALL[&quot;logger.Log(msg, params)&quot;] --&gt; Q{&quot;TraceSwitchConfig for this message,&lt;br/&gt;namespace and executable?&quot;}
-    Q -- &quot;none&quot; --&gt; LOG[&quot;Logger&lt;br/&gt;[SWS_LOG_20001]&quot;]
-    Q -- &quot;traceSwitchLog&quot; --&gt; LOG
-    Q -- &quot;traceSwitchArti&quot; --&gt; ARTI[&quot;apext::log::TraceArti&lt;br/&gt;[SWS_LOG_20002]&quot;]
-    Q -- &quot;traceSwitchArtiAndLog&quot; --&gt; BOTH[&quot;TraceArti and Logger&lt;br/&gt;[SWS_LOG_20003]&quot;]
-    Q -- &quot;traceSwitchNone&quot; --&gt; DROP[&quot;discarded, no run-time cost&lt;br/&gt;[SWS_LOG_20004]&quot;]
-</pre>
+<p><a class="figure" href="diagrams/LogAndTrace/13-the-trace-switch.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/LogAndTrace/13-the-trace-switch.svg" alt="Flowchart: The Trace Switch" loading="lazy"></a></p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -4390,29 +4257,7 @@ time (VehicleTime)  apid  ctid  type        msg id      message
 <p><strong>Pitfall:</strong> Lines from different processes can reach the client out of timestamp order, because each process and the backend buffer messages (<a href="#133-buffering-and-loss">Section 13.3</a>). Sort by the timestamp, not by the order of arrival, and compare timestamps only if they come from the same time base. A line whose order looks wrong, for example an <code>AdasStatusChanged</code> <code>Degraded</code> before EM has created <code>FusionLite</code>, is either a sorting effect or a real bug in the application logic: <code>SmControl</code> must publish the new status only after <code>AdasAgent</code> reports <code>CurrentState</code> <code>Degraded</code> (the <a href="StateManagement.html#87-worked-example-fusion-fails-and-adas-goes-to-degraded">SM guide, Section 8.7</a>).</p>
 </blockquote>
 <p>The sequence of the transition:</p>
-<pre class="mermaid">sequenceDiagram
-    participant F as Fusion (FUSN)
-    participant P as PHM daemon
-    participant S as SM daemon
-    participant E as EM
-    participant L as FusionLite (FUSL)
-    participant C as SmControl (SMCT)
-    participant V as Logging client
-    F-&gt;&gt;V: FusionCycleOverrun 0x00010001 (warn, twice)
-    P-&gt;&gt;V: RecoveryInitiated 0x80009002 (error)
-    P-&gt;&gt;S: RecoveryHandler(ADAS, 42)
-    S-&gt;&gt;E: SetState(ADAS.Degraded)
-    E-&gt;&gt;V: ProcessTerminationRequest 0x80004003
-    E-&gt;&gt;F: SIGTERM
-    F-&gt;&gt;V: &quot;Fusion stopping&quot; (verbose)
-    E-&gt;&gt;V: ProcessTerminated 0x80004004
-    E-&gt;&gt;V: ProcessCreated 0x80004001
-    E-&gt;&gt;L: start
-    E-&gt;&gt;V: ProcessKRunningReceived 0x80004002
-    L-&gt;&gt;V: FusionLiteActive 0x00011001
-    S-&gt;&gt;C: CurrentState Degraded
-    C-&gt;&gt;V: AdasStatusChanged 0x00030001 (Degraded)
-</pre>
+<p><a class="figure" href="diagrams/LogAndTrace/14-reading-the-trace.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/LogAndTrace/14-reading-the-trace.svg" alt="Sequence diagram: Reading the Trace" loading="lazy"></a></p>
 <blockquote>
 <p><strong>Key takeaways</strong></p>
 <ul>
@@ -5412,12 +5257,11 @@ time (VehicleTime)  apid  ctid  type        msg id      message
 
 </article>
 <nav class="pager" aria-label="Previous and next guide"><a class="pager-prev" href="SecureAndSafeCommunication.html"><span class="pager-label">← Previous</span><span class="pager-title">Communication Management Part 3: Secure Communication and End-to-End Protection</span></a><a class="pager-next" href="Persistency.html"><span class="pager-label">Next →</span><span class="pager-title">Persistency</span></a></nav>
-<footer class="site-footer"><p>Based on the AUTOSAR Adaptive Platform and Foundation specifications, release R25-11.</p><p>Training material, not a normative reference. Where a guide and an AUTOSAR specification differ, the specification applies. Specifications: <a href="https://www.autosar.org/standards" target="_blank" rel="noopener">autosar.org/standards</a>.</p></footer>
+<footer class="site-footer"><p>Based on the AUTOSAR Adaptive Platform and Foundation specifications, release R25-11.</p><p>Training material, not a normative reference. Specifications: <a href="https://www.autosar.org/standards" target="_blank" rel="noopener">autosar.org/standards</a>.</p></footer>
 </main>
 <aside class="toc" aria-label="On this page"><p class="toc-label">On this page</p><ul><li class="lvl2"><a href="#about-this-guide">About This Guide</a></li><li class="lvl3"><a href="#who-this-guide-is-for">Who This Guide Is For</a></li><li class="lvl3"><a href="#learning-objectives">Learning Objectives</a></li><li class="lvl3"><a href="#how-to-read-this-guide">How to Read This Guide</a></li><li class="lvl3"><a href="#the-running-example">The Running Example</a></li><li class="lvl2"><a href="#table-of-contents">Table of Contents</a></li><li class="lvl2"><a href="#1-introduction-to-log-and-trace">1. Introduction to Log and Trace</a></li><li class="lvl3"><a href="#11-what-is-log-and-trace">1.1 What Is Log and Trace?</a></li><li class="lvl3"><a href="#12-what-log-and-trace-does-not-do">1.2 What Log and Trace Does Not Do</a></li><li class="lvl3"><a href="#13-analogies">1.3 Analogies</a></li><li class="lvl3"><a href="#14-log-and-trace-and-ara">1.4 Log and Trace and ARA</a></li><li class="lvl2"><a href="#2-core-concepts-and-terminology">2. Core Concepts and Terminology</a></li><li class="lvl3"><a href="#21-log-message-log-level-and-threshold">2.1 Log Message, Log Level and Threshold</a></li><li class="lvl3"><a href="#22-who-sent-it-ecu-application-context-and-session">2.2 Who Sent It: ECU, Application, Context and Session</a></li><li class="lvl3"><a href="#23-logger-and-logstream">2.3 Logger and LogStream</a></li><li class="lvl3"><a href="#24-non-modeled-and-modeled-messages-verbose-and-non-verbose-mode">2.4 Non-Modeled and Modeled Messages; Verbose and Non-Verbose Mode</a></li><li class="lvl3"><a href="#25-sinks-and-log-channels">2.5 Sinks and Log Channels</a></li><li class="lvl3"><a href="#26-the-log-and-trace-extract">2.6 The Log and Trace Extract</a></li><li class="lvl3"><a href="#27-logs-and-traces">2.7 Logs and Traces</a></li><li class="lvl3"><a href="#28-logging-client-and-control-messages">2.8 Logging Client and Control Messages</a></li><li class="lvl2"><a href="#3-log-and-trace-in-the-system-architecture">3. Log and Trace in the System Architecture</a></li><li class="lvl3"><a href="#31-where-log-and-trace-sits-in-the-platform">3.1 Where Log and Trace Sits in the Platform</a></li><li class="lvl3"><a href="#32-interfaces-provided-by-log-and-trace">3.2 Interfaces Provided by Log and Trace</a></li><li class="lvl3"><a href="#33-interfaces-required-by-log-and-trace">3.3 Interfaces Required by Log and Trace</a></li><li class="lvl3"><a href="#34-interaction-map">3.4 Interaction Map</a></li><li class="lvl3"><a href="#35-how-platform-clusters-log">3.5 How Platform Clusters Log</a></li><li class="lvl2"><a href="#4-configuration-overview">4. Configuration Overview</a></li><li class="lvl3"><a href="#41-where-the-configuration-lives">4.1 Where the Configuration Lives</a></li><li class="lvl3"><a href="#42-how-the-elements-relate">4.2 How the Elements Relate</a></li><li class="lvl3"><a href="#43-who-configures-what-and-when">4.3 Who Configures What, and When</a></li><li class="lvl2"><a href="#5-identifying-the-source-ecu-application-context-and-session">5. Identifying the Source: ECU, Application, Context and Session</a></li><li class="lvl3"><a href="#51-ecu-id">5.1 ECU ID</a></li><li class="lvl3"><a href="#52-application-id">5.2 Application ID</a></li><li class="lvl3"><a href="#53-context-id">5.3 Context ID</a></li><li class="lvl3"><a href="#54-reserved-prefixes">5.4 Reserved Prefixes</a></li><li class="lvl3"><a href="#55-session-id">5.5 Session ID</a></li><li class="lvl3"><a href="#56-length-of-ids">5.6 Length of IDs</a></li><li class="lvl3"><a href="#57-worked-example-the-ids-of-hpc">5.7 Worked Example: the IDs of HPC</a></li><li class="lvl2"><a href="#6-initialization-loggers-and-lifecycle">6. Initialization, Loggers and Lifecycle</a></li><li class="lvl3"><a href="#61-initializing-the-framework">6.1 Initializing the Framework</a></li><li class="lvl3"><a href="#62-creating-loggers">6.2 Creating Loggers</a></li><li class="lvl3"><a href="#63-where-the-threshold-comes-from">6.3 Where the Threshold Comes From</a></li><li class="lvl3"><a href="#64-connected-and-unconnected-loggers">6.4 Connected and Unconnected Loggers</a></li><li class="lvl3"><a href="#65-before-the-backend-is-ready-the-queue">6.5 Before the Backend Is Ready: the Queue</a></li><li class="lvl3"><a href="#66-shutdown-and-daemon-crash">6.6 Shutdown and Daemon Crash</a></li><li class="lvl3"><a href="#67-knowing-whether-someone-listens">6.7 Knowing Whether Someone Listens</a></li><li class="lvl3"><a href="#68-errors-are-swallowed">6.8 Errors Are Swallowed</a></li><li class="lvl3"><a href="#69-worked-example-fusion-sets-up-its-loggers">6.9 Worked Example: Fusion Sets Up Its Loggers</a></li><li class="lvl2"><a href="#7-writing-non-modeled-messages">7. Writing Non-Modeled Messages</a></li><li class="lvl3"><a href="#71-the-builder-pattern">7.1 The Builder Pattern</a></li><li class="lvl3"><a href="#72-supported-argument-types">7.2 Supported Argument Types</a></li><li class="lvl3"><a href="#73-logging-your-own-types">7.3 Logging Your Own Types</a></li><li class="lvl3"><a href="#74-names-and-units-with-arg">7.4 Names and Units with Arg</a></li><li class="lvl3"><a href="#75-formatting-hints">7.5 Formatting Hints</a></li><li class="lvl3"><a href="#76-source-location-tags-and-privacy">7.6 Source Location, Tags and Privacy</a></li><li class="lvl3"><a href="#77-avoiding-work-when-nobody-listens">7.7 Avoiding Work When Nobody Listens</a></li><li class="lvl3"><a href="#78-keeping-a-logstream-flush-and-scope">7.8 Keeping a LogStream: Flush and Scope</a></li><li class="lvl3"><a href="#79-worked-example-cameradriver-logs-a-dropped-image">7.9 Worked Example: CameraDriver Logs a Dropped Image</a></li><li class="lvl2"><a href="#8-modeled-messages">8. Modeled Messages</a></li><li class="lvl3"><a href="#81-why-model-a-message">8.1 Why Model a Message</a></li><li class="lvl3"><a href="#82-the-message-model">8.2 The Message Model</a></li><li class="lvl3"><a href="#83-predefined-text-and-assembled-data">8.3 Predefined Text and Assembled Data</a></li><li class="lvl3"><a href="#84-argument-types">8.4 Argument Types</a></li><li class="lvl3"><a href="#85-message-ids">8.5 Message IDs</a></li><li class="lvl3"><a href="#86-from-arxml-to-messagesh">8.6 From ARXML to messages.h</a></li><li class="lvl3"><a href="#87-calling-loggerlog">8.7 Calling Logger::Log</a></li><li class="lvl3"><a href="#88-when-a-modeled-message-is-sent-verbose">8.8 When a Modeled Message Is Sent Verbose</a></li><li class="lvl3"><a href="#89-pitfall-the-outdated-arxml-example-in-the-sws">8.9 Pitfall: the Outdated ARXML Example in the SWS</a></li><li class="lvl3"><a href="#810-worked-example-fusioncycleoverrun-from-model-to-wire">8.10 Worked Example: FusionCycleOverrun from Model to Wire</a></li><li class="lvl2"><a href="#9-log-levels-and-filtering">9. Log Levels and Filtering</a></li><li class="lvl3"><a href="#91-the-six-levels-and-koff">9.1 The Six Levels and kOff</a></li><li class="lvl3"><a href="#92-what-each-level-is-for">9.2 What Each Level Is For</a></li><li class="lvl3"><a href="#93-where-filtering-happens">9.3 Where Filtering Happens</a></li><li class="lvl3"><a href="#94-changing-levels-at-run-time">9.4 Changing Levels at Run Time</a></li><li class="lvl3"><a href="#95-trace-status">9.5 Trace Status</a></li><li class="lvl2"><a href="#10-output-sinks">10. Output Sinks</a></li><li class="lvl3"><a href="#101-the-five-sink-categories">10.1 The Five Sink Categories</a></li><li class="lvl3"><a href="#102-machine-sinks-and-per-port-sinks">10.2 Machine Sinks and Per-Port Sinks</a></li><li class="lvl3"><a href="#103-the-network-sink">10.3 The Network Sink</a></li><li class="lvl3"><a href="#104-console-output-rules">10.4 Console Output Rules</a></li><li class="lvl3"><a href="#105-file-output">10.5 File Output</a></li><li class="lvl3"><a href="#106-the-lt-protocol-binding">10.6 The LT Protocol Binding</a></li><li class="lvl3"><a href="#107-the-arti-sink">10.7 The ARTI Sink</a></li><li class="lvl3"><a href="#108-choosing-sinks-for-development-and-production">10.8 Choosing Sinks for Development and Production</a></li><li class="lvl2"><a href="#11-the-dlt-protocol-version-2">11. The DLT Protocol, Version 2</a></li><li class="lvl3"><a href="#111-message-layout">11.1 Message Layout</a></li><li class="lvl3"><a href="#112-the-base-header">11.2 The Base Header</a></li><li class="lvl3"><a href="#113-message-type-and-message-info">11.3 Message Type and Message Info</a></li><li class="lvl3"><a href="#114-the-extension-header">11.4 The Extension Header</a></li><li class="lvl3"><a href="#115-non-verbose-payload">11.5 Non-Verbose Payload</a></li><li class="lvl3"><a href="#116-verbose-payload">11.6 Verbose Payload</a></li><li class="lvl3"><a href="#117-segmentation-of-large-messages">11.7 Segmentation of Large Messages</a></li><li class="lvl3"><a href="#118-byte-by-byte-two-messages-of-hpc">11.8 Byte by Byte: Two Messages of HPC</a></li><li class="lvl3"><a href="#119-storing-messages-in-files-the-storage-header">11.9 Storing Messages in Files: the Storage Header</a></li><li class="lvl3"><a href="#1110-version-1-and-version-2">11.10 Version 1 and Version 2</a></li><li class="lvl2"><a href="#12-controlling-a-running-ecu-control-messages">12. Controlling a Running ECU: Control Messages</a></li><li class="lvl3"><a href="#121-what-control-messages-are">12.1 What Control Messages Are</a></li><li class="lvl3"><a href="#122-the-services">12.2 The Services</a></li><li class="lvl3"><a href="#123-setting-log-levels-and-trace-status">12.3 Setting Log Levels and Trace Status</a></li><li class="lvl3"><a href="#124-asking-the-ecu">12.4 Asking the ECU</a></li><li class="lvl3"><a href="#125-buffer-overflow-notification">12.5 Buffer Overflow Notification</a></li><li class="lvl3"><a href="#126-injection-and-why-to-disable-it">12.6 Injection, and Why to Disable It</a></li><li class="lvl3"><a href="#127-error-responses">12.7 Error Responses</a></li><li class="lvl3"><a href="#128-worked-example-debugging-trck-for-one-drive">12.8 Worked Example: Debugging TRCK for One Drive</a></li><li class="lvl2"><a href="#13-timestamps-buffering-and-performance">13. Timestamps, Buffering and Performance</a></li><li class="lvl3"><a href="#131-where-timestamps-come-from">13.1 Where Timestamps Come From</a></li><li class="lvl3"><a href="#132-the-9-byte-timestamp">13.2 The 9-Byte Timestamp</a></li><li class="lvl3"><a href="#133-buffering-and-loss">13.3 Buffering and Loss</a></li><li class="lvl3"><a href="#134-the-cost-of-logging">13.4 The Cost of Logging</a></li><li class="lvl3"><a href="#135-buffers-in-a-real-implementation">13.5 Buffers in a Real Implementation</a></li><li class="lvl2"><a href="#14-tracing">14. Tracing</a></li><li class="lvl3"><a href="#141-logging-and-tracing-in-autosar">14.1 Logging and Tracing in AUTOSAR</a></li><li class="lvl3"><a href="#142-three-ways-to-configure-tracing">14.2 Three Ways to Configure Tracing</a></li><li class="lvl3"><a href="#143-the-trace-switch">14.3 The Trace Switch</a></li><li class="lvl3"><a href="#144-apextlogtracearti-and-who-generates-what">14.4 apext::log::TraceArti and Who Generates What</a></li><li class="lvl3"><a href="#145-the-arti-sink">14.5 The ARTI Sink</a></li><li class="lvl3"><a href="#146-operating-system-traces">14.6 Operating System Traces</a></li><li class="lvl3"><a href="#147-tracemetainfo">14.7 TraceMetaInfo</a></li><li class="lvl3"><a href="#148-worked-example-timing-the-fusion-cycle">14.8 Worked Example: Timing the Fusion Cycle</a></li><li class="lvl2"><a href="#15-configuration-reference-what-to-configure">15. Configuration Reference: What to Configure</a></li><li class="lvl3"><a href="#151-minimal-configuration">15.1 Minimal Configuration</a></li><li class="lvl3"><a href="#152-logandtraceinterface-and-its-ports">15.2 LogAndTraceInterface and Its Ports</a></li><li class="lvl3"><a href="#153-logandtracemessagecollectionset-and-ltmessagecollectiontoportprototypemapping">15.3 LogAndTraceMessageCollectionSet and LTMessageCollectionToPortPrototypeMapping</a></li><li class="lvl3"><a href="#154-dltmessage-dltargument-and-dltargumentprops">15.4 DltMessage, DltArgument and DltArgumentProps</a></li><li class="lvl3"><a href="#155-dltecu-dltapplication-and-dltcontext">15.5 DltEcu, DltApplication and DltContext</a></li><li class="lvl3"><a href="#156-logandtraceinstantiation">15.6 LogAndTraceInstantiation</a></li><li class="lvl3"><a href="#157-dltlogsink">15.7 DltLogSink</a></li><li class="lvl3"><a href="#158-dltapplicationtoprocessmapping-and-dltlogsinktoportprototypemapping">15.8 DltApplicationToProcessMapping and DltLogSinkToPortPrototypeMapping</a></li><li class="lvl3"><a href="#159-traceswitchconfig-and-executableloggingimplementationprops">15.9 TraceSwitchConfig and ExecutableLoggingImplementationProps</a></li><li class="lvl3"><a href="#1510-mappings-for-functional-clusters">15.10 Mappings for Functional Clusters</a></li><li class="lvl3"><a href="#1511-the-running-example-complete-configuration">15.11 The Running Example: Complete Configuration</a></li><li class="lvl2"><a href="#16-api-reference-and-usage-guide-aralog">16. API Reference and Usage Guide (ara::log)</a></li><li class="lvl3"><a href="#161-api-overview">16.1 API Overview</a></li><li class="lvl3"><a href="#162-loglevel-and-clientstate">16.2 LogLevel and ClientState</a></li><li class="lvl3"><a href="#163-createlogger">16.3 CreateLogger</a></li><li class="lvl3"><a href="#164-class-logger">16.4 Class Logger</a></li><li class="lvl3"><a href="#165-class-logstream">16.5 Class LogStream</a></li><li class="lvl3"><a href="#166-arg-argument-format-fmt-and-the-format-helpers">16.6 Arg, Argument, Format, Fmt and the Format Helpers</a></li><li class="lvl3"><a href="#167-free-operator-overloads">16.7 Free operator&lt;&lt; Overloads</a></li><li class="lvl3"><a href="#168-registerconnectionstatehandler">16.8 RegisterConnectionStateHandler</a></li><li class="lvl3"><a href="#169-apextlogtracearti">16.9 apext::log::TraceArti</a></li><li class="lvl3"><a href="#1610-thread-safety-and-exception-safety-summary">16.10 Thread Safety and Exception Safety Summary</a></li><li class="lvl3"><a href="#1611-complete-example-fusion">16.11 Complete Example: Fusion</a></li><li class="lvl2"><a href="#17-reporting-of-log-and-trace-itself">17. Reporting of Log and Trace Itself</a></li><li class="lvl2"><a href="#18-end-to-end-walkthrough-a-dlt-trace-of-an-adas-transition">18. End-to-End Walkthrough: A DLT Trace of an ADAS Transition</a></li><li class="lvl3"><a href="#181-setting-up-the-logging-client">18.1 Setting Up the Logging Client</a></li><li class="lvl3"><a href="#182-the-trace">18.2 The Trace</a></li><li class="lvl3"><a href="#183-how-the-standardized-messages-are-identified">18.3 How the Standardized Messages Are Identified</a></li><li class="lvl3"><a href="#184-reading-the-trace">18.4 Reading the Trace</a></li><li class="lvl2"><a href="#19-best-practices-pitfalls-and-troubleshooting">19. Best Practices, Pitfalls and Troubleshooting</a></li><li class="lvl3"><a href="#191-best-practices">19.1 Best Practices</a></li><li class="lvl3"><a href="#192-common-pitfalls">19.2 Common Pitfalls</a></li><li class="lvl3"><a href="#193-troubleshooting-guide">19.3 Troubleshooting Guide</a></li><li class="lvl2"><a href="#20-summary-and-self-check-quiz">20. Summary and Self-Check Quiz</a></li><li class="lvl3"><a href="#201-summary">20.1 Summary</a></li><li class="lvl3"><a href="#202-self-check-quiz">20.2 Self-Check Quiz</a></li><li class="lvl2"><a href="#appendix-a-glossary-and-acronyms">Appendix A. Glossary and Acronyms</a></li><li class="lvl3"><a href="#a1-acronyms">A.1 Acronyms</a></li><li class="lvl3"><a href="#a2-glossary">A.2 Glossary</a></li><li class="lvl2"><a href="#appendix-b-quick-reference-cheat-sheet">Appendix B. Quick Reference Cheat Sheet</a></li><li class="lvl3"><a href="#b1-api-at-a-glance">B.1 API at a Glance</a></li><li class="lvl3"><a href="#b2-levels">B.2 Levels</a></li><li class="lvl3"><a href="#b3-sink-categories">B.3 Sink Categories</a></li><li class="lvl3"><a href="#b4-dlt-version-2-headers">B.4 DLT Version 2 Headers</a></li><li class="lvl3"><a href="#b5-type-info-bits-verbose-payload">B.5 Type Info Bits (Verbose Payload)</a></li><li class="lvl3"><a href="#b6-control-services">B.6 Control Services</a></li><li class="lvl3"><a href="#b7-reserved-ids-of-the-platform">B.7 Reserved IDs of the Platform</a></li><li class="lvl2"><a href="#appendix-c-spec-traceability">Appendix C. Spec Traceability</a></li><li class="lvl2"><a href="#appendix-d-notable-changes-in-recent-releases">Appendix D. Notable Changes in Recent Releases</a></li><li class="lvl2"><a href="#appendix-e-references">Appendix E. References</a></li></ul></aside>
 </div>
 <button class="to-top" id="to-top" aria-label="Back to top" hidden>↑</button>
-<script>window.MERMAID_URL="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs";</script>
 <script src="../assets/search-index.js" defer></script>
 <script src="../assets/app.js" defer></script>
 </body>

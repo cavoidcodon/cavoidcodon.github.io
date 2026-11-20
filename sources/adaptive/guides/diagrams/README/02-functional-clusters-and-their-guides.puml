@@ -1,0 +1,39 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "Runtime" as RT {
+  rectangle "Execution Management" as EM
+  rectangle "State Management" as SM
+  rectangle "Log and Trace" as LT
+  rectangle "Core" as CORE
+  rectangle "Operating System Interface" as OSI
+}
+rectangle "Communication" as COMM {
+  rectangle "Communication Management" as CM
+  rectangle "Raw Data Stream" as RDS
+  rectangle "Network Management" as NM
+  rectangle "Time Synchronization" as TS
+  rectangle "Automotive API Gateway" as AAG
+}
+rectangle "Storage" as STO {
+  rectangle "Persistency" as PER
+  rectangle "Remote Persistency" as RPER
+}
+rectangle "Security" as SEC {
+  rectangle "Cryptography" as CRY
+  rectangle "Intrusion Detection System Manager" as IDSM
+  rectangle "Firewall" as FW
+}
+rectangle "Safety" as SAF {
+  rectangle "Platform Health Management" as PHM
+  rectangle "Safe Hardware Acceleration" as SHWA
+}
+rectangle "Configuration" as CFG {
+  rectangle "Update and Configuration Management" as UCM
+  rectangle "Vehicle Update and Configuration Management" as VUCM
+  rectangle "Registry" as REG
+}
+rectangle "Diagnostics" as DIA {
+  rectangle "Diagnostic Management" as DM
+}
+@enduml

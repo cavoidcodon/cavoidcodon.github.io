@@ -1,0 +1,44 @@
+@startuml
+!include ../_style.puml
+hide empty members
+hide circle
+skinparam nodesep 20
+skinparam ranksep 50
+class ServiceInterface
+class PortPrototype
+class AdaptiveApplicationSwComponentType
+class RootSwComponentPrototype
+class Executable
+class ProcessDesign
+class Process
+class StartupConfig
+class ModeDeclaration
+class ProcessToMachineMapping
+class Machine
+class MachineDesign
+class ServiceInterfaceDeployment
+class AdaptivePlatformServiceInstance
+class ServiceInstanceToPortPrototypeMapping
+class ServiceInstanceToMachineMapping
+class SoftwareCluster
+AdaptiveApplicationSwComponentType *-- PortPrototype : port
+PortPrototype --> ServiceInterface : typed by
+Executable *-- RootSwComponentPrototype : rootSwComponentPrototype
+RootSwComponentPrototype --> AdaptiveApplicationSwComponentType : applicationType
+ProcessDesign --> Executable : executable
+Process --> Executable : executable
+Process --> ProcessDesign : design
+Process --> StartupConfig : via StateDependentStartupConfig
+Process --> ModeDeclaration : Function Group State
+ProcessToMachineMapping --> Process : process
+ProcessToMachineMapping --> Machine : machine
+Machine --> MachineDesign : machineDesign
+ServiceInterfaceDeployment --> ServiceInterface : serviceInterface
+AdaptivePlatformServiceInstance --> ServiceInterfaceDeployment : serviceInterfaceDeployment
+ServiceInstanceToPortPrototypeMapping --> PortPrototype : portPrototype (iref)
+ServiceInstanceToPortPrototypeMapping --> Process : process
+ServiceInstanceToPortPrototypeMapping --> AdaptivePlatformServiceInstance : serviceInstance
+ServiceInstanceToMachineMapping --> AdaptivePlatformServiceInstance : serviceInstance
+ServiceInstanceToMachineMapping --> MachineDesign : communicationConnector
+SoftwareCluster --> Process : containedProcess
+@enduml

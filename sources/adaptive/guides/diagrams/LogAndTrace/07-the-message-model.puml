@@ -1,0 +1,19 @@
+@startuml
+!include ../_style.puml
+rectangle "LogAndTraceMessageCollectionSet\n(FusionMessages)" as SET
+rectangle "DltMessage\nmessageId, messageTypeInfo,\nmessageSourceFile, messageLineNumber" as MSG
+rectangle "DltArgument\npredefinedText, optional" as ARG
+rectangle "PrivacyLevel\nprivacyLevel 0..255" as PRIV
+rectangle "DltArgumentProps\nlength, variableLength" as PROPS
+rectangle "SwDataDefProps\nbaseType, unit, compuMethod,\nswTextProps, displayFormat" as SDDP
+rectangle "DltArgumentPropsSet" as PSET
+rectangle "DltContext" as CTX
+SET --> MSG : dltMessage *
+MSG --> ARG : dltArgument * (ordered)
+MSG --> PRIV : privacyLevel 0..1
+ARG --> PROPS : dltArgumentProps 0..1
+PROPS --> SDDP : networkRepresentation
+PROPS --> PROPS : dltArgumentEntry *
+PSET --> PROPS : dltArgumentProps *
+CTX --> MSG : dltMessage *
+@enduml

@@ -48,7 +48,7 @@ The chapters build on each other. Chapters 1 and 2 introduce the concepts. Chapt
 | **Note (implementation example)** | How a typical implementation, often on Linux, *might* realize something. This is not mandated by AUTOSAR. |
 | **Pitfall** | A common mistake seen in real projects. |
 | **Key takeaways** | A short summary at the end of each chapter. |
-| Diagrams | Written in Mermaid. They render natively on GitHub and GitLab. In VS Code, install the *Markdown Preview Mermaid Support* extension. |
+| Diagrams | Drawn in PlantUML and inserted as SVG images, so they show in any Markdown viewer. Click an image to open it at full size. |
 
 ### The Running Example
 
@@ -338,18 +338,7 @@ The set of programming interfaces available to Adaptive Applications is called *
 
 The following concept map shows how the most important terms relate to each other:
 
-```mermaid
-flowchart LR
-    APP["Adaptive Application"] -->|"consists of 1..n"| EXE["Executable<br/>(binary with one main)"]
-    EXE -->|"described by 1..n"| MP["Modelled Process<br/>(Process element in the manifest)"]
-    MP -->|"realized at run time as"| OSP["OS process<br/>(has a PID)"]
-    MAN["Execution Manifest"] -->|"configures"| MP
-    MP -->|"references states of exactly one"| FG["Function Group"]
-    FG -->|"has"| FGS["Function Group States<br/>(Off is mandatory)"]
-    MFG["MachineFG"] -->|"is a special"| FG
-    SM["State Management"] -->|"requests a Function Group State"| EM["Execution Management"]
-    EM -->|"starts and stops"| OSP
-```
+![Flowchart: Core Concepts and Terminology](diagrams/ExecutionManagement/01-core-concepts-and-terminology.svg)
 
 ### 2.1 Software Units: From Application to OS Process
 
@@ -470,31 +459,7 @@ An Unexpected Termination may also be an Abnormal Termination. For error handlin
 
 EM is the first process of the Adaptive Platform (Section 7.3.5 of the specification). It is not necessarily the first process on the *machine*, though. An OS init process, or user-level processes of a micro-kernel OS such as drivers and file systems, may run before EM. These are managed outside the Adaptive Platform. Once EM runs, it starts the daemons of all other functional clusters and all applications.
 
-```mermaid
-flowchart TB
-    subgraph MACHINE["Machine (ECU, virtual machine or container)"]
-        direction TB
-        OS["Operating System<br/>(kernel, init, drivers: outside the Adaptive Platform)"]
-        EM["Execution Management<br/>(first Adaptive Platform process)"]
-        subgraph FCS["Platform daemons (functional clusters)"]
-            SM["State Management"]
-            PHM["Platform Health Management"]
-            CM["Communication Management"]
-            DM["Diagnostic Management"]
-            UCM["Update and Configuration Management"]
-            MORE["NM, TSync, Crypto, IdsM, Firewall,<br/>API Gateway, Vehicle UCM"]
-        end
-        subgraph APPS["Adaptive Applications"]
-            A1["Fusion"]
-            A2["CameraDriver"]
-            A3["LegacyLogger"]
-        end
-    end
-    OS -->|"starts"| EM
-    EM -->|"creates and configures processes"| FCS
-    EM -->|"creates and configures processes"| APPS
-    SM -->|"requests state transitions"| EM
-```
+![Flowchart: Where EM Sits in the Platform](diagrams/ExecutionManagement/02-where-em-sits-in-the-platform.svg)
 
 ### 3.2 Interfaces Provided by EM
 
@@ -517,21 +482,7 @@ EM provides C++ library interfaces only. It defines no `ara::com` service interf
 
 ### 3.4 Interaction Map
 
-```mermaid
-flowchart LR
-    SM["State Management"] -->|"SetState, GetInitialMachineStateTransitionResult,<br/>GetExecutionError"| EM["Execution Management"]
-    EM -->|"transition results,<br/>undefinedStateCallback"| SM
-    APPS["Every reporting process<br/>(applications and daemons)"] -->|"ReportExecutionState(kRunning)"| EM
-    EM -->|"SIGTERM, handled by<br/>the termination handler"| APPS
-    EM -->|"create, configure, terminate"| OS["Operating System"]
-    OS -->|"exit status"| EM
-    EM -->|"kRunning received, termination initiated,<br/>process terminated"| PHM["Platform Health Management"]
-    EM -->|"checkpoints for EM supervision"| PHM
-    EM -->|"DLT log, trace and violation messages"| LT["Log and Trace"]
-    EM -->|"security event"| IDSM["Intrusion Detection System Manager"]
-    EM -.->|"process identity association"| IAM["Identity and Access Management"]
-    UCM["Update and Configuration Management"] -.->|"installs executables and Processed Manifests"| EM
-```
+![Flowchart: Interaction Map](diagrams/ExecutionManagement/03-interaction-map.svg)
 
 | Partner | Direction | Mechanism | Information exchanged | Standardized? |
 | --- | --- | --- | --- | --- |
@@ -555,15 +506,7 @@ Each partner has its own guide in this series: the operating system interface in
 
 EM never decides on its own to change a Function Group State. The only exception is the initial `Startup` transition, see [Chapter 9](#9-machine-lifecycle-startup-shutdown-and-restart). All other requests come from State Management, which in turn reacts to many inputs. The following picture is typical, but it lies outside the scope of the EM specification. Refer to the State Management, PHM, Diagnostic Management and UCM specifications for details.
 
-```mermaid
-flowchart LR
-    VEH["Vehicle events<br/>(power mode, network requests)"] --> SM["State Management<br/>(project-specific logic)"]
-    PHM["Platform Health Management<br/>(supervision failures)"] --> SM
-    DM["Diagnostic Management<br/>(for example ECU reset)"] --> SM
-    UCM["Update and Configuration Management<br/>(update sessions)"] --> SM
-    EM["Execution Management"] -->|"undefinedStateCallback"| SM
-    SM -->|"SetState"| EM
-```
+![Flowchart: Where Do State Requests Come From?](diagrams/ExecutionManagement/04-where-do-state-requests-come-from.svg)
 
 > **Key takeaways**
 >
@@ -597,66 +540,7 @@ EM does not read ARXML at run time. The manifests are converted into **Processed
 
 The following class diagram shows the elements that EM reads and the references between them. An arrow points from the element that holds the reference.
 
-```mermaid
-classDiagram
-    direction LR
-    class Executable {
-        +reportingBehavior
-    }
-    class Process {
-        +numberOfRestartAttempts
-        +preMapping
-        +functionClusterAffiliation
-    }
-    class StateDependentStartupConfig
-    class StartupConfig {
-        +processArgument
-        +environmentVariable
-        +schedulingPolicy
-        +schedulingPriority
-        +terminationBehavior
-        +timeout
-        +permissionToCreateChildProcess
-        +processExecutionError
-    }
-    class ExecutionDependency
-    class ResourceGroup {
-        +cpuUsage
-        +memUsage
-    }
-    class ResourceConsumption {
-        +memoryUsage
-    }
-    class ModeDeclaration
-    class ModeDeclarationGroupPrototype
-    class Machine {
-        +defaultApplicationTimeout
-        +environmentVariable
-        +trustedPlatformExecutableLaunchBehavior
-    }
-    class ProcessToMachineMapping {
-        +shallRunOn
-        +shallNotRunOn
-    }
-    class FunctionGroupPortMapping
-    class SoftwareCluster
-    Process --> Executable : executable
-    Process *-- StateDependentStartupConfig : stateDependentStartupConfig
-    StateDependentStartupConfig --> ModeDeclaration : functionGroupState
-    StateDependentStartupConfig --> StartupConfig : startupConfig
-    StateDependentStartupConfig *-- ExecutionDependency : executionDependency
-    StateDependentStartupConfig --> ResourceGroup : resourceGroup
-    StateDependentStartupConfig *-- ResourceConsumption : resourceConsumption
-    ExecutionDependency --> Process : processState of another process
-    ModeDeclarationGroupPrototype --> ModeDeclaration : states, via its type
-    Machine *-- ResourceGroup : via OsModuleInstantiation
-    ProcessToMachineMapping --> Process : process
-    ProcessToMachineMapping --> Machine : machine
-    FunctionGroupPortMapping --> Process : process
-    FunctionGroupPortMapping --> ModeDeclarationGroupPrototype : functionGroup
-    SoftwareCluster --> ModeDeclarationGroupPrototype : claimedFunctionGroup
-    SoftwareCluster --> Process : containedProcess
-```
+![Class diagram: How the Elements Relate](diagrams/ExecutionManagement/05-how-the-elements-relate.svg)
 
 A Function Group is modeled as a `ModeDeclarationGroupPrototype`, and each of its states as a `ModeDeclaration` (the [Manifests guide, Section 7.5](Manifests.md#75-function-groups-and-their-states)). Read the diagram from the `Process` outwards:
 
@@ -696,18 +580,7 @@ A process has two state machines:
 
 The two are deliberately kept separate. The Process State can then evolve in future releases without affecting the code of any process.
 
-```mermaid
-stateDiagram-v2
-    [*] --> Idle
-    Idle --> Starting : EM created the process and allocated resources
-    Starting --> Running : kRunning reported, or implicitly for non-reporting processes
-    Starting --> Terminating : EM sends SIGTERM before kRunning
-    Running --> Terminating : EM sends SIGTERM
-    Starting --> Terminated : crash or exit before kRunning
-    Running --> Terminated : self-termination or crash
-    Terminating --> Terminated : process exited, or was killed after the timeout
-    Terminated --> Starting : started again
-```
+![State diagram: Two Views of a Process: Execution State and Process State](diagrams/ExecutionManagement/06-two-views-of-a-process-execution-sta.svg)
 
 | Process State (EM's view) | Meaning | Execution State (process's view) | Spec |
 | --- | --- | --- | --- |
@@ -741,32 +614,7 @@ Every step is driven by a setting of the `Process`, its `StartupConfig` or the `
 
 The following diagram shows the normal start of a reporting process that is supervised by PHM:
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant EM as Execution Management
-    participant OS as Operating System
-    participant P as Fusion process
-    participant PHM as Platform Health Mgmt
-    participant LT as Log and Trace
-
-    Note over EM: The state transition needs Fusion (ADAS.Normal)
-    EM->>EM: Integrity check, dependencies satisfied?
-    EM->>OS: Create process with configuration<br/>(limits, affinity, scheduling, signal mask, argv, env)
-    OS-->>EM: PID
-    Note over EM: Process State = Starting, start-up timer runs
-    EM->>LT: DLT ProcessCreated
-    OS->>P: main() starts
-    P->>P: ara::core::Initialize(argc, argv)
-    P->>P: ExecutionClient::Create(terminationHandler)
-    P->>P: Application initialization
-    P->>EM: ReportExecutionState(kRunning)
-    EM-->>P: Result OK
-    Note over EM: Process State = Running
-    EM->>LT: DLT ProcessKRunningReceived
-    EM->>PHM: kRunning received for a supervised process
-    Note over PHM: Alive supervision can start
-```
+![Sequence diagram: Starting a Process](diagrams/ExecutionManagement/07-starting-a-process.svg)
 
 ### 5.3 Reporting kRunning
 
@@ -810,16 +658,7 @@ Some software was not written for the Adaptive Platform: a binary-only third-par
 
 The specification's example (Figure 7.4) illustrates this. Arrows show the start order:
 
-```mermaid
-flowchart LR
-    A["A: non-reporting and self-terminating<br/>(Running right after start)"]
-    B["B: Companion Process<br/>(reports kRunning when A is usable)"]
-    C["C: needs the functionality of A"]
-    D["D: needs A to have finished"]
-    A -->|"B depends on A.Running"| B
-    B -->|"C depends on B.Running"| C
-    A -->|"D depends on A.Terminated"| D
-```
+![Flowchart: Non-reporting Processes and the Companion Pattern](diagrams/ExecutionManagement/08-non-reporting-processes-and-the-comp.svg)
 
 1. `A` has no Execution Dependencies, so it is started first and immediately enters `Running` ([SWS_EM_01402]).
 2. Companion `B` starts as soon as `A` is *Running*. `B` checks whether `A` is fully functional and reports `kRunning` only when it is.
@@ -840,31 +679,7 @@ What happens next:
 4. EM detects the exit. The Process State becomes `Terminated` ([SWS_EM_01006]). EM logs `ProcessTerminated` ([SWS_EM_02576]) and informs PHM ([SWS_EM_01212]). Because it waits for the actual exit, EM can process dependencies on the `Terminated` state and make sure that two conflicting processes never run at the same time.
 5. If the process does not terminate within the **termination timeout**, EM asks the OS to terminate it forcibly ([SWS_EM_02255]), which on POSIX systems means `SIGKILL`, and logs `ProcessTerminationTimeout` ([SWS_EM_02258]).
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant EM as Execution Management
-    participant EC as ExecutionClient thread (in Fusion)
-    participant P as Fusion main logic
-    participant PHM as Platform Health Mgmt
-    participant LT as Log and Trace
-
-    EM->>PHM: Termination of a supervised process is about to be initiated
-    EM->>LT: DLT ProcessTerminationRequest
-    EM->>EC: SIGTERM
-    Note over EM: Process State = Terminating, termination timer runs
-    EC->>P: terminationHandler() in a background thread
-    P->>P: Stop work, persist data, free resources
-    alt Process exits in time
-        P-->>EM: exit(EXIT_SUCCESS)
-    else Termination timeout expires
-        EM->>P: Forced termination by the OS (SIGKILL)
-        EM->>LT: DLT ProcessTerminationTimeout
-    end
-    Note over EM: Process State = Terminated
-    EM->>LT: DLT ProcessTerminated
-    EM->>PHM: Supervised process terminated
-```
+![Sequence diagram: Terminating a Process](diagrams/ExecutionManagement/09-terminating-a-process.svg)
 
 > **Note (implementation example):** A common way to implement the termination handler is the following. The `ExecutionClient` library keeps `SIGTERM` blocked in all threads, which matches the initial signal mask described in [Section 5.8](#58-signal-mask-arguments-and-environment-variables). A dedicated thread waits for the signal synchronously, for example with `sigwait()`, and then calls the user's handler. This is why the handler is not restricted to async-signal-safe functions.
 >
@@ -991,30 +806,7 @@ This is Example 7.3 of the specification, with three processes:
 - `StorageConsistencyChecker`: a self-terminating process that requires `Storage.Running`;
 - `ConfigReader`: a service process that requires `StorageConsistencyChecker.Terminated`.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant EM as Execution Management
-    participant S as Storage
-    participant C as ConsistencyChecker (self-terminating)
-    participant R as ConfigReader
-
-    Note over EM: Startup order derived from the dependencies
-    EM->>S: start
-    S-->>EM: kRunning
-    EM->>C: start (Storage is Running)
-    C-->>EM: kRunning
-    C->>C: check the storage, then exit(EXIT_SUCCESS)
-    Note over EM: ConsistencyChecker is Terminated
-    EM->>R: start (ConsistencyChecker is Terminated)
-    R-->>EM: kRunning
-    Note over EM: Later, the state is left
-    par No direct dependency between Storage and ConfigReader
-        EM->>S: SIGTERM
-    and
-        EM->>R: SIGTERM
-    end
-```
+![Sequence diagram: Worked Example](diagrams/ExecutionManagement/10-worked-example.svg)
 
 At termination, EM may stop `Storage` and `ConfigReader` **at the same time**. `StorageConsistencyChecker` has already terminated, and `ConfigReader` has no *direct* dependency on `Storage`. If `ConfigReader` must be stopped before `Storage`, add a direct dependency `ConfigReader` → `Storage.Running`.
 
@@ -1032,14 +824,7 @@ At termination, EM may stop `Storage` and `ConfigReader` **at the same time**. `
 
 In the running example, the arrows mean "must reach this Process State before the next process starts":
 
-```mermaid
-flowchart LR
-    ST["Storage"] -->|"Running"| CC["CalibrationCheck<br/>(self-terminating)"]
-    CC -->|"Terminated"| FU["Fusion"]
-    LL["LegacyLogger<br/>(non-reporting)"] -->|"Running"| LC["LoggerCompanion"]
-    LC -->|"Running"| FU
-    CD["CameraDriver<br/>(no dependencies)"]
-```
+![Flowchart: Dependencies in the Running Example](diagrams/ExecutionManagement/11-dependencies-in-the-running-example.svg)
 
 When SM requests `ADAS.Normal`, the dependencies lead to three "waves":
 
@@ -1203,18 +988,7 @@ Processes that reference both states through the **same** StartupConfig are not 
 
 The per-process decision looks like this:
 
-```mermaid
-flowchart TD
-    S(["For each process of the Function Group"]) --> Q1{"References the<br/>RequestedState?"}
-    Q1 -->|"No"| Q2{"Alive?<br/>(not Idle or Terminated)"}
-    Q2 -->|"Yes"| T["Terminate it<br/>SWS_EM_01060"]
-    Q2 -->|"No"| N["Nothing to do"]
-    Q1 -->|"Yes"| Q3{"Alive?<br/>(not Idle or Terminated)"}
-    Q3 -->|"No"| ST["Start it, respecting dependencies<br/>SWS_EM_01066"]
-    Q3 -->|"Yes"| Q4{"Same StartupConfig in<br/>CurrentState and RequestedState?"}
-    Q4 -->|"Yes"| K["Keep it running"]
-    Q4 -->|"No"| R["Restart: terminate now,<br/>then start with the new configuration<br/>SWS_EM_02251 and SWS_EM_01066"]
-```
+![Flowchart: The Three Logical Steps](diagrams/ExecutionManagement/12-the-three-logical-steps.svg)
 
 Some details matter in practice:
 
@@ -1314,95 +1088,19 @@ Further rules:
 
 **(a) Successful transition** `ADAS.Normal` → `ADAS.Degraded` (simplified: the restart of `LoggerCompanion` is shown in [Chapter 16](#16-end-to-end-walkthrough-a-day-in-the-life-of-an-ecu)):
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant SM as State Management
-    participant EM as Execution Management
-    participant FU as Fusion (Normal only)
-    participant CD as CameraDriver (Normal and Degraded)
-    participant FL as FusionLite (Degraded only)
-
-    SM->>EM: SetState(ADAS.Degraded)
-    EM-->>SM: Future (not ready yet)
-    Note over EM: CurrentState = Normal, RequestedState = Degraded
-    EM->>FU: SIGTERM (not needed in Degraded)
-    FU-->>EM: exit(EXIT_SUCCESS)
-    Note over CD: Same StartupConfig in both states, keeps running
-    EM->>FL: start (needed in Degraded)
-    FL-->>EM: ReportExecutionState(kRunning)
-    Note over EM: CurrentState = Degraded
-    EM-->>SM: Future ready, success
-```
+![Sequence diagram: Sequence Diagrams](diagrams/ExecutionManagement/13-sequence-diagrams.svg)
 
 **(b) Termination timeout:** the transition continues.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant SM as State Management
-    participant EM as Execution Management
-    participant FU as Fusion
-    participant ST as Storage
-    participant LT as Log and Trace
-
-    SM->>EM: SetState(ADAS.Off)
-    EM->>FU: SIGTERM
-    FU-->>EM: exit(EXIT_SUCCESS)
-    EM->>ST: SIGTERM
-    Note over ST: Hangs while flushing data
-    Note over EM: Termination timeout of Storage expires
-    EM->>ST: Forced termination by the OS (SIGKILL)
-    EM->>LT: DLT ProcessTerminationTimeout
-    Note over EM: The transition continues, Off is reached
-    EM-->>SM: Future ready, success
-```
+![Sequence diagram: Sequence Diagrams](diagrams/ExecutionManagement/14-sequence-diagrams.svg)
 
 **(c) Start-up failure:** the transition is aborted.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant SM as State Management
-    participant EM as Execution Management
-    participant FU as Fusion
-    participant LT as Log and Trace
-
-    SM->>EM: SetState(ADAS.Normal)
-    EM->>FU: start (attempt 1)
-    Note over FU: Hangs during initialization
-    Note over EM: Start-up timeout expires
-    EM->>FU: Forced termination (SIGKILL, not SIGTERM)
-    EM->>FU: start again (numberOfRestartAttempts = 1)
-    Note over FU: Fails again
-    EM->>FU: Forced termination (SIGKILL)
-    Note over EM: No attempts left, the transition is stopped
-    Note over EM: ADAS = Undefined Function Group State
-    EM-->>SM: Future ready, error kOperationFailed
-    EM->>LT: DLT ProcessStartUpFailure
-    SM->>EM: GetExecutionError(ADAS.Normal)
-    EM-->>SM: ExecutionErrorEvent (ADAS, executionError 42)
-    SM->>EM: SetState(ADAS.Degraded) as recovery
-```
+![Sequence diagram: Sequence Diagrams](diagrams/ExecutionManagement/15-sequence-diagrams.svg)
 
 **(d) Cancellation by a newer request:**
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant SM as State Management
-    participant EM as Execution Management
-
-    SM->>EM: SetState(ADAS.Normal)
-    EM-->>SM: Future F1
-    Note over EM: Transition to Normal in progress
-    SM->>EM: SetState(ADAS.Degraded)
-    EM->>EM: Validate the new request
-    EM-->>SM: F1 ready, error kOperationCanceled
-    EM-->>SM: Future F2
-    Note over EM: Transition to Degraded starts from the current situation
-    EM-->>SM: F2 ready, success
-```
+![Sequence diagram: Sequence Diagrams](diagrams/ExecutionManagement/16-sequence-diagrams.svg)
 
 ### 8.8 Worked Example: Dependency Resolution During a State Change
 
@@ -1442,15 +1140,7 @@ When State Management requests `FG2.Fallback` while `FG2` is in `Running`, the f
 
 On a Trusted Platform, every software component is authenticated by its predecessor before it runs (Figure 7.17 of the specification):
 
-```mermaid
-flowchart TD
-    TA["Trust Anchor<br/>(for example a public key in an HSM or ROM)"] -->|"authenticates and starts"| BL["Bootloader"]
-    BL -->|"authenticates and starts"| OS["Operating System"]
-    OS -->|"authenticates and starts"| EM["Execution Management"]
-    EM -->|"authenticates and reads"| PM["Processed Manifests<br/>(startup order from the dependencies)"]
-    PM --> FC["Platform functional clusters<br/>(described by manifests like applications)"]
-    PM --> APPS["Application Executables<br/>(started after successful authentication)"]
-```
+![Flowchart: Authenticated Boot Chain](diagrams/ExecutionManagement/17-authenticated-boot-chain.svg)
 
 The system designer must ensure that EM itself is started authentically, for example through a chain of trust. EM in turn ensures that all executable code on the platform is authenticated before it runs (see [Chapter 12](#12-security-trusted-platform-and-iam)).
 
@@ -1464,37 +1154,7 @@ The system designer must ensure that EM itself is started authentically, for exa
 6. **If this transition fails, EM enters the Unrecoverable State** ([SWS_EM_02555]). In this early phase, EM cannot know which functionality is available. State Management itself may be missing or only partly functional, so nobody else could handle the failure.
 7. **EM makes the result available** through `StateClient::GetInitialMachineStateTransitionResult` ([SWS_EM_02241]). The result is *not* broadcast. State Management has to ask for it. Only a process with a `FunctionGroupPortMapping` to `MachineFG` may ask; any other process receives `kInvalidMetaModelIdentifier` ([SWS_EM_02583]).
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant BL as Bootloader
-    participant OS as Operating System
-    participant EM as Execution Management
-    participant PHM as Platform Health Mgmt
-    participant SM as State Management
-    participant APP as ADAS processes
-
-    BL->>OS: authenticate and start the kernel
-    OS->>EM: authenticate and start EM
-    EM->>EM: verify and parse the Processed Manifests
-    Note over EM: Every Function Group is in Off
-    EM->>EM: self-initiated transition of MachineFG from Off to Startup
-    EM->>PHM: start (references MachineFG.Startup)
-    PHM-->>EM: kRunning
-    EM->>SM: start (references MachineFG.Startup)
-    SM-->>EM: kRunning
-    SM->>EM: GetInitialMachineStateTransitionResult()
-    EM-->>SM: Future (not ready yet)
-    Note over EM: All Startup processes have reported kRunning
-    EM-->>SM: Future ready, Startup reached
-    Note over SM,EM: Handover: from now on only SM requests state changes
-    SM->>EM: SetState(MachineFG.Driving)
-    EM-->>SM: success
-    SM->>EM: SetState(ADAS.Normal)
-    EM->>APP: start the processes in dependency order
-    APP-->>EM: kRunning (each reporting process)
-    EM-->>SM: success
-```
+![Sequence diagram: Machine Startup Step by Step](diagrams/ExecutionManagement/18-machine-startup-step-by-step.svg)
 
 ### 9.3 Handing Over Control to State Management
 
@@ -1515,26 +1175,7 @@ This way, the project controls both *when* and *how* the machine shuts down or r
 
 From EM's point of view, a request for `MachineFG.Shutdown` or `MachineFG.Restart` is **an ordinary Function Group State transition**. EM terminates the processes that are not configured for the target state and starts those that are.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant SM as State Management
-    participant EM as Execution Management
-    participant APP as ADAS processes
-    participant PC as PowerControl
-    participant OS as Operating System
-
-    SM->>EM: SetState(ADAS.Off)
-    EM->>APP: SIGTERM (reverse dependency order)
-    APP-->>EM: exit(EXIT_SUCCESS)
-    EM-->>SM: success
-    SM->>EM: SetState(MachineFG.Shutdown)
-    Note over EM: Terminate the processes that do not reference Shutdown,<br/>start the processes that do
-    EM->>PC: start
-    PC-->>EM: kRunning
-    EM-->>SM: success
-    PC->>OS: project-specific power-off (for example sync file systems, power off)
-```
+![Sequence diagram: Shutdown and Restart](diagrams/ExecutionManagement/19-shutdown-and-restart.svg)
 
 Important rules for integrators:
 
@@ -1626,41 +1267,13 @@ In both cases, SM can call `StateClient::GetExecutionError(state)` to obtain the
 
 **Recovery is State Management's job.** SM typically requests another state, for example `ADAS.Degraded`. The transition to `Off` is always possible, because termination timeouts guarantee that it completes. After a failure, SM may also request the *same* state again.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant FU as Fusion
-    participant EM as Execution Management
-    participant LT as Log and Trace
-    participant SC as StateClient library (in SM)
-    participant SM as State Management logic
-
-    Note over FU,EM: ADAS is in Normal, no transition is in progress
-    FU->>FU: crash (SIGSEGV)
-    FU-->>EM: terminated with exit status != 0 (detected via the OS)
-    EM->>EM: ADAS = Undefined Function Group State
-    EM->>LT: DLT ProcessAbnormalTermination (PID, exit status)
-    EM->>SC: notify the ExecutionErrorEvent
-    SC->>SM: undefinedStateCallback(event for ADAS, executionError 42)
-    SM->>SC: GetExecutionError(ADAS.Normal)
-    SC-->>SM: ExecutionErrorEvent (same content)
-    SM->>SC: SetState(ADAS.Degraded)
-    SC->>EM: request the transition
-    EM-->>SC: transition finished
-    SC-->>SM: Future ready, success
-```
+![Sequence diagram: Undefined Function Group State](diagrams/ExecutionManagement/20-undefined-function-group-state.svg)
 
 ### 10.4 Unrecoverable State
 
 The **Unrecoverable State** is an internal state of EM and the OS that only EM can trigger, and only when it has no other course of action:
 
-```mermaid
-flowchart TD
-    E["EM detects a situation it cannot resolve"] --> P1["Invoke the pre-cleanup action<br/>SWS_EM_02032"]
-    P1 --> P2["Shut down all processes managed by EM<br/>SWS_EM_02033"]
-    P2 --> P3["Invoke the post-cleanup action<br/>SWS_EM_02034"]
-    P3 --> X["Project-specific handling,<br/>for example persistent error log or ECU reset"]
-```
+![Flowchart: Unrecoverable State](diagrams/ExecutionManagement/21-unrecoverable-state.svg)
 
 The mechanism that invokes the pre-cleanup and post-cleanup actions is platform-specific. What the actions do is project-specific.
 
@@ -1859,26 +1472,7 @@ In `strictMode`, EM refuses to start an Executable if the check fails for any of
 
 *Example:* in `strictMode`, EM has started several Executables whose checks succeeded. Now it wants to start another one whose check fails. EM does not launch that Executable, but the others continue to run. Executables started later are launched as long as their checks pass. If the failure happens during a state transition, the transition fails with `kIntegrityOrAuthenticityCheckFailed` ([SWS_EM_02552]).
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant SM as State Management
-    participant EM as Execution Management
-    participant IDS as IdsM
-    participant LT as Log and Trace
-
-    SM->>EM: SetState(ADAS.Normal)
-    EM->>EM: verify the Fusion executable, shared objects and manifests
-    Note over EM: Signature check FAILED in strictMode
-    EM->>EM: do not launch Fusion, stop the transition
-    Note over EM: ADAS = Undefined Function Group State
-    EM-->>SM: Future ready, error kIntegrityOrAuthenticityCheckFailed
-    EM->>LT: DLT FailedIntegrityOrAuthenticityCheck
-    EM->>IDS: SEV_EXEC_SW_COMPONENT_INTEGRITY_CHECK_FAILED (mode STRICT)
-    SM->>EM: GetExecutionError(ADAS.Normal)
-    EM-->>SM: ExecutionErrorEvent
-    SM->>EM: SetState(ADAS.Degraded) as recovery
-```
+![Sequence diagram: Launch Behavior Modes](diagrams/ExecutionManagement/22-launch-behavior-modes.svg)
 
 ### 12.4 Security Events
 
@@ -1912,15 +1506,7 @@ If it were not protected, `StateClient` could be used to destabilize the machine
 3. **One State Management process per Function Group.** A Function Group may be referenced by at most one `FunctionGroupPortMapping` ([SWS_EM_CONSTR_02560]).
 4. **One `StateClient` per process.** A second instance in the same process causes a `StateClientMultipleInstanceViolation` ([SWS_EM_02585]). This keeps the responsibility for error recovery clear.
 
-```mermaid
-flowchart TD
-    C["A process calls the StateClient API"] --> A1{"functionClusterAffiliation<br/>is STATE_MANAGEMENT?"}
-    A1 -->|"No"| V["Violation:<br/>StateClientUsageRestrictionViolation"]
-    A1 -->|"Yes"| A2{"FunctionGroupPortMapping from this process<br/>to the Function Group?"}
-    A2 -->|"No"| E["Error: kInvalidMetaModelIdentifier"]
-    A2 -->|"Yes"| A3["Further validation, for example<br/>MachineFG Off gives kInvalidTransition"]
-    A3 --> OK["Request processed"]
-```
+![Flowchart: Function Group Access Control](diagrams/ExecutionManagement/23-function-group-access-control.svg)
 
 > **Key takeaways**
 >
@@ -2091,19 +1677,7 @@ AUTOSAR publishes the mandatory states of `MachineFG` as a standardized model (`
 
 The following diagram shows how the elements connect for the Function Group `ADAS` of the running example:
 
-```mermaid
-flowchart LR
-    subgraph EXE["Executable state_manager"]
-        PORT["R-port AdasFgPort<br/>typed by StateClientInterface AdasStateClient"]
-    end
-    MAP["FunctionGroupPortMapping<br/>StateManagerToADAS"]
-    PROC["Process StateManager<br/>functionClusterAffiliation = STATE_MANAGEMENT"]
-    FG["Function Group ADAS"]
-    MAP -->|"rPortPrototypeInExecutable"| PORT
-    MAP -->|"process"| PROC
-    MAP -->|"functionGroup"| FG
-    PORT -.->|"functionGroupType: same ModeDeclarationGroup"| FG
-```
+![Flowchart: State Management Access: StateClientInterface and FunctionGroupPortMapping](diagrams/ExecutionManagement/24-state-management-access-stateclienti.svg)
 
 The code names the port; the mapping names the Function Group. That is how `FunctionGroup{InstanceSpecifier{"/state_manager/Root/AdasFgPort"}}` ends up meaning `ADAS` ([SWS_EM_02586]).
 
@@ -2284,41 +1858,7 @@ Each value has a reason:
 
 All symbols live in the namespace `ara::exec`. EM's API initialization and deinitialization are part of `ara::core::Initialize(argc, argv)` and `ara::core::Deinitialize()` ([SWS_EM_02557]), so call `Initialize` first and `Deinitialize` last ([Section 9.5](#95-functional-cluster-lifecycle-of-the-araexec-library)).
 
-```mermaid
-classDiagram
-    class ExecutionState {
-        <<enumeration>>
-        kRunning
-    }
-    class ExecutionClient {
-        +Create(terminationHandler) Result~ExecutionClient~$
-        +ExecutionClient(terminationHandler)
-        +ReportExecutionState(state) Result~void~
-    }
-    class StateClient {
-        +Create(undefinedStateCallback) Result~StateClient~$
-        +StateClient(undefinedStateCallback)
-        +SetState(state) Future~void~
-        +GetInitialMachineStateTransitionResult() Future~void~
-        +GetExecutionError(functionGroupState) Result~ExecutionErrorEvent~
-    }
-    class FunctionGroup {
-        +FunctionGroup(instanceSpecifier)
-    }
-    class FunctionGroupState {
-        +FunctionGroupState(functionGroup, state)
-    }
-    class ExecutionErrorEvent {
-        <<struct>>
-        +ExecutionError executionError
-        +FunctionGroup functionGroup
-    }
-    ExecutionClient ..> ExecutionState : reports
-    StateClient ..> FunctionGroupState : requests
-    StateClient ..> ExecutionErrorEvent : delivers
-    FunctionGroupState ..> FunctionGroup : belongs to
-    ExecutionErrorEvent --> FunctionGroup : affected group
-```
+![Class diagram: API Overview](diagrams/ExecutionManagement/25-api-overview.svg)
 
 ### 14.2 ExecutionState
 
@@ -2918,37 +2458,7 @@ In this example, `Fusion` needed 284 ms from creation to `kRunning`, and it late
 - When the vehicle is switched on, `SmControl` asks State Management for the transition `Drive` (the [SM guide, Section 5.5](StateManagement.md#55-worked-example-smcontrol-brings-hpc-from-startup-to-driving)), and `StateManager` requests `MachineFG.Driving`. `StateManager`, `SmControl` and `PlatformHealth` reference `Startup` and `Driving` through the same startup configuration, so EM leaves them running.
 - `StateManager` then requests `ADAS.Normal`. EM starts the ADAS processes in the three waves derived from the Execution Dependencies (see [Section 6.5](#65-dependencies-in-the-running-example)).
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant SM as StateManager
-    participant EM as Execution Management
-    participant ST as Storage
-    participant CC as CalibrationCheck
-    participant LL as LegacyLogger
-    participant LC as LoggerCompanion
-    participant FU as Fusion
-
-    SM->>EM: SetState(ADAS.Normal)
-    par Wave 1, no dependencies (CameraDriver omitted)
-        EM->>ST: start
-        ST-->>EM: kRunning
-    and
-        EM->>LL: start (non-reporting, Running at once)
-    end
-    par Wave 2
-        EM->>CC: start (Storage is Running)
-        CC-->>EM: kRunning
-        CC->>CC: verify the calibration, exit(EXIT_SUCCESS)
-    and
-        EM->>LC: start (LegacyLogger is Running)
-        LC->>LL: probe the logger (project-specific check)
-        LC-->>EM: kRunning
-    end
-    EM->>FU: start (CalibrationCheck Terminated and LoggerCompanion Running)
-    FU-->>EM: kRunning
-    EM-->>SM: Future ready, ADAS.Normal reached
-```
+![Sequence diagram: Phase 2: Bringing Up the Vehicle Function](diagrams/ExecutionManagement/26-phase-2-bringing-up-the-vehicle-func.svg)
 
 ### 16.3 Phase 3: A Process Crashes
 
@@ -2973,23 +2483,7 @@ The Function Group is undefined at this point, and the specification does not sp
 | `LoggerCompanion` | Running, but with a *different* `StateDependentStartupConfig` in `Degraded` ([constr_10411]) | Restart |
 | `FusionLite` | Part of `Degraded`, not running | Start after the new `LoggerCompanion` instance reports `kRunning` ([SWS_EM_02245]) |
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant SM as StateManager
-    participant EM as Execution Management
-    participant LC as LoggerCompanion
-    participant FL as FusionLite
-
-    SM->>EM: SetState(ADAS.Degraded)
-    EM->>LC: SIGTERM (restart because the startup configuration differs)
-    LC-->>EM: exit(EXIT_SUCCESS)
-    EM->>LC: start with the Degraded configuration
-    LC-->>EM: kRunning
-    EM->>FL: start (LoggerCompanion is Running)
-    FL-->>EM: kRunning
-    EM-->>SM: Future ready, ADAS.Degraded reached
-```
+![Sequence diagram: Phase 4: Recovery to Degraded](diagrams/ExecutionManagement/27-phase-4-recovery-to-degraded.svg)
 
 ### 16.5 Phase 5: Shutdown
 

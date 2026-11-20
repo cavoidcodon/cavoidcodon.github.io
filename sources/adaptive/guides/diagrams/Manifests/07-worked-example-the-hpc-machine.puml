@@ -1,0 +1,40 @@
+@startuml
+!include ../_style.puml
+hide empty members
+hide circle
+skinparam nodesep 20
+skinparam ranksep 50
+class System {
+    +category
+}
+class EthernetCluster
+class NetworkEndpoint
+class MachineDesign
+class EthernetCommunicationConnector
+class ApApplicationEndpoint
+class Machine {
+    +trustedPlatformExecutableLaunchBehavior
+    +defaultApplicationTimeout
+}
+class OsModuleInstantiation
+class ResourceGroup {
+    +cpuUsage
+    +memUsage
+}
+class Processor
+class FunctionGroupSet
+class ModeDeclarationGroupPrototype
+class ModeDeclarationGroup
+System --> EthernetCluster : fibexElement
+System --> MachineDesign : fibexElement
+EthernetCluster *-- NetworkEndpoint : via physical channel
+MachineDesign *-- EthernetCommunicationConnector : communicationConnector
+EthernetCommunicationConnector *-- ApApplicationEndpoint
+EthernetCommunicationConnector --> NetworkEndpoint : unicastNetworkEndpoint
+Machine --> MachineDesign : machineDesign
+Machine *-- OsModuleInstantiation : moduleInstantiation
+OsModuleInstantiation *-- ResourceGroup : resourceGroup
+Machine *-- Processor : processor
+FunctionGroupSet *-- ModeDeclarationGroupPrototype : functionGroup
+ModeDeclarationGroupPrototype --> ModeDeclarationGroup : type
+@enduml

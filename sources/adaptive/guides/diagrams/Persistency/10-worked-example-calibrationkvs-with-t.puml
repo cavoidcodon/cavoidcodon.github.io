@@ -1,0 +1,14 @@
+@startuml
+!include ../_style.puml
+participant "Storage" as ST
+participant "Persistency" as PER
+participant "Locations 1 and 2" as NVM
+ST -> PER : RegisterRecoveryReportCallback(cb)
+ST -> PER : OpenKeyValueStorage(/storage/Root/CalibrationKvsPort)
+PER -> NVM : read 3 copies
+NVM --> PER : copy A = copy B, copy C differs
+PER -> NVM : rewrite copy C (repair)
+PER --> ST : cb(CalibrationKvsPort, kKeyValueStorageRecovered, no elements, index of C)
+PER --> ST : SharedHandle (success)
+ST -> ST : log the repair, increment counter
+@enduml

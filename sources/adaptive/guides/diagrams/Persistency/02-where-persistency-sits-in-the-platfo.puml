@@ -1,0 +1,15 @@
+@startuml
+!include ../_style.puml
+rectangle "Persistency user (process)" as APP
+rectangle "ara::per library" as LIB
+rectangle "File system of the OS" as FSYS
+rectangle "Persistency daemon" as D
+database "Flash memory" as FLASH
+database "Storage device: eMMC, NAND, SSD" as DEV
+APP --> LIB
+LIB --> FSYS : variant: library only
+LIB --> D : variant: central daemon (IPC)
+D --> FSYS
+LIB ..> FLASH : variant: direct access
+FSYS --> DEV
+@enduml

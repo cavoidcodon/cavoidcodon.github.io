@@ -1,0 +1,25 @@
+@startuml
+!include ../_style.puml
+participant "Bootloader and OS" as OS
+participant "Watchdog" as WD
+participant "Execution Management" as EM
+participant "StateManager" as SMG
+participant "PlatformHealth" as PH
+participant "Other platform daemons" as D
+participant "ADAS processes" as A
+OS -> WD : enable
+OS -> EM : start as the first platform process
+EM -> EM : read processed manifests, enter MachineFG.Startup
+EM -> SMG : start
+EM -> PH : start
+EM -> D : start (CM, DM, UCM, ...)
+SMG -> EM : ReportExecutionState(kRunning)
+PH -> EM : ReportExecutionState(kRunning)
+PH -> WD : serve, before the timeout expires
+D -> EM : ReportExecutionState(kRunning)
+SMG -> EM : GetInitialMachineStateTransitionResult()
+note over SMG : State Management takes over.\nSmControl requests the transition Drive
+SMG -> EM : SetState(MachineFG.Driving), then SetState(ADAS.Normal)
+EM -> A : start in dependency order
+A -> EM : ReportExecutionState(kRunning)
+@enduml

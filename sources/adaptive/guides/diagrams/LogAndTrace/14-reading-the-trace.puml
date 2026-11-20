@@ -1,0 +1,24 @@
+@startuml
+!include ../_style.puml
+participant "Fusion (FUSN)" as F
+participant "PHM daemon" as P
+participant "SM daemon" as S
+participant "EM" as E
+participant "FusionLite (FUSL)" as L
+participant "SmControl (SMCT)" as C
+participant "Logging client" as V
+F -> V : FusionCycleOverrun 0x00010001 (warn, twice)
+P -> V : RecoveryInitiated 0x80009002 (error)
+P -> S : RecoveryHandler(ADAS, 42)
+S -> E : SetState(ADAS.Degraded)
+E -> V : ProcessTerminationRequest 0x80004003
+E -> F : SIGTERM
+F -> V : "Fusion stopping" (verbose)
+E -> V : ProcessTerminated 0x80004004
+E -> V : ProcessCreated 0x80004001
+E -> L : start
+E -> V : ProcessKRunningReceived 0x80004002
+L -> V : FusionLiteActive 0x00011001
+S -> C : CurrentState Degraded
+C -> V : AdasStatusChanged 0x00030001 (Degraded)
+@enduml

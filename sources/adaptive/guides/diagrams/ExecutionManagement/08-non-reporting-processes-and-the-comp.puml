@@ -1,0 +1,11 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "A: non-reporting and self-terminating\n(Running right after start)" as A
+rectangle "B: Companion Process\n(reports kRunning when A is usable)" as B
+rectangle "C: needs the functionality of A" as C
+rectangle "D: needs A to have finished" as D
+A --> B : B depends on A.Running
+B --> C : C depends on B.Running
+A --> D : D depends on A.Terminated
+@enduml

@@ -1,0 +1,29 @@
+@startuml
+!include ../_style.puml
+autonumber
+participant "Storage" as ST
+participant "CameraDriver" as CD
+participant "Fusion" as FU
+participant "FusionLite" as FL
+participant "Communication Management" as CM
+ST -> CM : OfferService(CalibrationDataService), kRunning
+CD -> CM : Update(CameraStatus=NotAvailable), OfferService(CameraService)
+FU -> CM : FindService(CalibrationDataService), StartFindService(CameraService)
+CM --> FU : handler([CameraService handle])
+FU -> CM : Create proxy, Subscribe(Image, 2), Subscribe(CameraStatus, 1)
+FU -> CM : Update(FusionMode=Full), OfferService(ObjectListService)
+CM --> ST : handler([ObjectListService handle]): Subscribe(FusionMode), Subscribe(ObjectList, 10)
+loop every 50 ms
+FU -> CM : GetNewSamples(Image), GetNewSamples(CameraStatus)
+FU -> CM : Allocate + Send(ObjectList)
+CM --> ST : receive handler: GetNewSamples(ObjectList)
+end
+FU -> CM : SetExposureMode(Night)
+CM --> FU : error ExposureModeNotSupported
+note over CD : CameraDriver restarts
+CM --> FU : subscription kSubscriptionPending, later kSubscribed
+note over FU, FL : ADAS: Normal to Degraded
+FU -> CM : StopOfferService(ObjectListService)
+FL -> CM : Update(FusionMode=RadarOnly), OfferService(ObjectListService)
+CM --> ST : proxy reconnected: FusionMode RadarOnly
+@enduml

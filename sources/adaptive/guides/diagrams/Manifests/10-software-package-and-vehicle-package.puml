@@ -1,0 +1,18 @@
+@startuml
+!include ../_style.puml
+rectangle "VehiclePackage\n(update campaign)" as VP
+rectangle "SoftwarePackage\n(logistics, packager signature)" as SP
+rectangle "SoftwareCluster AdasCluster\nversion 1.1.0, vendor signature" as SC
+rectangle "containedProcess:\nCameraDriver, Fusion, ..." as PROC
+rectangle "containedPackageElement:\nExecutables, StartupConfigs,\ndeployments, mappings, ..." as PKG
+rectangle "containedARElement:\nCameraService, data types, ..." as ARE
+rectangle "claimedFunctionGroup: ADAS" as FG
+rectangle "binaries: camera_driver, fusion, ..." as BIN
+VP --> SP
+SP --> SC
+SC --> PROC
+SC --> PKG
+SC --> ARE
+SC --> FG
+PROC --> BIN
+@enduml

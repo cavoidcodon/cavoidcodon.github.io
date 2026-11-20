@@ -1,0 +1,27 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "Off-board" as OFF {
+  rectangle "Backend" as BE
+  rectangle "DiagnosticTester" as DT
+}
+rectangle "Ethernet backbone" as ETH {
+  rectangle "HPC\n(Adaptive Platform)" as HPC
+  rectangle "Cockpit" as CP
+  rectangle "FrontRadar" as FR
+  rectangle "TelematicsUnit\n(OTA Client, V-UCM)" as TU
+  rectangle "CentralGateway\n(switch, CAN gateway,\ntime master)" as GW
+}
+rectangle "CAN bus" as CAN {
+  rectangle "ChassisECU\n(Classic Platform)" as CH
+  rectangle "InstrumentCluster\n(Classic Platform)" as IC
+}
+BE -- TU : cellular
+DT -- GW : DoIP
+HPC -- GW
+CP -- GW
+FR -- GW
+TU -- GW
+GW -- CH
+GW -- IC
+@enduml

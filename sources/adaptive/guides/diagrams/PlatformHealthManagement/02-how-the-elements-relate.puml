@@ -1,0 +1,32 @@
+@startuml
+!include ../_style.puml
+rectangle "Application design" as DES {
+  rectangle "PhmSupervisedEntityInterface\nFusionCycle + PhmCheckpoints" as SEI
+  rectangle "R-port FusionCyclePort\nof FusionSwc" as RP
+  rectangle "PhmSupervisionRecoveryNotificationInterface\nSupervisionRecovery" as RNI
+  rectangle "P-port PhmRecoveryPort\nof StateManagerSwc" as PP
+}
+rectangle "PlatformHealthManagementContribution AdasPhm" as CON {
+  rectangle "SupervisionCheckpoints\n(one per checkpoint and process)" as SC
+  rectangle "GlobalSupervision FusionSupervision\nalive, deadline, logical supervisions" as GS
+  rectangle "SupervisionMode FusionInNormal" as SMO
+  rectangle "SupervisionModeCondition\nAdasNormal" as SMC
+  rectangle "HealthChannelSupervision\nFusionHealth" as HC
+}
+rectangle "RecoveryNotification\nAdasRecovery (timeout)" as RN
+rectangle "RecoveryNotificationToPPortPrototypeMapping" as MAP
+rectangle "PhmContributionToMachineMapping\nto Machine HPC" as MM
+rectangle "Function Group State" as FGS
+SEI --> RP
+SC --> RP : phmCheckpoint, process
+GS --> SC : checkpoint
+GS --> SMO
+SMO --> SMC : modeCondition
+SMC --> FGS : ADAS.Normal
+HC --> GS : supervision
+HC --> RN : recoveryNotification
+MAP --> RN
+MAP --> PP : recoveryAction, process
+RNI --> PP
+MM --> CON
+@enduml

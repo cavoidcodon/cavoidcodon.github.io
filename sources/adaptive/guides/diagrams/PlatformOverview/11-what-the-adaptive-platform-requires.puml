@@ -1,0 +1,15 @@
+@startuml
+!include ../_style.puml
+rectangle "Adaptive Application\n(for example Fusion)" as AA
+rectangle "Functional cluster daemons\n(for example the CM daemon)" as FC
+rectangle "Execution Management" as EM
+rectangle "Operating system" as OS {
+  rectangle "PSE51 API and\nC++ standard library" as PSE
+  rectangle "Further POSIX and\nOS-specific APIs" as FULL
+  rectangle "Multi-Process System Interface\n(create, configure, terminate processes)" as MPS
+}
+AA --> PSE : may use only
+FC --> PSE : may use
+FC --> FULL : may use
+EM --> MPS : uses
+@enduml

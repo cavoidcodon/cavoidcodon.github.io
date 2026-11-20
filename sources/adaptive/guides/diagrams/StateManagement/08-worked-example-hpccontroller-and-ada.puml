@@ -1,0 +1,13 @@
+@startuml
+!include ../_style.puml
+left to right direction
+[*] --> Init: SM starts
+Init --> Driving: Drive (1)
+Init --> Shutdown: PowerOff (2)
+Init --> Restart: Reset (3)
+Driving --> Shutdown: PowerOff (2)
+Driving --> Restart: Reset (3)
+Driving --> Restart: any error (ANY)
+Shutdown --> [*]: machine off
+Restart --> [*]: machine reboots
+@enduml

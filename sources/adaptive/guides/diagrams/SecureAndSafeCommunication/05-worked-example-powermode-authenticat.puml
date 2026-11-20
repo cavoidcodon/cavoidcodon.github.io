@@ -1,0 +1,18 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "VehicleModeSecured\nreceived" as RX
+rectangle "FVM::GetRxFreshness(1, 0x2A, attempts)" as FV
+rectangle "CMAC over DataId 0x0120,\nauthentic PDU, complete FV" as MAC
+rectangle "24 MSB equal?" as CMP <<decision>>
+rectangle "Status kSecOcVerificationSuccess\ntranslate PowerMode" as OK
+rectangle "attempts left?" as RET <<decision>>
+rectangle "Discard, status\nkSecOcVerificationFailure" as DROP
+RX --> FV
+FV --> MAC
+MAC --> CMP
+CMP --> OK : yes
+CMP --> RET : no
+RET --> FV : yes
+RET --> DROP : no
+@enduml

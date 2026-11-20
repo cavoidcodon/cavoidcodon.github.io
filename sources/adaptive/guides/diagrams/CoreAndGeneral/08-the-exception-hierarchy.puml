@@ -1,0 +1,16 @@
+@startuml
+!include ../_style.puml
+rectangle "std::exception" as STD
+rectangle "ara::core::Exception\nError() returns the ErrorCode" as EX
+rectangle "ara::core::CoreException" as CE
+rectangle "ara::core::FutureException" as FE
+rectangle "hpc::camera::CameraErrorsException\n(generated)" as GEN
+rectangle "hpc::fusion::FusionErrorsException\n(written by hand)" as OWN
+rectangle "Exceptions of the other clusters,\nfor example ara::exec::ExecException" as OTH
+STD --> EX
+EX --> CE
+EX --> FE
+EX --> GEN
+EX --> OWN
+EX --> OTH
+@enduml

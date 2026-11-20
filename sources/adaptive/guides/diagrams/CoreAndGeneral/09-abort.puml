@@ -1,0 +1,20 @@
+@startuml
+!include ../_style.puml
+rectangle "Abort(args...) called" as A
+rectangle "Another Abort\nin progress?" as B <<decision>>
+rectangle "This thread blocks for ever\nSWS_CORE_12407" as BL
+rectangle "Write the arguments, in order,\nto stderr\nSWS_CORE_12403" as C
+rectangle "Should log a fatal DLT message:\nthe violation message, or\nAbortMessage for application calls\nSWS_CORE_12408" as D
+rectangle "Call the abort handlers\nin reverse order of installation\nSWS_CORE_12404" as E
+rectangle "All handlers returned,\nor none installed?" as F <<decision>>
+rectangle "std::abort()\nSWS_CORE_12405, SWS_CORE_12406" as G
+rectangle "A handler ended the process itself" as H
+A --> B
+B --> BL : yes
+B --> C : no
+C --> D
+D --> E
+E --> F
+F --> G : yes
+F --> H : no
+@enduml

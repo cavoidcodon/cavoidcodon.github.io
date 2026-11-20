@@ -1,0 +1,18 @@
+@startuml
+!include ../_style.puml
+rectangle "Global Supervision switches to kEXPIRED" as A
+rectangle "RecoveryAction offered?" as B <<decision>>
+rectangle "Stop AliveNotification,\nFireWatchdogReaction" as W
+rectangle "Call RecoveryHandler(executionError, supervision)" as C
+rectangle "Answer within\nrecoveryNotificationTimeout?" as D <<decision>>
+rectangle "Value or error?" as E <<decision>>
+rectangle "Recovery handled:\nno further action" as F
+A --> B
+B --> W : no: before Offer or after StopOffer
+B --> C : yes
+C --> D
+D --> W : no
+D --> E : yes
+E --> W : kSMCanNotHandleRecovery
+E --> F : value
+@enduml

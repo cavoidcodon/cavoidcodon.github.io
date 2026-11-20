@@ -1,0 +1,15 @@
+@startuml
+!include ../_style.puml
+participant "Fusion 1.1.0" as App
+participant "Persistency" as PER
+participant "Persistent memory" as NVM
+App -> PER : RegisterApplicationDataUpdateCallback(cb)
+App -> PER : OpenKeyValueStorage(FusionParamsPort)
+PER -> NVM : read central storage: target configuration version 1.0.0, contract 1.0.0
+note over PER : configuration now 1.1.0 / 1.1.0, so update
+PER -> NVM : backup of all data of the process
+PER -> NVM : apply update strategies (TrackerTuning: KEEP_EXISTING)
+PER -> NVM : store versions 1.1.0 / 1.1.0
+PER --> App : cb(FusionParamsPort, old contract version 1.0.0)
+PER --> App : SharedHandle
+@enduml

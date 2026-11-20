@@ -1,0 +1,18 @@
+@startuml
+!include ../_style.puml
+participant "Fusion code" as FC
+participant "Communication Management" as CM
+participant "Processed manifests" as MAN
+participant "SOME/IP on the backbone" as NET
+participant "CameraDriver" as CD
+CD -> CM : offer service on /camera_driver/Root/CameraPPort
+CM -> MAN : resolve port in process CameraDriver
+MAN --> CM : CameraService_Provided: service 0x1001, instance 0x0001, TCP 30501
+CM -> NET : SOME/IP-SD offer
+FC -> CM : find service for /fusion/Root/CameraRPort
+CM -> MAN : resolve port in process Fusion
+MAN --> CM : CameraService_Required: service 0x1001, instance 0x0001, version 1.0
+CM -> NET : SOME/IP-SD find
+NET --> CM : matching offer
+CM --> FC : handle of the found instance, used to create the proxy
+@enduml

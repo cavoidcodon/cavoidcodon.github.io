@@ -1,0 +1,39 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "Base Header (7 to 20 bytes)" as BH {
+  rectangle "HTYP2 4 B" as H1
+  rectangle "MCNT 1 B" as H2
+  rectangle "LEN 2 B" as H3
+  rectangle "MSIN 1 B (c)" as H4
+  rectangle "NOAR 1 B (c)" as H5
+  rectangle "TMSP2 9 B (c)" as H6
+  rectangle "MSID 4 B (c)" as H7
+}
+rectangle "Extension Header (optional)" as EH {
+  rectangle "ECU" as E1
+  rectangle "APID, CTID" as E2
+  rectangle "SEID" as E3
+  rectangle "FINA, LINR" as E4
+  rectangle "TAGS" as E5
+  rectangle "PRIV" as E6
+  rectangle "SGMT" as E7
+}
+rectangle "Payload" as PL {
+  rectangle "arguments, values or commands" as P1
+}
+H1 --> H2
+H2 --> H3
+H3 --> H4
+H4 --> H5
+H5 --> H6
+H6 --> H7
+E1 --> E2
+E2 --> E3
+E3 --> E4
+E4 --> E5
+E5 --> E6
+E6 --> E7
+BH --> EH
+EH --> PL
+@enduml

@@ -1,0 +1,12 @@
+@startuml
+!include ../_style.puml
+rectangle "EM detects a situation it cannot resolve" as E
+rectangle "Invoke the pre-cleanup action\nSWS_EM_02032" as P1
+rectangle "Shut down all processes managed by EM\nSWS_EM_02033" as P2
+rectangle "Invoke the post-cleanup action\nSWS_EM_02034" as P3
+rectangle "Project-specific handling,\nfor example persistent error log or ECU reset" as X
+E --> P1
+P1 --> P2
+P2 --> P3
+P3 --> X
+@enduml

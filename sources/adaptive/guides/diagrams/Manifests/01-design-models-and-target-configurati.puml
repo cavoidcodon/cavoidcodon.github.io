@@ -1,0 +1,18 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "Design model (contract, system-wide)" as DES {
+  rectangle "ServiceInterface\nCameraService" as SI
+  rectangle "Executable\nfusion" as EXE
+  rectangle "ProcessDesign\nFusionDesign" as PD
+}
+rectangle "Target configuration (one Machine, integration)" as TC {
+  rectangle "Process\nFusion" as P
+  rectangle "ServiceInstanceToPortPrototypeMapping" as MAP
+  rectangle "Machine\nHPC" as M
+}
+P --> EXE : executable
+P --> PD : design
+MAP --> EXE : port in the Executable
+P --> M : mapped to
+@enduml

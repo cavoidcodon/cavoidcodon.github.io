@@ -1,0 +1,21 @@
+@startuml
+!include ../_style.puml
+participant "CentralGateway" as GW
+participant "ChassisECU" as CH
+participant "SmControl (CM inside)" as SC
+participant "Fusion (CM inside)" as FU
+participant "CameraDriver" as CD
+participant "Cockpit" as CK
+GW -> SC : VehicleModeSecured (PowerMode On, FV, MAC)
+SC -> SC : FVM GetRxFreshness, MAC OK, PowerMode = On
+CH -> FU : ChassisDynamics via gateway (P11 header)
+FU -> FU : P11 check OK, SMState kValid
+CK -> CD : TCP connect, TLS handshake (HpcDeviceCert)
+CD --> CK : Image events inside TLS records
+FU -> CD : SetExposureMode(Night), P04m, TLS
+CD --> FU : Response with echoed counter
+SC --> CK : AdasStatus Active, P04, every 100 ms
+note over GW, SC : An attacker injects VehicleMode with PowerMode Off
+GW -> SC : forged frame, wrong MAC
+SC -> SC : verification fails, frame discarded
+@enduml

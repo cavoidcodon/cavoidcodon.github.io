@@ -1,0 +1,20 @@
+@startuml
+!include ../_style.puml
+participant "DiagnosticTester" as T
+participant "Diagnostic Management" as DM
+participant "Storage (FileTransferService)" as S
+T -> DM : 38 04 (ReadFile) path "recordings/rec_0042.bin", dataFormatIdentifier 00
+DM -> DM : session extended, security Level1: ok
+DM -> S : RequestReadFile("recordings/rec_0042.bin", 0x00, ...)
+S --> DM : session with pull handler, FileSizes
+DM --> T : 78 04 ... (positive response with sizes)
+loop until the file is complete
+T -> DM : 36 counter
+DM -> S : handler Read(buffer)
+S --> DM : bytes written
+DM --> T : 76 counter data
+end
+T -> DM : 37
+DM -> S : handler ExitRead(kAcknowledge)
+DM --> T : 77
+@enduml

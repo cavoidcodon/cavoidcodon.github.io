@@ -55,7 +55,7 @@ If you write application code, read Chapters 1, 2, 6 to 9 and 16 first. If you i
 | **Note (implementation example)** | How a typical implementation, often on Linux, *might* realize something. This is not mandated by AUTOSAR. |
 | **Pitfall** | A common mistake seen in real projects. |
 | **Key takeaways** | A short summary at the end of each chapter. |
-| Diagrams | Written in Mermaid. They render natively on GitHub and GitLab. In VS Code, install the *Markdown Preview Mermaid Support* extension. |
+| Diagrams | Drawn in PlantUML and inserted as SVG images, so they show in any Markdown viewer. Click an image to open it at full size. |
 
 > **Note:** The code in this guide is illustrative C++17. It follows the R25-11 API tables of the specification exactly, but vendor headers may differ in detail, for example in the implementation-defined types `Argument` and the message ID types of modeled messages. All values of the running example, such as IDs, ports and timestamps, are invented for teaching.
 
@@ -290,18 +290,7 @@ Knowing the limits saves time when you look for something the standard does not 
 
 `ara::log` is a library. Every process that logs links it, and each call runs in the calling thread of that process. Behind the library, an implementation-specific *logging backend* turns the messages into DLT messages and sends them. A *logging client*, usually a PC tool, receives them. The diagram shows the four parts and the standards that define them.
 
-```mermaid
-flowchart LR
-    subgraph P["Process (for example Fusion)"]
-        APP["Application code"] -->|"ara::log API (SWS)"| LIB["ara::log library"]
-    end
-    LIB -->|"implementation-specific path"| BE["Logging backend<br/>(for example a DLT daemon)"]
-    BE -->|"DLT messages (PRS)<br/>over Ethernet"| CL["Logging client<br/>(viewer on a PC)"]
-    CL -->|"control messages (PRS)"| BE
-    CFG["Manifest: IDs, sinks, messages<br/>(TPS Manifest, TPS Log And Trace Extract)"] -.-> LIB
-    CFG -.-> BE
-    CFG -.->|"Log and Trace Extract<br/>for non-verbose decoding"| CL
-```
+![Flowchart: Log and Trace and ARA](diagrams/LogAndTrace/01-log-and-trace-and-ara.svg)
 
 The SWS uses a few names for these parts that you will meet again: the *Logging framework* is the implementation as a whole, the *Logging backend* is the implementation of the LT protocol (for example DLT), and the *Logging client* is the external tool that can remotely interact with the framework (SWS, Table 2.1).
 
@@ -407,16 +396,7 @@ Source: SWS, Section 5.2 and Figure 5.2. Only the interface to Time Synchronizat
 
 The following diagram shows who talks to whom. Applications and platform clusters log through `Logger`; Log and Trace reads the time from Time Synchronization and sends DLT messages to the logging client, which sends control messages back.
 
-```mermaid
-flowchart LR
-    APP["Adaptive Applications<br/>(Fusion, CameraDriver, SmControl, ...)"] -->|"Logger"| LT["Log and Trace<br/>(ara::log + backend)"]
-    FC["Platform clusters<br/>(EM, SM, PHM, CM, DM, UCM, ...)"] -->|"Logger: standardized messages"| LT
-    TS["Time Synchronization"] -->|"SynchronizedTimeBaseConsumer"| LT
-    OS["OS adapter (ARTI)"] -->|"OS trace events"| LT
-    LT -->|"DLT messages"| CL["Logging client"]
-    CL -->|"control messages"| LT
-    LT -->|"modeled messages"| ARTI["Trace tool (ARTI)"]
-```
+![Flowchart: Interaction Map](diagrams/LogAndTrace/02-interaction-map.svg)
 
 ### 3.5 How Platform Clusters Log
 
@@ -458,23 +438,7 @@ The SWS defines no default values for these attributes (SWS, Section 10.1) and o
 
 The following diagram shows the chain from a port in the code to a sink and to the IDs on the wire.
 
-```mermaid
-flowchart TB
-    LTI["LogAndTraceInterface<br/>(FusionLog, namespace hpc::fusion)"] -->|"types"| PORT["R-port MainLogPort<br/>of FusionSwc"]
-    PORT -->|"in root of executable fusion"| SPEC["InstanceSpecifier<br/>/fusion/Root/MainLogPort"]
-    LTM["LTMessageCollectionToPortPrototypeMapping"] -->|"rPort"| PORT
-    LTM -->|"logAndTraceMessageCollectionSet"| SET["LogAndTraceMessageCollectionSet<br/>FusionMessages (DltMessages)"]
-    MAP["DltLogSinkToPortPrototypeMapping<br/>(process Fusion)"] -->|"rPortPrototype"| PORT
-    MAP -->|"dltContext"| CTX["DltContext FusionMain<br/>contextId MAIN"]
-    MAP -->|"dltLogSink"| RS["DltLogSink HpcRemoteInfo<br/>(REMOTE, channel HPCN)"]
-    APM["DltApplicationToProcessMapping"] -->|"process"| PROC["Process Fusion"]
-    APM -->|"dltApplication"| APP["DltApplication FusionDltApp<br/>applicationId FUSN"]
-    ECU["DltEcu HpcDltEcu<br/>ecuId HPC1"] -->|"application"| APP
-    APP -->|"context"| CTX
-    INST["LogAndTraceInstantiation HpcLogAndTrace<br/>(Machine HPC)"] -->|"dltEcu"| ECU
-    INST -->|"logSink"| DS["DltLogSink HpcDltChannel<br/>(DLT, channel HPCN, TCP 3490)"]
-    RS -.->|"same log channel"| DS
-```
+![Flowchart: How the Elements Relate](diagrams/LogAndTrace/03-how-the-elements-relate.svg)
 
 At run time, `CreateLogger` with the instance specifier `/fusion/Root/MainLogPort` makes the framework find the `DltLogSinkToPortPrototypeMapping` of the current process for that port. From it, the framework takes the context ID and the sinks; from the `DltApplicationToProcessMapping` of the process, the application ID; and from the `LogAndTraceInstantiation`, the ECU ID ([SWS_LOG_00251]).
 
@@ -558,21 +522,7 @@ In version 1 of the protocol, application and context IDs had exactly four chara
 
 The following diagram shows the identifiers that `HPC` uses for its applications. The platform daemons log under vendor-specific application IDs with the standardized context IDs of their clusters.
 
-```mermaid
-flowchart TB
-    ECU["ECU ID HPC1<br/>(DltEcu HpcDltEcu)"] --> FUSN["FUSN<br/>Fusion"]
-    ECU --> FUSL["FUSL<br/>FusionLite"]
-    ECU --> CAMD["CAMD<br/>CameraDriver"]
-    ECU --> SMCT["SMCT<br/>SmControl"]
-    ECU --> PLAT["vendor-specific IDs<br/>EM, SM, PHM daemons"]
-    FUSN --> F1["MAIN: cycle control"]
-    FUSN --> F2["TRCK: object tracking"]
-    FUSL --> L1["MAIN"]
-    CAMD --> C1["MAIN: camera control"]
-    CAMD --> C2["IMGS: image acquisition"]
-    SMCT --> S1["MAIN"]
-    PLAT --> P1["#EXE, #SMX, #PHM"]
-```
+![Flowchart: Worked Example: the IDs of HPC](diagrams/LogAndTrace/04-worked-example-the-ids-of-hpc.svg)
 
 | Process | Application ID | Contexts | Session IDs |
 | --- | --- | --- | --- |
@@ -617,14 +567,7 @@ The `InstanceSpecifier` must name a port typed by a `LogAndTraceInterface` or by
 
 The flowchart summarizes how a new logger gets its initial threshold. Afterwards, the application can change it with `Logger::SetThreshold` ([SWS_LOG_00254]), and a logging client can change it with control messages ([Section 9.4](#94-changing-levels-at-run-time)).
 
-```mermaid
-flowchart TB
-    START["CreateLogger called"] --> Q1{"Overload with<br/>ctxDefLogLevel?"}
-    Q1 -- "yes" --> L1["Threshold = given level<br/>[SWS_LOG_00006]"]
-    Q1 -- "no" --> Q2{"DltLogSink.defaultLogThreshold<br/>configured for this context?"}
-    Q2 -- "yes" --> L2["Threshold = defaultLogThreshold<br/>[SWS_LOG_00253]"]
-    Q2 -- "no" --> L3["Threshold = kWarn<br/>[SWS_LOG_00253]"]
-```
+![Flowchart: Where the Threshold Comes From](diagrams/LogAndTrace/05-where-the-threshold-comes-from.svg)
 
 > **Note:** [SWS_LOG_00253] takes the threshold from "the DltLogSink that corresponds to the given context ID". The model maps sinks to *ports* (with a `DltContext`), not to context strings, and a port can have several sinks with different thresholds. Which threshold applies in those cases is not specified in R25-11. If the threshold matters, use the `InstanceSpecifier` overload with one sink per mapping, or pass the level explicitly.
 
@@ -638,20 +581,7 @@ A logger created with an `InstanceSpecifier` is *connected* to the model: the fr
 
 Messages logged while the framework cannot process them yet, for example because the connection to a log daemon is not established or the framework is not fully initialized, shall be queued. The queue size is `DltLogSink.queueSize`, counted in messages; when it is exceeded, the oldest entries are discarded ([SWS_LOG_00001]). The same rule applies when the log daemon crashes (SWS, Section 7.8.3).
 
-```mermaid
-sequenceDiagram
-    participant A as Fusion
-    participant L as ara::log library
-    participant D as Logging backend
-    A->>L: ara::core::Initialize(argc, argv)
-    A->>L: CreateLogger("/fusion/Root/MainLogPort")
-    A->>L: LogInfo() << "starting"
-    Note over L: backend not connected:<br/>queue (queueSize), drop oldest
-    L->>D: connection established
-    L->>D: queued messages, then live messages
-    A->>L: ara::core::Deinitialize()
-    L->>D: all queued messages are passed on [SWS_LOG_00123]
-```
+![Sequence diagram: Before the Backend Is Ready: the Queue](diagrams/LogAndTrace/06-before-the-backend-is-ready-the-queu.svg)
 
 ### 6.6 Shutdown and Daemon Crash
 
@@ -912,17 +842,7 @@ Their disadvantage: the model must exist before the code, which is why non-model
 
 The following diagram shows the meta-classes of the Log and Trace Extract that describe messages (TPS Log And Trace Extract, Chapter 3).
 
-```mermaid
-flowchart TB
-    SET["LogAndTraceMessageCollectionSet<br/>(FusionMessages)"] -->|"dltMessage *"| MSG["DltMessage<br/>messageId, messageTypeInfo,<br/>messageSourceFile, messageLineNumber"]
-    MSG -->|"dltArgument * (ordered)"| ARG["DltArgument<br/>predefinedText, optional"]
-    MSG -->|"privacyLevel 0..1"| PRIV["PrivacyLevel<br/>privacyLevel 0..255"]
-    ARG -->|"dltArgumentProps 0..1"| PROPS["DltArgumentProps<br/>length, variableLength"]
-    PROPS -->|"networkRepresentation"| SDDP["SwDataDefProps<br/>baseType, unit, compuMethod,<br/>swTextProps, displayFormat"]
-    PROPS -->|"dltArgumentEntry *"| PROPS
-    PSET["DltArgumentPropsSet"] -->|"dltArgumentProps *"| PROPS
-    CTX["DltContext"] -->|"dltMessage *"| MSG
-```
+![Flowchart: The Message Model](diagrams/LogAndTrace/07-the-message-model.svg)
 
 One log or trace message is one `DltMessage` ([TPS_DLTXT_00001]). Its message type and message info (the log level or trace type) come from `messageTypeInfo`, and its source position from `messageSourceFile` and `messageLineNumber` ([TPS_DLTXT_00002]). The user data are the ordered `DltArgument`s ([TPS_DLTXT_00003]). Only the standardized values may be used in `messageTypeInfo`, for example `DLT_LOG_WARN` or `DLT_TRACE_FUNCTION_IN`; custom values are not allowed ([TPS_DLTXT_00008]).
 
@@ -1086,16 +1006,7 @@ Both arguments reference the reusable props `uint32_microseconds` (base type `ui
 
 The flow from model to wire:
 
-```mermaid
-flowchart LR
-    ARXML["FusionMessages<br/>(ARXML)"] --> GEN["ara::log Modeled<br/>Message Generator"]
-    GEN --> HDR["hpc/fusion/fusionmessages/<br/>messages.h"]
-    HDR --> CODE["mainLog.Log(FusionCycleOverrun,<br/>61240, 50000)"]
-    CODE --> WIRE["DLT: MSID 0x00010001<br/>+ 8 bytes of values"]
-    ARXML --> VIEW["Viewer reads the Extract"]
-    WIRE --> VIEW
-    VIEW --> TXT["FUSN MAIN warn: cycle overrun<br/>cycleTime=61240 us budget=50000 us"]
-```
+![Flowchart: Worked Example: FusionCycleOverrun from Model to Wire](diagrams/LogAndTrace/08-worked-example-fusioncycleoverrun-fr.svg)
 
 On the wire, the message has 25 bytes of headers and 8 bytes of payload ([Section 11.8](#118-byte-by-byte-two-messages-of-hpc)). The same information as a verbose message, with the text, two names and two units, needs 62 bytes of payload: 19 for the string, 23 and 20 for the two named integers with their units.
 
@@ -1146,16 +1057,7 @@ The PRS proposes a meaning for each level (PRS, Section 7.1). The proposal is in
 
 A message can be filtered at several points on its way. The first one is the logger's own threshold; the others depend on the implementation and the tool.
 
-```mermaid
-flowchart LR
-    CALL["LogDebug() << ...<br/>or Log(msg, ...)"] --> T1{"Logger threshold<br/>(defaultLogThreshold,<br/>SetThreshold, control msg)"}
-    T1 -- "below" --> X1["discarded in the process"]
-    T1 -- "passes" --> BE["Backend"]
-    BE --> T2{"Implementation-specific<br/>filters per sink or channel"}
-    T2 -- "passes" --> NET["DLT on the network"]
-    NET --> T3{"Viewer filters<br/>(app, context, level, tag)"}
-    T3 --> SCREEN["Shown to the user"]
-```
+![Flowchart: Where Filtering Happens](diagrams/LogAndTrace/09-where-filtering-happens.svg)
 
 The threshold acts as a reporting filter: only messages with the same or a higher severity are processed, and the others are ignored (SWS, Section 7.1.2). The application-wide level and the context levels shall be adjustable at run time; the SWS leaves the realization to the backend, for example remotely through a logging client (SWS, Section 7.1.2).
 
@@ -1208,21 +1110,7 @@ The attributes `defaultLogThreshold`, `defaultTraceState` and `queueSize` are no
 
 The two DLT categories work together. A `DLT_LOGSINK_DLT` sink belongs to the machine: it defines a log channel and the network endpoint of that channel. A `DLT_LOGSINK_REMOTE` sink belongs to a port mapping: it names the log channel to which that port's messages go, and can carry its own default threshold. The following diagram shows the structure of `HPC`.
 
-```mermaid
-flowchart LR
-    subgraph MAP["DltLogSinkToPortPrototypeMappings"]
-        M1["Fusion MainLogPort (MAIN)"]
-        M2["Fusion TrackLogPort (TRCK)"]
-        M3["CameraDriver ImageLogPort (IMGS)"]
-    end
-    M1 --> RI["HpcRemoteInfo<br/>REMOTE, channel HPCN, info"]
-    M2 --> RW["HpcRemoteWarn<br/>REMOTE, channel HPCN, warn"]
-    M3 --> RW
-    RI -.-> CH["HpcDltChannel<br/>DLT, channel HPCN,<br/>TCP 3490 on BackboneConnector"]
-    RW -.-> CH
-    INST["LogAndTraceInstantiation<br/>HpcLogAndTrace"] --> CH
-    INST --> CON["HpcConsole<br/>CONSOLE, warn"]
-```
+![Flowchart: Machine Sinks and Per-Port Sinks](diagrams/LogAndTrace/10-machine-sinks-and-per-port-sinks.svg)
 
 The connection from a REMOTE sink to the DLT sink is the log channel ID. The TPS does not define a meta-model reference between the two; the matching ID is what connects them ([TPS_MANI_02384], [TPS_MANI_02385]).
 
@@ -1302,21 +1190,7 @@ A sink of category `DLT_LOGSINK_ARTI` forwards all modeled messages, with all th
 
 Every DLT message, data or control, has the same format: a *Base Header*, an optional *Extension Header* and a *Payload* (PRS, Table 5.1). Both headers use network byte order, that is big-endian ([PRS_Dlt_01000]).
 
-```mermaid
-flowchart LR
-    subgraph BH["Base Header (7 to 20 bytes)"]
-        direction TB
-        H1["HTYP2 4 B"] --> H2["MCNT 1 B"] --> H3["LEN 2 B"] --> H4["MSIN 1 B (c)"] --> H5["NOAR 1 B (c)"] --> H6["TMSP2 9 B (c)"] --> H7["MSID 4 B (c)"]
-    end
-    subgraph EH["Extension Header (optional)"]
-        direction TB
-        E1["ECU"] --> E2["APID, CTID"] --> E3["SEID"] --> E4["FINA, LINR"] --> E5["TAGS"] --> E6["PRIV"] --> E7["SGMT"]
-    end
-    subgraph PL["Payload"]
-        P1["arguments, values or commands"]
-    end
-    BH --> EH --> PL
-```
+![Flowchart: Message Layout](diagrams/LogAndTrace/11-message-layout.svg)
 
 The fields marked (c) are conditional; their presence depends on the kind of message. All fields of the extension header are optional; flags in the base header announce them.
 
@@ -1593,19 +1467,7 @@ If the module's message buffer overflows, it sends a control message `BufferOver
 
 On a test drive, `Fusion` loses a tracked pedestrian now and then. The context `TRCK` is mapped to `HpcRemoteWarn`, so its Debug messages, such as `TrackListSummary`, are normally filtered. The engineer raises the level for one drive without changing the software:
 
-```mermaid
-sequenceDiagram
-    participant V as Logging client
-    participant B as Logging backend (HPC1)
-    participant F as Fusion (FUSN)
-    V->>B: Control request 0x01 SetLogLevel(FUSN, TRCK, 5 = DEBUG)
-    B->>F: new threshold for TRCK (implementation-specific)
-    B-->>V: Control response status 0 (OK)
-    F->>B: Log(TrackListSummary, 17) passes the threshold
-    B-->>V: non-verbose MSID 0x00010002
-    V->>B: Control request 0x01 SetLogLevel(FUSN, TRCK, -1 = default)
-    B-->>V: status 0 (OK)
-```
+![Sequence diagram: Worked Example: Debugging TRCK for One Drive](diagrams/LogAndTrace/12-worked-example-debugging-trck-for-on.svg)
 
 Because the change is not stored (no `StoreConfiguration`), `TRCK` falls back to its configured threshold after the next restart.
 
@@ -1694,15 +1556,7 @@ Tracing costs memory and time, and the needs differ between the development and 
 
 A `TraceSwitchConfig` maps one `DltMessage`, in the context of one `Executable`, to a trace switch value ([TPS_MANI_03336]). It is used for the compile-time configuration of ARTI trace and is not needed for normal logging. The evaluation is done at compile time ([SWS_LOG_20001] to [SWS_LOG_20004]):
 
-```mermaid
-flowchart TB
-    CALL["logger.Log(msg, params)"] --> Q{"TraceSwitchConfig for this message,<br/>namespace and executable?"}
-    Q -- "none" --> LOG["Logger<br/>[SWS_LOG_20001]"]
-    Q -- "traceSwitchLog" --> LOG
-    Q -- "traceSwitchArti" --> ARTI["apext::log::TraceArti<br/>[SWS_LOG_20002]"]
-    Q -- "traceSwitchArtiAndLog" --> BOTH["TraceArti and Logger<br/>[SWS_LOG_20003]"]
-    Q -- "traceSwitchNone" --> DROP["discarded, no run-time cost<br/>[SWS_LOG_20004]"]
-```
+![Flowchart: The Trace Switch](diagrams/LogAndTrace/13-the-trace-switch.svg)
 
 | `TraceSwitchEnum` literal | Effect |
 | --- | --- |
@@ -2496,30 +2350,7 @@ Read such a trace in five steps:
 
 The sequence of the transition:
 
-```mermaid
-sequenceDiagram
-    participant F as Fusion (FUSN)
-    participant P as PHM daemon
-    participant S as SM daemon
-    participant E as EM
-    participant L as FusionLite (FUSL)
-    participant C as SmControl (SMCT)
-    participant V as Logging client
-    F->>V: FusionCycleOverrun 0x00010001 (warn, twice)
-    P->>V: RecoveryInitiated 0x80009002 (error)
-    P->>S: RecoveryHandler(ADAS, 42)
-    S->>E: SetState(ADAS.Degraded)
-    E->>V: ProcessTerminationRequest 0x80004003
-    E->>F: SIGTERM
-    F->>V: "Fusion stopping" (verbose)
-    E->>V: ProcessTerminated 0x80004004
-    E->>V: ProcessCreated 0x80004001
-    E->>L: start
-    E->>V: ProcessKRunningReceived 0x80004002
-    L->>V: FusionLiteActive 0x00011001
-    S->>C: CurrentState Degraded
-    C->>V: AdasStatusChanged 0x00030001 (Degraded)
-```
+![Sequence diagram: Reading the Trace](diagrams/LogAndTrace/14-reading-the-trace.svg)
 
 > **Key takeaways**
 >

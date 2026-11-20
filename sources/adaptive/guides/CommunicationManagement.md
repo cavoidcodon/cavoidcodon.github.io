@@ -56,7 +56,7 @@ If you write application code, read Chapters 1, 2, 5 to 11 and 15. If you integr
 | **Note (implementation example)** | How a typical implementation, often on Linux, *might* realize something. This is not mandated by AUTOSAR. |
 | **Pitfall** | A common mistake seen in real projects. |
 | **Key takeaways** | A short summary at the end of each chapter. |
-| Diagrams | Written in Mermaid. They render natively on GitHub and GitLab. In VS Code, install the *Markdown Preview Mermaid Support* extension. |
+| Diagrams | Drawn in PlantUML and inserted as SVG images, so they show in any Markdown viewer. Click an image to open it at full size. |
 
 > **Note:** The code in this guide is illustrative C++17. It follows the R25-11 API tables of the specification exactly, but generated and vendor headers may differ in detail, for example in the types that the specification allows a vendor to replace. Where the explanatory document (EXP) shows an older form of a signature, the guide uses the form of the specification and says so ([Section 1.5](#15-the-two-documents-behind-this-guide)).
 
@@ -252,23 +252,7 @@ The specification divides Communication Management into four logical parts (SWS 
 
 The language binding and the communication binding are configured by the integrator but are deployed *within the application binary*, so serialization runs in the execution context of the application (SWS CM, Section 7.1.1). The following diagram shows the structure of Figure 7.1 of the specification.
 
-```mermaid
-flowchart TB
-    subgraph APP["Adaptive Application process"]
-        CODE["Application code"]
-        LB["C++ language binding<br/>(proxies, skeletons, types)"]
-        CB["Communication binding<br/>(serialization, E2E)"]
-        CODE -->|"ara::com API"| LB
-        LB --> CB
-    end
-    subgraph CMSW["Communication Management software (optional)"]
-        DD["Dispatching and discovery"]
-    end
-    CB -->|"IPC"| DD
-    CB -->|"SOME/IP, DDS over TCP/IP"| NET["Network"]
-    DD --> NET
-    EM["Execution Management"] -.-> CMSW
-```
+![Flowchart: What Is Communication Management?](diagrams/CommunicationManagement/01-what-is-communication-management.svg)
 
 ### 1.2 What `ara::com` Does Not Do
 
@@ -357,15 +341,7 @@ In the model, a provider has a P-port typed by the service interface and a consu
 
 The following diagram shows the pattern of EXP Figure 4.1.
 
-```mermaid
-flowchart LR
-    SI["Service interface<br/>(model)"]
-    SI -->|"generated from"| PX["Service proxy"]
-    SI -->|"generated from"| SK["Service skeleton"]
-    CON["Consumer code"] --> PX
-    IMP["Service implementation<br/>(derived from skeleton)"] --> SK
-    PX <-->|"middleware transport"| SK
-```
+![Flowchart: Skeleton and Proxy](diagrams/CommunicationManagement/02-skeleton-and-proxy.svg)
 
 | Property | Proxy | Skeleton |
 | --- | --- | --- |
@@ -496,26 +472,7 @@ On `HPC`, the Communication Management daemon is one of the platform daemons of 
 
 The following diagram summarizes who talks to Communication Management, and how.
 
-```mermaid
-flowchart LR
-    APP["Applications<br/>(Fusion, CameraDriver, ...)"]
-    PLAT["Platform clusters with services<br/>(SM, DM, UCM, ...)"]
-    CM["Communication Management"]
-    EM["Execution Management"]
-    IAM["Identity and Access Management"]
-    CRY["Cryptography"]
-    IDS["IdsM"]
-    LOG["Log and Trace"]
-    PHM["Platform Health Management"]
-    APP -->|"ara::com"| CM
-    PLAT -->|"ara::com"| CM
-    CM -->|"ExecutionClient"| EM
-    CM -->|"grants checked"| IAM
-    CM -->|"CryptoStack"| CRY
-    CM -->|"EventReporter"| IDS
-    CM -->|"Logger"| LOG
-    APP -.->|"method timeouts supervised<br/>by the application"| PHM
-```
+![Flowchart: Interaction Map](diagrams/CommunicationManagement/03-interaction-map.svg)
 
 > **Key takeaways**
 >
@@ -547,19 +504,7 @@ SWS CM itself defines no default values for these attributes (SWS CM, Section 10
 
 The following diagram shows the two chains that matter for `ara::com`: from the service interface to the generated code, and from the port in the code to a concrete service instance on a transport.
 
-```mermaid
-flowchart TB
-    SI["ServiceInterface<br/>(CameraService)"] -->|"generator"| GEN["Proxy and skeleton classes"]
-    SI -->|"types"| PORT["PPortPrototype / RPortPrototype<br/>(CameraPPort, CameraRPort)"]
-    PORT -->|"in root component of"| EXE["Executable<br/>(camera_driver, fusion)"]
-    EXE -->|"path = InstanceSpecifier"| SPEC["/fusion/Root/CameraRPort"]
-    MAP["ServiceInstanceToPortPrototypeMapping<br/>(port + process)"] -->|"portPrototype"| PORT
-    MAP -->|"serviceInstance"| INST["Provided / Required<br/>service instance"]
-    INST -->|"serviceInterfaceDeployment"| DEP["ServiceInterfaceDeployment<br/>(SOME/IP, DDS, user-defined)"]
-    DEP -->|"serviceInterface"| SI
-    MM["ServiceInstanceToMachineMapping"] -->|"serviceInstance"| INST
-    MM -->|"communicationConnector"| CONN["Communication connector<br/>of the machine"]
-```
+![Flowchart: How the Elements Relate](diagrams/CommunicationManagement/04-how-the-elements-relate.svg)
 
 At run time, a constructor or `FindService` call with an `InstanceSpecifier` makes Communication Management look up the mapping of the *current process* for that port, take the service instance it points to, and use that instance's deployment and connector ([SWS_CM_10452]; the [Manifests guide, Section 9.3](Manifests.md#93-connecting-a-port-to-a-service-instance)). If one of these links is missing or wrong, the call raises a violation ([Section 11.3](#113-violations-in-aracom)).
 
@@ -606,15 +551,7 @@ The `ara::com` header files are "either statically defined or generated by proce
 
 Each generated header has a forward-declaration variant, for example `{si}_proxy/{si}_proxy_fwd.h`. The common header includes `ara/com/types.h`, the data type headers, `ara/com/com_error_domain.h` and the application error headers ([SWS_CM_01012]); the proxy and skeleton headers include the common header. The following diagram shows the include structure for `CameraService`.
 
-```mermaid
-flowchart TB
-    P["hpc/camera/cameraservice_proxy.h"] --> C["hpc/camera/cameraservice_common.h"]
-    S["hpc/camera/cameraservice_skeleton.h"] --> C
-    C --> T["ara/com/types.h"]
-    C --> D["hpc/camera/impl_type_cameraimage.h<br/>impl_type_camerastate.h, ..."]
-    C --> E["ara/com/com_error_domain.h"]
-    C --> A["hpc/camera/cameraerrors_error_domain.h"]
-```
+![Flowchart: What the Generator Produces](diagrams/CommunicationManagement/05-what-the-generator-produces.svg)
 
 ### 5.2 File Names, Namespaces and Names
 
@@ -941,24 +878,7 @@ Why the detour through handles? A proxy holds state: event caches, registered ha
 
 **Formally:** if a service becomes temporarily unavailable, "due to restart, network problem or so", Communication Management retries the connection when the next offer arrives ([SWS_CM_10491]) and re-establishes active subscriptions ([SWS_CM_00315]). The following sequence diagram shows the timeline of EXP Figure 5.1 for `Fusion` and `CameraDriver`.
 
-```mermaid
-sequenceDiagram
-    participant FU as Fusion (proxy)
-    participant CM as Communication Management
-    participant CD as CameraDriver (skeleton)
-    Note over FU,CD: T0 connected, Image subscribed (kSubscribed)
-    CD->>CM: StopOfferService (or crash)
-    CM-->>FU: subscription state kSubscriptionPending
-    FU->>CM: SetExposureMode(Night)
-    CM-->>FU: Future with kServiceNotAvailable
-    Note over CD: EM restarts CameraDriver
-    CD->>CM: OfferService
-    CM->>CM: update proxy addressing, re-subscribe Image
-    CM-->>FU: subscription state kSubscribed
-    CM-->>FU: FindServiceHandler called (after the update)
-    FU->>CM: SetExposureMode(Night)
-    CM-->>FU: Future ready with Output
-```
+![Sequence diagram: When the Service Goes Away](diagrams/CommunicationManagement/06-when-the-service-goes-away.svg)
 
 - Method calls on a proxy whose instance is gone fail with `kServiceNotAvailable` ([SWS_CM_00196]).
 - The proxy-side subscription state becomes `kSubscriptionPending` when the server is unavailable, and `kSubscribed` again when the subscription is re-established ([SWS_CM_00313], [SWS_CM_00314]).
@@ -1012,20 +932,7 @@ The contract version is mapped, manually, to a version of each service interface
 
 `Fusion` does not have an Execution Dependency on `CameraDriver` (the [Running Example guide, Section 1.5](RunningExample.md#15-processes)). It searches continuously, creates its proxy when the first instance appears, and subscribes. Later availability changes need no action, because the proxy updates itself. The following sequence diagram shows the startup.
 
-```mermaid
-sequenceDiagram
-    participant FU as Fusion
-    participant CM as Communication Management
-    participant CD as CameraDriver
-    FU->>CM: StartFindService(handler, /fusion/Root/CameraRPort)
-    CM-->>FU: FindServiceHandle
-    CM-->>FU: handler([]) initial call: nothing yet
-    CD->>CM: OfferService (/camera_driver/Root/CameraPPort)
-    CM-->>FU: handler([handle])
-    FU->>CM: CameraServiceProxy::Create(handle)
-    FU->>CM: Image.Subscribe(2), CameraStatus.Subscribe(1)
-    CM-->>FU: subscription state kSubscribed
-```
+![Sequence diagram: Worked Example: Fusion Finds CameraService](diagrams/CommunicationManagement/07-worked-example-fusion-finds-camerase.svg)
 
 ```cpp
 // Fusion: continuous search for CameraService (illustrative).
@@ -1140,17 +1047,7 @@ void UnsetSubscriptionStateChangeHandler() noexcept;
 
 The following state diagram shows the proxy-side subscription state ([SWS_CM_00310], [SWS_CM_00313], [SWS_CM_00314]).
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> kNotSubscribed
-    kNotSubscribed --> kSubscriptionPending: Subscribe(), not yet confirmed
-    kNotSubscribed --> kSubscribed: Subscribe(), confirmed at once
-    kSubscriptionPending --> kSubscribed: subscription established
-    kSubscribed --> kSubscriptionPending: server unavailable
-    kSubscribed --> kNotSubscribed: Unsubscribe()
-    kSubscriptionPending --> kNotSubscribed: Unsubscribe()
-```
+![State diagram: Subscribing to an Event](diagrams/CommunicationManagement/08-subscribing-to-an-event.svg)
 
 The subscription state change handler, `std::function<void(SubscriptionState)>` ([SWS_CM_00311]), is called as soon as the state changes ([SWS_CM_99035]). Its calls are serialized; if several changes happen while it runs, they are aggregated into one call with the last state (EXP, Section 5.3.5.2). It can be called even before `Subscribe()` returns, so register it *before* subscribing. Local bindings with instant feedback may skip `kSubscriptionPending` (EXP, Section 5.3.5.2).
 
@@ -1226,35 +1123,13 @@ void UnsetReceiveHandler() noexcept;
 
 The handler may be set, overwritten and removed at any time, so an application can switch between the two styles at run time (EXP, Section 5.3.5.5). An overload with an executor chooses the context in which the handler runs ([SWS_CM_11356]; [Section 10.4](#104-choosing-the-execution-context)). The following sequence diagram shows event-driven reception.
 
-```mermaid
-sequenceDiagram
-    participant SK as Provider (skeleton)
-    participant CM as Communication Management
-    participant H as Receive handler (consumer)
-    participant APP as Consumer code
-    SK->>CM: Send(sample 1)
-    CM->>H: call handler
-    H->>CM: GetNewSamples(f)
-    CM->>APP: f(SamplePtr to sample 1)
-    SK->>CM: Send(sample 2)
-    Note over CM,H: handler still running: next call postponed
-    H-->>CM: handler returns
-    CM->>H: call handler
-    H->>CM: GetNewSamples(f)
-    CM->>APP: f(SamplePtr to sample 2)
-```
+![Sequence diagram: Polling or Event-Driven Reception](diagrams/CommunicationManagement/09-polling-or-event-driven-reception.svg)
 
 ### 7.6 Buffering and Zero-Copy
 
 Applications run in separate processes with protected memory. Event data therefore cannot stay in the provider's private memory; otherwise every access of a consumer would force a context switch into the provider (EXP, Section 5.3.5.6). The EXP names three typical places for the buffers between `Send` and `GetNewSamples`:
 
-```mermaid
-flowchart LR
-    SK["Provider process<br/>Event.Send()"] --> BUF{"Middleware-controlled<br/>event buffers"}
-    BUF -->|"kernel space<br/>(sockets, pipes)"| C1["Consumer 1<br/>local cache"]
-    BUF -->|"shared memory"| C2["Consumer 2<br/>local cache"]
-    BUF -->|"IPC daemon<br/>process"| C3["Consumer 3<br/>local cache"]
-```
+![Flowchart: Buffering and Zero-Copy](diagrams/CommunicationManagement/10-buffering-and-zero-copy.svg)
 
 Each option has different trade-offs in buffer size, access speed and protection against malicious writes. Because the API hands out `SamplePtr`s instead of values, an implementation can keep pointers into a central buffer in the local cache instead of copies (EXP, Section 5.3.5.6).
 
@@ -1492,13 +1367,7 @@ bool ProcessNextMethodCall() noexcept;  // only for kPoll
 
 The following diagram summarizes the choice.
 
-```mermaid
-flowchart TD
-    A{"Must the provider control<br/>every activation (real time)?"} -->|"yes"| P["kPoll<br/>+ ProcessNextMethodCall()"]
-    A -->|"no"| B{"E2E-protected methods,<br/>or most methods need<br/>the same lock?"}
-    B -->|"yes"| S["kEventSingleThread"]
-    B -->|"no"| E["kEvent (default)"]
-```
+![Flowchart: Method Call Processing Modes](diagrams/CommunicationManagement/11-method-call-processing-modes.svg)
 
 ```cpp
 // Not part of HPC: a kPoll provider serves at most two calls per 10 ms cycle (illustrative).
@@ -1563,24 +1432,7 @@ CameraServiceImpl::SetExposureMode(hpc::camera::ExposureMode mode) noexcept {
 
 The following sequence diagram shows the call when the sensor does not support `Night`.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant FU as Fusion (cycle thread)
-    participant PX as SetExposureMode (proxy)
-    participant CM as Communication Management
-    participant SK as CameraServiceImpl (kEventSingleThread)
-    FU->>PX: operator()(Night)
-    PX-->>FU: Future (not ready)
-    PX->>CM: request
-    CM->>SK: SetExposureMode(Night)
-    SK->>SK: promise.SetError(ExposureModeNotSupported)
-    SK-->>CM: future with error
-    CM-->>PX: response with application error
-    Note over FU: next cycle: is_ready() is true
-    FU->>PX: GetResult()
-    PX-->>FU: Result with CameraErrorsErrc::ExposureModeNotSupported
-```
+![Sequence diagram: Worked Example: SetExposureMode From Fusion to CameraDriver](diagrams/CommunicationManagement/12-worked-example-setexposuremode-from.svg)
 
 > **Key takeaways**
 >
@@ -1659,19 +1511,7 @@ The SetHandler is mandatory because "the server implementation will always need 
 
 The following sequence diagram and code show a settable field. Neither is part of `HPC`, whose fields have no setter.
 
-```mermaid
-sequenceDiagram
-    participant C1 as Consumer A (proxy)
-    participant CM as Communication Management
-    participant SK as Provider (SetHandler)
-    participant C2 as Consumer B (subscribed)
-    C1->>CM: Set(80)
-    CM->>SK: SetHandler(80)
-    SK->>SK: validate: clamp to 64
-    SK-->>CM: Future with 64
-    CM-->>C1: Set() result 64
-    CM-->>C2: notification 64
-```
+![Sequence diagram: Set and the Mandatory SetHandler](diagrams/CommunicationManagement/13-set-and-the-mandatory-sethandler.svg)
 
 ```cpp
 // Not part of HPC: a settable field MaxObjects (std::uint16_t) with range 1 to 64 (illustrative).
@@ -2167,18 +2007,7 @@ The EXP distinguishes three cases (Section 7.3):
 
 The following diagram shows how `CameraService` *could* be deployed with multi-binding: `Fusion` on `HPC` over local IPC, `Cockpit` over SOME/IP. Whether `HPC` does this is decided in the [Network Bindings guide](NetworkBindings.md); the Manifests guide models only the SOME/IP binding.
 
-```mermaid
-flowchart LR
-    subgraph HPC["HPC"]
-        CD["CameraDriver<br/>skeleton (one object)"]
-        FU["Fusion<br/>proxy"]
-        D["SOME/IP daemon<br/>(Communication Management)"]
-    end
-    CK["Cockpit<br/>(remote consumer)"]
-    CD -->|"instance 1: local IPC binding"| FU
-    CD -->|"instance 2: SOME/IP binding"| D
-    D -->|"Ethernet"| CK
-```
+![Flowchart: Multi-Binding](diagrams/CommunicationManagement/14-multi-binding.svg)
 
 ### 13.4 Typical Implementations on Linux
 
@@ -2453,25 +2282,7 @@ Code-level decisions (not in the model):
 
 The following diagram shows how the elements of `CalibrationDataService` connect.
 
-```mermaid
-flowchart LR
-    SI["CalibrationDataService<br/>(hpc::storage)"]
-    DEP["CalibrationDataService_Ipc<br/>(category SERVICE_INTERFACE_DEPLOYMENT_IPC)"]
-    PI["CalibrationDataProvided"]
-    RI["CalibrationDataRequired"]
-    PM1["Storage_CalibrationPPort"]
-    PM2["Fusion_CalibrationRPort,<br/>FusionLite_..., CameraDriver_...,<br/>CalibrationCheck_..."]
-    MM["CalibrationDataOnHpc"]
-    CON["HpcDesign/HpcIpcConnector"]
-    DEP --> SI
-    PI --> DEP
-    RI --> DEP
-    PM1 --> PI
-    PM2 --> RI
-    MM --> PI
-    MM --> RI
-    MM --> CON
-```
+![Flowchart: Conceptual view of the ara::com configuration of HPC. NOT real ARXML syntax.](diagrams/CommunicationManagement/15-conceptual-view-of-the-ara-com-confi.svg)
 
 The new elements are written as ARXML in the file `12_Communication.arxml` of the series model. It continues the files of the Manifests, SM and PHM guides, and it validates against the R25-11 schema (`AUTOSAR_00054.xsd`). The following excerpts are copied from it. The [Manifests guide, Chapter 3](Manifests.md#3-reading-arxml) explains how to read ARXML.
 
@@ -3314,35 +3125,7 @@ Suppose the model renames the port `CameraRPort` of `FusionSwc`, but the code of
 
 The following sequence diagram shows the main steps. Execution Management starts and stops the processes as the EM guide describes; State Management requests the `ADAS` states as the SM guide describes.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant ST as Storage
-    participant CD as CameraDriver
-    participant FU as Fusion
-    participant FL as FusionLite
-    participant CM as Communication Management
-    ST->>CM: OfferService(CalibrationDataService), kRunning
-    CD->>CM: Update(CameraStatus=NotAvailable), OfferService(CameraService)
-    FU->>CM: FindService(CalibrationDataService), StartFindService(CameraService)
-    CM-->>FU: handler([CameraService handle])
-    FU->>CM: Create proxy, Subscribe(Image, 2), Subscribe(CameraStatus, 1)
-    FU->>CM: Update(FusionMode=Full), OfferService(ObjectListService)
-    CM-->>ST: handler([ObjectListService handle]): Subscribe(FusionMode), Subscribe(ObjectList, 10)
-    loop every 50 ms
-        FU->>CM: GetNewSamples(Image), GetNewSamples(CameraStatus)
-        FU->>CM: Allocate + Send(ObjectList)
-        CM-->>ST: receive handler: GetNewSamples(ObjectList)
-    end
-    FU->>CM: SetExposureMode(Night)
-    CM-->>FU: error ExposureModeNotSupported
-    Note over CD: CameraDriver restarts
-    CM-->>FU: subscription kSubscriptionPending, later kSubscribed
-    Note over FU,FL: ADAS: Normal to Degraded
-    FU->>CM: StopOfferService(ObjectListService)
-    FL->>CM: Update(FusionMode=RadarOnly), OfferService(ObjectListService)
-    CM-->>ST: proxy reconnected: FusionMode RadarOnly
-```
+![Sequence diagram: The Sequence](diagrams/CommunicationManagement/16-the-sequence.svg)
 
 ### 17.2 Step by Step
 

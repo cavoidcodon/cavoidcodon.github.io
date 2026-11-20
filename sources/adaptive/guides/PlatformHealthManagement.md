@@ -51,7 +51,7 @@ The chapters build on each other. Chapters 1 and 2 introduce the concepts. Chapt
 | **Note (implementation example)** | How a typical implementation, often on Linux, *might* realize something. This is not mandated by AUTOSAR. |
 | **Pitfall** | A common mistake seen in real projects. |
 | **Key takeaways** | A short summary at the end of each chapter. |
-| Diagrams | Written in Mermaid. They render natively on GitHub and GitLab. In VS Code, install the *Markdown Preview Mermaid Support* extension. |
+| Diagrams | Drawn in PlantUML and inserted as SVG images, so they show in any Markdown viewer. Click an image to open it at full size. |
 
 ### The Running Example
 
@@ -424,19 +424,7 @@ Interfaces that are only used between functional clusters, such as the process s
 
 The following diagram shows PHM and its partners in the running example.
 
-```mermaid
-flowchart LR
-    FU["Fusion"] -->|"ReportCheckpoint"| PHM["Platform Health Management<br/>(PlatformHealth)"]
-    CD["CameraDriver"] -->|"ReportCheckpoint"| PHM
-    SM["State Management<br/>(StateManager)"] -->|"ReportCheckpoint<br/>(own supervision)"| PHM
-    EM["Execution Management"] -->|"kRunning, SIGTERM announced,<br/>terminated (vendor-specific)"| PHM
-    EM -->|"own checkpoints<br/>(vendor-specific)"| PHM
-    PHM -->|"RecoveryHandler"| SM
-    SM -->|"SetState"| EM
-    PHM -->|"log messages"| LT["Log and Trace"]
-    PHM -->|"security event"| IDSM["IdsM"]
-    PHM -->|"AliveNotification,<br/>FireWatchdogReaction"| WD["WatchdogInterface<br/>(hardware watchdog)"]
-```
+![Flowchart: Interaction Map](diagrams/PlatformHealthManagement/01-interaction-map.svg)
 
 Read the diagram as a loop: the processes report checkpoints, PHM evaluates them, State Management reacts through EM, and EM tells PHM which processes now run. The watchdog closes the loop from outside.
 
@@ -472,37 +460,7 @@ PHM's configuration is distributed: the behavior of PHM "is determined by the su
 
 The following diagram shows the chain from the port in the code to the recovery notification.
 
-```mermaid
-flowchart TB
-    subgraph DES["Application design"]
-        SEI["PhmSupervisedEntityInterface<br/>FusionCycle + PhmCheckpoints"]
-        RP["R-port FusionCyclePort<br/>of FusionSwc"]
-        RNI["PhmSupervisionRecoveryNotificationInterface<br/>SupervisionRecovery"]
-        PP["P-port PhmRecoveryPort<br/>of StateManagerSwc"]
-    end
-    subgraph CON["PlatformHealthManagementContribution AdasPhm"]
-        SC["SupervisionCheckpoints<br/>(one per checkpoint and process)"]
-        GS["GlobalSupervision FusionSupervision<br/>alive, deadline, logical supervisions"]
-        SMO["SupervisionMode FusionInNormal"]
-        SMC["SupervisionModeCondition<br/>AdasNormal"]
-        HC["HealthChannelSupervision<br/>FusionHealth"]
-    end
-    RN["RecoveryNotification<br/>AdasRecovery (timeout)"]
-    MAP["RecoveryNotificationToPPortPrototypeMapping"]
-    MM["PhmContributionToMachineMapping<br/>to Machine HPC"]
-    SEI --> RP
-    SC -->|"phmCheckpoint, process"| RP
-    GS -->|"checkpoint"| SC
-    GS --> SMO
-    SMO -->|"modeCondition"| SMC
-    SMC -->|"ADAS.Normal"| FGS["Function Group State"]
-    HC -->|"supervision"| GS
-    HC -->|"recoveryNotification"| RN
-    MAP --> RN
-    MAP -->|"recoveryAction, process"| PP
-    RNI --> PP
-    MM --> CON
-```
+![Flowchart: How the Elements Relate](diagrams/PlatformHealthManagement/02-how-the-elements-relate.svg)
 
 In words: the integrator creates one `SupervisionCheckpoint` for each checkpoint of each Supervised Entity Instance. Supervisions in a `GlobalSupervision` reference these checkpoints. A `SupervisionMode` says which supervisions are active when the Function Group is in which states. A `HealthChannelSupervision` connects the Global Supervision to a `RecoveryNotification`, and a mapping connects that notification to the State Management port that receives it. Finally, the contribution is enabled on the machine.
 
@@ -563,13 +521,7 @@ enum class FusionCycle : std::uint32_t {
 
 The following diagram shows how one checkpoint travels from the model through the code to the configuration of PHM.
 
-```mermaid
-flowchart LR
-    M["PhmCheckpoint InputsRead<br/>checkpointId = 2<br/>(interface FusionCycle)"] -->|"generator"| H["enumerator<br/>FusionCycle::InputsRead = 2U"]
-    H -->|"ReportCheckpoint(InputsRead)"| P["PHM"]
-    M -->|"replicated by the integrator"| S["SupervisionCheckpoint Fusion_InputsRead<br/>checkpointId = 2, process Fusion"]
-    S -->|"configures"| P
-```
+![Flowchart: From Model to Code](diagrams/PlatformHealthManagement/03-from-model-to-code.svg)
 
 ### 5.2 Creating a SupervisedEntity and Reporting Checkpoints
 
@@ -746,25 +698,7 @@ The first rule is easy to misread. With the formula of [Section 6.2](#62-the-alg
 
 In the following scenario, the cycle thread of `Fusion` is delayed *between* cycles, for example because a higher-priority thread uses the core. Every cycle that runs is complete, so the deadline and logical supervisions see nothing wrong. Only the alive supervision notices that cycles are missing. The tolerance is 1.
 
-```mermaid
-sequenceDiagram
-    participant FU as Fusion
-    participant PHM as Platform Health Management
-    Note over FU,PHM: Reference cycle 1 (0 to 200 ms)
-    FU->>PHM: CycleStart (4 times)
-    Note over PHM: 4 within 3..5, correct, counter 0, kOK
-    Note over FU,PHM: Reference cycle 2, the thread is delayed for 100 ms
-    FU->>PHM: CycleStart (2 times)
-    Note over PHM: 2 below 3, incorrect, counter 1, kFAILED
-    Note over FU,PHM: Reference cycle 3
-    FU->>PHM: CycleStart (4 times)
-    Note over PHM: correct, counter 0, kOK
-    Note over FU,PHM: Reference cycles 4 and 5, the thread hangs between two cycles
-    Note over PHM: cycle 4, 0 indications, counter 1, kFAILED
-    Note over PHM: cycle 5, 0 indications, counter 2 > 1, kEXPIRED
-    PHM->>PHM: stop the alive supervision, Global Supervision kEXPIRED
-    Note over PHM: Chapter 12, notify State Management
-```
+![Sequence diagram: Worked Example: Fusion and CameraDriver](diagrams/PlatformHealthManagement/04-worked-example-fusion-and-cameradriv.svg)
 
 For `CameraDriver`, the reference cycle is 500 ms with 15 expected indications, margins of 2 and a tolerance of 2. The following table shows what happens when the camera drops to 20 images per second.
 
@@ -836,20 +770,7 @@ An incorrect result changes the Elementary Supervision Status directly to `kEXPI
 
 In this scenario, the fusion step of `Fusion` hangs, for example on a lock. PHM does not wait for `ObjectsPublished`: it detects the failure when `maxDeadline` expires.
 
-```mermaid
-sequenceDiagram
-    participant FU as Fusion
-    participant PHM as Platform Health Management
-    FU->>PHM: CycleStart (t = 0 ms)
-    Note over PHM: CycleDeadline, measuring
-    FU->>PHM: InputsRead (t = 12 ms)
-    Note over PHM: ComputeDeadline, measuring, max 25 ms
-    Note over FU: Fuse() hangs on a lock
-    Note over PHM: t = 37 ms, no ObjectsPublished within 25 ms
-    PHM->>PHM: ComputeDeadline incorrect, kEXPIRED
-    PHM->>PHM: Global Supervision FusionSupervision kEXPIRED
-    Note over PHM: Notify State Management with kDeadlineSupervision (Chapter 12)
-```
+![Sequence diagram: Worked Example: Fusion's Compute Deadline](diagrams/PlatformHealthManagement/05-worked-example-fusion-s-compute-dead.svg)
 
 `CycleDeadline` would expire 8 ms later, at 45 ms. By then the Global Supervision is already `kEXPIRED`, so this changes nothing for the reaction. State Management learns which kind of supervision caused the transition to `kEXPIRED`, here `kDeadlineSupervision` ([SWS_PHM_00101]).
 
@@ -913,30 +834,11 @@ Keep graphs within one process unless you have a strong reason. `HPC` uses only 
 
 The graph `CycleOrder` of `Fusion` allows two paths per cycle: the full cycle and the skipped cycle.
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> CycleStart: initial checkpoint
-    CycleStart --> InputsRead
-    InputsRead --> ObjectsPublished
-    ObjectsPublished --> CycleEnd
-    CycleStart --> CycleEnd: cycle skipped after kInputTimeout
-    CycleEnd --> [*]: final checkpoint
-```
+![State diagram: Worked Example: The Fusion Cycle Graph](diagrams/PlatformHealthManagement/06-worked-example-the-fusion-cycle-grap.svg)
 
 Now assume that a code change makes `Fusion` publish a cached object list *before* it reads the new inputs. The order of the reports changes, and the logical supervision fails at the first wrong report:
 
-```mermaid
-sequenceDiagram
-    participant FU as Fusion
-    participant PHM as Platform Health Management
-    FU->>PHM: CycleStart
-    Note over PHM: initial checkpoint, correct, graph active
-    FU->>PHM: ObjectsPublished
-    Note over PHM: no transition CycleStart to ObjectsPublished, incorrect
-    PHM->>PHM: CycleOrder kEXPIRED, FusionSupervision kEXPIRED
-    Note over PHM: Notify State Management with kLogicalSupervision (Chapter 12)
-```
+![Sequence diagram: Worked Example: The Fusion Cycle Graph](diagrams/PlatformHealthManagement/07-worked-example-the-fusion-cycle-grap.svg)
 
 > **Pitfall:** If the skip path were missing from the graph, the first late radar frame would end in `kEXPIRED` and switch `ADAS` to `Degraded`. Logical supervision has no tolerance, so a legal path that is not modeled is a guaranteed false alarm.
 
@@ -971,19 +873,7 @@ For `CycleDeadline`, the checkpoints between `CycleStart` and `CycleEnd` are ign
 
 PHM tracks one Elementary Supervision Status for each alive, deadline and logical supervision ([SWS_PHM_01342]). Its states are `kOK`, `kDEACTIVATED`, `kEXPIRED` and `kFAILED`; `kFAILED` is used only by alive supervision ([SWS_PHM_01343]). The following diagram shows the transitions with the numbers of SWS Figure 7.4.
 
-```mermaid
-stateDiagram-v2
-    [*] --> kDEACTIVATED: T1 PHM starts
-    kDEACTIVATED --> kOK: T9 supervision starts
-    kOK --> kFAILED: T3 alive only, failure within tolerance
-    kFAILED --> kOK: T5 failed-cycle counter back to 0
-    kOK --> kEXPIRED: T2 qualified failure
-    kFAILED --> kEXPIRED: T6 tolerance exceeded
-    kOK --> kDEACTIVATED: T7 process terminating or terminated
-    kFAILED --> kDEACTIVATED: T8 process terminating or terminated
-    kEXPIRED --> kDEACTIVATED: T4 process terminating or terminated, not for OS, EM and SM
-    kDEACTIVATED --> kEXPIRED: T10 logical only, first checkpoint wrong
-```
+![State diagram: Elementary Supervision Status](diagrams/PlatformHealthManagement/08-elementary-supervision-status.svg)
 
 | Transition | When | Spec |
 | --- | --- | --- |
@@ -1005,26 +895,7 @@ A `GlobalSupervision` groups supervisions, and PHM calculates one Global Supervi
 
 The following diagram uses the transition numbers of SWS Figure 7.5. `kSTOPPED` has no transition out.
 
-```mermaid
-stateDiagram-v2
-    [*] --> kDEACTIVATED: T1
-    kDEACTIVATED --> kOK: T2
-    kDEACTIVATED --> kFAILED: T3
-    kDEACTIVATED --> kEXPIRED: T4
-    kDEACTIVATED --> kSTOPPED: T5
-    kOK --> kDEACTIVATED: T6
-    kOK --> kFAILED: T7
-    kOK --> kEXPIRED: T8
-    kOK --> kSTOPPED: T9
-    kFAILED --> kOK: T10
-    kFAILED --> kEXPIRED: T11
-    kFAILED --> kSTOPPED: T12
-    kEXPIRED --> kSTOPPED: T13
-    kFAILED --> kDEACTIVATED: T14
-    kEXPIRED --> kDEACTIVATED: T15
-    kEXPIRED --> kOK: T16
-    kEXPIRED --> kFAILED: T17
-```
+![State diagram: Global Supervision Status](diagrams/PlatformHealthManagement/09-global-supervision-status.svg)
 
 The rules are easier to read as a priority list. "Elementary" means the Elementary Supervision Statuses in the Global Supervision:
 
@@ -1117,26 +988,7 @@ As soon as PHM learns that EM is about to send `SIGTERM` to a supervised process
 
 The following diagram shows the start and the stop of the supervisions of `Fusion`.
 
-```mermaid
-sequenceDiagram
-    participant EM as Execution Management
-    participant FU as Fusion
-    participant PHM as Platform Health Management
-    Note over EM: ADAS switches to Normal
-    EM->>FU: create process
-    FU->>PHM: CycleStart (before kRunning)
-    Note over PHM: alive, ignored. Logical and deadline, start
-    FU->>EM: ReportExecutionState(kRunning)
-    EM->>PHM: kRunning received for Fusion
-    Note over PHM: alive, first reference cycle starts, kOK
-    FU->>PHM: checkpoints of the 50 ms cycles
-    Note over EM: later, ADAS switches to Degraded
-    EM->>PHM: Fusion is about to receive SIGTERM
-    Note over PHM: stop all supervisions of Fusion, kDEACTIVATED
-    EM->>FU: SIGTERM
-    FU->>EM: exit
-    EM->>PHM: Fusion terminated
-```
+![Sequence diagram: When Supervision Stops](diagrams/PlatformHealthManagement/10-when-supervision-stops.svg)
 
 > **Pitfall:** In this diagram `Fusion` reports checkpoints before `kRunning`. Intra-process logical and deadline supervisions can start with them (note to [SWS_PHM_01332]), so these first cycles must already follow the graph. If the initialization reports checkpoints in another order, the logical supervision can fail before the process even reports `kRunning`.
 
@@ -1154,21 +1006,7 @@ A self-terminating process may end on its own, without `SIGTERM` from EM. Alive 
 
 **A hypothetical variant of the running example.** `CalibrationCheck` is the self-terminating process of `HPC`: it checks the calibration once at ADAS start and exits. It is not supervised in the running example. Assume for a moment that it reported a checkpoint `CheckStep` after each of its checks, with an alive supervision, and the terminating checkpoint `CheckDone` with a timeout of 100 ms:
 
-```mermaid
-sequenceDiagram
-    participant CC as CalibrationCheck (hypothetical)
-    participant PHM as Platform Health Management
-    participant EM as Execution Management
-    CC->>EM: ReportExecutionState(kRunning)
-    EM->>PHM: kRunning received
-    Note over PHM: alive supervision of CheckStep starts
-    CC->>PHM: CheckStep (several times)
-    CC->>PHM: CheckDone (terminating checkpoint)
-    Note over PHM: stop the alive supervision, start the 100 ms timeout
-    CC->>EM: exit(0)
-    EM->>PHM: CalibrationCheck terminated
-    Note over PHM: terminated in time, stop the timeout, no notification
-```
+![Sequence diagram: Self-Terminating Processes and the Terminating Checkpoint](diagrams/PlatformHealthManagement/11-self-terminating-processes-and-the-t.svg)
 
 If `CalibrationCheck` hung after `CheckDone`, PHM would notify State Management after 100 ms ([SWS_PHM_01336]). The specification does not say which `TypeOfSupervision` PHM passes in that case.
 
@@ -1257,21 +1095,7 @@ Reports of excluded checkpoints are ignored ([SWS_PHM_01341]). A `NoSupervision`
 
 When State Management switches `ADAS` from `Normal` to `Degraded`, EM terminates `Fusion`, starts `FusionLite` and lets `CameraDriver` run on.
 
-```mermaid
-sequenceDiagram
-    participant SM as State Management
-    participant EM as Execution Management
-    participant PHM as Platform Health Management
-    SM->>EM: SetState(ADAS, Degraded)
-    EM->>PHM: Fusion is about to receive SIGTERM
-    Note over PHM: FusionSupervision, all supervisions stop, all kDEACTIVATED, Global Supervision kDEACTIVATED
-    EM->>EM: SIGTERM to Fusion, wait for its exit
-    EM->>PHM: Fusion terminated
-    EM->>EM: start FusionLite
-    Note over PHM: FusionLite has no supervision, nothing to do
-    Note over PHM: CameraDriver keeps running, CameraDriverSupervision continues unchanged
-    EM-->>SM: transition done
-```
+![Sequence diagram: Worked Example: ADAS From Normal to Degraded](diagrams/PlatformHealthManagement/12-worked-example-adas-from-normal-to-d.svg)
 
 `FusionSupervision` goes to `kDEACTIVATED` because all its elementary statuses are deactivated ([SWS_PHM_00222]). When `ADAS` later returns to `Normal`, EM starts `Fusion` again and its supervisions start fresh ([SWS_PHM_00241]).
 
@@ -1338,17 +1162,7 @@ According to ISO 26262, PHM must make sure that a reaction follows a safety-rele
 
 The following diagram shows the decision.
 
-```mermaid
-flowchart TD
-    A["Global Supervision switches to kEXPIRED"] --> B{"RecoveryAction offered?"}
-    B -- "no: before Offer or after StopOffer" --> W["Stop AliveNotification,<br/>FireWatchdogReaction"]
-    B -- "yes" --> C["Call RecoveryHandler(executionError, supervision)"]
-    C --> D{"Answer within<br/>recoveryNotificationTimeout?"}
-    D -- "no" --> W
-    D -- "yes" --> E{"Value or error?"}
-    E -- "kSMCanNotHandleRecovery" --> W
-    E -- "value" --> F["Recovery handled:<br/>no further action"]
-```
+![Flowchart: When the Notification Fails](diagrams/PlatformHealthManagement/13-when-the-notification-fails.svg)
 
 > **Pitfall:** The timeout runs from the detection of the failure until State Management's acknowledgment ([SWS_PHM_00104]). State Management may complete the `Future` only when its recovery action is finished ([SWS_SM_00031]). The timeout must then be longer than the slowest recovery, computed from the EM timeouts of every process that the recovery transition stops or starts. In `HPC`, the transition from `ADAS.Normal` to `ADAS.Degraded` terminates `Fusion` (termination timeout 500 ms) and then `LoggerCompanion` (1 s), which is restarted because it has a separate startup configuration per state. It then starts `LoggerCompanion` (start-up timeout 2 s) and, once it is *Running*, `FusionLite` (2 s) ([EM guide, Section 13.11](ExecutionManagement.md#1311-the-running-example-complete-configuration)). The worst case is therefore about 5.5 s, and `HPC` uses 6 s. A longer timeout also delays the watchdog reaction when State Management itself cannot recover; if it is too long for the safety goal, shorten the EM timeouts of the processes on the recovery path instead. The specification does not define more precisely what counts as the acknowledgment.
 
@@ -1364,26 +1178,7 @@ What State Management does with the notification is project-specific and is the 
 
 This is the continuation of the deadline failure of [Section 7.4](#74-worked-example-fusions-compute-deadline).
 
-```mermaid
-sequenceDiagram
-    participant FU as Fusion
-    participant PHM as Platform Health Management
-    participant SM as StateManager
-    participant EM as Execution Management
-    Note over PHM: ComputeDeadline kEXPIRED, FusionSupervision kEXPIRED
-    PHM->>PHM: log RecoveryInitiated
-    PHM->>SM: RecoveryHandler(ExecutionErrorEvent ADAS 42, kDeadlineSupervision)
-    SM-->>PHM: Future (not yet ready)
-    SM->>EM: SetState(ADAS, Degraded)
-    EM->>PHM: Fusion is about to receive SIGTERM
-    Note over PHM: FusionSupervision kDEACTIVATED
-    EM->>FU: SIGTERM
-    Note over FU: Fusion hangs, EM kills it after the exit timeout
-    EM->>EM: start FusionLite
-    EM-->>SM: SetState done
-    SM-->>PHM: Future ready with a value (within 6 s)
-    Note over PHM: recovery handled, no further action
-```
+![Sequence diagram: Worked Example: Fusion Stalls and ADAS Goes to Degraded](diagrams/PlatformHealthManagement/14-worked-example-fusion-stalls-and-ada.svg)
 
 `ADAS` now runs in `Degraded` with `FusionLite`. `CameraDriver` was not affected and is still supervised.
 
@@ -1457,22 +1252,7 @@ A Global Supervision of State Management needs no recovery notification: notifyi
 
 **Startup.** PHM calls `AliveNotification` *before* it reports `kRunning` to EM ([SWS_PHM_01252]). The intention is to take over the hardware watchdog as early as possible. The integrator must make sure that the time from enabling the watchdog until PHM serves it is shorter than the watchdog timeout (the [Platform Overview guide, Section 6.5](PlatformOverview.md#65-walkthrough-the-platform-starts-and-stops)).
 
-```mermaid
-sequenceDiagram
-    participant WD as Hardware watchdog
-    participant EM as Execution Management
-    participant PHM as PlatformHealth
-    participant SM as StateManager
-    Note over WD: enabled early in the boot, timeout running
-    EM->>PHM: start (MachineFG Startup)
-    PHM->>WD: AliveNotification (through WatchdogInterface)
-    PHM->>EM: ReportExecutionState(kRunning)
-    PHM->>WD: AliveNotification, cyclically from now on
-    EM->>SM: start
-    SM->>EM: ReportExecutionState(kRunning)
-    EM->>PHM: kRunning received for StateManager
-    Note over PHM: StateManagerSupervision starts
-```
+![Sequence diagram: PHM's Own Startup and Shutdown](diagrams/PlatformHealthManagement/15-phm-s-own-startup-and-shutdown.svg)
 
 **Shutdown.** After receiving `SIGTERM`, PHM stops all configured supervisions and sets all Global Supervision Statuses to `kDEACTIVATED` ([SWS_PHM_01253], [SWS_PHM_01254]). How the watchdog is handled during and after the shutdown of PHM is not specified (SWS, Section 7.7.2.1). Once PHM has terminated, it can no longer serve the watchdog (note in SWS, Section 7.7.2.1). The platform must therefore handle the watchdog for the last steps of the shutdown in an implementation-specific way.
 
@@ -1480,23 +1260,7 @@ sequenceDiagram
 
 `StateManager` reports `MainLoop` every 100 ms. Now its main loop blocks. The alive supervision has a reference cycle of 1 s, 10 expected indications, margins of 2 and a tolerance of 1.
 
-```mermaid
-sequenceDiagram
-    participant SM as StateManager
-    participant PHM as Platform Health Management
-    participant WD as WatchdogInterface
-    SM->>PHM: MainLoop (10 times per second)
-    Note over SM: the main loop blocks at t = 0
-    Note over PHM: t = 1 s, 0 indications, counter 1, kFAILED
-    Note over PHM: t = 2 s, 0 indications, counter 2 > 1, kEXPIRED
-    Note over PHM: StateManagerSupervision kEXPIRED, Expired Supervision Time starts
-    Note over PHM: no recovery notification, State Management is the failing party
-    PHM->>WD: AliveNotification (still served during the tolerance)
-    Note over PHM: t = 2.2 s, tolerance reached, kSTOPPED
-    PHM->>PHM: log WatchdogReset, report PHM_E_WATCHDOG_RESET failed
-    PHM->>WD: FireWatchdogReaction
-    Note over WD: the machine resets
-```
+![Sequence diagram: Worked Example: StateManager Hangs](diagrams/PlatformHealthManagement/16-worked-example-statemanager-hangs.svg)
 
 After the reset, the platform starts again. Because the watchdog reset terminates processes very quickly, the production error may not have been persisted; the specification suggests evaluating the hardware reset status register at the next startup ([Section 16.5](#165-production-error-phm_e_watchdog_reset)).
 
@@ -2757,30 +2521,7 @@ One radar frame arrives too late. `CollectInputs` returns `kInputTimeout`, and `
 
 Later, the fusion step hangs on a lock. 25 ms after `InputsRead`, `ComputeDeadline` expires, and `FusionSupervision` switches to `kEXPIRED`. PHM logs `RecoveryInitiated` and calls `RecoveryHandler` with `ADAS`, 42 and `kDeadlineSupervision`. `StateManager` switches `ADAS` to `Degraded`. EM announces the termination of `Fusion` to PHM, which deactivates `FusionSupervision`, then terminates `Fusion` and starts `FusionLite`. When the transition is done, `StateManager` completes the `Future`, well within the 6 s of `AdasRecovery` ([Section 12.6](#126-worked-example-fusion-stalls-and-adas-goes-to-degraded)). The following diagram condenses the drive.
 
-```mermaid
-sequenceDiagram
-    participant EM as Execution Management
-    participant PHM as PlatformHealth
-    participant SM as StateManager
-    participant FU as Fusion
-    participant WD as Watchdog
-    PHM->>WD: AliveNotification (before kRunning, then cyclically)
-    EM->>PHM: kRunning, StateManager
-    SM->>PHM: Offer (recovery handler)
-    SM->>EM: SetState(MachineFG Driving), SetState(ADAS Normal)
-    EM->>PHM: kRunning, CameraDriver, Fusion
-    FU->>PHM: checkpoints every 50 ms
-    Note over FU,PHM: a late input, skip path, no failure
-    Note over PHM: ComputeDeadline expires, FusionSupervision kEXPIRED
-    PHM->>SM: RecoveryHandler(ADAS 42, kDeadlineSupervision)
-    SM->>EM: SetState(ADAS Degraded)
-    EM->>PHM: Fusion terminating, then terminated
-    SM-->>PHM: Future ready
-    Note over SM: at the end of the drive
-    SM->>EM: SetState(ADAS Off), SetState(MachineFG Shutdown)
-    SM->>PHM: StopOffer
-    EM->>PHM: SIGTERM, all Global Supervisions kDEACTIVATED
-```
+![Sequence diagram: Fusion Stalls: Recovery to Degraded](diagrams/PlatformHealthManagement/17-fusion-stalls-recovery-to-degraded.svg)
 
 ### 17.6 Shutdown
 

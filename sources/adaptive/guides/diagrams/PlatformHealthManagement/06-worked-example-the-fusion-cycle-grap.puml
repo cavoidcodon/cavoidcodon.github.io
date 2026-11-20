@@ -1,0 +1,10 @@
+@startuml
+!include ../_style.puml
+left to right direction
+[*] --> CycleStart: initial checkpoint
+CycleStart --> InputsRead
+InputsRead --> ObjectsPublished
+ObjectsPublished --> CycleEnd
+CycleStart --> CycleEnd: cycle skipped after kInputTimeout
+CycleEnd --> [*]: final checkpoint
+@enduml

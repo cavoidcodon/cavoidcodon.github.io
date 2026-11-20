@@ -94,7 +94,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 <tr>
 <td>Diagrams</td>
-<td>Written in Mermaid. They render natively on GitHub and GitLab.</td>
+<td>Drawn in PlantUML and inserted as SVG images, so they show in any Markdown viewer. Click an image to open it at full size.</td>
 </tr>
 </tbody>
 </table></div>
@@ -156,31 +156,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <h3 id="12-the-vehicle-context">1.2 The Vehicle Context<a class="anchor" href="#12-the-vehicle-context" aria-label="Link to this section">#</a></h3>
 <p>The ADAS feature on <code>HPC</code> works like this. A front camera, attached to <code>HPC</code>, and the smart radar sensor <code>FrontRadar</code> observe the road. <code>HPC</code> combines their data with the vehicle speed, steering angle and yaw rate from the chassis, and computes a list of detected objects. The <code>Cockpit</code> computer shows the camera image and the objects to the driver, and the <code>InstrumentCluster</code> shows whether the ADAS feature is active. Software updates arrive over the air through the <code>TelematicsUnit</code>, and workshops connect a <code>DiagnosticTester</code>.</p>
 <p>The following diagram shows the network topology.</p>
-<pre class="mermaid">flowchart LR
-    subgraph OFF[&quot;Off-board&quot;]
-        BE[&quot;Backend&quot;]
-        DT[&quot;DiagnosticTester&quot;]
-    end
-    subgraph ETH[&quot;Ethernet backbone&quot;]
-        HPC[&quot;HPC&lt;br/&gt;(Adaptive Platform)&quot;]
-        CP[&quot;Cockpit&quot;]
-        FR[&quot;FrontRadar&quot;]
-        TU[&quot;TelematicsUnit&lt;br/&gt;(OTA Client, V-UCM)&quot;]
-        GW[&quot;CentralGateway&lt;br/&gt;(switch, CAN gateway,&lt;br/&gt;time master)&quot;]
-    end
-    subgraph CAN[&quot;CAN bus&quot;]
-        CH[&quot;ChassisECU&lt;br/&gt;(Classic Platform)&quot;]
-        IC[&quot;InstrumentCluster&lt;br/&gt;(Classic Platform)&quot;]
-    end
-    BE ---|&quot;cellular&quot;| TU
-    DT ---|&quot;DoIP&quot;| GW
-    HPC --- GW
-    CP --- GW
-    FR --- GW
-    TU --- GW
-    GW --- CH
-    GW --- IC
-</pre>
+<p><a class="figure" href="diagrams/RunningExample/01-the-vehicle-context.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/RunningExample/01-the-vehicle-context.svg" alt="Flowchart: The Vehicle Context" loading="lazy"></a></p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -357,26 +333,8 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <li><strong><code>ADAS</code></strong> controls the ADAS feature. States: <code>Off</code>, <code>Normal</code>, <code>Degraded</code> and <code>Verify</code>. The <em>Manifest Specification</em> requires a <code>Verify</code> state in every Function Group ([constr_10023]). State Management switches <code>ADAS</code> to <code>Verify</code> while an update of <code>AdasCluster</code> is activated; the UCM guide decides which processes run in it.</li>
 </ul>
 <p>The following diagrams show the main transitions. EM performs every transition; it initiates only <code>Off</code> → <code>Startup</code> of <code>MachineFG</code> itself. All other transitions are requested by State Management.</p>
-<pre class="mermaid">stateDiagram-v2
-    direction LR
-    [*] --&gt; Off
-    Off --&gt; Startup: EM at boot
-    Startup --&gt; Driving: vehicle switched on
-    Driving --&gt; Shutdown: vehicle switched off
-    Driving --&gt; Restart: ECU reset or update
-    Verify --&gt; Driving: update verified
-    note right of Verify: entered while an update that affects MachineFG is activated (the UCM guide)
-</pre>
-<pre class="mermaid">stateDiagram-v2
-    direction LR
-    [*] --&gt; Off
-    Off --&gt; Normal: machine in Driving
-    Normal --&gt; Degraded: supervision failure, Fusion crash or diagnostic request
-    Normal --&gt; Off: shutdown or update
-    Degraded --&gt; Off: shutdown or update
-    Off --&gt; Verify: update of AdasCluster activated
-    Verify --&gt; Normal: update verified
-</pre>
+<p><a class="figure" href="diagrams/RunningExample/02-function-groups-and-states.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/RunningExample/02-function-groups-and-states.svg" alt="State diagram: Function Groups and States" loading="lazy"></a></p>
+<p><a class="figure" href="diagrams/RunningExample/03-function-groups-and-states.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/RunningExample/03-function-groups-and-states.svg" alt="State diagram: Function Groups and States" loading="lazy"></a></p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -689,29 +647,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </ul>
 <p>Standardized platform services, such as the <code>PackageManagement</code> service of UCM or the services of State Management (<code>StateMachineService</code> and <code>StateMachineNotification</code> for each StateMachine, <code>UpdateAllowedService</code> and <code>UpdateRequest</code>), are used as the specifications define them. The running example does not redefine them.</p>
 <p>The following diagram shows who provides and who uses which service.</p>
-<pre class="mermaid">flowchart LR
-    CD[&quot;CameraDriver&quot;] --&gt; CS([&quot;CameraService&quot;])
-    CS --&gt; FU[&quot;Fusion&quot;]
-    CS --&gt; CK[&quot;Cockpit (remote)&quot;]
-    FU --&gt; OL([&quot;ObjectListService&quot;])
-    FL[&quot;FusionLite&quot;] --&gt; OL
-    OL --&gt; ST[&quot;Storage&quot;]
-    OL --&gt; CK
-    ST --&gt; CAL([&quot;CalibrationDataService&quot;])
-    CAL --&gt; CC[&quot;CalibrationCheck&quot;]
-    CAL --&gt; FU
-    CAL --&gt; FL
-    CD --&gt;|&quot;SetCalibration&quot;| CAL
-    S2S[&quot;CM: Signal-to-Service&lt;br/&gt;translation&quot;] --&gt; VD([&quot;VehicleDynamicsService&quot;])
-    S2S --&gt; PM([&quot;PowerModeService&quot;])
-    VD --&gt; FU
-    VD --&gt; FL
-    PM --&gt; SMC[&quot;SmControl&quot;]
-    VD --&gt; SMC
-    SMC --&gt; AS([&quot;AdasStatusService&quot;])
-    AS --&gt; S2S
-    AS --&gt; CK
-</pre>
+<p><a class="figure" href="diagrams/RunningExample/04-services-and-their-consumers.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/RunningExample/04-services-and-their-consumers.svg" alt="Flowchart: Services and Their Consumers" loading="lazy"></a></p>
 <h3 id="17-network-deployment">1.7 Network Deployment<a class="anchor" href="#17-network-deployment" aria-label="Link to this section">#</a></h3>
 <p>All values in this section are illustrative. The owner guides check them against the protocol specifications.</p>
 <div class="table-wrap"><table>
@@ -800,14 +736,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </table></div>
 <h3 id="18-classic-ecus-and-signal-to-service-translation">1.8 Classic ECUs and Signal-to-Service Translation<a class="anchor" href="#18-classic-ecus-and-signal-to-service-translation" aria-label="Link to this section">#</a></h3>
 <p>The Classic ECUs on the CAN bus exchange <em>signals</em>, not services. Signal-to-Service translation in Communication Management maps these signals to service elements on <code>HPC</code>, and back. The following diagram shows the path of the vehicle dynamics signals and of the ADAS status.</p>
-<pre class="mermaid">flowchart LR
-    CH[&quot;ChassisECU&quot;] --&gt;|&quot;CAN: ChassisDynamics&quot;| GW[&quot;CentralGateway&quot;]
-    GW --&gt;|&quot;PDUs over Ethernet&quot;| CM[&quot;HPC: Communication Management&lt;br/&gt;(Signal-to-Service translation)&quot;]
-    CM --&gt;|&quot;VehicleDynamicsService&quot;| FU[&quot;Fusion, FusionLite&quot;]
-    SMC[&quot;SmControl&quot;] --&gt;|&quot;AdasStatusService&quot;| CM
-    CM --&gt;|&quot;PDUs over Ethernet&quot;| GW
-    GW --&gt;|&quot;CAN: AdasHmi&quot;| IC[&quot;InstrumentCluster&quot;]
-</pre>
+<p><a class="figure" href="diagrams/RunningExample/05-classic-ecus-and-signal-to-service-t.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/RunningExample/05-classic-ecus-and-signal-to-service-t.svg" alt="Flowchart: Classic ECUs and Signal-to-Service Translation" loading="lazy"></a></p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -1654,12 +1583,11 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 
 </article>
 <nav class="pager" aria-label="Previous and next guide"><span></span><a class="pager-next" href="Glossary.html"><span class="pager-label">Next →</span><span class="pager-title">Series Glossary</span></a></nav>
-<footer class="site-footer"><p>Based on the AUTOSAR Adaptive Platform and Foundation specifications, release R25-11.</p><p>Training material, not a normative reference. Where a guide and an AUTOSAR specification differ, the specification applies. Specifications: <a href="https://www.autosar.org/standards" target="_blank" rel="noopener">autosar.org/standards</a>.</p></footer>
+<footer class="site-footer"><p>Based on the AUTOSAR Adaptive Platform and Foundation specifications, release R25-11.</p><p>Training material, not a normative reference. Specifications: <a href="https://www.autosar.org/standards" target="_blank" rel="noopener">autosar.org/standards</a>.</p></footer>
 </main>
 <aside class="toc" aria-label="On this page"><p class="toc-label">On this page</p><ul><li class="lvl2"><a href="#about-this-guide">About This Guide</a></li><li class="lvl3"><a href="#who-this-guide-is-for">Who This Guide Is For</a></li><li class="lvl3"><a href="#what-you-will-get-from-this-guide">What You Will Get From This Guide</a></li><li class="lvl3"><a href="#how-to-read-this-guide">How to Read This Guide</a></li><li class="lvl2"><a href="#table-of-contents">Table of Contents</a></li><li class="lvl2"><a href="#1-the-hpc-reference-system">1. The HPC Reference System</a></li><li class="lvl3"><a href="#11-purpose-and-rules">1.1 Purpose and Rules</a></li><li class="lvl3"><a href="#12-the-vehicle-context">1.2 The Vehicle Context</a></li><li class="lvl3"><a href="#13-the-hpc-machine">1.3 The HPC Machine</a></li><li class="lvl3"><a href="#14-function-groups-and-states">1.4 Function Groups and States</a></li><li class="lvl3"><a href="#15-processes">1.5 Processes</a></li><li class="lvl3"><a href="#16-services-and-their-consumers">1.6 Services and Their Consumers</a></li><li class="lvl3"><a href="#17-network-deployment">1.7 Network Deployment</a></li><li class="lvl3"><a href="#18-classic-ecus-and-signal-to-service-translation">1.8 Classic ECUs and Signal-to-Service Translation</a></li><li class="lvl3"><a href="#19-persistent-data">1.9 Persistent Data</a></li><li class="lvl3"><a href="#110-diagnostics">1.10 Diagnostics</a></li><li class="lvl3"><a href="#111-software-updates">1.11 Software Updates</a></li><li class="lvl3"><a href="#112-security">1.12 Security</a></li><li class="lvl3"><a href="#113-safety">1.13 Safety</a></li><li class="lvl3"><a href="#114-time-network-management-and-logging">1.14 Time, Network Management and Logging</a></li><li class="lvl3"><a href="#115-scenario-index">1.15 Scenario Index</a></li><li class="lvl2"><a href="#appendix-a-running-example-quick-reference">Appendix A. Running Example Quick Reference</a></li><li class="lvl3"><a href="#a1-nodes-and-addresses">A.1 Nodes and Addresses</a></li><li class="lvl3"><a href="#a2-function-groups-and-processes">A.2 Function Groups and Processes</a></li><li class="lvl3"><a href="#a3-services-signals-and-streams">A.3 Services, Signals and Streams</a></li><li class="lvl3"><a href="#a4-data-diagnostics-and-updates">A.4 Data, Diagnostics and Updates</a></li><li class="lvl3"><a href="#a5-security-safety-time-and-logging">A.5 Security, Safety, Time and Logging</a></li><li class="lvl2"><a href="#appendix-b-references">Appendix B. References</a></li></ul></aside>
 </div>
 <button class="to-top" id="to-top" aria-label="Back to top" hidden>↑</button>
-<script>window.MERMAID_URL="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs";</script>
 <script src="../assets/search-index.js" defer></script>
 <script src="../assets/app.js" defer></script>
 </body>

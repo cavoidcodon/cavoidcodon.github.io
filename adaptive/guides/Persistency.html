@@ -107,7 +107,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 <tr>
 <td>Diagrams</td>
-<td>Written in Mermaid. They render natively on GitHub and GitLab. In VS Code, install the <em>Markdown Preview Mermaid Support</em> extension.</td>
+<td>Drawn in PlantUML and inserted as SVG images, so they show in any Markdown viewer. Click an image to open it at full size.</td>
 </tr>
 </tbody>
 </table></div>
@@ -458,21 +458,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <li><code>ara::core::Deinitialize</code> persists open files, drops unsynced key-value changes and frees the resources ([SWS_PER_00409]).</li>
 </ol>
 <p>The diagram shows the parts inside one process.</p>
-<pre class="mermaid">flowchart LR
-    subgraph P[&quot;Process Storage&quot;]
-        APP[&quot;Application code&quot;]
-        subgraph PER[&quot;Persistency library (ara::per)&quot;]
-            KVS[&quot;KeyValueStorage CalibrationKvs&quot;]
-            FS[&quot;FileStorage Recordings&quot;]
-        end
-        APP --&gt;|&quot;SharedHandle&quot;| KVS
-        APP --&gt;|&quot;SharedHandle, UniqueHandle&quot;| FS
-    end
-    CFG[&quot;Target configuration (read at Initialize)&quot;] --&gt; PER
-    PER --&gt; NVM[(&quot;Non-volatile memory&quot;)]
-    PER -.-&gt;|&quot;MAC, encryption&quot;| CRY[&quot;Cryptography&quot;]
-    PER -.-&gt;|&quot;log messages&quot;| LT[&quot;Log and Trace&quot;]
-</pre>
+<p><a class="figure" href="diagrams/Persistency/01-persistency-and-ara.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/Persistency/01-persistency-and-ara.svg" alt="Flowchart: Persistency and ARA" loading="lazy"></a></p>
 <p>The header files are <code>ara/per/key_value_storage.h</code>, <code>ara/per/file_storage.h</code>, <code>ara/per/read_accessor.h</code>, <code>ara/per/write_accessor.h</code>, <code>ara/per/read_write_accessor.h</code>, <code>ara/per/file_accessor.h</code>, <code>ara/per/shared_handle.h</code>, <code>ara/per/unique_handle.h</code>, <code>ara/per/recovery.h</code>, <code>ara/per/update.h</code> and <code>ara/per/per_error_domain.h</code> (SWS, Chapter 8). All functions are <code>noexcept</code> and return <code>ara::core::Result</code> (<a href="#13-error-handling">Chapter 13</a>).</p>
 <blockquote>
 <p><strong>Note (implementation example):</strong> On Linux, a typical library-only implementation maps each storage to a directory, each Key-Value Storage to one or a few files in it, and each file of a File Storage to a file of the same name. It reads its configuration from a file that the integration tooling generated from the target configuration. None of this is visible to the application, and none of it is standardized.</p>
@@ -778,14 +764,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 </tbody>
 </table></div>
-<pre class="mermaid">flowchart TB
-    APP[&quot;Persistency user (process)&quot;] --&gt; LIB[&quot;ara::per library&quot;]
-    LIB --&gt;|&quot;variant: library only&quot;| FSYS[&quot;File system of the OS&quot;]
-    LIB --&gt;|&quot;variant: central daemon (IPC)&quot;| D[&quot;Persistency daemon&quot;]
-    D --&gt; FSYS
-    LIB -.-&gt;|&quot;variant: direct access&quot;| FLASH[(&quot;Flash memory&quot;)]
-    FSYS --&gt; DEV[(&quot;Storage device: eMMC, NAND, SSD&quot;)]
-</pre>
+<p><a class="figure" href="diagrams/Persistency/02-where-persistency-sits-in-the-platfo.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/Persistency/02-where-persistency-sits-in-the-platfo.svg" alt="Flowchart: Where Persistency Sits in the Platform" loading="lazy"></a></p>
 <p>Wear leveling exists because flash cells degrade with the number of writes, while the writes of a typical system are very unevenly distributed; frequent updates of single elements should therefore be spread over the whole memory (SWS, Section 4.2.4).</p>
 <h3 id="32-interfaces-provided-by-persistency">3.2 Interfaces Provided by Persistency<a class="anchor" href="#32-interfaces-provided-by-persistency" aria-label="Link to this section">#</a></h3>
 <p>Besides applications, several platform clusters use Persistency (SWS, Table 5.1):</p>
@@ -873,15 +852,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p>Persistency creates these storages at installation like port-based ones ([SWS_PER_00584], [SWS_PER_00585]). Both settings are mutually exclusive with <code>PortPrototypeInstanceRef</code> ([APMC_PER_00046], [APMC_PER_00012]).</p>
 <h3 id="35-sharing-data-between-processes-use-a-service">3.5 Sharing Data Between Processes: Use a Service<a class="anchor" href="#35-sharing-data-between-processes-use-a-service" aria-label="Link to this section">#</a></h3>
 <p>Because persistent data is private to one process, data that several processes need must be owned by one of them and offered through a service interface (SWS, Section 7.2.2). The running example follows this rule: <code>Storage</code> owns <code>CalibrationKvs</code> and offers <code>CalibrationDataService</code>; <code>CameraDriver</code>, <code>CalibrationCheck</code>, <code>Fusion</code> and <code>FusionLite</code> use the service (the <a href="CommunicationManagement.html#135-worked-example-calibrationdataservice-over-local-ipc">CM guide, Section 13.5</a>).</p>
-<pre class="mermaid">flowchart LR
-    CD[&quot;CameraDriver&quot;] --&gt;|&quot;SetCalibration&quot;| ST
-    CC[&quot;CalibrationCheck&quot;] --&gt;|&quot;GetCalibration&quot;| ST
-    FU[&quot;Fusion, FusionLite&quot;] --&gt;|&quot;GetCalibration; CalibrationUpdated&quot;| ST
-    subgraph ST[&quot;Process Storage&quot;]
-        SVC[&quot;CalibrationDataService skeleton&quot;] --&gt; CS[&quot;CalibrationStore&quot;]
-        CS --&gt; KVS[(&quot;CalibrationKvs&quot;)]
-    end
-</pre>
+<p><a class="figure" href="diagrams/Persistency/03-sharing-data-between-processes-use-a.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/Persistency/03-sharing-data-between-processes-use-a.svg" alt="Flowchart: Sharing Data Between Processes: Use a Service" loading="lazy"></a></p>
 <p>The owner also becomes the single place for plausibility checks, access control (only <code>CameraDriver</code> may call <code>SetCalibration</code>, the IAM guide) and the decision when to commit.</p>
 <blockquote>
 <p><strong>Pitfall:</strong> Two processes of the same executable get two separate sets of storages ([SWS_PER_00309]), because the target configuration has one storage configuration per process (SWS, Section 7.1.1). If you start a second instance of an executable for load sharing, it does not see the data of the first one.</p>
@@ -934,26 +905,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p>The software package that UCM installs carries the configuration and the initial file content (SWS, Sections 7.1.2 and 7.1.3).</p>
 <h3 id="42-how-the-elements-relate">4.2 How the Elements Relate<a class="anchor" href="#42-how-the-elements-relate" aria-label="Link to this section">#</a></h3>
 <p>The diagram shows the main elements and references for one Key-Value Storage of an application.</p>
-<pre class="mermaid">flowchart LR
-    subgraph AD[&quot;Application Design (M2)&quot;]
-        SWC[&quot;StorageSwc&quot;] --&gt; PORT[&quot;R-port CalibrationKvsPort&quot;]
-        PORT --&gt;|&quot;typed by&quot;| ITF[&quot;PersistencyKeyValueStorageInterface CalibrationKvsInterface&quot;]
-        ITF --&gt; DE[&quot;PersistencyDataElement CameraExtrinsics&quot;]
-        PORT --&gt; CS[&quot;PersistencyDataRequiredComSpec: accessMode, initValue&quot;]
-    end
-    subgraph TC[&quot;Target configuration (APMC)&quot;]
-        PER[&quot;Persistency StoragePersistency&quot;] --&gt; GEN[&quot;PersistencyGeneral: central storage URI, process&quot;]
-        PER --&gt; KVS[&quot;PersistencyKeyValueStorage CalibrationKvs&quot;]
-        KVS --&gt; COM[&quot;PersistencyCommon: version, sizes, update strategy&quot;]
-        KVS --&gt; KVP[&quot;PersistencyKeyValuePair CameraExtrinsics&quot;]
-        COM --&gt; RED[&quot;Redundancy handling&quot;]
-        COM --&gt; CKS[&quot;PersistencyCryptoKeySlotProps&quot;]
-        COM --&gt; URI[&quot;UriCollection&quot;]
-    end
-    COM --&gt;|&quot;PortPrototypeInstanceRef&quot;| PORT
-    GEN --&gt;|&quot;ForeignProcessRef&quot;| PROC[&quot;Process Storage&quot;]
-    CKS --&gt;|&quot;ForeignCryptoKeySlotRef&quot;| SLOT[&quot;CryptoKeySlot CalibrationMacKeySlot&quot;]
-</pre>
+<p><a class="figure" href="diagrams/Persistency/04-how-the-elements-relate.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/Persistency/04-how-the-elements-relate.svg" alt="Flowchart: How the Elements Relate" loading="lazy"></a></p>
 <p>Three links tie the two worlds together: <code>PersistencyCommon.PortPrototypeInstanceRef</code> connects a configured storage to the port of the design, <code>PersistencyGeneral.ForeignProcessRef</code> connects the whole <code>Persistency</code> instance to one process, and key-value pairs or files with the same short name or file name are matched with the elements of the design.</p>
 <h3 id="43-who-configures-what-and-when">4.3 Who Configures What, and When<a class="anchor" href="#43-who-configures-what-and-when" aria-label="Link to this section">#</a></h3>
 <div class="table-wrap"><table>
@@ -999,11 +951,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </table></div>
 <h3 id="44-precedence-in-one-picture">4.4 Precedence in One Picture<a class="anchor" href="#44-precedence-in-one-picture" aria-label="Link to this section">#</a></h3>
 <p>Elements and update strategies can be defined at four places. The more specific and the later definition wins.</p>
-<pre class="mermaid">flowchart LR
-    A[&quot;1 Design, storage level: PersistencyInterface.updateStrategy (recommendation only)&quot;] --&gt; B[&quot;2 Design, element level: PersistencyInterfaceElement.updateStrategy, initValue, contentUri&quot;]
-    B --&gt; C[&quot;3 Target configuration, storage level: PersistencyCommon.UpdateStrategy&quot;]
-    C --&gt; D[&quot;4 Target configuration, element level: ElementUpdateStrategy, InitValueRef, ContentUri&quot;]
-</pre>
+<p><a class="figure" href="diagrams/Persistency/05-precedence-in-one-picture.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/Persistency/05-precedence-in-one-picture.svg" alt="Flowchart: Precedence in One Picture" loading="lazy"></a></p>
 <p>The rules behind the picture:</p>
 <ul>
 <li>An element defined in the target configuration (<code>PersistencyKeyValuePair</code>, <code>PersistencyFile</code>) is preferred over the same element in the design ([SWS_PER_00379]).</li>
@@ -1121,21 +1069,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <h3 id="61-the-temporary-storage">6.1 The Temporary Storage<a class="anchor" href="#61-the-temporary-storage" aria-label="Link to this section">#</a></h3>
 <p><strong>In plain words:</strong> when you open a Key-Value Storage, you get a working copy in memory. All reads and writes go to that copy. <code>SyncToStorage</code> writes the copy to persistent memory; <code>DiscardPendingChanges</code> throws it away and reloads the last stored state.</p>
 <p><strong>Formally:</strong> <code>OpenKeyValueStorage</code> creates a <em>temporary storage</em> that provides access to the Key-Value Storage, and returns a <code>SharedHandle</code> ([SWS_PER_00506]). All operations work on this temporary storage. Modifications that were not persisted with <code>SyncToStorage</code> are discarded when the storage is closed or the system restarts, as if <code>DiscardPendingChanges</code> had been called ([SWS_PER_00331]). <code>SyncToStorage</code> stores all changes since the last sync or since opening, and updates the configured redundancy in the same call ([SWS_PER_00494]). <code>DiscardPendingChanges</code> resets the storage to the last persisted state ([SWS_PER_00495]). Because all threads share one temporary storage, a sync persists the changes of all threads, and a discard resets them for all threads (SWS, Section 7.3).</p>
-<pre class="mermaid">sequenceDiagram
-    participant App as Storage (application)
-    participant Tmp as Temporary storage
-    participant NVM as Persistent memory
-    App-&gt;&gt;Tmp: OpenKeyValueStorage (load last stored state)
-    NVM--&gt;&gt;Tmp: CameraExtrinsics = old
-    App-&gt;&gt;Tmp: SetValue(CameraExtrinsics, new)
-    App-&gt;&gt;Tmp: GetValue(CameraExtrinsics)
-    Tmp--&gt;&gt;App: new (not yet persisted)
-    App-&gt;&gt;Tmp: SyncToStorage
-    Tmp-&gt;&gt;NVM: write changes and redundancy
-    App-&gt;&gt;Tmp: SetValue(RadarAlignment, x)
-    Note over App,Tmp: SharedHandle destroyed without sync
-    Tmp--xNVM: RadarAlignment change discarded
-</pre>
+<p><a class="figure" href="diagrams/Persistency/06-the-temporary-storage.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/Persistency/06-the-temporary-storage.svg" alt="Sequence diagram: The Temporary Storage" loading="lazy"></a></p>
 <h3 id="62-reading-values">6.2 Reading Values<a class="anchor" href="#62-reading-values" aria-label="Link to this section">#</a></h3>
 <p><code>GetValue</code> exists in two forms:</p>
 <div class="code-block" data-lang="cpp"><pre class="highlight"><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ara</span><span class="o">::</span><span class="n">core</span><span class="o">::</span><span class="n">Result</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="w"> </span><span class="n">GetValue</span><span class="p">(</span><span class="n">ara</span><span class="o">::</span><span class="n">core</span><span class="o">::</span><span class="n">StringView</span><span class="w"> </span><span class="n">key</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span><span class="w">               </span><span class="c1">// [SWS_PER_00332]</span>
@@ -1421,12 +1355,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p><code>kAtTheEnd</code> and <code>kAppend</code> differ: <code>kAtTheEnd</code> only places the position once, at opening; <code>kAppend</code> moves to the end before <em>every</em> write, even after you moved the position to read something.</p>
 <h3 id="74-the-accessor-classes">7.4 The Accessor Classes<a class="anchor" href="#74-the-accessor-classes" aria-label="Link to this section">#</a></h3>
 <p>The open functions return accessors. Their class hierarchy was reworked in R25-11 (SWS, Section 8):</p>
-<pre class="mermaid">flowchart BT
-    RA[&quot;ReadAccessor: PeekChar, GetChar, ReadText, ReadLine, PeekByte, GetByte, ReadBinary&quot;] --&gt;|&quot;public virtual&quot;| FA[&quot;FileAccessor: GetPosition, SetPosition, MovePosition, IsEof, GetSize&quot;]
-    WA[&quot;WriteAccessor (declared final): WriteText, stream operator, WriteBinary, SetFileSize, SyncToFile&quot;] --&gt;|&quot;public virtual&quot;| FA
-    RWA[&quot;ReadWriteAccessor (final)&quot;] --&gt;|&quot;public&quot;| RA
-    RWA --&gt;|&quot;public&quot;| WA
-</pre>
+<p><a class="figure" href="diagrams/Persistency/07-the-accessor-classes.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/Persistency/07-the-accessor-classes.svg" alt="Flowchart: The Accessor Classes" loading="lazy"></a></p>
 <p><code>FileAccessor</code> holds the position functions. <code>ReadAccessor</code> adds reading, <code>WriteAccessor</code> adds writing, and <code>ReadWriteAccessor</code> combines both. Virtual inheritance from <code>FileAccessor</code> ensures that a <code>ReadWriteAccessor</code> has one position, not two.</p>
 <blockquote>
 <p><strong>Pitfall:</strong> In R25-11, <code>WriteAccessor</code> is declared <code>final</code> ([SWS_PER_00595]), but <code>ReadWriteAccessor</code> derives from it ([SWS_PER_00343]). As written, this is ill-formed C++: a <code>final</code> class cannot be a base class. The intent is clearly that <code>ReadWriteAccessor</code> combines reading and writing, so expect vendor headers to deviate here, and do not derive your own classes from the accessors.</p>
@@ -1615,10 +1544,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </blockquote>
 <h3 id="81-three-levels">8.1 Three Levels<a class="anchor" href="#81-three-levels" aria-label="Link to this section">#</a></h3>
 <p>Data passes three levels on its way to the medium:</p>
-<pre class="mermaid">flowchart LR
-    L1[&quot;1 In the process: temporary storage (KVS) or file buffer&quot;] --&gt;|&quot;SyncToStorage, SyncToFile, close&quot;| L2[&quot;2 Handed to the OS or the flash driver: page cache, file system journal&quot;]
-    L2 --&gt;|&quot;fsync, file system commit, device cache flush&quot;| L3[&quot;3 Physically on the medium&quot;]
-</pre>
+<p><a class="figure" href="diagrams/Persistency/08-three-levels.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/Persistency/08-three-levels.svg" alt="Flowchart: Three Levels" loading="lazy"></a></p>
 <ul>
 <li><strong>Level 1</strong> is under the control of the application: unsynced key-value changes and unsynced file content live here.</li>
 <li><strong>Level 2</strong> is under the control of Persistency and the operating system. After a sync, the data is usually here at least.</li>
@@ -1856,17 +1782,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tbody>
 </table></div>
 <p>After a recovery, &quot;the Persistency user has to validate the restored data&quot; (SWS, Section 7.2.4). The decision flow is:</p>
-<pre class="mermaid">flowchart TB
-    E[&quot;kValidationFailed or kIntegrityCorrupted&quot;] --&gt; Q1{&quot;Element or whole storage?&quot;}
-    Q1 --&gt;|&quot;element&quot;| RK[&quot;RecoverKey / RecoverFile&quot;]
-    Q1 --&gt;|&quot;storage&quot;| CL[&quot;Close all handles&quot;] --&gt; RS[&quot;RecoverKeyValueStorage / RecoverAllFiles&quot;]
-    RK --&gt; V{&quot;Data valid for the application?&quot;}
-    RS --&gt; V
-    V --&gt;|&quot;yes&quot;| OK[&quot;Continue; report the event&quot;]
-    V --&gt;|&quot;no, or recover failed&quot;| Q2{&quot;Initial value acceptable?&quot;}
-    Q2 --&gt;|&quot;yes&quot;| RST[&quot;ResetKey / ResetFile / Reset storage&quot;]
-    Q2 --&gt;|&quot;no&quot;| DEG[&quot;Degrade the function; request new data&quot;]
-</pre>
+<p><a class="figure" href="diagrams/Persistency/09-recover-or-reset.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/Persistency/09-recover-or-reset.svg" alt="Flowchart: Recover or Reset" loading="lazy"></a></p>
 <blockquote>
 <p><strong>Pitfall:</strong> &quot;Recovered&quot; does not mean &quot;correct&quot;. A recovered key may hold its initial value or an older value. For a calibration, an older value is a different, possibly wrong calibration. Validate recovered values with application knowledge, or prefer a reset to a known &quot;not calibrated&quot; state.</p>
 </blockquote>
@@ -1953,19 +1869,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <h3 id="98-worked-example-calibrationkvs-with-two-out-of-three-copies">9.8 Worked Example: CalibrationKvs with Two out of Three Copies<a class="anchor" href="#98-worked-example-calibrationkvs-with-two-out-of-three-copies" aria-label="Link to this section">#</a></h3>
 <p><code>CalibrationKvs</code> is configured with <code>PersistencyRedundancyMOutOfN</code> (M = 2, N = 3) and <code>SCOPE_STORAGE</code>, over two URIs: the first location holds the main copy, the second the two other copies ([SWS_PER_00555]). <code>Storage</code> registers a callback that logs every report and counts repairs.</p>
 <p><strong>Case 1: one copy is broken.</strong> A flash error corrupts one copy in the second location. When <code>Storage</code> opens the storage, two copies still agree:</p>
-<pre class="mermaid">sequenceDiagram
-    participant ST as Storage
-    participant PER as Persistency
-    participant NVM as Locations 1 and 2
-    ST-&gt;&gt;PER: RegisterRecoveryReportCallback(cb)
-    ST-&gt;&gt;PER: OpenKeyValueStorage(/storage/Root/CalibrationKvsPort)
-    PER-&gt;&gt;NVM: read 3 copies
-    NVM--&gt;&gt;PER: copy A = copy B, copy C differs
-    PER-&gt;&gt;NVM: rewrite copy C (repair)
-    PER--&gt;&gt;ST: cb(CalibrationKvsPort, kKeyValueStorageRecovered, no elements, index of C)
-    PER--&gt;&gt;ST: SharedHandle (success)
-    ST-&gt;&gt;ST: log the repair, increment counter
-</pre>
+<p><a class="figure" href="diagrams/Persistency/10-worked-example-calibrationkvs-with-t.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/Persistency/10-worked-example-calibrationkvs-with-t.svg" alt="Sequence diagram: Worked Example: CalibrationKvs with Two out of Three Copies" loading="lazy"></a></p>
 <p>The application continues normally. Persistency also logs <code>KeyValueStorageRecovered</code> (<a href="#161-log-messages">Section 16.1</a>).</p>
 <p><strong>Case 2: two copies are broken.</strong> No two copies agree. <code>OpenKeyValueStorage</code> fails with <code>kValidationFailed</code>, and the callback reports <code>kKeyValueStorageRecoveryFailed</code> with both indices. <code>Storage</code> has no open handle, so it can call <code>RecoverKeyValueStorage</code> and open the storage again. Whatever the result, the values may now be outdated or back to &quot;not calibrated&quot;. <code>Storage</code> checks each record with <code>IsPlausible</code>; an implausible or initial value makes <code>CalibrationCheck</code> fail at the next ADAS start, and a workshop must run the routine <code>CalibrateCamera</code> again (the Diagnostics Part 1 guide).</p>
 <div class="code-block" data-lang="cpp"><pre class="highlight"><code><span class="c1">// Storage: register the recovery report callback once, before opening storages (illustrative).</span>
@@ -2260,12 +2164,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tbody>
 </table></div>
 <p>Persistency does the work in one of two ways. The application can call <code>UpdatePersistency</code> explicitly during the verification phase that follows an installation or update, or it can rely on Persistency to do it implicitly when a storage is opened (SWS, Section 7.2.5). In both cases, Persistency compares the versions it stored last time with the versions of the current target configuration and acts accordingly.</p>
-<pre class="mermaid">flowchart LR
-    I[&quot;UCM installs or updates the package&quot;] --&gt; V[&quot;Verification phase: Function Group in Verify; application may call UpdatePersistency&quot;]
-    V --&gt;|&quot;verification OK&quot;| F[&quot;UCM finalizes; normal operation; first open may update implicitly; CleanUpPersistency&quot;]
-    V --&gt;|&quot;verification failed&quot;| R[&quot;UCM rolls back the software; next open restores the backup&quot;]
-    F --&gt; U[&quot;Later: removal by UCM using the URIs&quot;]
-</pre>
+<p><a class="figure" href="diagrams/Persistency/11-persistent-data-in-the-software-life.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/Persistency/11-persistent-data-in-the-software-life.svg" alt="Flowchart: Persistent Data in the Software Life Cycle" loading="lazy"></a></p>
 <p>The UCM and State Management side of the verification phase is described in the <a href="StateManagement.html#94-prepare-verify-and-roll-back">SM guide, Section 9.4</a>; the UCM guide tells the UCM story.</p>
 <h3 id="122-the-central-storage-and-the-two-versions">12.2 The Central Storage and the Two Versions<a class="anchor" href="#122-the-central-storage-and-the-two-versions" aria-label="Link to this section">#</a></h3>
 <p>For each process, Persistency keeps a <strong>central storage</strong> at <code>PersistencyGeneral.PersistencyCentralStorageUri</code>. It holds the information about the installed storages, the contract version and the target configuration version of the configuration that was last applied ([SWS_PER_00463], [SWS_PER_00378]).</p>
@@ -2381,20 +2280,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <li><strong>Data update indication.</strong> If the application registered with <code>RegisterDataUpdateIndication</code>, the function is called for each updated element of each updated storage, limited to the storages and elements that the application asked to monitor ([SWS_PER_00579]).</li>
 <li><strong>Application data update callback.</strong> If the application registered with <code>RegisterApplicationDataUpdateCallback</code> and the contract version of the configuration is higher than the stored one, the callback is called for each updated storage, with the stored (old) contract version as argument ([SWS_PER_00387]).</li>
 </ul>
-<pre class="mermaid">sequenceDiagram
-    participant App as Fusion 1.1.0
-    participant PER as Persistency
-    participant NVM as Persistent memory
-    App-&gt;&gt;PER: RegisterApplicationDataUpdateCallback(cb)
-    App-&gt;&gt;PER: OpenKeyValueStorage(FusionParamsPort)
-    PER-&gt;&gt;NVM: read central storage: target configuration version 1.0.0, contract 1.0.0
-    Note over PER: configuration now 1.1.0 / 1.1.0, so update
-    PER-&gt;&gt;NVM: backup of all data of the process
-    PER-&gt;&gt;NVM: apply update strategies (TrackerTuning: KEEP_EXISTING)
-    PER-&gt;&gt;NVM: store versions 1.1.0 / 1.1.0
-    PER--&gt;&gt;App: cb(FusionParamsPort, old contract version 1.0.0)
-    PER--&gt;&gt;App: SharedHandle
-</pre>
+<p><a class="figure" href="diagrams/Persistency/12-the-update-sequence.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/Persistency/12-the-update-sequence.svg" alt="Sequence diagram: The Update Sequence" loading="lazy"></a></p>
 <p><strong>Explicit or implicit?</strong> <code>UpdatePersistency</code> updates all storages of the process at once ([SWS_PER_00469]). It succeeds only when no storage is open and no other thread modifies a storage; otherwise it returns <code>kResourceBusy</code> ([SWS_PER_00545]). While it runs, <code>OpenKeyValueStorage</code> and <code>OpenFileStorage</code> succeed only inside the update callback and only with the specifier that the callback received (API tables of [SWS_PER_00052] and [SWS_PER_00116]). The implicit update happens per storage, at its first open ([SWS_PER_00470], [SWS_PER_00471]).</p>
 <div class="table-wrap"><table>
 <thead>
@@ -2454,13 +2340,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </blockquote>
 <h3 id="128-roll-back">12.8 Roll-Back<a class="anchor" href="#128-roll-back" aria-label="Link to this section">#</a></h3>
 <p>When a storage is opened and the target configuration version of the configuration is <em>lower</em> than the stored one, the software was rolled back. Persistency then compares the configuration's version with the version stored in the backup. If they match, it restores the backup. Otherwise it removes all storages and re-installs the persistent data from the target configuration ([SWS_PER_00396]).</p>
-<pre class="mermaid">flowchart TB
-    O[&quot;Open storage&quot;] --&gt; C{&quot;Configuration version lower than stored version?&quot;}
-    C --&gt;|&quot;no&quot;| N[&quot;Normal open, install or update&quot;]
-    C --&gt;|&quot;yes&quot;| B{&quot;Backup exists with the same version as the configuration?&quot;}
-    B --&gt;|&quot;yes&quot;| RB[&quot;Restore the backup: data as before the update&quot;]
-    B --&gt;|&quot;no&quot;| RI[&quot;Remove all storages; install again from the configuration: initial values&quot;]
-</pre>
+<p><a class="figure" href="diagrams/Persistency/13-roll-back.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/Persistency/13-roll-back.svg" alt="Flowchart: Roll-Back" loading="lazy"></a></p>
 <p>Data written by the new software after the update is lost in both cases. With a backup, the old values return; without one, the initial values return.</p>
 <h3 id="129-configuration-only-updates">12.9 Configuration-Only Updates<a class="anchor" href="#129-configuration-only-updates" aria-label="Link to this section">#</a></h3>
 <p>UCM can also deploy a new configuration without new software, with <code>SoftwarePackage.actionType</code> set to <code>updateConfiguration</code>; such a package can contain a new Persistency target configuration (SWS, Section 7.2.5). A running application detects it like this:</p>
@@ -2524,19 +2404,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tbody>
 </table></div>
 <p><code>Fusion</code> runs only in <code>ADAS.Normal</code>, so it opens <code>FusionParams</code> for the first time after the verification phase, and the update is implicit. The sequence:</p>
-<pre class="mermaid">sequenceDiagram
-    participant F as Fusion 1.1.0
-    participant PER as Persistency
-    F-&gt;&gt;PER: RegisterApplicationDataUpdateCallback(note old contract version)
-    F-&gt;&gt;PER: OpenKeyValueStorage(/fusion/Root/FusionParamsPort)
-    Note over PER: version 1.1.0 higher than 1.0.0, so backup, keep TrackerTuning (still TrackerTuningV1)
-    PER--&gt;&gt;F: callback(FusionParamsPort, 1.0.0)
-    PER--&gt;&gt;F: SharedHandle
-    F-&gt;&gt;PER: GetValue of TrackerTuning as TrackerTuningV1
-    F-&gt;&gt;PER: RemoveKey, SetValue as TrackerTuningV2, SyncToStorage
-    F-&gt;&gt;PER: release handle, then CleanUpPersistency
-    F-&gt;&gt;PER: OpenKeyValueStorage again, normal operation
-</pre>
+<p><a class="figure" href="diagrams/Persistency/14-worked-example-fusionparams-and-the.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/Persistency/14-worked-example-fusionparams-and-the.svg" alt="Sequence diagram: Worked Example: FusionParams and the Update to AdasCluster 1.1.0" loading="lazy"></a></p>
 <p>The code is in <a href="#156-complete-example-fusion-loads-uses-and-migrates-fusionparams">Section 15.6</a>. Two consequences are worth knowing:</p>
 <ul>
 <li>If the conversion fails (for example <code>kQuotaExceeded</code>, because the backup also counts against the 16 KiB quota), <code>Fusion</code> falls back to <code>ResetKey(&quot;TrackerTuning&quot;)</code>, which sets the factory value <code>TrackerTuningDefault</code> of the current configuration. The vehicle loses its learned tuning but keeps working.</li>
@@ -5325,12 +5193,11 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 
 </article>
 <nav class="pager" aria-label="Previous and next guide"><a class="pager-prev" href="LogAndTrace.html"><span class="pager-label">← Previous</span><span class="pager-title">Log and Trace</span></a><a class="pager-next" href="DiagnosticsPart1.html"><span class="pager-label">Next →</span><span class="pager-title">Diagnostics Part 1</span></a></nav>
-<footer class="site-footer"><p>Based on the AUTOSAR Adaptive Platform and Foundation specifications, release R25-11.</p><p>Training material, not a normative reference. Where a guide and an AUTOSAR specification differ, the specification applies. Specifications: <a href="https://www.autosar.org/standards" target="_blank" rel="noopener">autosar.org/standards</a>.</p></footer>
+<footer class="site-footer"><p>Based on the AUTOSAR Adaptive Platform and Foundation specifications, release R25-11.</p><p>Training material, not a normative reference. Specifications: <a href="https://www.autosar.org/standards" target="_blank" rel="noopener">autosar.org/standards</a>.</p></footer>
 </main>
 <aside class="toc" aria-label="On this page"><p class="toc-label">On this page</p><ul><li class="lvl2"><a href="#about-this-guide">About This Guide</a></li><li class="lvl3"><a href="#who-this-guide-is-for">Who This Guide Is For</a></li><li class="lvl3"><a href="#learning-objectives">Learning Objectives</a></li><li class="lvl3"><a href="#how-to-read-this-guide">How to Read This Guide</a></li><li class="lvl3"><a href="#the-running-example">The Running Example</a></li><li class="lvl2"><a href="#table-of-contents">Table of Contents</a></li><li class="lvl2"><a href="#1-introduction-to-persistency">1. Introduction to Persistency</a></li><li class="lvl3"><a href="#11-what-is-persistency">1.1 What Is Persistency?</a></li><li class="lvl3"><a href="#12-what-persistency-does-not-do">1.2 What Persistency Does Not Do</a></li><li class="lvl3"><a href="#13-analogies">1.3 Analogies</a></li><li class="lvl3"><a href="#14-persistency-and-ara">1.4 Persistency and ARA</a></li><li class="lvl2"><a href="#2-core-concepts-and-terminology">2. Core Concepts and Terminology</a></li><li class="lvl3"><a href="#21-storages-and-elements">2.1 Storages and Elements</a></li><li class="lvl3"><a href="#22-key-value-or-file-which-one">2.2 Key-Value or File: Which One?</a></li><li class="lvl3"><a href="#23-persistency-users-and-process-local-data">2.3 Persistency Users and Process-Local Data</a></li><li class="lvl3"><a href="#24-application-design-and-target-configuration">2.4 Application Design and Target Configuration</a></li><li class="lvl3"><a href="#25-contract-version-and-target-configuration-version">2.5 Contract Version and Target Configuration Version</a></li><li class="lvl3"><a href="#26-update-strategies">2.6 Update Strategies</a></li><li class="lvl3"><a href="#27-integrity-and-redundancy">2.7 Integrity and Redundancy</a></li><li class="lvl3"><a href="#28-access-modes">2.8 Access Modes</a></li><li class="lvl3"><a href="#29-terms-at-a-glance">2.9 Terms at a Glance</a></li><li class="lvl2"><a href="#3-persistency-in-the-system-architecture">3. Persistency in the System Architecture</a></li><li class="lvl3"><a href="#31-where-persistency-sits-in-the-platform">3.1 Where Persistency Sits in the Platform</a></li><li class="lvl3"><a href="#32-interfaces-provided-by-persistency">3.2 Interfaces Provided by Persistency</a></li><li class="lvl3"><a href="#33-interfaces-required-by-persistency">3.3 Interfaces Required by Persistency</a></li><li class="lvl3"><a href="#34-platform-clusters-as-persistency-users">3.4 Platform Clusters as Persistency Users</a></li><li class="lvl3"><a href="#35-sharing-data-between-processes-use-a-service">3.5 Sharing Data Between Processes: Use a Service</a></li><li class="lvl2"><a href="#4-configuration-overview">4. Configuration Overview</a></li><li class="lvl3"><a href="#41-where-the-configuration-lives">4.1 Where the Configuration Lives</a></li><li class="lvl3"><a href="#42-how-the-elements-relate">4.2 How the Elements Relate</a></li><li class="lvl3"><a href="#43-who-configures-what-and-when">4.3 Who Configures What, and When</a></li><li class="lvl3"><a href="#44-precedence-in-one-picture">4.4 Precedence in One Picture</a></li><li class="lvl2"><a href="#5-initialization-opening-and-handles">5. Initialization, Opening and Handles</a></li><li class="lvl3"><a href="#51-initialize-and-deinitialize">5.1 Initialize and Deinitialize</a></li><li class="lvl3"><a href="#52-instance-specifiers-for-storages">5.2 Instance Specifiers for Storages</a></li><li class="lvl3"><a href="#53-sharedhandle-and-uniquehandle">5.3 SharedHandle and UniqueHandle</a></li><li class="lvl3"><a href="#54-threads-and-handles">5.4 Threads and Handles</a></li><li class="lvl3"><a href="#55-opening-is-more-than-opening">5.5 Opening Is More Than Opening</a></li><li class="lvl2"><a href="#6-key-value-storages">6. Key-Value Storages</a></li><li class="lvl3"><a href="#61-the-temporary-storage">6.1 The Temporary Storage</a></li><li class="lvl3"><a href="#62-reading-values">6.2 Reading Values</a></li><li class="lvl3"><a href="#63-writing-and-creating-values">6.3 Writing and Creating Values</a></li><li class="lvl3"><a href="#64-supported-data-types">6.4 Supported Data Types</a></li><li class="lvl3"><a href="#65-keys">6.5 Keys</a></li><li class="lvl3"><a href="#66-committing-and-discarding">6.6 Committing and Discarding</a></li><li class="lvl3"><a href="#67-worked-example-calibrationstore-in-storage">6.7 Worked Example: CalibrationStore in Storage</a></li><li class="lvl2"><a href="#7-file-storages">7. File Storages</a></li><li class="lvl3"><a href="#71-a-directory-without-subdirectories">7.1 A Directory Without Subdirectories</a></li><li class="lvl3"><a href="#72-opening-files">7.2 Opening Files</a></li><li class="lvl3"><a href="#73-open-modes">7.3 Open Modes</a></li><li class="lvl3"><a href="#74-the-accessor-classes">7.4 The Accessor Classes</a></li><li class="lvl3"><a href="#75-positions-and-end-of-file">7.5 Positions and End of File</a></li><li class="lvl3"><a href="#76-text-and-binary-content">7.6 Text and Binary Content</a></li><li class="lvl3"><a href="#77-writing-truncating-and-closing">7.7 Writing, Truncating and Closing</a></li><li class="lvl3"><a href="#78-file-information">7.8 File Information</a></li><li class="lvl3"><a href="#79-worked-example-recordingfile-in-storage">7.9 Worked Example: RecordingFile in Storage</a></li><li class="lvl2"><a href="#8-durability-what-stored-really-means">8. Durability: What &quot;Stored&quot; Really Means</a></li><li class="lvl3"><a href="#81-three-levels">8.1 Three Levels</a></li><li class="lvl3"><a href="#82-sync-calls-and-the-file-system">8.2 Sync Calls and the File System</a></li><li class="lvl3"><a href="#83-close-crash-and-shutdown">8.3 Close, Crash and Shutdown</a></li><li class="lvl3"><a href="#84-power-loss-without-redundancy">8.4 Power Loss Without Redundancy</a></li><li class="lvl2"><a href="#9-data-integrity-redundancy-and-recovery">9. Data Integrity: Redundancy and Recovery</a></li><li class="lvl3"><a href="#91-detect-or-repair">9.1 Detect or Repair</a></li><li class="lvl3"><a href="#92-crc-and-hash">9.2 CRC and Hash</a></li><li class="lvl3"><a href="#93-m-out-of-n-and-storage-locations">9.3 M out of N and Storage Locations</a></li><li class="lvl3"><a href="#94-storage-scope-and-element-scope">9.4 Storage Scope and Element Scope</a></li><li class="lvl3"><a href="#95-when-persistency-checks-and-what-it-reports">9.5 When Persistency Checks, and What It Reports</a></li><li class="lvl3"><a href="#96-recover-or-reset">9.6 Recover or Reset</a></li><li class="lvl3"><a href="#97-the-recovery-report-callback">9.7 The Recovery Report Callback</a></li><li class="lvl3"><a href="#98-worked-example-calibrationkvs-with-two-out-of-three-copies">9.8 Worked Example: CalibrationKvs with Two out of Three Copies</a></li><li class="lvl2"><a href="#10-security-encryption-mac-and-verification-hash">10. Security: Encryption, MAC and Verification Hash</a></li><li class="lvl3"><a href="#101-confidentiality-and-authenticity-invisible-to-the-application">10.1 Confidentiality and Authenticity, Invisible to the Application</a></li><li class="lvl3"><a href="#102-key-slots-and-algorithms">10.2 Key Slots and Algorithms</a></li><li class="lvl3"><a href="#103-storage-level-and-element-level">10.3 Storage Level and Element Level</a></li><li class="lvl3"><a href="#104-verification-hashes-for-read-only-and-write-only-once-storages">10.4 Verification Hashes for Read-Only and Write-Only-Once Storages</a></li><li class="lvl3"><a href="#105-errors">10.5 Errors</a></li><li class="lvl3"><a href="#106-worked-example-the-mac-over-calibrationkvs">10.6 Worked Example: the MAC over CalibrationKvs</a></li><li class="lvl2"><a href="#11-resource-limits-and-quotas">11. Resource Limits and Quotas</a></li><li class="lvl3"><a href="#111-minimum-sustained-size-and-maximum-allowed-size">11.1 Minimum Sustained Size and Maximum Allowed Size</a></li><li class="lvl3"><a href="#112-kquotaexceeded-or-koutofstoragespace">11.2 kQuotaExceeded or kOutOfStorageSpace</a></li><li class="lvl3"><a href="#113-measuring-usage">11.3 Measuring Usage</a></li><li class="lvl3"><a href="#114-the-number-of-files">11.4 The Number of Files</a></li><li class="lvl3"><a href="#115-worked-example-recordings-deletes-the-oldest-recording">11.5 Worked Example: Recordings Deletes the Oldest Recording</a></li><li class="lvl2"><a href="#12-installation-update-roll-back-and-reset">12. Installation, Update, Roll-Back and Reset</a></li><li class="lvl3"><a href="#121-persistent-data-in-the-software-life-cycle">12.1 Persistent Data in the Software Life Cycle</a></li><li class="lvl3"><a href="#122-the-central-storage-and-the-two-versions">12.2 The Central Storage and the Two Versions</a></li><li class="lvl3"><a href="#123-installation">12.3 Installation</a></li><li class="lvl3"><a href="#124-update-strategies-in-detail">12.4 Update Strategies in Detail</a></li><li class="lvl3"><a href="#125-the-update-sequence">12.5 The Update Sequence</a></li><li class="lvl3"><a href="#126-migrating-data-the-update-callback-and-data-type-mappings">12.6 Migrating Data: the Update Callback and Data Type Mappings</a></li><li class="lvl3"><a href="#127-finalization-and-clean-up">12.7 Finalization and Clean-Up</a></li><li class="lvl3"><a href="#128-roll-back">12.8 Roll-Back</a></li><li class="lvl3"><a href="#129-configuration-only-updates">12.9 Configuration-Only Updates</a></li><li class="lvl3"><a href="#1210-resetting-storages-and-elements">12.10 Resetting Storages and Elements</a></li><li class="lvl3"><a href="#1211-removal-of-an-applications-data">12.11 Removal of an Application&#x27;s Data</a></li><li class="lvl3"><a href="#1212-worked-example-fusionparams-and-the-update-to-adascluster-110">12.12 Worked Example: FusionParams and the Update to AdasCluster 1.1.0</a></li><li class="lvl2"><a href="#13-error-handling">13. Error Handling</a></li><li class="lvl3"><a href="#131-pererrc-and-the-error-domain">13.1 PerErrc and the Error Domain</a></li><li class="lvl3"><a href="#132-what-each-error-means-and-how-to-react">13.2 What Each Error Means and How to React</a></li><li class="lvl3"><a href="#133-violations">13.3 Violations</a></li><li class="lvl2"><a href="#14-configuration-reference-what-to-configure">14. Configuration Reference: What to Configure</a></li><li class="lvl3"><a href="#141-minimal-configuration">14.1 Minimal Configuration</a></li><li class="lvl3"><a href="#142-persistencyinterface-and-its-subclasses">14.2 PersistencyInterface and Its Subclasses</a></li><li class="lvl3"><a href="#143-persistencydataelement-persistencyfileelement-and-data-type-mappings">14.3 PersistencyDataElement, PersistencyFileElement and Data Type Mappings</a></li><li class="lvl3"><a href="#144-r-port-comspecs-access-mode-and-initial-values">14.4 R-Port ComSpecs: Access Mode and Initial Values</a></li><li class="lvl3"><a href="#145-persistency-and-persistencygeneral">14.5 Persistency and PersistencyGeneral</a></li><li class="lvl3"><a href="#146-storage-collections-persistencykeyvaluestorage-and-persistencyfilestorage">14.6 Storage Collections, PersistencyKeyValueStorage and PersistencyFileStorage</a></li><li class="lvl3"><a href="#147-persistencycommon">14.7 PersistencyCommon</a></li><li class="lvl3"><a href="#148-persistencykeyvaluepair-and-persistencyfile">14.8 PersistencyKeyValuePair and PersistencyFile</a></li><li class="lvl3"><a href="#149-redundancy-handling">14.9 Redundancy Handling</a></li><li class="lvl3"><a href="#1410-persistencycryptokeyslotprops">14.10 PersistencyCryptoKeySlotProps</a></li><li class="lvl3"><a href="#1411-persistencylogging">14.11 PersistencyLogging</a></li><li class="lvl3"><a href="#1412-the-legacy-m2-target-configuration">14.12 The Legacy M2 Target Configuration</a></li><li class="lvl3"><a href="#1413-the-running-example-complete-configuration">14.13 The Running Example: Complete Configuration</a></li><li class="lvl2"><a href="#15-api-reference-and-usage-guide-araper">15. API Reference and Usage Guide (ara::per)</a></li><li class="lvl3"><a href="#151-headers-and-namespaces">15.1 Headers and Namespaces</a></li><li class="lvl3"><a href="#152-key-value-storage-api">15.2 Key-Value Storage API</a></li><li class="lvl3"><a href="#153-file-storage-and-accessor-api">15.3 File Storage and Accessor API</a></li><li class="lvl3"><a href="#154-handles">15.4 Handles</a></li><li class="lvl3"><a href="#155-update-reset-and-recovery-api">15.5 Update, Reset and Recovery API</a></li><li class="lvl3"><a href="#156-complete-example-fusion-loads-uses-and-migrates-fusionparams">15.6 Complete Example: Fusion Loads, Uses and Migrates FusionParams</a></li><li class="lvl2"><a href="#16-reporting">16. Reporting</a></li><li class="lvl3"><a href="#161-log-messages">16.1 Log Messages</a></li><li class="lvl3"><a href="#162-violation-messages">16.2 Violation Messages</a></li><li class="lvl3"><a href="#163-production-errors">16.3 Production Errors</a></li><li class="lvl2"><a href="#17-best-practices-pitfalls-and-troubleshooting">17. Best Practices, Pitfalls and Troubleshooting</a></li><li class="lvl3"><a href="#171-best-practices">17.1 Best Practices</a></li><li class="lvl3"><a href="#172-common-pitfalls">17.2 Common Pitfalls</a></li><li class="lvl3"><a href="#173-troubleshooting-guide">17.3 Troubleshooting Guide</a></li><li class="lvl2"><a href="#18-summary-and-self-check-quiz">18. Summary and Self-Check Quiz</a></li><li class="lvl3"><a href="#181-summary">18.1 Summary</a></li><li class="lvl3"><a href="#182-self-check-quiz">18.2 Self-Check Quiz</a></li><li class="lvl2"><a href="#appendix-a-glossary-and-acronyms">Appendix A. Glossary and Acronyms</a></li><li class="lvl2"><a href="#appendix-b-quick-reference-cheat-sheet">Appendix B. Quick Reference Cheat Sheet</a></li><li class="lvl2"><a href="#appendix-c-spec-traceability">Appendix C. Spec Traceability</a></li><li class="lvl2"><a href="#appendix-d-notable-changes-in-recent-releases">Appendix D. Notable Changes in Recent Releases</a></li><li class="lvl2"><a href="#appendix-e-references">Appendix E. References</a></li></ul></aside>
 </div>
 <button class="to-top" id="to-top" aria-label="Back to top" hidden>↑</button>
-<script>window.MERMAID_URL="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs";</script>
 <script src="../assets/search-index.js" defer></script>
 <script src="../assets/app.js" defer></script>
 </body>

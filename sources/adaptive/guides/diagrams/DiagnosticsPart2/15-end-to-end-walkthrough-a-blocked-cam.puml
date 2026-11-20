@@ -1,0 +1,23 @@
+@startuml
+!include ../_style.puml
+participant "DiagnosticTester (UDS)" as T
+participant "SOVD client" as S
+participant "Diagnostic Management" as DM
+participant "SmControl" as SC
+participant "CameraDriver" as CD
+T -> DM : 19 02 08
+DM --> T : 59 02 FF 9A 10 11 2F
+T -> DM : 19 04 9A 10 11 FF and 19 06 9A 10 11 FF
+DM --> T : snapshots 50.00 and 80.00 km/h, occurrence 2
+S -> DM : GET .../hpcdiag/faults/9A1011 (token)
+DM -> SC : ValidateAuthorization
+DM --> S : fault with environment_data
+S -> DM : lock, then POST .../operations/CameraCalibration/executions
+DM -> SC : ValidateResponse (proximity)
+DM -> CD : StartExecution
+CD --> DM : completed
+T -> DM : 14 FF FF FF
+DM -> DM : clear condition VehicleStandstill true: clear
+DM --> CD : initMonitor kClear
+DM --> T : 54
+@enduml

@@ -1,0 +1,16 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "ECU configuration\n(tasks, runnable mapping, priorities,\nsignals, PDUs, schedule tables, budgets)" as CFG
+rectangle "Generators\n(RTE, BSW scheduler,\nOS and communication configuration)" as GEN
+rectangle "Compile and link" as BLD
+rectangle "Flash the ECU" as FLS
+rectangle "Run time:\nexecute the fixed plan" as RUN
+rectangle "Timing analysis\n(WCET, schedulability)" as ANA
+CFG --> GEN
+GEN --> BLD
+BLD --> FLS
+FLS --> RUN
+CFG --> ANA
+BLD --> ANA
+@enduml

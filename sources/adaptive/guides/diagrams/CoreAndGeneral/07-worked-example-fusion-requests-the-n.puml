@@ -1,0 +1,17 @@
+@startuml
+!include ../_style.puml
+autonumber
+participant "Fusion (cycle thread)" as FU
+participant "CameraService proxy (in Fusion)" as PX
+participant "CameraDriver" as CD
+FU -> PX : SetExposureMode(Night)
+PX --> FU : Future (not ready)
+PX -> CD : request (local IPC or SOME/IP, the Network Bindings guide)
+note over FU : cycle n, is_ready() is false, continue
+CD --> PX : error ExposureModeNotSupported
+PX -> PX : SetError on the Promise
+note over FU : cycle n+1, is_ready() is true
+FU -> PX : GetResult()
+PX --> FU : Result with CameraErrorsErrc::ExposureModeNotSupported
+FU -> FU : keep Auto, do not ask again
+@enduml

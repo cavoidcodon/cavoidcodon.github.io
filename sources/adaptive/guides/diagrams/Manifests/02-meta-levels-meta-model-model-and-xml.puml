@@ -1,0 +1,15 @@
+@startuml
+!include ../_style.puml
+rectangle "M2: AUTOSAR meta-model\n(ServiceInterface, Process, ...)" as MM
+rectangle "XML Schema\nAUTOSAR_00054.xsd" as XSD
+rectangle "M1: your model\n(CameraService, Fusion, ...)" as M1
+rectangle "ARXML files" as ARXML
+rectangle "APMC definition side (M1)\nwhich parameters exist" as DEF
+rectangle "APMC value side (M1)\nthe parameter values" as VAL
+MM --> XSD : serialized as
+M1 --> ARXML : serialized as
+M1 ..> MM : follows
+ARXML ..> XSD : validates against
+DEF ..> MM : follows
+VAL ..> DEF : follows
+@enduml

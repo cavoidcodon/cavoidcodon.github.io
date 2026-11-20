@@ -1,0 +1,14 @@
+@startuml
+!include ../_style.puml
+rectangle "Open storage" as O
+rectangle "Configuration version lower than stored version?" as C <<decision>>
+rectangle "Normal open, install or update" as N
+rectangle "Backup exists with the same version as the configuration?" as B <<decision>>
+rectangle "Restore the backup: data as before the update" as RB
+rectangle "Remove all storages; install again from the configuration: initial values" as RI
+O --> C
+C --> N : no
+C --> B : yes
+B --> RB : yes
+B --> RI : no
+@enduml

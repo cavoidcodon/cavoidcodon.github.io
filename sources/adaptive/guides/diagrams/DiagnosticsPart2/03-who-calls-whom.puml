@@ -1,0 +1,18 @@
+@startuml
+!include ../_style.puml
+participant "SmControl (cycle and conditions)" as SC
+participant "CameraDriver (monitor)" as CD
+participant "Diagnostic Management" as DM
+participant "Tester" as T
+SC -> DM : RestartOperationCycle (IgnitionCycle)
+SC -> DM : SetCondition kConditionTrue (PowerModeOn)
+CD -> DM : Offer (Monitor)
+DM --> CD : initMonitor kRestart (on later restarts)
+loop every 100 ms
+CD -> DM : ReportMonitorAction kPrefailed or kPrepassed
+end
+DM -> DM : debounce, update status, store entry
+DM -> SC : Read DID 0x0102 for the snapshot
+T -> DM : 0x19 02 08
+DM --> T : 59 02 FF 9A 10 11 2F
+@enduml

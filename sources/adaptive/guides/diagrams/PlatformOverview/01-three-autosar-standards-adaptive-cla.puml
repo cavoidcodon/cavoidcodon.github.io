@@ -1,0 +1,8 @@
+@startuml
+!include ../_style.puml
+rectangle "Adaptive Platform (AP)\nhigh-performance ECUs" as AP
+rectangle "Classic Platform (CP)\ndeeply embedded ECUs" as CP
+rectangle "Foundation (FO)\ncommon protocols and requirements,\nfor example SOME/IP, E2E and DLT" as FO
+AP --> FO : relies on
+CP --> FO : relies on
+@enduml

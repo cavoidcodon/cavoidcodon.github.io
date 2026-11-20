@@ -1,0 +1,25 @@
+@startuml
+!include ../_style.puml
+autonumber
+participant "Execution Management" as EM
+participant "Operating System" as OS
+participant "Fusion process" as P
+participant "Platform Health Mgmt" as PHM
+participant "Log and Trace" as LT
+note over EM : The state transition needs Fusion (ADAS.Normal)
+EM -> EM : Integrity check, dependencies satisfied?
+EM -> OS : Create process with configuration\n(limits, affinity, scheduling, signal mask, argv, env)
+OS --> EM : PID
+note over EM : Process State = Starting, start-up timer runs
+EM -> LT : DLT ProcessCreated
+OS -> P : main() starts
+P -> P : ara::core::Initialize(argc, argv)
+P -> P : ExecutionClient::Create(terminationHandler)
+P -> P : Application initialization
+P -> EM : ReportExecutionState(kRunning)
+EM --> P : Result OK
+note over EM : Process State = Running
+EM -> LT : DLT ProcessKRunningReceived
+EM -> PHM : kRunning received for a supervised process
+note over PHM : Alive supervision can start
+@enduml

@@ -1,0 +1,29 @@
+@startuml
+!include ../_style.puml
+participant "CentralGateway" as GW
+participant "CM on HPC" as CM
+participant "SmControl" as SMC
+participant "Fusion" as FU
+participant "Cockpit" as CK
+note over CM : MachineFG Startup: SmControl, CameraDriver start
+SMC -> CM : StartFindService(VehicleDynamics, PowerMode), OfferService(AdasStatus x2)
+GW --> CM : Offer 0x2001 and 0x2002 (Signal-Based SOME/IP, SD)
+CM -> GW : Subscribe eventgroups VehicleDynamicsEvents, PowerModeEvents
+CM --> GW : Offer 0x2003 (AdasStatus, signal-based)
+GW -> CM : Subscribe AdasHmiEvents
+GW -> CM : VehicleMode PDU, PowerMode = On (Partial SOME/IP Header)
+CM -> SMC : PowerMode notification
+note over SMC : Requests MachineFG Driving, ADAS Normal (the SM guide)
+CM --> CK : Offer 0x1001 CameraService, 0x1002 AdasStatusService
+CK -> CM : Subscribe CameraEvents (TCP) and AdasStatusEvents (UDP)
+note over FU : ADAS Normal: Fusion starts
+FU -> CM : OfferService(ObjectListService) over DDS
+CK -> CM : DDS discovery: reads ara.com://services/discovery, matches AdasObjectList
+GW -> CM : ChassisDynamics PDU every 10 ms
+CM -> FU : VehicleSpeed, SteeringAngle, YawRate events
+FU -> CM : ObjectList.Send()
+CM -> CK : DDS sample on ara.com://services/hpc_fusion_ObjectListService/1.0/AdasObjectList
+SMC -> CM : AdasStatus.Update(Active)
+CM -> CK : SOME/IP notification 0x1002/0x8001
+CM -> GW : AdasHmi PDU behind Partial SOME/IP Header 0x2003/0x8001
+@enduml

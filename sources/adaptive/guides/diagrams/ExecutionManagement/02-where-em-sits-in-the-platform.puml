@@ -1,0 +1,24 @@
+@startuml
+!include ../_style.puml
+rectangle "Machine (ECU, virtual machine or container)" as MACHINE {
+  rectangle "Operating System\n(kernel, init, drivers: outside the Adaptive Platform)" as OS
+  rectangle "Execution Management\n(first Adaptive Platform process)" as EM
+  rectangle "Platform daemons (functional clusters)" as FCS {
+    rectangle "State Management" as SM
+    rectangle "Platform Health Management" as PHM
+    rectangle "Communication Management" as CM
+    rectangle "Diagnostic Management" as DM
+    rectangle "Update and Configuration Management" as UCM
+    rectangle "NM, TSync, Crypto, IdsM, Firewall,\nAPI Gateway, Vehicle UCM" as MORE
+  }
+  rectangle "Adaptive Applications" as APPS {
+    rectangle "Fusion" as A1
+    rectangle "CameraDriver" as A2
+    rectangle "LegacyLogger" as A3
+  }
+}
+OS --> EM : starts
+EM --> FCS : creates and configures processes
+EM --> APPS : creates and configures processes
+SM --> EM : requests state transitions
+@enduml

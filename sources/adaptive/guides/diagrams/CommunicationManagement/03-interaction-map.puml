@@ -1,0 +1,21 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "Applications\n(Fusion, CameraDriver, ...)" as APP
+rectangle "Platform clusters with services\n(SM, DM, UCM, ...)" as PLAT
+rectangle "Communication Management" as CM
+rectangle "Execution Management" as EM
+rectangle "Identity and Access Management" as IAM
+rectangle "Cryptography" as CRY
+rectangle "IdsM" as IDS
+rectangle "Log and Trace" as LOG
+rectangle "Platform Health Management" as PHM
+APP --> CM : ara::com
+PLAT --> CM : ara::com
+CM --> EM : ExecutionClient
+CM --> IAM : grants checked
+CM --> CRY : CryptoStack
+CM --> IDS : EventReporter
+CM --> LOG : Logger
+APP ..> PHM : method timeouts supervised\nby the application
+@enduml

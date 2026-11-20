@@ -1,0 +1,8 @@
+@startuml
+!include ../_style.puml
+left to right direction
+Driving --> Suspend: request Park (variant)
+Suspend --> LeaveSuspend: OS wake-up or RequestUpdateSession
+LeaveSuspend --> Driving: request Drive
+note right of Suspend: stop Agents, Standby,\nnotify satellites, suspend the OS
+@enduml

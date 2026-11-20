@@ -1,0 +1,58 @@
+' Shared look of all diagrams in the guides.
+' Every diagram starts with: !include ../_style.puml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam dpi 100
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 13
+skinparam roundCorner 8
+skinparam ArrowColor #44546A
+skinparam ArrowFontColor #222222
+skinparam ArrowFontSize 12
+skinparam wrapWidth 260
+skinparam maxMessageSize 240
+skinparam nodesep 30
+skinparam ranksep 40
+
+skinparam rectangle {
+  BackgroundColor #EAF1FB
+  BorderColor #5B7DB1
+  FontColor #1B2A41
+}
+skinparam rectangle<<decision>> {
+  BackgroundColor #FFF4D6
+  BorderColor #C9A227
+  RoundCorner 40
+}
+hide <<decision>> stereotype
+skinparam hexagon {
+  BackgroundColor #EDE7F6
+  BorderColor #7E57C2
+}
+skinparam database {
+  BackgroundColor #E6F4EA
+  BorderColor #4C9A63
+}
+skinparam state {
+  BackgroundColor #EAF1FB
+  BorderColor #5B7DB1
+  StartColor #44546A
+  EndColor #44546A
+}
+skinparam sequence {
+  ParticipantBackgroundColor #EAF1FB
+  ParticipantBorderColor #5B7DB1
+  LifeLineBorderColor #8A97AB
+  GroupBorderColor #8A97AB
+  GroupBackgroundColor #F3F5F8
+  ArrowThickness 1
+}
+skinparam note {
+  BackgroundColor #FFF9E1
+  BorderColor #C9A227
+}
+skinparam class {
+  BackgroundColor #EAF1FB
+  BorderColor #5B7DB1
+}
+hide footbox

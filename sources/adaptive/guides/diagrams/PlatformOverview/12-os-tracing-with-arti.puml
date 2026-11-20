@@ -1,0 +1,10 @@
+@startuml
+!include ../_style.puml
+[*] --> Ready: Create (OsTaskCreate)
+Ready --> Running: Schedule (OsTaskSchedule)
+Running --> Running: Schedule (OsTaskSchedule)
+Running --> Ready: Preempt (OsTaskPreempt)
+Running --> Waiting: Wait (OsTaskWait)
+Waiting --> Ready: Release (OsTaskRelease)
+Running --> [*]: Terminate (OsTaskTerminate)
+@enduml

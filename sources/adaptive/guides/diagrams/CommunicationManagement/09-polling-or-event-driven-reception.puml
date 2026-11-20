@@ -1,0 +1,17 @@
+@startuml
+!include ../_style.puml
+participant "Provider (skeleton)" as SK
+participant "Communication Management" as CM
+participant "Receive handler (consumer)" as H
+participant "Consumer code" as APP
+SK -> CM : Send(sample 1)
+CM -> H : call handler
+H -> CM : GetNewSamples(f)
+CM -> APP : f(SamplePtr to sample 1)
+SK -> CM : Send(sample 2)
+note over CM, H : handler still running: next call postponed
+H --> CM : handler returns
+CM -> H : call handler
+H -> CM : GetNewSamples(f)
+CM -> APP : f(SamplePtr to sample 2)
+@enduml

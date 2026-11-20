@@ -1,0 +1,17 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "DiagnosticTester" as T
+rectangle "Diagnostic Management daemon" as DM
+rectangle "Fusion: FusionSwVersionDid" as F
+rectangle "CameraDriver: CalibrateCameraRoutine" as C
+rectangle "SmControl: EcuResetRequest, SecurityAccess" as S
+rectangle "IdsM" as I
+rectangle "Persistency" as P
+T --> DM : UDS over DoIP
+DM --> F : Read
+DM --> C : Start, RequestResult
+DM --> S : RequestReset, ExecuteReset, GetSeed, CompareKey
+DM ..> I : security events
+DM ..> P : persisted state
+@enduml

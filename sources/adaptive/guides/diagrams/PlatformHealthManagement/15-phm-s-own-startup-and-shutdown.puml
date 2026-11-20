@@ -1,0 +1,16 @@
+@startuml
+!include ../_style.puml
+participant "Hardware watchdog" as WD
+participant "Execution Management" as EM
+participant "PlatformHealth" as PHM
+participant "StateManager" as SM
+note over WD : enabled early in the boot, timeout running
+EM -> PHM : start (MachineFG Startup)
+PHM -> WD : AliveNotification (through WatchdogInterface)
+PHM -> EM : ReportExecutionState(kRunning)
+PHM -> WD : AliveNotification, cyclically from now on
+EM -> SM : start
+SM -> EM : ReportExecutionState(kRunning)
+EM -> PHM : kRunning received for StateManager
+note over PHM : StateManagerSupervision starts
+@enduml

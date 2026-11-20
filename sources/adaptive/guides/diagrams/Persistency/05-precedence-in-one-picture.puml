@@ -1,0 +1,11 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "1 Design, storage level: PersistencyInterface.updateStrategy (recommendation only)" as A
+rectangle "2 Design, element level: PersistencyInterfaceElement.updateStrategy, initValue, contentUri" as B
+rectangle "3 Target configuration, storage level: PersistencyCommon.UpdateStrategy" as C
+rectangle "4 Target configuration, element level: ElementUpdateStrategy, InitValueRef, ContentUri" as D
+A --> B
+B --> C
+C --> D
+@enduml

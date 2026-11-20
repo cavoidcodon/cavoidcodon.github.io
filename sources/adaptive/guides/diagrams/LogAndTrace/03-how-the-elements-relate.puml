@@ -1,0 +1,31 @@
+@startuml
+!include ../_style.puml
+rectangle "LogAndTraceInterface\n(FusionLog, namespace hpc::fusion)" as LTI
+rectangle "R-port MainLogPort\nof FusionSwc" as PORT
+rectangle "InstanceSpecifier\n/fusion/Root/MainLogPort" as SPEC
+rectangle "LTMessageCollectionToPortPrototypeMapping" as LTM
+rectangle "LogAndTraceMessageCollectionSet\nFusionMessages (DltMessages)" as SET
+rectangle "DltLogSinkToPortPrototypeMapping\n(process Fusion)" as MAP
+rectangle "DltContext FusionMain\ncontextId MAIN" as CTX
+rectangle "DltLogSink HpcRemoteInfo\n(REMOTE, channel HPCN)" as RS
+rectangle "DltApplicationToProcessMapping" as APM
+rectangle "Process Fusion" as PROC
+rectangle "DltApplication FusionDltApp\napplicationId FUSN" as APP
+rectangle "DltEcu HpcDltEcu\necuId HPC1" as ECU
+rectangle "LogAndTraceInstantiation HpcLogAndTrace\n(Machine HPC)" as INST
+rectangle "DltLogSink HpcDltChannel\n(DLT, channel HPCN, TCP 3490)" as DS
+LTI --> PORT : types
+PORT --> SPEC : in root of executable fusion
+LTM --> PORT : rPort
+LTM --> SET : logAndTraceMessageCollectionSet
+MAP --> PORT : rPortPrototype
+MAP --> CTX : dltContext
+MAP --> RS : dltLogSink
+APM --> PROC : process
+APM --> APP : dltApplication
+ECU --> APP : application
+APP --> CTX : context
+INST --> ECU : dltEcu
+INST --> DS : logSink
+RS ..> DS : same log channel
+@enduml

@@ -1,0 +1,16 @@
+@startuml
+!include ../_style.puml
+rectangle "A process calls the StateClient API" as C
+rectangle "functionClusterAffiliation\nis STATE_MANAGEMENT?" as A1 <<decision>>
+rectangle "Violation:\nStateClientUsageRestrictionViolation" as V
+rectangle "FunctionGroupPortMapping from this process\nto the Function Group?" as A2 <<decision>>
+rectangle "Error: kInvalidMetaModelIdentifier" as E
+rectangle "Further validation, for example\nMachineFG Off gives kInvalidTransition" as A3
+rectangle "Request processed" as OK
+C --> A1
+A1 --> V : No
+A1 --> A2 : Yes
+A2 --> E : No
+A2 --> A3 : Yes
+A3 --> OK
+@enduml

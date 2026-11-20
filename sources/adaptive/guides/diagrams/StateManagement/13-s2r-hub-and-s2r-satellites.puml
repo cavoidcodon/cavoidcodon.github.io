@@ -1,0 +1,17 @@
+@startuml
+!include ../_style.puml
+autonumber
+participant "SMControlApplication" as SC
+participant "S2RHub (in SM)" as HUB
+participant "S2R Satellites" as SAT
+participant "PowerStateInterface" as PSI
+SAT -> HUB : Offer() (at startup)
+SC -> SC : decide to suspend, terminate the\nnot-supported processes through SM
+SC -> HUB : RequestToEnterSuspendMode(timeout)
+HUB -> SAT : EnterSuspendMode()
+SAT --> HUB : ok (Suspend Mode entered)
+HUB --> SC : Future ready: ok
+SC -> HUB : EnterSuspendToRamOs()
+HUB -> PSI : SetPowerState(kPmSuspendToRam)
+note over PSI : the machine sleeps, RAM is kept
+@enduml

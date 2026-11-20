@@ -1,0 +1,16 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "ChassisECU" as CH
+rectangle "CentralGateway" as GW
+rectangle "HPC: Communication Management\n(Signal-to-Service translation)" as CM
+rectangle "Fusion, FusionLite" as FU
+rectangle "SmControl" as SMC
+rectangle "InstrumentCluster" as IC
+CH --> GW : CAN: ChassisDynamics
+GW --> CM : PDUs over Ethernet
+CM --> FU : VehicleDynamicsService
+SMC --> CM : AdasStatusService
+CM --> GW : PDUs over Ethernet
+GW --> IC : CAN: AdasHmi
+@enduml

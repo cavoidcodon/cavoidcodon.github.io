@@ -1,0 +1,16 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "Vehicle events\n(power mode, network requests)" as VEH
+rectangle "State Management\n(project-specific logic)" as SM
+rectangle "Platform Health Management\n(supervision failures)" as PHM
+rectangle "Diagnostic Management\n(for example ECU reset)" as DM
+rectangle "Update and Configuration Management\n(update sessions)" as UCM
+rectangle "Execution Management" as EM
+VEH --> SM
+PHM --> SM
+DM --> SM
+UCM --> SM
+EM --> SM : undefinedStateCallback
+SM --> EM : SetState
+@enduml

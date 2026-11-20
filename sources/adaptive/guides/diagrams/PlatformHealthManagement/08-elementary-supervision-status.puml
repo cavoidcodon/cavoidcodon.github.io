@@ -1,0 +1,13 @@
+@startuml
+!include ../_style.puml
+[*] --> kDEACTIVATED: T1 PHM starts
+kDEACTIVATED --> kOK: T9 supervision starts
+kOK --> kFAILED: T3 alive only, failure within tolerance
+kFAILED --> kOK: T5 failed-cycle counter back to 0
+kOK --> kEXPIRED: T2 qualified failure
+kFAILED --> kEXPIRED: T6 tolerance exceeded
+kOK --> kDEACTIVATED: T7 process terminating or terminated
+kFAILED --> kDEACTIVATED: T8 process terminating or terminated
+kEXPIRED --> kDEACTIVATED: T4 process terminating or terminated, not for OS, EM and SM
+kDEACTIVATED --> kEXPIRED: T10 logical only, first checkpoint wrong
+@enduml

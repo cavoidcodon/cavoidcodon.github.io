@@ -1,0 +1,21 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "Fusion code:\nInstanceSpecifier\n/fusion/Root/CameraRPort" as CODE
+rectangle "CameraRPort\nin Executable fusion" as PORT
+rectangle "ServiceInstanceToPortPrototypeMapping\nFusion_CameraRPort" as MAP
+rectangle "Process Fusion" as PROC
+rectangle "RequiredSomeipServiceInstance\nCameraService_Required\ninstance 0x0001" as RSI
+rectangle "SomeipServiceInterfaceDeployment\nCameraService_Someip\nservice 0x1001" as DEP
+rectangle "ServiceInterface\nCameraService" as SI
+rectangle "SomeipServiceInstanceToMachineMapping\nCameraServiceClientOnHpc" as MM
+rectangle "BackboneConnector\nof HpcDesign" as CONN
+CODE ..> PORT : names
+MAP --> PORT : portPrototype (iref)
+MAP --> PROC : process
+MAP --> RSI : serviceInstance
+RSI --> DEP : serviceInterfaceDeployment
+DEP --> SI : serviceInterface
+MM --> RSI : serviceInstance
+MM --> CONN : communicationConnector, tcpPort
+@enduml

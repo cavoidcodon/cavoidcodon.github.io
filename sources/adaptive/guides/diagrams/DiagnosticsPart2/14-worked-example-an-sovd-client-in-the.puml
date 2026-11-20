@@ -1,0 +1,25 @@
+@startuml
+!include ../_style.puml
+participant "SOVD client" as C
+participant "DM (HpcSovdServer, hpcdiag)" as DM
+participant "CameraDriver" as CD
+participant "SmControl" as SC
+C -> DM : GET .../hpcdiag/data/CameraStatus
+DM -> CD : GenericDiagnosticSovdContent Read("CameraStatus")
+CD --> DM : blocked true, brightness 3, exposureMode Night
+DM --> C : 200 id CameraStatus, data
+C -> DM : GET .../hpcdiag/faults?scope=HpcPrimaryMemory
+DM --> C : 200 items with code 9A1011, status
+C -> DM : GET .../hpcdiag/operations/CameraCalibration
+DM -> SC : SovdProximityChallenge GetChallenge
+DM --> C : 200 description, proximity_challenge
+C -> DM : POST .../operations/CameraCalibration/executions with proximity_response
+DM -> SC : ValidateResponse
+SC --> DM : kProximityChallengeValidationSuccessful
+DM -> CD : GenericDiagnosticSovdOperation StartExecution
+CD --> DM : asynchronous execution
+DM --> C : execution id, status running
+C -> DM : GET .../executions/id
+DM -> CD : SovdOperationExecution GetStatus
+DM --> C : 200 status completed
+@enduml

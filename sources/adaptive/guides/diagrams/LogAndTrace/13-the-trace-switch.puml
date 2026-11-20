@@ -1,0 +1,15 @@
+@startuml
+!include ../_style.puml
+rectangle "logger.Log(msg, params)" as CALL
+rectangle "TraceSwitchConfig for this message,\nnamespace and executable?" as Q <<decision>>
+rectangle "Logger\n[SWS_LOG_20001]" as LOG
+rectangle "apext::log::TraceArti\n[SWS_LOG_20002]" as ARTI
+rectangle "TraceArti and Logger\n[SWS_LOG_20003]" as BOTH
+rectangle "discarded, no run-time cost\n[SWS_LOG_20004]" as DROP
+CALL --> Q
+Q --> LOG : none
+Q --> LOG : traceSwitchLog
+Q --> ARTI : traceSwitchArti
+Q --> BOTH : traceSwitchArtiAndLog
+Q --> DROP : traceSwitchNone
+@enduml

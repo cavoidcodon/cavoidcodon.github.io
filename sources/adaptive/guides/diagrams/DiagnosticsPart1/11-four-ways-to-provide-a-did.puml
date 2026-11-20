@@ -1,0 +1,16 @@
+@startuml
+!include ../_style.puml
+rectangle "Who knows the data?" as Q <<decision>>
+rectangle "Fixed layout known at design time?" as T <<decision>>
+rectangle "Typed DID class" as TYP
+rectangle "GenericDataIdentifier" as GEN
+rectangle "Data-element classes" as EL
+rectangle "Internal data element" as INT
+rectangle "GenericUDSService" as RAW
+Q --> T : one process, whole record
+T --> TYP : yes
+T --> GEN : no, many DIDs in one place
+Q --> EL : several processes, one element each
+Q --> INT : DM itself
+Q --> RAW : legacy code that speaks UDS bytes
+@enduml

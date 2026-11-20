@@ -1,0 +1,35 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "Service instance\n(provided or required)" as INST
+rectangle "End2EndEvent/MethodProtectionProps" as E2EP
+rectangle "E2EProfileConfiguration" as CFG
+rectangle "E2EProfileCompatibilityProps" as CMP
+rectangle "ServiceInterfaceElementSecureComConfig\n(SecOC only)" as SCC
+rectangle "ServiceInstanceToMachineMapping" as MAP
+rectangle "TlsSecureComProps" as TLS
+rectangle "SecOcSecureComProps" as SOC
+rectangle "DdsSecureComProps" as DDSS
+rectangle "TlsCryptoCipherSuite" as SUITE
+rectangle "CryptoServiceCertificate\nCryptoServiceKey" as CERT
+rectangle "EthernetCommunicationConnector" as CONN
+rectangle "NetworkEndpoint\nIPSecConfig" as NEP
+rectangle "ServiceInstanceToSignalMapping" as SIG
+rectangle "ISignalGroup\nE2E transformer" as GRP
+rectangle "SecuredIPdu" as SPDU
+INST --> E2EP
+E2EP --> CFG
+CFG --> CMP
+INST --> SCC
+MAP --> INST
+MAP --> TLS
+MAP --> SOC
+MAP --> DDSS
+TLS --> SUITE
+SUITE --> CERT
+MAP --> CONN
+CONN --> NEP
+SIG --> INST
+SIG ..> GRP
+SIG ..> SPDU
+@enduml

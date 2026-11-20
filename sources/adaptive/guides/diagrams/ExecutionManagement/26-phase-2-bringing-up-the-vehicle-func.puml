@@ -1,0 +1,30 @@
+@startuml
+!include ../_style.puml
+autonumber
+participant "StateManager" as SM
+participant "Execution Management" as EM
+participant "Storage" as ST
+participant "CalibrationCheck" as CC
+participant "LegacyLogger" as LL
+participant "LoggerCompanion" as LC
+participant "Fusion" as FU
+SM -> EM : SetState(ADAS.Normal)
+par Wave 1, no dependencies (CameraDriver omitted)
+EM -> ST : start
+ST --> EM : kRunning
+else
+EM -> LL : start (non-reporting, Running at once)
+end
+par Wave 2
+EM -> CC : start (Storage is Running)
+CC --> EM : kRunning
+CC -> CC : verify the calibration, exit(EXIT_SUCCESS)
+else
+EM -> LC : start (LegacyLogger is Running)
+LC -> LL : probe the logger (project-specific check)
+LC --> EM : kRunning
+end
+EM -> FU : start (CalibrationCheck Terminated and LoggerCompanion Running)
+FU --> EM : kRunning
+EM --> SM : Future ready, ADAS.Normal reached
+@enduml

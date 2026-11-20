@@ -1,0 +1,18 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "CameraDriver" as CD
+rectangle "ST" as ST
+rectangle "CalibrationCheck" as CC
+rectangle "Fusion, FusionLite" as FU
+rectangle "Process Storage" as ST {
+  rectangle "CalibrationDataService skeleton" as SVC
+  rectangle "CalibrationStore" as CS
+  database "CalibrationKvs" as KVS
+}
+CD --> ST : SetCalibration
+CC --> ST : GetCalibration
+FU --> ST : GetCalibration; CalibrationUpdated
+SVC --> CS
+CS --> KVS
+@enduml

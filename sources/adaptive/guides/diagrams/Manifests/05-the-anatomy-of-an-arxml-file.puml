@@ -1,0 +1,18 @@
+@startuml
+!include ../_style.puml
+rectangle "AUTOSAR (root element)" as ROOT
+rectangle "AR-PACKAGES" as PKGS
+rectangle "AR-PACKAGE\nSHORT-NAME: HPC" as PKG
+rectangle "AR-PACKAGES" as SUBS
+rectangle "AR-PACKAGE\nSHORT-NAME: Machines" as SUB
+rectangle "ELEMENTS" as ELS
+rectangle "MACHINE\nSHORT-NAME: HPC" as EL
+rectangle "attributes, aggregated elements,\nreferences" as ATTR
+ROOT --> PKGS
+PKGS --> PKG
+PKG --> SUBS
+SUBS --> SUB
+SUB --> ELS
+ELS --> EL
+EL --> ATTR
+@enduml

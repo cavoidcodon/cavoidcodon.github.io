@@ -1,0 +1,21 @@
+@startuml
+!include ../_style.puml
+autonumber
+participant "Fusion code" as FU
+participant "Cluster library (in Fusion)" as FC
+participant "ara::core (in Fusion)" as CO
+participant "Log and Trace" as LT
+participant "Execution Management" as EM
+participant "State Management" as SM
+FU -> CO : InstanceSpecifier::Create("/fusion/Root/CameraRPort")
+CO --> FU : Result with the specifier (syntax is valid)
+FU -> FC : construct a cluster object with the specifier
+FC -> FC : path not found in the model of the executable
+FC -> CO : Abort with InstanceSpecifierMappingIntegrityViolation
+CO -> CO : message to stderr
+CO -> LT : DLT message 0x80001ffc (fatal)
+CO -> CO : abort handlers, then std::abort()
+CO --> EM : process terminated by SIGABRT
+EM -> SM : ADAS in an Undefined Function Group State, executionError 42
+SM -> EM : SetState(ADAS.Degraded)
+@enduml

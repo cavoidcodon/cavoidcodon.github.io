@@ -108,7 +108,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 <tr>
 <td>Diagrams</td>
-<td>Written in Mermaid. They render natively on GitHub and GitLab. In VS Code, install the <em>Markdown Preview Mermaid Support</em> extension.</td>
+<td>Drawn in PlantUML and inserted as SVG images, so they show in any Markdown viewer. Click an image to open it at full size.</td>
 </tr>
 </tbody>
 </table></div>
@@ -618,18 +618,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </blockquote>
 <h3 id="31-where-the-bindings-sit">3.1 Where the Bindings Sit<a class="anchor" href="#31-where-the-bindings-sit" aria-label="Link to this section">#</a></h3>
 <p>The bindings are part of Communication Management. They sit between the API of the CM guide and the operating system's network stack, as the following diagram shows.</p>
-<pre class="mermaid">flowchart TB
-    APP[&quot;Adaptive Application&lt;br/&gt;(proxy and skeleton code)&quot;] --&gt; API[&quot;ara::com API and language binding&quot;]
-    API --&gt; DISP[&quot;CM: dispatching and discovery&quot;]
-    DISP --&gt; LOC[&quot;Local binding&lt;br/&gt;(implementation-specific IPC)&quot;]
-    DISP --&gt; SOMEIP[&quot;SOME/IP binding&lt;br/&gt;and Signal-Based SOME/IP&quot;]
-    DISP --&gt; STAT[&quot;Signal-Based Static&lt;br/&gt;and IEEE1722 ACF&quot;]
-    DISP --&gt; DDS[&quot;DDS binding&quot;]
-    SOMEIP --&gt; NET[&quot;OS network stack: UDP, TCP, IP&quot;]
-    STAT --&gt; NET
-    DDS --&gt; NET
-    NET --&gt; ETH[&quot;Ethernet (EthernetCommunicationConnector)&quot;]
-</pre>
+<p><a class="figure" href="diagrams/NetworkBindings/01-where-the-bindings-sit.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/NetworkBindings/01-where-the-bindings-sit.svg" alt="Flowchart: Where the Bindings Sit" loading="lazy"></a></p>
 <p>A binding has three kinds of work: <strong>discovery</strong> (offer, find, subscribe), <strong>transport</strong> (sending and receiving messages on sockets) and <strong>serialization</strong>. How these are organized inside an implementation is not specified.</p>
 <blockquote>
 <p><strong>Note (implementation example):</strong> Many SOME/IP implementations use a central daemon (a &quot;routing manager&quot;) that owns the sockets of the Machine and runs service discovery, while each application process links a library that talks to the daemon over local IPC. The COVESA project <code>vsomeip</code> works this way. The specification neither requires nor forbids this design.</p>
@@ -654,15 +643,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p>The one exception is the SOME/IP major version: a new <code>SomeipServiceVersion.majorVersion</code> means an incompatible interface and requires recompilation. A port can also have several bindings at the same time (<strong>multi-binding</strong>, [SWS_CM_10590]); the CM guide explained this, and <a href="#1211-worked-example-chassisdynamics-becomes-vehicledynamicsservice">Section 12.11</a> uses it for <code>AdasStatusService</code>.</p>
 <h3 id="34-interaction-map">3.4 Interaction Map<a class="anchor" href="#34-interaction-map" aria-label="Link to this section">#</a></h3>
 <p>The following diagram shows what the bindings read and whom they serve.</p>
-<pre class="mermaid">flowchart LR
-    SIM[&quot;Service Instance Manifest&lt;br/&gt;(deployments, instances, mappings)&quot;] --&gt; B[&quot;Network bindings&quot;]
-    MM[&quot;Machine Manifest and Machine Design&lt;br/&gt;(connectors, endpoints, ports, SD config)&quot;] --&gt; B
-    CM[&quot;Classic communication matrix&lt;br/&gt;(ISignals, ISignalIPdus, triggerings)&quot;] --&gt; B
-    B --&gt; API[&quot;ara::com API (the CM guide)&quot;]
-    IAM[&quot;Identity and Access Management (the IAM guide)&quot;] -.-&gt; B
-    SEC[&quot;Secure channels and E2E (the Secure Communication guide)&quot;] -.-&gt; B
-    NM[&quot;Network Management (the NM/TSync/RDS guide)&quot;] -.-&gt; B
-</pre>
+<p><a class="figure" href="diagrams/NetworkBindings/02-interaction-map.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/NetworkBindings/02-interaction-map.svg" alt="Flowchart: Interaction Map" loading="lazy"></a></p>
 <p>Every binding discards a message that it identifies as malformed, and does not report the error to the application ([SWS_CM_10416]). This is worth remembering when &quot;nothing arrives&quot;.</p>
 <blockquote>
 <p><strong>Key takeaways</strong></p>
@@ -728,18 +709,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p>The <em>Methodology</em> TR describes the design of signal/service translation as a task of its own: <em>Define Signal to Service Translation</em> produces a <em>Signal to Service Translation Description</em> from the service interfaces and the Classic communication matrix ([TR_AMETH_00208]; TR Methodology, Section 2.2.4). It is needed only if the Classic side does not already speak SOME/IP.</p>
 <h3 id="42-how-the-elements-relate">4.2 How the Elements Relate<a class="anchor" href="#42-how-the-elements-relate" aria-label="Link to this section">#</a></h3>
 <p>The following diagram shows the elements of a SOME/IP or DDS deployment and, at the bottom, the extra elements of the Signal-Based binding.</p>
-<pre class="mermaid">flowchart TB
-    SI[&quot;ServiceInterface&quot;] --&gt; SID[&quot;ServiceInterfaceDeployment&lt;br/&gt;(Someip / Dds / UserDefined)&quot;]
-    SID --&gt; ED[&quot;event, method and field deployments&lt;br/&gt;(IDs, topics, protocol, serializer)&quot;]
-    SID --&gt; INST[&quot;Provided / Required service instance&lt;br/&gt;(instance ID, SD config, version, category)&quot;]
-    INST --&gt; PPM[&quot;ServiceInstanceToPortPrototypeMapping&lt;br/&gt;(process and port)&quot;]
-    INST --&gt; M2M[&quot;ServiceInstanceToMachineMapping&lt;br/&gt;(connector, UDP/TCP ports)&quot;]
-    M2M --&gt; CON[&quot;EthernetCommunicationConnector&lt;br/&gt;(endpoints, ISignalPorts)&quot;]
-    INST --&gt; S2S[&quot;ServiceInstanceToSignalMapping&lt;br/&gt;(Signal-Based only)&quot;]
-    S2S --&gt; TRIG[&quot;ISignalTriggering&quot;]
-    TRIG --&gt; SIG[&quot;ISignal in an ISignalIPdu&quot;]
-    TRIG --&gt; CON
-</pre>
+<p><a class="figure" href="diagrams/NetworkBindings/03-how-the-elements-relate.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/NetworkBindings/03-how-the-elements-relate.svg" alt="Flowchart: How the Elements Relate" loading="lazy"></a></p>
 <h3 id="43-who-configures-what-and-when">4.3 Who Configures What, and When<a class="anchor" href="#43-who-configures-what-and-when" aria-label="Link to this section">#</a></h3>
 <ol>
 <li>The <strong>function architect</strong> defines the service interface. It is binding-independent.</li>
@@ -1279,15 +1249,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p>The SD messages themselves use the SD port and the SD multicast address of the Machine, <code>SomeipServiceDiscovery.someipServiceDiscoveryPort</code> and <code>multicastSdIpAddress</code> (in <code>HPC</code>: 30490 and <code>239.192.255.251</code>).</p>
 <h3 id="63-the-three-phases-on-the-server">6.3 The Three Phases on the Server<a class="anchor" href="#63-the-three-phases-on-the-server" aria-label="Link to this section">#</a></h3>
 <p>For each service instance, SD goes through three phases ([PRS_SOMEIPSD_00395]):</p>
-<pre class="mermaid">stateDiagram-v2
-    [*] --&gt; Down
-    Down --&gt; InitialWait: OfferService() and link up
-    InitialWait --&gt; Repetition: random initial delay expired, first offer sent
-    Repetition --&gt; Main: initialRepetitionsMax repetitions sent
-    Main --&gt; Main: offerCyclicDelay expired, offer sent
-    Main --&gt; Down: StopOfferService(), StopOffer sent (TTL 0)
-    Repetition --&gt; Down: StopOfferService()
-</pre>
+<p><a class="figure" href="diagrams/NetworkBindings/04-the-three-phases-on-the-server.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/NetworkBindings/04-the-three-phases-on-the-server.svg" alt="State diagram: The Three Phases on the Server" loading="lazy"></a></p>
 <ul>
 <li><strong>Initial Wait Phase:</strong> when the application calls <code>OfferService()</code> and the link is up, SD waits a random time between <code>initialDelayMinValue</code> and <code>initialDelayMaxValue</code>, then sends the first offer ([SWS_CM_00201], [TPS_MANI_03012]; [PRS_SOMEIPSD_00133]). The random delay avoids that all ECUs send at the same moment after power-up.</li>
 <li><strong>Repetition Phase:</strong> SD repeats the offer up to <code>initialRepetitionsMax</code> times, waiting <code>initialRepetitionsBaseDelay</code> before the first repetition and doubling the wait each time ([TPS_MANI_03013]; example in [PRS_SOMEIPSD_00416]).</li>
@@ -1370,23 +1332,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </blockquote>
 <h3 id="610-worked-example-cockpit-finds-and-subscribes-to-cameraservice">6.10 Worked Example: <code>Cockpit</code> Finds and Subscribes to <code>CameraService</code><a class="anchor" href="#610-worked-example-cockpit-finds-and-subscribes-to-cameraservice" aria-label="Link to this section">#</a></h3>
 <p><code>HPC</code> offers <code>CameraService</code> with the SD timing of the Manifests guide: initial delay 10 to 100 ms, repetition base delay 50 ms, three repetitions, cyclic offers every 1 s, TTL 3 s. <code>Cockpit</code> looks for the service and subscribes to the eventgroup <code>CameraEvents</code> (ID 1), which contains <code>Image</code> and the notifier of <code>CameraStatus</code>. Both elements use TCP. The following sequence shows a typical startup.</p>
-<pre class="mermaid">sequenceDiagram
-    participant CD as CameraDriver (HPC)
-    participant SD as CM on HPC (SD, 192.168.10.10)
-    participant CK as Cockpit (192.168.10.20)
-    CD-&gt;&gt;SD: OfferService()
-    Note over SD: Initial Wait Phase: random 10..100 ms
-    SD--&gt;&gt;CK: Offer 0x1001/0x0001 v1.0, TTL 3, IPv4 Endpoint 192.168.10.10 TCP 30501 (multicast)
-    Note over SD: Repetition Phase: after 50, 100, 200 ms
-    CK-&gt;&gt;SD: TCP connect to 192.168.10.10:30501
-    CK-&gt;&gt;SD: SubscribeEventgroup 0x1001/0x0001 v1, eventgroup 1, TTL 3, IPv4 Endpoint of Cockpit TCP (unicast)
-    SD-&gt;&gt;CK: SubscribeEventgroupAck eventgroup 1, TTL 3
-    CD-&gt;&gt;SD: Image.Send(image)
-    SD-&gt;&gt;CK: SOME/IP 0x1001/0x8001 NOTIFICATION over the TCP connection
-    Note over SD: Main Phase: Offer every 1 s
-    SD--&gt;&gt;CK: Offer (cyclic)
-    CK-&gt;&gt;SD: SubscribeEventgroup (renewal)
-</pre>
+<p><a class="figure" href="diagrams/NetworkBindings/05-worked-example-cockpit-finds-and-sub.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/NetworkBindings/05-worked-example-cockpit-finds-and-sub.svg" alt="Sequence diagram: Worked Example: Cockpit Finds and Subscribes to CameraService" loading="lazy"></a></p>
 <p>The OfferService entry in this sequence contains, field by field:</p>
 <div class="table-wrap"><table>
 <thead>
@@ -1928,14 +1874,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tbody>
 </table></div>
 <p><code>HPC</code> uses <strong>architecture B</strong>: <code>CentralGateway</code> routes the PDUs between CAN and the backbone, and the translation runs on <code>HPC</code> (the Running Example guide, Section 1.8).</p>
-<pre class="mermaid">flowchart LR
-    CH[&quot;ChassisECU (CAN)&quot;] --&gt;|&quot;ChassisDynamics 0x101&quot;| GW[&quot;CentralGateway&lt;br/&gt;(PDU routing, SOME/IP-SD)&quot;]
-    GW --&gt;|&quot;PDU behind Partial SOME/IP Header&lt;br/&gt;UDP to HPC:30601&quot;| CM[&quot;CM on HPC:&lt;br/&gt;Signal-Based SOME/IP binding&quot;]
-    CM --&gt;|&quot;VehicleDynamicsService&quot;| APP[&quot;Fusion, FusionLite, SmControl&quot;]
-    SMC[&quot;SmControl&quot;] --&gt;|&quot;AdasStatus&quot;| CM
-    CM --&gt;|&quot;AdasHmi behind Partial SOME/IP Header&quot;| GW
-    GW --&gt;|&quot;AdasHmi 0x2A0&quot;| IC[&quot;InstrumentCluster (CAN)&quot;]
-</pre>
+<p><a class="figure" href="diagrams/NetworkBindings/06-four-architectures.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/NetworkBindings/06-four-architectures.svg" alt="Flowchart: Four Architectures" loading="lazy"></a></p>
 <h3 id="104-terms-signal-service-translation-and-s2s">10.4 Terms: Signal-Service Translation and S2S<a class="anchor" href="#104-terms-signal-service-translation-and-s2s" aria-label="Link to this section">#</a></h3>
 <p>The specifications use these terms (TPS, Section 9.1):</p>
 <ul>
@@ -3944,34 +3883,7 @@ Translation
 <p><strong>Why this matters:</strong> The bindings of this guide work together in every drive. This walkthrough follows <code>HPC</code> from power-up to the first object list on <code>Cockpit</code>.</p>
 </blockquote>
 <h3 id="161-the-sequence">16.1 The Sequence<a class="anchor" href="#161-the-sequence" aria-label="Link to this section">#</a></h3>
-<pre class="mermaid">sequenceDiagram
-    participant GW as CentralGateway
-    participant CM as CM on HPC
-    participant SMC as SmControl
-    participant FU as Fusion
-    participant CK as Cockpit
-    Note over CM: MachineFG Startup: SmControl, CameraDriver start
-    SMC-&gt;&gt;CM: StartFindService(VehicleDynamics, PowerMode), OfferService(AdasStatus x2)
-    GW--&gt;&gt;CM: Offer 0x2001 and 0x2002 (Signal-Based SOME/IP, SD)
-    CM-&gt;&gt;GW: Subscribe eventgroups VehicleDynamicsEvents, PowerModeEvents
-    CM--&gt;&gt;GW: Offer 0x2003 (AdasStatus, signal-based)
-    GW-&gt;&gt;CM: Subscribe AdasHmiEvents
-    GW-&gt;&gt;CM: VehicleMode PDU, PowerMode = On (Partial SOME/IP Header)
-    CM-&gt;&gt;SMC: PowerMode notification
-    Note over SMC: Requests MachineFG Driving, ADAS Normal (the SM guide)
-    CM--&gt;&gt;CK: Offer 0x1001 CameraService, 0x1002 AdasStatusService
-    CK-&gt;&gt;CM: Subscribe CameraEvents (TCP) and AdasStatusEvents (UDP)
-    Note over FU: ADAS Normal: Fusion starts
-    FU-&gt;&gt;CM: OfferService(ObjectListService) over DDS
-    CK-&gt;&gt;CM: DDS discovery: reads ara.com://services/discovery, matches AdasObjectList
-    GW-&gt;&gt;CM: ChassisDynamics PDU every 10 ms
-    CM-&gt;&gt;FU: VehicleSpeed, SteeringAngle, YawRate events
-    FU-&gt;&gt;CM: ObjectList.Send()
-    CM-&gt;&gt;CK: DDS sample on ara.com://services/hpc_fusion_ObjectListService/1.0/AdasObjectList
-    SMC-&gt;&gt;CM: AdasStatus.Update(Active)
-    CM-&gt;&gt;CK: SOME/IP notification 0x1002/0x8001
-    CM-&gt;&gt;GW: AdasHmi PDU behind Partial SOME/IP Header 0x2003/0x8001
-</pre>
+<p><a class="figure" href="diagrams/NetworkBindings/07-the-sequence.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/NetworkBindings/07-the-sequence.svg" alt="Sequence diagram: The Sequence" loading="lazy"></a></p>
 <h3 id="162-step-by-step">16.2 Step by Step<a class="anchor" href="#162-step-by-step" aria-label="Link to this section">#</a></h3>
 <ol>
 <li><strong>Startup.</strong> In <code>MachineFG</code> <code>Startup</code>, <code>SmControl</code> starts and looks for <code>VehicleDynamicsService</code> and <code>PowerModeService</code>. Their required instances have the category <code>SIGNALBASED_WITH_HEADER</code> and <code>serviceControl</code> <code>serviceDiscovery</code>, so CM searches for them with SOME/IP-SD ([TPS_MANI_03582]).</li>
@@ -4620,12 +4532,11 @@ Translation
 
 </article>
 <nav class="pager" aria-label="Previous and next guide"><a class="pager-prev" href="CommunicationManagement.html"><span class="pager-label">← Previous</span><span class="pager-title">Communication Management Part 1: <code>ara::com</code> Concepts and API</span></a><a class="pager-next" href="SecureAndSafeCommunication.html"><span class="pager-label">Next →</span><span class="pager-title">Communication Management Part 3: Secure Communication and End-to-End Protection</span></a></nav>
-<footer class="site-footer"><p>Based on the AUTOSAR Adaptive Platform and Foundation specifications, release R25-11.</p><p>Training material, not a normative reference. Where a guide and an AUTOSAR specification differ, the specification applies. Specifications: <a href="https://www.autosar.org/standards" target="_blank" rel="noopener">autosar.org/standards</a>.</p></footer>
+<footer class="site-footer"><p>Based on the AUTOSAR Adaptive Platform and Foundation specifications, release R25-11.</p><p>Training material, not a normative reference. Specifications: <a href="https://www.autosar.org/standards" target="_blank" rel="noopener">autosar.org/standards</a>.</p></footer>
 </main>
 <aside class="toc" aria-label="On this page"><p class="toc-label">On this page</p><ul><li class="lvl2"><a href="#about-this-guide">About This Guide</a></li><li class="lvl3"><a href="#who-this-guide-is-for">Who This Guide Is For</a></li><li class="lvl3"><a href="#learning-objectives">Learning Objectives</a></li><li class="lvl3"><a href="#how-to-read-this-guide">How to Read This Guide</a></li><li class="lvl3"><a href="#the-running-example">The Running Example</a></li><li class="lvl2"><a href="#table-of-contents">Table of Contents</a></li><li class="lvl2"><a href="#1-introduction-to-network-bindings">1. Introduction to Network Bindings</a></li><li class="lvl3"><a href="#11-what-is-a-network-binding">1.1 What Is a Network Binding?</a></li><li class="lvl3"><a href="#12-what-the-binding-does-not-do">1.2 What the Binding Does Not Do</a></li><li class="lvl3"><a href="#13-three-bindings-one-api">1.3 Three Bindings, One API</a></li><li class="lvl3"><a href="#14-analogies">1.4 Analogies</a></li><li class="lvl2"><a href="#2-core-concepts-and-terminology">2. Core Concepts and Terminology</a></li><li class="lvl3"><a href="#21-service-instance-and-element-on-the-wire">2.1 Service, Instance and Element on the Wire</a></li><li class="lvl3"><a href="#22-serialization-and-byte-order">2.2 Serialization and Byte Order</a></li><li class="lvl3"><a href="#23-service-discovery-dynamic-and-static">2.3 Service Discovery: Dynamic and Static</a></li><li class="lvl3"><a href="#24-unicast-multicast-and-the-multicast-threshold">2.4 Unicast, Multicast and the Multicast Threshold</a></li><li class="lvl3"><a href="#25-signals-pdus-and-frames">2.5 Signals, PDUs and Frames</a></li><li class="lvl3"><a href="#26-other-key-terms">2.6 Other Key Terms</a></li><li class="lvl2"><a href="#3-network-bindings-in-the-system-architecture">3. Network Bindings in the System Architecture</a></li><li class="lvl3"><a href="#31-where-the-bindings-sit">3.1 Where the Bindings Sit</a></li><li class="lvl3"><a href="#32-the-network-the-bindings-see">3.2 The Network the Bindings See</a></li><li class="lvl3"><a href="#33-change-the-binding-without-recompiling">3.3 Change the Binding Without Recompiling</a></li><li class="lvl3"><a href="#34-interaction-map">3.4 Interaction Map</a></li><li class="lvl2"><a href="#4-configuration-overview">4. Configuration Overview</a></li><li class="lvl3"><a href="#41-where-the-configuration-lives">4.1 Where the Configuration Lives</a></li><li class="lvl3"><a href="#42-how-the-elements-relate">4.2 How the Elements Relate</a></li><li class="lvl3"><a href="#43-who-configures-what-and-when">4.3 Who Configures What, and When</a></li><li class="lvl2"><a href="#5-someip-the-message-format">5. SOME/IP: The Message Format</a></li><li class="lvl3"><a href="#51-the-16-byte-header-field-by-field">5.1 The 16-Byte Header, Field by Field</a></li><li class="lvl3"><a href="#52-message-types-and-return-codes">5.2 Message Types and Return Codes</a></li><li class="lvl3"><a href="#53-request-id-and-session-handling">5.3 Request ID and Session Handling</a></li><li class="lvl3"><a href="#54-udp-or-tcp">5.4 UDP or TCP</a></li><li class="lvl3"><a href="#55-data-accumulation-for-udp">5.5 Data Accumulation for UDP</a></li><li class="lvl3"><a href="#56-worked-example-one-image-event-in-bytes">5.6 Worked Example: One Image Event in Bytes</a></li><li class="lvl2"><a href="#6-someip-service-discovery">6. SOME/IP Service Discovery</a></li><li class="lvl3"><a href="#61-the-sd-message-header-entries-and-options">6.1 The SD Message: Header, Entries and Options</a></li><li class="lvl3"><a href="#62-how-the-manifest-fills-an-entry">6.2 How the Manifest Fills an Entry</a></li><li class="lvl3"><a href="#63-the-three-phases-on-the-server">6.3 The Three Phases on the Server</a></li><li class="lvl3"><a href="#64-the-client-side-find-and-why-findservice-does-not-wait">6.4 The Client Side: Find, and Why FindService Does Not Wait</a></li><li class="lvl3"><a href="#65-versions-on-the-wire-major-minor-blocklist">6.5 Versions on the Wire: Major, Minor, Blocklist</a></li><li class="lvl3"><a href="#66-subscribing-to-eventgroups-subscribe-ack-nack-renewal">6.6 Subscribing to Eventgroups: Subscribe, Ack, Nack, Renewal</a></li><li class="lvl3"><a href="#67-stopping-stopoffer-stopsubscribe-and-ttl-expiry">6.7 Stopping: StopOffer, StopSubscribe and TTL Expiry</a></li><li class="lvl3"><a href="#68-reboot-detection-and-link-loss">6.8 Reboot Detection and Link Loss</a></li><li class="lvl3"><a href="#69-what-r25-11-does-not-support">6.9 What R25-11 Does Not Support</a></li><li class="lvl3"><a href="#610-worked-example-cockpit-finds-and-subscribes-to-cameraservice">6.10 Worked Example: Cockpit Finds and Subscribes to CameraService</a></li><li class="lvl2"><a href="#7-mapping-events-triggers-methods-and-fields-to-someip">7. Mapping Events, Triggers, Methods and Fields to SOME/IP</a></li><li class="lvl3"><a href="#71-events-when-they-are-sent-where-to-with-what-header">7.1 Events: When They Are Sent, Where To, With What Header</a></li><li class="lvl3"><a href="#72-triggers">7.2 Triggers</a></li><li class="lvl3"><a href="#73-methods-request-response-and-error">7.3 Methods: Request, Response and Error</a></li><li class="lvl3"><a href="#74-fire-and-forget-methods">7.4 Fire-and-Forget Methods</a></li><li class="lvl3"><a href="#75-fields-notifier-getter-and-setter">7.5 Fields: Notifier, Getter and Setter</a></li><li class="lvl3"><a href="#76-what-the-receiver-checks-and-silent-discards">7.6 What the Receiver Checks, and Silent Discards</a></li><li class="lvl3"><a href="#77-service-interfaces-without-elements">7.7 Service Interfaces Without Elements</a></li><li class="lvl3"><a href="#78-worked-example-cockpit-reads-camerastatus-with-the-getter">7.8 Worked Example: Cockpit Reads CameraStatus With the Getter</a></li><li class="lvl2"><a href="#8-someip-serialization">8. SOME/IP Serialization</a></li><li class="lvl3"><a href="#81-the-rules-in-one-page">8.1 The Rules in One Page</a></li><li class="lvl3"><a href="#82-basic-types-enumerations-and-bitfields">8.2 Basic Types, Enumerations and Bitfields</a></li><li class="lvl3"><a href="#83-structs-and-their-length-fields">8.3 Structs and Their Length Fields</a></li><li class="lvl3"><a href="#84-strings">8.4 Strings</a></li><li class="lvl3"><a href="#85-vectors-arrays-and-maps">8.5 Vectors, Arrays and Maps</a></li><li class="lvl3"><a href="#86-variants">8.6 Variants</a></li><li class="lvl3"><a href="#87-tlv-extensible-structs-and-optional-members">8.7 TLV: Extensible Structs and Optional Members</a></li><li class="lvl3"><a href="#88-robust-de-serialization-too-little-too-much-missing">8.8 Robust De-serialization: Too Little, Too Much, Missing</a></li><li class="lvl3"><a href="#89-worked-example-objectlistdata-if-it-went-over-someip">8.9 Worked Example: ObjectListData If It Went Over SOME/IP</a></li><li class="lvl2"><a href="#9-large-messages-and-static-connections">9. Large Messages and Static Connections</a></li><li class="lvl3"><a href="#91-someip-tp-segmenting-large-udp-messages">9.1 SOME/IP-TP: Segmenting Large UDP Messages</a></li><li class="lvl3"><a href="#92-burst-size-and-separation-time">9.2 Burst Size and Separation Time</a></li><li class="lvl3"><a href="#93-static-service-connection-someip-without-service-discovery">9.3 Static Service Connection: SOME/IP Without Service Discovery</a></li><li class="lvl3"><a href="#94-worked-example-why-cameraservice-uses-tcp-for-image">9.4 Worked Example: Why CameraService Uses TCP for Image</a></li><li class="lvl2"><a href="#10-signal-to-service-translation-why-and-where">10. Signal-to-Service Translation: Why and Where</a></li><li class="lvl3"><a href="#101-the-problem-service-oriented-hpc-signal-based-vehicle">10.1 The Problem: Service-Oriented HPC, Signal-Based Vehicle</a></li><li class="lvl3"><a href="#102-classic-background-signals-pdus-and-update-bits">10.2 Classic Background: Signals, PDUs and Update Bits</a></li><li class="lvl3"><a href="#103-four-architectures">10.3 Four Architectures</a></li><li class="lvl3"><a href="#104-terms-signal-service-translation-and-s2s">10.4 Terms: Signal-Service Translation and S2S</a></li><li class="lvl3"><a href="#105-where-the-translation-runs">10.5 Where the Translation Runs</a></li><li class="lvl2"><a href="#11-the-signal-based-binding-three-variants">11. The Signal-Based Binding: Three Variants</a></li><li class="lvl3"><a href="#111-the-message-header-partial-someip-arbitrary-or-none">11.1 The Message Header: Partial SOME/IP, Arbitrary or None</a></li><li class="lvl3"><a href="#112-signal-based-someip-serializer--signalbased">11.2 Signal-Based SOME/IP: serializer = signalBased</a></li><li class="lvl3"><a href="#113-signal-based-static-sockets-without-service-discovery">11.3 Signal-Based Static: Sockets Without Service Discovery</a></li><li class="lvl3"><a href="#114-signal-based-ieee1722-acf-draft">11.4 Signal-Based IEEE1722 ACF (DRAFT)</a></li><li class="lvl3"><a href="#115-what-each-variant-can-carry">11.5 What Each Variant Can Carry</a></li><li class="lvl3"><a href="#116-comparison-and-how-to-choose">11.6 Comparison and How to Choose</a></li><li class="lvl2"><a href="#12-translation-mapping-and-behavior">12. Translation Mapping and Behavior</a></li><li class="lvl3"><a href="#121-serviceinstancetosignalmapping-one-element-one-signal-triggering">12.1 ServiceInstanceToSignalMapping: One Element, One Signal Triggering</a></li><li class="lvl3"><a href="#122-direction-from-port-and-instance-kind">12.2 Direction From Port and Instance Kind</a></li><li class="lvl3"><a href="#123-events-triggers-fields-and-fire-and-forget-methods">12.3 Events, Triggers, Fields and Fire-and-Forget Methods</a></li><li class="lvl3"><a href="#124-signal-groups-and-one-pdu-to-several-events">12.4 Signal Groups, and One PDU to Several Events</a></li><li class="lvl3"><a href="#125-when-the-translated-service-appears-translationstart-or-servicediscovery">12.5 When the Translated Service Appears: translationStart or serviceDiscovery</a></li><li class="lvl3"><a href="#126-optional-members-update-bits-and-transmission-triggers">12.6 Optional Members, Update Bits and Transmission Triggers</a></li><li class="lvl3"><a href="#127-data-filters">12.7 Data Filters</a></li><li class="lvl3"><a href="#128-one-source-several-sources-several-targets">12.8 One Source, Several Sources, Several Targets</a></li><li class="lvl3"><a href="#129-what-the-classic-side-must-provide">12.9 What the Classic Side Must Provide</a></li><li class="lvl3"><a href="#1210-timing-and-consistency-pitfalls">12.10 Timing and Consistency Pitfalls</a></li><li class="lvl3"><a href="#1211-worked-example-chassisdynamics-becomes-vehicledynamicsservice">12.11 Worked Example: ChassisDynamics Becomes VehicleDynamicsService</a></li><li class="lvl2"><a href="#13-dds-binding">13. DDS Binding</a></li><li class="lvl3"><a href="#131-dds-in-plain-words">13.1 DDS in Plain Words</a></li><li class="lvl3"><a href="#132-what-autosar-requires-from-dds">13.2 What AUTOSAR Requires From DDS</a></li><li class="lvl3"><a href="#133-two-ways-to-discover-user_data-qos-or-discovery-topic">13.3 Two Ways to Discover: USER_DATA QoS or Discovery Topic</a></li><li class="lvl3"><a href="#134-topics-and-their-names">13.4 Topics and Their Names</a></li><li class="lvl3"><a href="#135-events-and-triggers-on-topics">13.5 Events and Triggers on Topics</a></li><li class="lvl3"><a href="#136-methods-and-field-getset-over-request-and-reply-topics">13.6 Methods and Field Get/Set over Request and Reply Topics</a></li><li class="lvl3"><a href="#137-serialization-by-xtypes">13.7 Serialization by XTypes</a></li><li class="lvl3"><a href="#138-someip-or-dds">13.8 SOME/IP or DDS?</a></li><li class="lvl3"><a href="#139-worked-example-objectlistservice-to-cockpit-over-dds">13.9 Worked Example: ObjectListService to Cockpit over DDS</a></li><li class="lvl2"><a href="#14-configuration-reference-what-to-configure">14. Configuration Reference: What to Configure</a></li><li class="lvl3"><a href="#141-minimal-configuration">14.1 Minimal Configuration</a></li><li class="lvl3"><a href="#142-network-connection">14.2 Network Connection</a></li><li class="lvl3"><a href="#143-someipserviceinterfacedeployment-and-its-elements">14.3 SomeipServiceInterfaceDeployment and Its Elements</a></li><li class="lvl3"><a href="#144-providedsomeipserviceinstance-and-provided-eventgroups">14.4 ProvidedSomeipServiceInstance and Provided Eventgroups</a></li><li class="lvl3"><a href="#145-requiredsomeipserviceinstance-and-required-eventgroups">14.5 RequiredSomeipServiceInstance and Required Eventgroups</a></li><li class="lvl3"><a href="#146-sd-timing">14.6 SD Timing</a></li><li class="lvl3"><a href="#147-someipserviceinstancetomachinemapping-collection-and-static-peers">14.7 SomeipServiceInstanceToMachineMapping, Collection and Static Peers</a></li><li class="lvl3"><a href="#148-serialization-properties-apsomeiptransformationprops">14.8 Serialization Properties: ApSomeipTransformationProps</a></li><li class="lvl3"><a href="#149-signal-based-translation">14.9 Signal-Based Translation</a></li><li class="lvl3"><a href="#1410-dds">14.10 DDS</a></li><li class="lvl3"><a href="#1411-the-running-example-complete-configuration">14.11 The Running Example: Complete Configuration</a></li><li class="lvl2"><a href="#15-observing-the-bindings-tools-traces-and-reporting">15. Observing the Bindings: Tools, Traces and Reporting</a></li><li class="lvl3"><a href="#151-reading-someip-and-sd-in-wireshark">15.1 Reading SOME/IP and SD in Wireshark</a></li><li class="lvl3"><a href="#152-reading-dds-traffic">15.2 Reading DDS Traffic</a></li><li class="lvl3"><a href="#153-what-the-application-sees-when-the-network-misbehaves">15.3 What the Application Sees When the Network Misbehaves</a></li><li class="lvl2"><a href="#16-end-to-end-walkthrough-from-ignition-to-the-first-object-list-on-the-cockpit">16. End-to-End Walkthrough: From Ignition to the First Object List on the Cockpit</a></li><li class="lvl3"><a href="#161-the-sequence">16.1 The Sequence</a></li><li class="lvl3"><a href="#162-step-by-step">16.2 Step by Step</a></li><li class="lvl2"><a href="#17-best-practices-pitfalls-and-troubleshooting">17. Best Practices, Pitfalls and Troubleshooting</a></li><li class="lvl3"><a href="#171-best-practices">17.1 Best Practices</a></li><li class="lvl3"><a href="#172-common-pitfalls">17.2 Common Pitfalls</a></li><li class="lvl3"><a href="#173-troubleshooting-guide">17.3 Troubleshooting Guide</a></li><li class="lvl2"><a href="#18-summary-and-self-check-quiz">18. Summary and Self-Check Quiz</a></li><li class="lvl3"><a href="#181-summary">18.1 Summary</a></li><li class="lvl3"><a href="#182-self-check-quiz">18.2 Self-Check Quiz</a></li><li class="lvl2"><a href="#appendix-a-glossary-and-acronyms">Appendix A. Glossary and Acronyms</a></li><li class="lvl3"><a href="#a1-acronyms">A.1 Acronyms</a></li><li class="lvl3"><a href="#a2-glossary">A.2 Glossary</a></li><li class="lvl2"><a href="#appendix-b-quick-reference-cheat-sheet">Appendix B. Quick Reference Cheat Sheet</a></li><li class="lvl3"><a href="#b1-someip-header-16-bytes-big-endian">B.1 SOME/IP Header (16 bytes, big endian)</a></li><li class="lvl3"><a href="#b2-someip-sd">B.2 SOME/IP-SD</a></li><li class="lvl3"><a href="#b3-id-rules">B.3 ID Rules</a></li><li class="lvl3"><a href="#b4-signal-based-variants">B.4 Signal-Based Variants</a></li><li class="lvl3"><a href="#b5-defaults">B.5 Defaults</a></li><li class="lvl2"><a href="#appendix-c-spec-traceability">Appendix C. Spec Traceability</a></li><li class="lvl2"><a href="#appendix-d-notable-changes-in-recent-releases">Appendix D. Notable Changes in Recent Releases</a></li><li class="lvl2"><a href="#appendix-e-references">Appendix E. References</a></li></ul></aside>
 </div>
 <button class="to-top" id="to-top" aria-label="Back to top" hidden>↑</button>
-<script>window.MERMAID_URL="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs";</script>
 <script src="../assets/search-index.js" defer></script>
 <script src="../assets/app.js" defer></script>
 </body>

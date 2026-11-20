@@ -1,0 +1,11 @@
+@startuml
+!include ../_style.puml
+left to right direction
+[*] --> Off
+Off --> Normal: machine in Driving
+Normal --> Degraded: supervision failure, Fusion crash or diagnostic request
+Normal --> Off: shutdown or update
+Degraded --> Off: shutdown or update
+Off --> Verify: update of AdasCluster activated
+Verify --> Normal: update verified
+@enduml

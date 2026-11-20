@@ -1,0 +1,19 @@
+@startuml
+!include ../_style.puml
+autonumber
+participant "State Management" as SM
+participant "Execution Management" as EM
+participant "Fusion (Normal only)" as FU
+participant "CameraDriver (Normal and Degraded)" as CD
+participant "FusionLite (Degraded only)" as FL
+SM -> EM : SetState(ADAS.Degraded)
+EM --> SM : Future (not ready yet)
+note over EM : CurrentState = Normal, RequestedState = Degraded
+EM -> FU : SIGTERM (not needed in Degraded)
+FU --> EM : exit(EXIT_SUCCESS)
+note over CD : Same StartupConfig in both states, keeps running
+EM -> FL : start (needed in Degraded)
+FL --> EM : ReportExecutionState(kRunning)
+note over EM : CurrentState = Degraded
+EM --> SM : Future ready, success
+@enduml

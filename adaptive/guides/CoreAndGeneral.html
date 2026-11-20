@@ -102,7 +102,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 <tr>
 <td>Diagrams</td>
-<td>Written in Mermaid. They render natively on GitHub and GitLab. In VS Code, install the <em>Markdown Preview Mermaid Support</em> extension.</td>
+<td>Drawn in PlantUML and inserted as SVG images, so they show in any Markdown viewer. Click an image to open it at full size.</td>
 </tr>
 </tbody>
 </table></div>
@@ -706,22 +706,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p>Core requires no interfaces of other clusters (SWS Core, Table 5.2). There is one exception in the other direction: <code>ara::core::Initialize</code> and <code>ara::core::Deinitialize</code> initialize and de-initialize the other clusters in the process &quot;as necessary for the particular implementation&quot; (SWS Core, Section 5.3). Every cluster that needs initialization therefore provides an internal interface for it, and no cluster defines its own public initialization function ([RS_AP_00155]).</p>
 <h3 id="34-interaction-map">3.4 Interaction Map<a class="anchor" href="#34-interaction-map" aria-label="Link to this section">#</a></h3>
 <p>The following diagram shows how Core relates to the rest of the platform. Solid arrows are API use; dashed arrows are what happens after a Violation or an explicit abort.</p>
-<pre class="mermaid">flowchart LR
-    APP[&quot;Adaptive Application&lt;br/&gt;(for example Fusion)&quot;]
-    FCL[&quot;Libraries of other clusters&lt;br/&gt;(ara::com, ara::exec, ara::per, ...)&quot;]
-    CORE[&quot;ara::core&lt;br/&gt;(in the same process)&quot;]
-    ERR[&quot;stderr of the process&quot;]
-    DLT[&quot;Log and Trace&lt;br/&gt;(DLT, context ID of core,&lt;br/&gt;of the cluster or of EM)&quot;]
-    EM[&quot;Execution Management&quot;]
-    SM[&quot;State Management&quot;]
-    APP --&gt;|&quot;Initialize, Result, Future,&lt;br/&gt;ErrorCode, types&quot;| CORE
-    APP --&gt;|&quot;cluster APIs&quot;| FCL
-    FCL --&gt;|&quot;Result, Future, ErrorCode,&lt;br/&gt;Violations&quot;| CORE
-    CORE -.-&gt;|&quot;Abort: message&quot;| ERR
-    CORE -.-&gt;|&quot;AbortMessage, violation messages&quot;| DLT
-    CORE -.-&gt;|&quot;process terminates abnormally&quot;| EM
-    EM -.-&gt;|&quot;Undefined Function Group State&quot;| SM
-</pre>
+<p><a class="figure" href="diagrams/CoreAndGeneral/01-interaction-map.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/CoreAndGeneral/01-interaction-map.svg" alt="Flowchart: Interaction Map" loading="lazy"></a></p>
 <blockquote>
 <p><strong>Key takeaways</strong></p>
 <ul>
@@ -776,23 +761,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tbody>
 </table></div>
 <p>The following diagram shows how these elements turn into code. The generator follows SWS LBAP; the <code>InstanceSpecifier</code> string is written by the developer, and the platform resolves it at run time.</p>
-<pre class="mermaid">flowchart LR
-    subgraph MODEL[&quot;Model (ARXML, the Manifests guide)&quot;]
-        AED[&quot;ApApplicationErrorDomain&lt;br/&gt;CameraErrors, value 0x1001&quot;]
-        AE[&quot;ApApplicationError&lt;br/&gt;ExposureModeNotSupported, code 1&quot;]
-        PATH[&quot;Executable fusion / Root /&lt;br/&gt;CameraRPort&quot;]
-        DT[&quot;StdCppImplementationDataType&lt;br/&gt;category VECTOR, STRING, ...&quot;]
-    end
-    subgraph CODE[&quot;C++ code&quot;]
-        DOM[&quot;CameraErrorsErrorDomain,&lt;br/&gt;CameraErrorsErrc&quot;]
-        IS[&quot;InstanceSpecifier&lt;br/&gt;/fusion/Root/CameraRPort&quot;]
-        TY[&quot;ara::core::Vector,&lt;br/&gt;ara::core::String, ...&quot;]
-    end
-    AED --&gt;|&quot;generator&quot;| DOM
-    AE --&gt;|&quot;generator&quot;| DOM
-    PATH --&gt;|&quot;developer writes the path&quot;| IS
-    DT --&gt;|&quot;generator&quot;| TY
-</pre>
+<p><a class="figure" href="diagrams/CoreAndGeneral/02-model-elements-that-shape-ara-core-c.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/CoreAndGeneral/02-model-elements-that-shape-ara-core-c.svg" alt="Flowchart: Model Elements That Shape ara::core Code" loading="lazy"></a></p>
 <blockquote>
 <p><strong>Key takeaways</strong></p>
 <ul>
@@ -900,18 +869,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </blockquote>
 <h3 id="55-sequence-rules">5.5 Sequence Rules<a class="anchor" href="#55-sequence-rules" aria-label="Link to this section">#</a></h3>
 <p>The following state diagram summarizes what each call returns, depending on the state of the framework in the process.</p>
-<pre class="mermaid">stateDiagram-v2
-    direction LR
-    [*] --&gt; NotInitialized
-    NotInitialized --&gt; Initialized: Initialize succeeds
-    NotInitialized --&gt; NotInitialized: Initialize fails, cleaned up, retry allowed
-    NotInitialized --&gt; NotInitialized: Deinitialize returns kNotInitialized
-    Initialized --&gt; Initialized: Initialize returns kAlreadyInitialized
-    Initialized --&gt; NotInitialized: Deinitialize succeeds
-    Initialized --&gt; DeinitFailed: Deinitialize returns another error
-    DeinitFailed --&gt; DeinitFailed: Deinitialize returns kNotInitialized
-    note right of DeinitFailed: calling Initialize or Deinitialize again is generally unsafe
-</pre>
+<p><a class="figure" href="diagrams/CoreAndGeneral/03-sequence-rules.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/CoreAndGeneral/03-sequence-rules.svg" alt="State diagram: Sequence Rules" loading="lazy"></a></p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -1063,17 +1021,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <li><strong>No general errors.</strong> Avoid codes such as <code>kGeneralError</code>; name concrete conditions (RS General, Section 4.1.2).</li>
 </ul>
 <p>The following flowchart summarizes the decision.</p>
-<pre class="mermaid">flowchart TD
-    S[&quot;Something went wrong&lt;br/&gt;inside an ARA call&quot;] --&gt; C1{&quot;System resource&lt;br/&gt;corrupted?&quot;}
-    C1 -- yes --&gt; COR[&quot;Corruption:&lt;br/&gt;process terminates&quot;]
-    C1 -- no --&gt; C2{&quot;Default allocator&lt;br/&gt;failed?&quot;}
-    C2 -- yes --&gt; FDA[&quot;Failed Default Allocation:&lt;br/&gt;handled like a Violation&quot;]
-    C2 -- no --&gt; C3{&quot;Contract broken?&lt;br/&gt;(misuse, wrong manifest,&lt;br/&gt;not initialized, no permission)&quot;}
-    C3 -- yes --&gt; VIO[&quot;Violation:&lt;br/&gt;Abort with message&quot;]
-    C3 -- no --&gt; C4{&quot;Can the caller&lt;br/&gt;react meaningfully?&quot;}
-    C4 -- yes --&gt; ERR[&quot;Error:&lt;br/&gt;returned in Result or Future&quot;]
-    C4 -- no --&gt; VIO
-</pre>
+<p><a class="figure" href="diagrams/CoreAndGeneral/04-error-or-violation-the-design-rules.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/CoreAndGeneral/04-error-or-violation-the-design-rules.svg" alt="Flowchart: Error or Violation? The Design Rules" loading="lazy"></a></p>
 <h3 id="66-recoverability-classes">6.6 Recoverability Classes<a class="anchor" href="#66-recoverability-classes" aria-label="Link to this section">#</a></h3>
 <p>Each standardized error of an API carries a recoverability class in the API table ([RS_AP_00160]; <a href="#25-thread-safety-and-recoverability">Section 2.5</a>). It tells you what to do after the error:</p>
 <div class="table-wrap"><table>
@@ -1101,27 +1049,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p>All errors of the Core API itself have rollback semantics, for example <code>kAlreadyInitialized</code>, <code>kNotInitialized</code> and the errors of <code>InstanceSpecifier::Create</code> (<a href="#14-api-reference-and-usage-guide-aracore">Chapter 14</a>).</p>
 <h3 id="67-worked-example-a-wrong-instancespecifier-in-fusion">6.7 Worked Example: A Wrong <code>InstanceSpecifier</code> in <code>Fusion</code><a class="anchor" href="#67-worked-example-a-wrong-instancespecifier-in-fusion" aria-label="Link to this section">#</a></h3>
 <p>During integration, the port <code>CameraRPort</code> of <code>Fusion</code> is renamed in the model, but the code of <code>fusion</code> still uses <code>/fusion/Root/CameraRPort</code>. The specifier is syntactically valid, so <code>InstanceSpecifier::Create</code> succeeds ([SWS_CORE_10201]). The problem shows when a cluster class is constructed with it: the cluster cannot resolve the path in the context of the executable and raises <code>InstanceSpecifierMappingIntegrityViolation</code> ([SWS_CORE_13003], [RS_AP_00170]). The following sequence diagram shows what happens next.</p>
-<pre class="mermaid">sequenceDiagram
-    autonumber
-    participant FU as Fusion code
-    participant FC as Cluster library (in Fusion)
-    participant CO as ara::core (in Fusion)
-    participant LT as Log and Trace
-    participant EM as Execution Management
-    participant SM as State Management
-
-    FU-&gt;&gt;CO: InstanceSpecifier::Create(&quot;/fusion/Root/CameraRPort&quot;)
-    CO--&gt;&gt;FU: Result with the specifier (syntax is valid)
-    FU-&gt;&gt;FC: construct a cluster object with the specifier
-    FC-&gt;&gt;FC: path not found in the model of the executable
-    FC-&gt;&gt;CO: Abort with InstanceSpecifierMappingIntegrityViolation
-    CO-&gt;&gt;CO: message to stderr
-    CO-&gt;&gt;LT: DLT message 0x80001ffc (fatal)
-    CO-&gt;&gt;CO: abort handlers, then std::abort()
-    CO--&gt;&gt;EM: process terminated by SIGABRT
-    EM-&gt;&gt;SM: ADAS in an Undefined Function Group State, executionError 42
-    SM-&gt;&gt;EM: SetState(ADAS.Degraded)
-</pre>
+<p><a class="figure" href="diagrams/CoreAndGeneral/05-worked-example-a-wrong-instancespeci.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/CoreAndGeneral/05-worked-example-a-wrong-instancespeci.svg" alt="Sequence diagram: Worked Example: A Wrong InstanceSpecifier in Fusion" loading="lazy"></a></p>
 <blockquote>
 <p><strong>Pitfall:</strong> A Violation during start-up often looks like a crash loop: EM starts the process, it aborts within milliseconds, and the Function Group State transition fails. Look for the violation message in the log (or on the standard error stream) before you debug the code.</p>
 </blockquote>
@@ -1724,23 +1652,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p><strong>In plain words:</strong> a <code>Promise</code> is the sender's half of a one-shot mailbox, and a <code>Future</code> is the receiver's half. The sender puts either a value or an error into the mailbox once; the receiver waits for it, or checks it now and then, and takes it out once.</p>
 <p><strong>Formally:</strong> <code>ara::core::Future</code> and <code>ara::core::Promise</code> &quot;provide a means to handle both return values and errors from asynchronous function calls in an exception-less way&quot;. Together they store a value of type <code>T</code> or an <code>ErrorCode</code> that can be retrieved later, in a thread-safe manner ([SWS_CORE_10800]). They are closely modeled on <code>std::future</code> and <code>std::promise</code> [EXT-014] and share a <em>shared state</em> as described in the C++ standard, with the changes listed in <a href="#92-differences-from-stdfuture-and-stdpromise">Section 9.2</a> (SWS Core, Section 7.2.5.5).</p>
 <p>The following sequence diagram shows the typical flow: an API creates a <code>Promise</code>, hands the <code>Future</code> to the caller, and fulfills the <code>Promise</code> later from another thread.</p>
-<pre class="mermaid">sequenceDiagram
-    autonumber
-    participant C as Caller (consumer)
-    participant A as Asynchronous API (provider)
-    participant W as Worker thread
-    participant S as Shared state
-
-    C-&gt;&gt;A: start the operation
-    A-&gt;&gt;S: Promise created, state not ready
-    A--&gt;&gt;C: Future (refers to the shared state)
-    A-&gt;&gt;W: hand over the Promise
-    C-&gt;&gt;C: continue with other work
-    W-&gt;&gt;S: set_value(v) or SetError(e): state ready
-    C-&gt;&gt;S: GetResult()
-    S--&gt;&gt;C: Result with the value or the error
-    Note over C,S: the Future is now invalid (valid() == false)
-</pre>
+<p><a class="figure" href="diagrams/CoreAndGeneral/06-future-and-promise-in-plain-words.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/CoreAndGeneral/06-future-and-promise-in-plain-words.svg" alt="Sequence diagram: Future and Promise in Plain Words" loading="lazy"></a></p>
 <h3 id="92-differences-from-stdfuture-and-stdpromise">9.2 Differences from std::future and std::promise<a class="anchor" href="#92-differences-from-stdfuture-and-stdpromise" aria-label="Link to this section">#</a></h3>
 <div class="table-wrap"><table>
 <thead>
@@ -1980,23 +1892,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </code></pre></div>
 <h3 id="97-worked-example-fusion-requests-the-night-exposure-mode">9.7 Worked Example: Fusion Requests the Night Exposure Mode<a class="anchor" href="#97-worked-example-fusion-requests-the-night-exposure-mode" aria-label="Link to this section">#</a></h3>
 <p>At dusk the camera images of <code>HPC</code> get dark. <code>Fusion</code> then asks <code>CameraDriver</code>, through <code>CameraService</code>, to switch to the exposure mode <code>Night</code>. If the camera hardware does not support it, <code>CameraDriver</code> answers with the application error <code>ExposureModeNotSupported</code> (code 1 of <code>CameraErrors</code>), and <code>Fusion</code> keeps the mode <code>Auto</code> (the <a href="RunningExample.html#16-services-and-their-consumers">Running Example guide, Section 1.6</a>). The call is asynchronous, and the 50 ms cycle must not block while the reply travels. The following sequence diagram shows the exchange over two cycles.</p>
-<pre class="mermaid">sequenceDiagram
-    autonumber
-    participant FU as Fusion (cycle thread)
-    participant PX as CameraService proxy (in Fusion)
-    participant CD as CameraDriver
-
-    FU-&gt;&gt;PX: SetExposureMode(Night)
-    PX--&gt;&gt;FU: Future (not ready)
-    PX-&gt;&gt;CD: request (local IPC or SOME/IP, the Network Bindings guide)
-    Note over FU: cycle n, is_ready() is false, continue
-    CD--&gt;&gt;PX: error ExposureModeNotSupported
-    PX-&gt;&gt;PX: SetError on the Promise
-    Note over FU: cycle n+1, is_ready() is true
-    FU-&gt;&gt;PX: GetResult()
-    PX--&gt;&gt;FU: Result with CameraErrorsErrc::ExposureModeNotSupported
-    FU-&gt;&gt;FU: keep Auto, do not ask again
-</pre>
+<p><a class="figure" href="diagrams/CoreAndGeneral/07-worked-example-fusion-requests-the-n.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/CoreAndGeneral/07-worked-example-fusion-requests-the-n.svg" alt="Sequence diagram: Worked Example: Fusion Requests the Night Exposure Mode" loading="lazy"></a></p>
 <p>The following code polls the <code>Future</code> once per cycle. The generated proxy API belongs to the <a href="CommunicationManagement.html#89-worked-example-setexposuremode-from-fusion-to-cameradriver">CM guide</a>. There, the call returns <code>ara::core::Future&lt;Output&gt;</code>, where <code>Output</code> holds the out arguments of the method (the <a href="CommunicationManagement.html#54-how-arguments-are-passed">CM guide, Section 5.4</a>); here a stand-in function that returns <code>ara::core::Future&lt;void&gt;</code> represents the call.</p>
 <div class="code-block" data-lang="cpp"><pre class="highlight"><code><span class="c1">// Fusion asks for the Night exposure mode at dusk (illustrative).</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">"ara/core/future.h"</span>
@@ -2070,14 +1966,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </blockquote>
 <h3 id="101-the-exception-hierarchy">10.1 The Exception Hierarchy<a class="anchor" href="#101-the-exception-hierarchy" aria-label="Link to this section">#</a></h3>
 <p>All exceptions of the standard derive from <code>ara::core::Exception</code>, which takes an <code>ErrorCode</code> as its mandatory constructor argument, much like <code>std::system_error</code> takes a <code>std::error_code</code> (SWS Core, Section 7.2.5.6). Below it, each error domain has its own exception base class, and a module may add further exceptions below that ([SWS_CORE_10910] to [SWS_CORE_10912]). The following diagram shows the hierarchy with the domains of this guide.</p>
-<pre class="mermaid">flowchart TD
-    STD[&quot;std::exception&quot;] --&gt; EX[&quot;ara::core::Exception&lt;br/&gt;Error() returns the ErrorCode&quot;]
-    EX --&gt; CE[&quot;ara::core::CoreException&quot;]
-    EX --&gt; FE[&quot;ara::core::FutureException&quot;]
-    EX --&gt; GEN[&quot;hpc::camera::CameraErrorsException&lt;br/&gt;(generated)&quot;]
-    EX --&gt; OWN[&quot;hpc::fusion::FusionErrorsException&lt;br/&gt;(written by hand)&quot;]
-    EX --&gt; OTH[&quot;Exceptions of the other clusters,&lt;br/&gt;for example ara::exec::ExecException&quot;]
-</pre>
+<p><a class="figure" href="diagrams/CoreAndGeneral/08-the-exception-hierarchy.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/CoreAndGeneral/08-the-exception-hierarchy.svg" alt="Flowchart: The Exception Hierarchy" loading="lazy"></a></p>
 <p><code>ara::core::Exception</code> has three members besides the special members: the constructor from an <code>ErrorCode</code> ([SWS_CORE_00611]), <code>Error()</code> that returns it ([SWS_CORE_00613]) and <code>what()</code> that returns the explanatory string ([SWS_CORE_00612]). Its copy constructor and copy assignment are <em>protected</em>, to prevent accidental object slicing ([SWS_CORE_00618], [SWS_CORE_00614]). Catch exceptions by reference, and read the error with <code>Error()</code>:</p>
 <div class="code-block" data-lang="cpp"><pre class="highlight"><code><span class="c1">// Exception-based style (illustrative; needs exception support).</span>
 <span class="k">try</span><span class="w"> </span><span class="p">{</span>
@@ -2131,16 +2020,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </code></pre></div>
 <p><strong>In plain words:</strong> <code>ara::core::Abort</code> is <code>std::abort</code> with a message. It writes the message, gives the abort handlers a chance to act, and then terminates the process abnormally.</p>
 <p><strong>Formally:</strong> calling <code>Abort</code> is <em>Explicitly aborting an Operation</em>. It never returns; the stack is not unwound and no destructors run (SWS Core, Section 7.3; [SWS_CORE_00052]). Every argument must be convertible to <code>ara::core::StringView</code>; otherwise the call is ill-formed. The sequence is:</p>
-<pre class="mermaid">flowchart TD
-    A[&quot;Abort(args...) called&quot;] --&gt; B{&quot;Another Abort&lt;br/&gt;in progress?&quot;}
-    B -- yes --&gt; BL[&quot;This thread blocks for ever&lt;br/&gt;SWS_CORE_12407&quot;]
-    B -- no --&gt; C[&quot;Write the arguments, in order,&lt;br/&gt;to stderr&lt;br/&gt;SWS_CORE_12403&quot;]
-    C --&gt; D[&quot;Should log a fatal DLT message:&lt;br/&gt;the violation message, or&lt;br/&gt;AbortMessage for application calls&lt;br/&gt;SWS_CORE_12408&quot;]
-    D --&gt; E[&quot;Call the abort handlers&lt;br/&gt;in reverse order of installation&lt;br/&gt;SWS_CORE_12404&quot;]
-    E --&gt; F{&quot;All handlers returned,&lt;br/&gt;or none installed?&quot;}
-    F -- yes --&gt; G[&quot;std::abort()&lt;br/&gt;SWS_CORE_12405, SWS_CORE_12406&quot;]
-    F -- no --&gt; H[&quot;A handler ended the process itself&quot;]
-</pre>
+<p><a class="figure" href="diagrams/CoreAndGeneral/09-abort.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/CoreAndGeneral/09-abort.svg" alt="Flowchart: Abort" loading="lazy"></a></p>
 <p><code>Abort</code> is thread-safe and works without initialization ([SWS_CORE_15002]). When it is called for a Violation or a Failed Default Allocation, it logs the message of that event; when your code calls it directly, it logs <code>AbortMessage</code> with the same text as on the standard error stream and the context ID of <code>ara::core</code> ([SWS_CORE_12408], [SWS_CORE_13019]). For Execution Management, the result is an Abnormal Termination, as defined in SWS EM (SWS Core, Section 7.3).</p>
 <p>Use <code>Abort</code> in your own code for the same purpose as the platform does: when a condition is detected that your code cannot handle, such as a failed <code>Initialize</code> (<a href="#56-worked-example-the-main-function-of-fusion">Section 5.6</a>).</p>
 <h3 id="104-abort-handlers">10.4 Abort Handlers<a class="anchor" href="#104-abort-handlers" aria-label="Link to this section">#</a></h3>
@@ -4277,30 +4157,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <h3 id="166-shutdown">16.6 Shutdown<a class="anchor" href="#166-shutdown" aria-label="Link to this section">#</a></h3>
 <p>When the vehicle is switched off, State Management switches <code>ADAS</code> to <code>Off</code>, and Execution Management asks <code>Fusion</code> to terminate. <code>Fusion</code> leaves its cycle, destroys all cluster objects, calls <code>ara::core::Deinitialize()</code> and returns from <code>main()</code> with <code>EXIT_SUCCESS</code> (<a href="ExecutionManagement.html#55-terminating-a-process">EM guide, Section 5.5</a>). If <code>Deinitialize</code> reported an error, for example because an object was still alive, <code>Fusion</code> would return <code>EXIT_FAILURE</code>.</p>
 <p>The following sequence diagram shows the day in one picture.</p>
-<pre class="mermaid">sequenceDiagram
-    autonumber
-    participant EM as Execution Management
-    participant FU as Fusion
-    participant CO as ara::core (in Fusion)
-    participant CD as CameraDriver (via CameraService)
-
-    EM-&gt;&gt;FU: start fusion (ADAS.Normal)
-    FU-&gt;&gt;CO: AddAbortHandler, then Initialize(argc, argv)
-    CO--&gt;&gt;FU: Result with value
-    FU-&gt;&gt;EM: ReportExecutionState(kRunning)
-    loop every 50 ms
-        FU-&gt;&gt;CO: SteadyClock::now(), deadline
-        FU-&gt;&gt;FU: CollectInputs, Bind, Fuse, Publish
-    end
-    FU-&gt;&gt;CD: SetExposureMode(Night)
-    CD--&gt;&gt;FU: Future ready with ExposureModeNotSupported
-    FU-&gt;&gt;FU: keep Auto
-    FU-&gt;&gt;FU: kInputTimeout, skip one cycle
-    EM-&gt;&gt;FU: terminate (ADAS to Off)
-    FU-&gt;&gt;CO: Deinitialize()
-    CO--&gt;&gt;FU: Result with value
-    FU--&gt;&gt;EM: exit with EXIT_SUCCESS
-</pre>
+<p><a class="figure" href="diagrams/CoreAndGeneral/10-shutdown.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/CoreAndGeneral/10-shutdown.svg" alt="Sequence diagram: Shutdown" loading="lazy"></a></p>
 <blockquote>
 <p><strong>Key takeaways</strong></p>
 <ul>
@@ -5423,12 +5280,11 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 
 </article>
 <nav class="pager" aria-label="Previous and next guide"><a class="pager-prev" href="Manifests.html"><span class="pager-label">← Previous</span><span class="pager-title">Manifests and Methodology</span></a><a class="pager-next" href="ExecutionManagement.html"><span class="pager-label">Next →</span><span class="pager-title">Execution Management</span></a></nav>
-<footer class="site-footer"><p>Based on the AUTOSAR Adaptive Platform and Foundation specifications, release R25-11.</p><p>Training material, not a normative reference. Where a guide and an AUTOSAR specification differ, the specification applies. Specifications: <a href="https://www.autosar.org/standards" target="_blank" rel="noopener">autosar.org/standards</a>.</p></footer>
+<footer class="site-footer"><p>Based on the AUTOSAR Adaptive Platform and Foundation specifications, release R25-11.</p><p>Training material, not a normative reference. Specifications: <a href="https://www.autosar.org/standards" target="_blank" rel="noopener">autosar.org/standards</a>.</p></footer>
 </main>
 <aside class="toc" aria-label="On this page"><p class="toc-label">On this page</p><ul><li class="lvl2"><a href="#about-this-guide">About This Guide</a></li><li class="lvl3"><a href="#who-this-guide-is-for">Who This Guide Is For</a></li><li class="lvl3"><a href="#learning-objectives">Learning Objectives</a></li><li class="lvl3"><a href="#how-to-read-this-guide">How to Read This Guide</a></li><li class="lvl3"><a href="#the-running-example">The Running Example</a></li><li class="lvl2"><a href="#table-of-contents">Table of Contents</a></li><li class="lvl2"><a href="#1-introduction-to-core">1. Introduction to Core</a></li><li class="lvl3"><a href="#11-what-is-core">1.1 What Is Core?</a></li><li class="lvl3"><a href="#12-what-core-does-not-do">1.2 What Core Does Not Do</a></li><li class="lvl3"><a href="#13-analogies-the-c-standard-library-and-autosar-classic">1.3 Analogies: The C++ Standard Library and AUTOSAR Classic</a></li><li class="lvl3"><a href="#14-core-and-ara-who-uses-what">1.4 Core and ARA: Who Uses What</a></li><li class="lvl3"><a href="#15-two-facts-before-you-start">1.5 Two Facts Before You Start</a></li><li class="lvl2"><a href="#2-core-concepts-and-terminology">2. Core Concepts and Terminology</a></li><li class="lvl3"><a href="#21-four-kinds-of-unsuccessful-operations">2.1 Four Kinds of Unsuccessful Operations</a></li><li class="lvl3"><a href="#22-error-codes-and-error-domains">2.2 Error Codes and Error Domains</a></li><li class="lvl3"><a href="#23-synchronous-and-asynchronous-results">2.3 Synchronous and Asynchronous Results</a></li><li class="lvl3"><a href="#24-undefined-implementation-defined-and-vendor-specific-behavior">2.4 Undefined, Implementation-Defined and Vendor-Specific Behavior</a></li><li class="lvl3"><a href="#25-thread-safety-and-recoverability">2.5 Thread Safety and Recoverability</a></li><li class="lvl3"><a href="#26-other-key-terms">2.6 Other Key Terms</a></li><li class="lvl2"><a href="#3-core-in-the-system-architecture">3. Core in the System Architecture</a></li><li class="lvl3"><a href="#31-where-core-sits-in-the-platform">3.1 Where Core Sits in the Platform</a></li><li class="lvl3"><a href="#32-interfaces-provided-by-core">3.2 Interfaces Provided by Core</a></li><li class="lvl3"><a href="#33-interfaces-required-by-core">3.3 Interfaces Required by Core</a></li><li class="lvl3"><a href="#34-interaction-map">3.4 Interaction Map</a></li><li class="lvl2"><a href="#4-configuration-overview">4. Configuration Overview</a></li><li class="lvl3"><a href="#41-core-has-no-configuration-of-its-own">4.1 Core Has No Configuration of Its Own</a></li><li class="lvl3"><a href="#42-model-elements-that-shape-aracore-code">4.2 Model Elements That Shape ara::core Code</a></li><li class="lvl2"><a href="#5-platform-initialization-and-shutdown">5. Platform Initialization and Shutdown</a></li><li class="lvl3"><a href="#51-why-ara-needs-explicit-initialization">5.1 Why ARA Needs Explicit Initialization</a></li><li class="lvl3"><a href="#52-initialize">5.2 Initialize</a></li><li class="lvl3"><a href="#53-deinitialize">5.3 Deinitialize</a></li><li class="lvl3"><a href="#54-what-works-before-initialize-and-after-deinitialize">5.4 What Works Before Initialize and After Deinitialize</a></li><li class="lvl3"><a href="#55-sequence-rules">5.5 Sequence Rules</a></li><li class="lvl3"><a href="#56-worked-example-the-main-function-of-fusion">5.6 Worked Example: The main Function of Fusion</a></li><li class="lvl2"><a href="#6-the-error-handling-model">6. The Error Handling Model</a></li><li class="lvl3"><a href="#61-why-not-just-exceptions">6.1 Why Not Just Exceptions?</a></li><li class="lvl3"><a href="#62-errors-are-returned-never-thrown">6.2 Errors Are Returned, Never Thrown</a></li><li class="lvl3"><a href="#63-violations-fail-early">6.3 Violations: Fail Early</a></li><li class="lvl3"><a href="#64-corruptions-and-failed-default-allocations">6.4 Corruptions and Failed Default Allocations</a></li><li class="lvl3"><a href="#65-error-or-violation-the-design-rules">6.5 Error or Violation? The Design Rules</a></li><li class="lvl3"><a href="#66-recoverability-classes">6.6 Recoverability Classes</a></li><li class="lvl3"><a href="#67-worked-example-a-wrong-instancespecifier-in-fusion">6.7 Worked Example: A Wrong InstanceSpecifier in Fusion</a></li><li class="lvl2"><a href="#7-errorcode-and-errordomain">7. ErrorCode and ErrorDomain</a></li><li class="lvl3"><a href="#71-errorcode-value-domain-and-support-data">7.1 ErrorCode: Value, Domain and Support Data</a></li><li class="lvl3"><a href="#72-comparing-error-codes">7.2 Comparing Error Codes</a></li><li class="lvl3"><a href="#73-errordomain-identity-name-and-message">7.3 ErrorDomain: Identity, Name and Message</a></li><li class="lvl3"><a href="#74-error-domain-identifiers">7.4 Error Domain Identifiers</a></li><li class="lvl3"><a href="#75-cores-own-error-domains">7.5 Core&#x27;s Own Error Domains</a></li><li class="lvl3"><a href="#76-vendor-specific-errors">7.6 Vendor-Specific Errors</a></li><li class="lvl3"><a href="#77-defining-a-new-error-domain">7.7 Defining a New Error Domain</a></li><li class="lvl3"><a href="#78-generated-error-domains">7.8 Generated Error Domains</a></li><li class="lvl2"><a href="#8-result-synchronous-return-values">8. Result: Synchronous Return Values</a></li><li class="lvl3"><a href="#81-result-in-plain-words">8.1 Result in Plain Words</a></li><li class="lvl3"><a href="#82-creating-a-result">8.2 Creating a Result</a></li><li class="lvl3"><a href="#83-checking-and-accessing-the-content">8.3 Checking and Accessing the Content</a></li><li class="lvl3"><a href="#84-defaults-and-alternatives">8.4 Defaults and Alternatives</a></li><li class="lvl3"><a href="#85-chaining-with-bind">8.5 Chaining with Bind</a></li><li class="lvl3"><a href="#86-result-for-void-and-for-references">8.6 Result for void and for References</a></li><li class="lvl3"><a href="#87-exception-based-use-valueorthrow">8.7 Exception-Based Use: ValueOrThrow</a></li><li class="lvl3"><a href="#88-worked-example-fusion-checks-its-cycle-inputs">8.8 Worked Example: Fusion Checks Its Cycle Inputs</a></li><li class="lvl2"><a href="#9-future-and-promise-asynchronous-results">9. Future and Promise: Asynchronous Results</a></li><li class="lvl3"><a href="#91-future-and-promise-in-plain-words">9.1 Future and Promise in Plain Words</a></li><li class="lvl3"><a href="#92-differences-from-stdfuture-and-stdpromise">9.2 Differences from std::future and std::promise</a></li><li class="lvl3"><a href="#93-getting-the-result">9.3 Getting the Result</a></li><li class="lvl3"><a href="#94-waiting-with-timeouts">9.4 Waiting with Timeouts</a></li><li class="lvl3"><a href="#95-continuations-with-then">9.5 Continuations with then</a></li><li class="lvl3"><a href="#96-providing-a-result-with-promise">9.6 Providing a Result with Promise</a></li><li class="lvl3"><a href="#97-worked-example-fusion-requests-the-night-exposure-mode">9.7 Worked Example: Fusion Requests the Night Exposure Mode</a></li><li class="lvl2"><a href="#10-exceptions-and-explicit-abort">10. Exceptions and Explicit Abort</a></li><li class="lvl3"><a href="#101-the-exception-hierarchy">10.1 The Exception Hierarchy</a></li><li class="lvl3"><a href="#102-building-without-exceptions">10.2 Building Without Exceptions</a></li><li class="lvl3"><a href="#103-abort">10.3 Abort</a></li><li class="lvl3"><a href="#104-abort-handlers">10.4 Abort Handlers</a></li><li class="lvl3"><a href="#105-the-sigabrt-handler">10.5 The SIGABRT Handler</a></li><li class="lvl2"><a href="#11-core-data-types">11. Core Data Types</a></li><li class="lvl3"><a href="#111-why-aracore-has-its-own-types">11.1 Why ara::core Has Its Own Types</a></li><li class="lvl3"><a href="#112-overview-aracore-types-and-their-std-counterparts">11.2 Overview: ara::core Types and Their std Counterparts</a></li><li class="lvl3"><a href="#113-containers-array-vector-and-map">11.3 Containers: Array, Vector and Map</a></li><li class="lvl3"><a href="#114-views-span-and-stringview">11.4 Views: Span and StringView</a></li><li class="lvl3"><a href="#115-optional-and-variant">11.5 Optional and Variant</a></li><li class="lvl3"><a href="#116-string">11.6 String</a></li><li class="lvl3"><a href="#117-bitset">11.7 Bitset</a></li><li class="lvl3"><a href="#118-memory-resources">11.8 Memory Resources</a></li><li class="lvl3"><a href="#119-byte-in-place-tags-and-container-access-functions">11.9 Byte, In-Place Tags and Container Access Functions</a></li><li class="lvl3"><a href="#1110-steadyclock">11.10 SteadyClock</a></li><li class="lvl3"><a href="#1111-instancespecifier">11.11 InstanceSpecifier</a></li><li class="lvl3"><a href="#1112-executor">11.12 Executor</a></li><li class="lvl3"><a href="#1113-how-model-types-become-aracore-types">11.13 How Model Types Become ara::core Types</a></li><li class="lvl2"><a href="#12-general-rules-for-all-functional-clusters">12. General Rules for All Functional Clusters</a></li><li class="lvl3"><a href="#121-names-and-namespaces">12.1 Names and Namespaces</a></li><li class="lvl3"><a href="#122-header-files">12.2 Header Files</a></li><li class="lvl3"><a href="#123-ara-coding-guidelines-and-api-design-rules">12.3 ARA Coding Guidelines and API Design Rules</a></li><li class="lvl3"><a href="#124-undefined-and-implementation-defined-behavior-in-practice">12.4 Undefined and Implementation-Defined Behavior in Practice</a></li><li class="lvl3"><a href="#125-logging-and-tracing-conventions">12.5 Logging and Tracing Conventions</a></li><li class="lvl3"><a href="#126-thread-safety">12.6 Thread Safety</a></li><li class="lvl3"><a href="#127-async-signal-safety">12.7 Async Signal Safety</a></li><li class="lvl3"><a href="#128-how-to-read-an-api-table">12.8 How to Read an API Table</a></li><li class="lvl2"><a href="#13-configuration-reference-what-to-configure">13. Configuration Reference: What to Configure</a></li><li class="lvl3"><a href="#131-minimal-configuration">13.1 Minimal Configuration</a></li><li class="lvl3"><a href="#132-apapplicationerrordomain-and-apapplicationerror">13.2 ApApplicationErrorDomain and ApApplicationError</a></li><li class="lvl3"><a href="#133-the-instancespecifier-path-elements">13.3 The InstanceSpecifier Path Elements</a></li><li class="lvl3"><a href="#134-functionalclusterinteractswithfunctionalclustermapping">13.4 FunctionalClusterInteractsWithFunctionalClusterMapping</a></li><li class="lvl3"><a href="#135-stdcppimplementationdatatype-categories">13.5 StdCppImplementationDataType Categories</a></li><li class="lvl3"><a href="#136-the-running-example-complete-configuration">13.6 The Running Example: Complete Configuration</a></li><li class="lvl2"><a href="#14-api-reference-and-usage-guide-aracore">14. API Reference and Usage Guide (ara::core)</a></li><li class="lvl3"><a href="#141-api-overview">14.1 API Overview</a></li><li class="lvl3"><a href="#142-initialization">14.2 Initialization</a></li><li class="lvl3"><a href="#143-abort">14.3 Abort</a></li><li class="lvl3"><a href="#144-errorcode-errordomain-and-exception">14.4 ErrorCode, ErrorDomain and Exception</a></li><li class="lvl3"><a href="#145-coreerrordomain-and-futureerrordomain">14.5 CoreErrorDomain and FutureErrorDomain</a></li><li class="lvl3"><a href="#146-result">14.6 Result</a></li><li class="lvl3"><a href="#147-future-and-promise">14.7 Future and Promise</a></li><li class="lvl3"><a href="#148-instancespecifier">14.8 InstanceSpecifier</a></li><li class="lvl3"><a href="#149-executor">14.9 Executor</a></li><li class="lvl3"><a href="#1410-steadyclock-and-utilities">14.10 SteadyClock and Utilities</a></li><li class="lvl3"><a href="#1411-containers-and-other-std-derived-types">14.11 Containers and Other std-Derived Types</a></li><li class="lvl3"><a href="#1412-thread-safety-and-exception-safety-summary">14.12 Thread Safety and Exception Safety Summary</a></li><li class="lvl3"><a href="#1413-common-api-pitfalls">14.13 Common API Pitfalls</a></li><li class="lvl2"><a href="#15-logging-tracing-and-reporting">15. Logging, Tracing and Reporting</a></li><li class="lvl3"><a href="#151-reporting-channels">15.1 Reporting Channels</a></li><li class="lvl3"><a href="#152-log-messages">15.2 Log Messages</a></li><li class="lvl3"><a href="#153-violation-messages">15.3 Violation Messages</a></li><li class="lvl3"><a href="#154-using-the-messages-in-practice">15.4 Using the Messages in Practice</a></li><li class="lvl2"><a href="#16-end-to-end-walkthrough-a-day-of-error-handling-in-fusion">16. End-to-End Walkthrough: A Day of Error Handling in Fusion</a></li><li class="lvl3"><a href="#161-start-up">16.1 Start-Up</a></li><li class="lvl3"><a href="#162-a-normal-cycle">16.2 A Normal Cycle</a></li><li class="lvl3"><a href="#163-dusk-an-application-error">16.3 Dusk: An Application Error</a></li><li class="lvl3"><a href="#164-a-late-input">16.4 A Late Input</a></li><li class="lvl3"><a href="#165-a-configuration-error-during-integration">16.5 A Configuration Error During Integration</a></li><li class="lvl3"><a href="#166-shutdown">16.6 Shutdown</a></li><li class="lvl2"><a href="#17-best-practices-pitfalls-and-troubleshooting">17. Best Practices, Pitfalls and Troubleshooting</a></li><li class="lvl3"><a href="#171-best-practices">17.1 Best Practices</a></li><li class="lvl3"><a href="#172-common-pitfalls">17.2 Common Pitfalls</a></li><li class="lvl3"><a href="#173-troubleshooting-guide">17.3 Troubleshooting Guide</a></li><li class="lvl2"><a href="#18-summary-and-self-check-quiz">18. Summary and Self-Check Quiz</a></li><li class="lvl3"><a href="#181-summary">18.1 Summary</a></li><li class="lvl3"><a href="#182-self-check-quiz">18.2 Self-Check Quiz</a></li><li class="lvl2"><a href="#appendix-a-glossary-and-acronyms">Appendix A. Glossary and Acronyms</a></li><li class="lvl3"><a href="#a1-acronyms">A.1 Acronyms</a></li><li class="lvl3"><a href="#a2-glossary">A.2 Glossary</a></li><li class="lvl2"><a href="#appendix-b-quick-reference-cheat-sheet">Appendix B. Quick Reference Cheat Sheet</a></li><li class="lvl3"><a href="#b1-initialization">B.1 Initialization</a></li><li class="lvl3"><a href="#b2-error-codes-of-core">B.2 Error Codes of Core</a></li><li class="lvl3"><a href="#b3-standardized-error-domain-identifiers">B.3 Standardized Error Domain Identifiers</a></li><li class="lvl3"><a href="#b4-log-and-trace-settings-of-the-functional-clusters">B.4 Log and Trace Settings of the Functional Clusters</a></li><li class="lvl3"><a href="#b5-most-used-calls">B.5 Most Used Calls</a></li><li class="lvl2"><a href="#appendix-c-spec-traceability">Appendix C. Spec Traceability</a></li><li class="lvl2"><a href="#appendix-d-notable-changes-in-recent-releases">Appendix D. Notable Changes in Recent Releases</a></li><li class="lvl2"><a href="#appendix-e-references">Appendix E. References</a></li></ul></aside>
 </div>
 <button class="to-top" id="to-top" aria-label="Back to top" hidden>↑</button>
-<script>window.MERMAID_URL="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs";</script>
 <script src="../assets/search-index.js" defer></script>
 <script src="../assets/app.js" defer></script>
 </body>

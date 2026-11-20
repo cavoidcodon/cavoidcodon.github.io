@@ -1,0 +1,16 @@
+@startuml
+!include ../_style.puml
+autonumber
+participant "SmControl" as SC
+participant "StateManager" as SM
+participant "Execution Management" as EM
+participant "PowerControl" as PC
+SC -> SC : PowerMode = Off
+SC -> SM : RequestTransition(2) on HpcController
+SM -> SM : stop AdasAgent: its Off list\n(ADAS.Off, SYNC, Sleep 2 s, AdasPn NoCom)
+SM -> EM : SetState(MachineFG.Shutdown)
+EM -> SC : SIGTERM (not configured in Shutdown)
+SC -> SC : ara::core::Deinitialize(), exit
+EM -> PC : start
+PC -> PC : power off through the operating system
+@enduml

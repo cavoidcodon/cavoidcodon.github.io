@@ -1,0 +1,10 @@
+@startuml
+!include ../_style.puml
+[*] --> Down
+Down --> InitialWait: OfferService() and link up
+InitialWait --> Repetition: random initial delay expired, first offer sent
+Repetition --> Main: initialRepetitionsMax repetitions sent
+Main --> Main: offerCyclicDelay expired, offer sent
+Main --> Down: StopOfferService(), StopOffer sent (TTL 0)
+Repetition --> Down: StopOfferService()
+@enduml

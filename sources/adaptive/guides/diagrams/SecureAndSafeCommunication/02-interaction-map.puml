@@ -1,0 +1,23 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "Applications\n(Fusion, SmControl, Cockpit)" as APP
+rectangle "Communication Management\n(bindings, E2E, SecOC, TLS)" as CM
+rectangle "FVM plug-in\nHpcFreshnessManager" as FVM
+rectangle "Keys and certificates\n(HSM, the Cryptography guide)" as CRY
+rectangle "IAM: remote subjects\n(the IAM guide)" as IAM
+rectangle "Security monitor\n(the IDSM and Firewall guide)" as MON
+rectangle "IP stack: IPsec\nEthernet: MACsec" as NET
+rectangle "CentralGateway\n(SecOC, E2E peer)" as GW
+rectangle "Cockpit\n(TLS peer, E2E peer)" as CK
+rectangle "PHM: timeout supervision\n(the PHM guide)" as PHM
+APP --> CM
+CM --> FVM
+CM ..> CRY
+CM ..> IAM
+MON ..> CM : VerificationStatus
+CM --> NET
+NET --> GW
+NET --> CK
+APP ..> PHM
+@enduml

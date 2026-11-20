@@ -1,0 +1,12 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "PhmCheckpoint InputsRead\ncheckpointId = 2\n(interface FusionCycle)" as M
+rectangle "enumerator\nFusionCycle::InputsRead = 2U" as H
+rectangle "PHM" as P
+rectangle "SupervisionCheckpoint Fusion_InputsRead\ncheckpointId = 2, process Fusion" as S
+M --> H : generator
+H --> P : ReportCheckpoint(InputsRead)
+M --> S : replicated by the integrator
+S --> P : configures
+@enduml

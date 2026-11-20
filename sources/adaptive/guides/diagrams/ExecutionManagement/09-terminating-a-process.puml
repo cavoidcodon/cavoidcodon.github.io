@@ -1,0 +1,24 @@
+@startuml
+!include ../_style.puml
+autonumber
+participant "Execution Management" as EM
+participant "ExecutionClient thread (in Fusion)" as EC
+participant "Fusion main logic" as P
+participant "Platform Health Mgmt" as PHM
+participant "Log and Trace" as LT
+EM -> PHM : Termination of a supervised process is about to be initiated
+EM -> LT : DLT ProcessTerminationRequest
+EM -> EC : SIGTERM
+note over EM : Process State = Terminating, termination timer runs
+EC -> P : terminationHandler() in a background thread
+P -> P : Stop work, persist data, free resources
+alt Process exits in time
+P --> EM : exit(EXIT_SUCCESS)
+else Termination timeout expires
+EM -> P : Forced termination by the OS (SIGKILL)
+EM -> LT : DLT ProcessTerminationTimeout
+end
+note over EM : Process State = Terminated
+EM -> LT : DLT ProcessTerminated
+EM -> PHM : Supervised process terminated
+@enduml

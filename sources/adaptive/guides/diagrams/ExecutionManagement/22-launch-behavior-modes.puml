@@ -1,0 +1,19 @@
+@startuml
+!include ../_style.puml
+autonumber
+participant "State Management" as SM
+participant "Execution Management" as EM
+participant "IdsM" as IDS
+participant "Log and Trace" as LT
+SM -> EM : SetState(ADAS.Normal)
+EM -> EM : verify the Fusion executable, shared objects and manifests
+note over EM : Signature check FAILED in strictMode
+EM -> EM : do not launch Fusion, stop the transition
+note over EM : ADAS = Undefined Function Group State
+EM --> SM : Future ready, error kIntegrityOrAuthenticityCheckFailed
+EM -> LT : DLT FailedIntegrityOrAuthenticityCheck
+EM -> IDS : SEV_EXEC_SW_COMPONENT_INTEGRITY_CHECK_FAILED (mode STRICT)
+SM -> EM : GetExecutionError(ADAS.Normal)
+EM --> SM : ExecutionErrorEvent
+SM -> EM : SetState(ADAS.Degraded) as recovery
+@enduml

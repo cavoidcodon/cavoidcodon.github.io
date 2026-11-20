@@ -1,0 +1,22 @@
+@startuml
+!include ../_style.puml
+rectangle "Application: Send(), method call, Update()" as APP
+rectangle "Binding: serialization (the Network Bindings guide)" as SER
+rectangle "E2E protect: E2E header" as E2E
+rectangle "SecOC: freshness value and MAC" as SOC
+rectangle "TLS or DTLS (per socket)" as TLS
+rectangle "TCP or UDP" as TP
+rectangle "IPsec (per IP address pair)" as IPS
+rectangle "IP" as IP
+rectangle "MACsec (per Ethernet link)" as MAC
+rectangle "Ethernet" as ETH
+APP --> SER
+SER --> E2E
+E2E --> SOC
+SOC --> TLS
+TLS --> TP
+TP --> IPS
+IPS --> IP
+IP --> MAC
+MAC --> ETH
+@enduml

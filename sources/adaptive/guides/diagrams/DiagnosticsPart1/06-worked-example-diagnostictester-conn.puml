@@ -1,0 +1,13 @@
+@startuml
+!include ../_style.puml
+participant "DiagnosticTester (0x0E80)" as T
+participant "DoIP handler of DM" as D
+participant "SmControl" as S
+T -> D : Vehicle identification request (UDP 13400)
+D -> S : GetDoIPPowerMode, read DID 0xF190 (VIN)
+D --> T : Vehicle identification response: VIN, logical address 0x1010, EID from MAC
+T -> D : TCP connect 13400, routing activation request (SA 0x0E80)
+D --> T : Routing activation response: success
+T -> D : Diagnostic message SA 0x0E80, TA 0x1010: 0x22 01 01
+D --> T : Diagnostic message positive acknowledgement
+@enduml

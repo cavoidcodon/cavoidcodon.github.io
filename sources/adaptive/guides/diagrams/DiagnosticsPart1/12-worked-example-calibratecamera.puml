@@ -1,0 +1,21 @@
+@startuml
+!include ../_style.puml
+participant "Tester" as T
+participant "DM" as DM
+participant "CameraDriver" as CD
+participant "Storage" as ST
+T -> DM : 0x31 01 02 01 (start)
+DM -> CD : Start(...)
+CD --> DM : StartOutput (accepted)
+DM --> T : 0x71 01 02 01
+T -> DM : 0x31 03 02 01 (results)
+DM -> CD : RequestResult(...)
+CD --> DM : status 0 (running)
+DM --> T : 0x71 03 02 01 00
+CD -> ST : SetCalibration(CameraExtrinsics, record)
+ST --> CD : OK
+T -> DM : 0x31 03 02 01
+DM -> CD : RequestResult(...)
+CD --> DM : status 1 (done)
+DM --> T : 0x71 03 02 01 01
+@enduml

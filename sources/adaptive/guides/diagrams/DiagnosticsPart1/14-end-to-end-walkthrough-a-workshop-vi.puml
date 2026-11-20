@@ -1,0 +1,36 @@
+@startuml
+!include ../_style.puml
+autonumber
+participant "DiagnosticTester" as T
+participant "Diagnostic Management" as DM
+participant "Fusion" as F
+participant "SmControl" as SC
+participant "CameraDriver" as CD
+T -> DM : DoIP: vehicle identification, routing activation
+T -> DM : 0x22 01 01
+DM -> F : Read
+F --> DM : "1.1.0"
+DM --> T : 0x62 01 01 31 2E 31 2E 30 20 20 20
+T -> DM : 0x10 03
+DM --> T : 0x50 03 (P2, P2*)
+T -> DM : 0x27 01
+DM -> SC : GetSeed
+DM --> T : 0x67 01 seed
+T -> DM : 0x27 02 key
+DM -> SC : CompareKey
+SC --> DM : kKeyValid
+DM --> T : 0x67 02
+T -> DM : 0x31 01 02 01
+DM -> CD : Start
+DM --> T : 0x71 01 02 01
+loop every second, with 0x3E 80 in between
+T -> DM : 0x31 03 02 01
+DM -> CD : RequestResult
+DM --> T : 0x71 03 02 01 status
+end
+T -> DM : 0x11 01
+DM -> SC : RequestReset(kHardReset)
+DM --> T : 0x51 01
+DM -> SC : ExecuteReset
+SC -> SC : request Reset (3) from HpcController
+@enduml

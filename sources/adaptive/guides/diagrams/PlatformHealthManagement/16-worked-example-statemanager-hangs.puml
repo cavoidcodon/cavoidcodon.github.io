@@ -1,0 +1,17 @@
+@startuml
+!include ../_style.puml
+participant "StateManager" as SM
+participant "Platform Health Management" as PHM
+participant "WatchdogInterface" as WD
+SM -> PHM : MainLoop (10 times per second)
+note over SM : the main loop blocks at t = 0
+note over PHM : t = 1 s, 0 indications, counter 1, kFAILED
+note over PHM : t = 2 s, 0 indications, counter 2 > 1, kEXPIRED
+note over PHM : StateManagerSupervision kEXPIRED, Expired Supervision Time starts
+note over PHM : no recovery notification, State Management is the failing party
+PHM -> WD : AliveNotification (still served during the tolerance)
+note over PHM : t = 2.2 s, tolerance reached, kSTOPPED
+PHM -> PHM : log WatchdogReset, report PHM_E_WATCHDOG_RESET failed
+PHM -> WD : FireWatchdogReaction
+note over WD : the machine resets
+@enduml

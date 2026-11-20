@@ -1,0 +1,14 @@
+@startuml
+!include ../_style.puml
+participant "Fusion" as FU
+participant "Platform Health Management" as PHM
+FU -> PHM : CycleStart (t = 0 ms)
+note over PHM : CycleDeadline, measuring
+FU -> PHM : InputsRead (t = 12 ms)
+note over PHM : ComputeDeadline, measuring, max 25 ms
+note over FU : Fuse() hangs on a lock
+note over PHM : t = 37 ms, no ObjectsPublished within 25 ms
+PHM -> PHM : ComputeDeadline incorrect, kEXPIRED
+PHM -> PHM : Global Supervision FusionSupervision kEXPIRED
+note over PHM : Notify State Management with kDeadlineSupervision (Chapter 12)
+@enduml

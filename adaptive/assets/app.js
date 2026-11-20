@@ -1,4 +1,4 @@
-/* AUTOSAR AP Training Guides: theme, navigation, search, page TOC, code copy, Mermaid. */
+/* AUTOSAR AP Training Guides: theme, navigation, search, page TOC, code copy. */
 (function () {
   "use strict";
   var doc = document.documentElement;
@@ -13,7 +13,6 @@
   function setTheme(t, persist) {
     doc.setAttribute("data-theme", t);
     if (persist) store("theme", t);
-    renderMermaid();
   }
   if (themeBtn) themeBtn.addEventListener("click", function () {
     setTheme(doc.getAttribute("data-theme") === "dark" ? "light" : "dark", true);
@@ -168,34 +167,4 @@
       }
     });
   }
-
-  /* ---------- Mermaid ---------- */
-  var mermaidMod = null;
-  var diagrams = Array.prototype.slice.call(document.querySelectorAll("pre.mermaid"));
-  diagrams.forEach(function (el) { el.setAttribute("data-src", el.textContent); });
-  function renderMermaid() {
-    if (!diagrams.length || !window.MERMAID_URL) return;
-    var load = mermaidMod ? Promise.resolve(mermaidMod) : import(window.MERMAID_URL).then(function (m) {
-      mermaidMod = m.default; return mermaidMod;
-    });
-    load.then(function (mermaid) {
-      var dark = doc.getAttribute("data-theme") === "dark";
-      mermaid.initialize({ startOnLoad: false, theme: dark ? "dark" : "default", securityLevel: "strict",
-        fontFamily: getComputedStyle(document.body).fontFamily });
-      diagrams.forEach(function (el) {
-        el.removeAttribute("data-processed");
-        el.textContent = el.getAttribute("data-src");
-      });
-      return mermaid.run({ nodes: diagrams });
-    }).then(function () {
-      if (tocLinks.length) { currentIdx = -1; updateToc(); }
-      if (location.hash) {
-        var t = document.getElementById(decodeURIComponent(location.hash.slice(1)));
-        if (t && !renderMermaid.jumped) { renderMermaid.jumped = true; t.scrollIntoView(); }
-      }
-    }).catch(function (err) {
-      if (window.console) console.warn("Mermaid:", (err && (err.message || err.str)) || err);
-    });
-  }
-  renderMermaid();
 })();

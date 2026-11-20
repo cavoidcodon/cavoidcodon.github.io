@@ -50,7 +50,7 @@ Chapters 1 to 4 give the concepts and the big picture. Chapters 5 to 12 explain 
 | **Note (implementation example)** | How a typical implementation, often on Linux, *might* realize something. This is not mandated by AUTOSAR. |
 | **Pitfall** | A common mistake seen in real projects. |
 | **Key takeaways** | A short summary at the end of each chapter. |
-| Diagrams | Written in Mermaid. They render natively on GitHub and GitLab. In VS Code, install the *Markdown Preview Mermaid Support* extension. |
+| Diagrams | Drawn in PlantUML and inserted as SVG images, so they show in any Markdown viewer. Click an image to open it at full size. |
 
 All code examples are illustrative. They use the names and signatures of the R25-11 specification, but vendor headers may differ in detail, for example in additional overloads.
 
@@ -396,23 +396,7 @@ Core requires no interfaces of other clusters (SWS Core, Table 5.2). There is on
 
 The following diagram shows how Core relates to the rest of the platform. Solid arrows are API use; dashed arrows are what happens after a Violation or an explicit abort.
 
-```mermaid
-flowchart LR
-    APP["Adaptive Application<br/>(for example Fusion)"]
-    FCL["Libraries of other clusters<br/>(ara::com, ara::exec, ara::per, ...)"]
-    CORE["ara::core<br/>(in the same process)"]
-    ERR["stderr of the process"]
-    DLT["Log and Trace<br/>(DLT, context ID of core,<br/>of the cluster or of EM)"]
-    EM["Execution Management"]
-    SM["State Management"]
-    APP -->|"Initialize, Result, Future,<br/>ErrorCode, types"| CORE
-    APP -->|"cluster APIs"| FCL
-    FCL -->|"Result, Future, ErrorCode,<br/>Violations"| CORE
-    CORE -.->|"Abort: message"| ERR
-    CORE -.->|"AbortMessage, violation messages"| DLT
-    CORE -.->|"process terminates abnormally"| EM
-    EM -.->|"Undefined Function Group State"| SM
-```
+![Flowchart: Interaction Map](diagrams/CoreAndGeneral/01-interaction-map.svg)
 
 > **Key takeaways**
 >
@@ -443,24 +427,7 @@ Four groups of model elements, all configured for other purposes, decide what yo
 
 The following diagram shows how these elements turn into code. The generator follows SWS LBAP; the `InstanceSpecifier` string is written by the developer, and the platform resolves it at run time.
 
-```mermaid
-flowchart LR
-    subgraph MODEL["Model (ARXML, the Manifests guide)"]
-        AED["ApApplicationErrorDomain<br/>CameraErrors, value 0x1001"]
-        AE["ApApplicationError<br/>ExposureModeNotSupported, code 1"]
-        PATH["Executable fusion / Root /<br/>CameraRPort"]
-        DT["StdCppImplementationDataType<br/>category VECTOR, STRING, ..."]
-    end
-    subgraph CODE["C++ code"]
-        DOM["CameraErrorsErrorDomain,<br/>CameraErrorsErrc"]
-        IS["InstanceSpecifier<br/>/fusion/Root/CameraRPort"]
-        TY["ara::core::Vector,<br/>ara::core::String, ..."]
-    end
-    AED -->|"generator"| DOM
-    AE -->|"generator"| DOM
-    PATH -->|"developer writes the path"| IS
-    DT -->|"generator"| TY
-```
+![Flowchart: Model Elements That Shape ara::core Code](diagrams/CoreAndGeneral/02-model-elements-that-shape-ara-core-c.svg)
 
 > **Key takeaways**
 >
@@ -543,19 +510,7 @@ RS General explains the design choice: error codes for "not initialized" are avo
 
 The following state diagram summarizes what each call returns, depending on the state of the framework in the process.
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> NotInitialized
-    NotInitialized --> Initialized: Initialize succeeds
-    NotInitialized --> NotInitialized: Initialize fails, cleaned up, retry allowed
-    NotInitialized --> NotInitialized: Deinitialize returns kNotInitialized
-    Initialized --> Initialized: Initialize returns kAlreadyInitialized
-    Initialized --> NotInitialized: Deinitialize succeeds
-    Initialized --> DeinitFailed: Deinitialize returns another error
-    DeinitFailed --> DeinitFailed: Deinitialize returns kNotInitialized
-    note right of DeinitFailed: calling Initialize or Deinitialize again is generally unsafe
-```
+![State diagram: Sequence Rules](diagrams/CoreAndGeneral/03-sequence-rules.svg)
 
 | Sequence | Result | Spec |
 | --- | --- | --- |
@@ -675,18 +630,7 @@ When a platform developer specifies a new API, RS General decides which failures
 
 The following flowchart summarizes the decision.
 
-```mermaid
-flowchart TD
-    S["Something went wrong<br/>inside an ARA call"] --> C1{"System resource<br/>corrupted?"}
-    C1 -- yes --> COR["Corruption:<br/>process terminates"]
-    C1 -- no --> C2{"Default allocator<br/>failed?"}
-    C2 -- yes --> FDA["Failed Default Allocation:<br/>handled like a Violation"]
-    C2 -- no --> C3{"Contract broken?<br/>(misuse, wrong manifest,<br/>not initialized, no permission)"}
-    C3 -- yes --> VIO["Violation:<br/>Abort with message"]
-    C3 -- no --> C4{"Can the caller<br/>react meaningfully?"}
-    C4 -- yes --> ERR["Error:<br/>returned in Result or Future"]
-    C4 -- no --> VIO
-```
+![Flowchart: Error or Violation? The Design Rules](diagrams/CoreAndGeneral/04-error-or-violation-the-design-rules.svg)
 
 ### 6.6 Recoverability Classes
 
@@ -705,28 +649,7 @@ All errors of the Core API itself have rollback semantics, for example `kAlready
 
 During integration, the port `CameraRPort` of `Fusion` is renamed in the model, but the code of `fusion` still uses `/fusion/Root/CameraRPort`. The specifier is syntactically valid, so `InstanceSpecifier::Create` succeeds ([SWS_CORE_10201]). The problem shows when a cluster class is constructed with it: the cluster cannot resolve the path in the context of the executable and raises `InstanceSpecifierMappingIntegrityViolation` ([SWS_CORE_13003], [RS_AP_00170]). The following sequence diagram shows what happens next.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant FU as Fusion code
-    participant FC as Cluster library (in Fusion)
-    participant CO as ara::core (in Fusion)
-    participant LT as Log and Trace
-    participant EM as Execution Management
-    participant SM as State Management
-
-    FU->>CO: InstanceSpecifier::Create("/fusion/Root/CameraRPort")
-    CO-->>FU: Result with the specifier (syntax is valid)
-    FU->>FC: construct a cluster object with the specifier
-    FC->>FC: path not found in the model of the executable
-    FC->>CO: Abort with InstanceSpecifierMappingIntegrityViolation
-    CO->>CO: message to stderr
-    CO->>LT: DLT message 0x80001ffc (fatal)
-    CO->>CO: abort handlers, then std::abort()
-    CO-->>EM: process terminated by SIGABRT
-    EM->>SM: ADAS in an Undefined Function Group State, executionError 42
-    SM->>EM: SetState(ADAS.Degraded)
-```
+![Sequence diagram: Worked Example: A Wrong InstanceSpecifier in Fusion](diagrams/CoreAndGeneral/05-worked-example-a-wrong-instancespeci.svg)
 
 > **Pitfall:** A Violation during start-up often looks like a crash loop: EM starts the process, it aborts within milliseconds, and the Function Group State transition fails. Look for the violation message in the log (or on the standard error stream) before you debug the code.
 
@@ -1117,24 +1040,7 @@ void OnCycle(const Calibration& calibration, ara::core::SteadyClock::time_point 
 
 The following sequence diagram shows the typical flow: an API creates a `Promise`, hands the `Future` to the caller, and fulfills the `Promise` later from another thread.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as Caller (consumer)
-    participant A as Asynchronous API (provider)
-    participant W as Worker thread
-    participant S as Shared state
-
-    C->>A: start the operation
-    A->>S: Promise created, state not ready
-    A-->>C: Future (refers to the shared state)
-    A->>W: hand over the Promise
-    C->>C: continue with other work
-    W->>S: set_value(v) or SetError(e): state ready
-    C->>S: GetResult()
-    S-->>C: Result with the value or the error
-    Note over C,S: the Future is now invalid (valid() == false)
-```
+![Sequence diagram: Future and Promise in Plain Words](diagrams/CoreAndGeneral/06-future-and-promise-in-plain-words.svg)
 
 ### 9.2 Differences from std::future and std::promise
 
@@ -1236,24 +1142,7 @@ ara::core::Future<ObjectList> FuseAsync(CycleInputs inputs) {
 
 At dusk the camera images of `HPC` get dark. `Fusion` then asks `CameraDriver`, through `CameraService`, to switch to the exposure mode `Night`. If the camera hardware does not support it, `CameraDriver` answers with the application error `ExposureModeNotSupported` (code 1 of `CameraErrors`), and `Fusion` keeps the mode `Auto` (the [Running Example guide, Section 1.6](RunningExample.md#16-services-and-their-consumers)). The call is asynchronous, and the 50 ms cycle must not block while the reply travels. The following sequence diagram shows the exchange over two cycles.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant FU as Fusion (cycle thread)
-    participant PX as CameraService proxy (in Fusion)
-    participant CD as CameraDriver
-
-    FU->>PX: SetExposureMode(Night)
-    PX-->>FU: Future (not ready)
-    PX->>CD: request (local IPC or SOME/IP, the Network Bindings guide)
-    Note over FU: cycle n, is_ready() is false, continue
-    CD-->>PX: error ExposureModeNotSupported
-    PX->>PX: SetError on the Promise
-    Note over FU: cycle n+1, is_ready() is true
-    FU->>PX: GetResult()
-    PX-->>FU: Result with CameraErrorsErrc::ExposureModeNotSupported
-    FU->>FU: keep Auto, do not ask again
-```
+![Sequence diagram: Worked Example: Fusion Requests the Night Exposure Mode](diagrams/CoreAndGeneral/07-worked-example-fusion-requests-the-n.svg)
 
 The following code polls the `Future` once per cycle. The generated proxy API belongs to the [CM guide](CommunicationManagement.md#89-worked-example-setexposuremode-from-fusion-to-cameradriver). There, the call returns `ara::core::Future<Output>`, where `Output` holds the out arguments of the method (the [CM guide, Section 5.4](CommunicationManagement.md#54-how-arguments-are-passed)); here a stand-in function that returns `ara::core::Future<void>` represents the call.
 
@@ -1335,15 +1224,7 @@ handled_ = RequestNightExposure().then(
 
 All exceptions of the standard derive from `ara::core::Exception`, which takes an `ErrorCode` as its mandatory constructor argument, much like `std::system_error` takes a `std::error_code` (SWS Core, Section 7.2.5.6). Below it, each error domain has its own exception base class, and a module may add further exceptions below that ([SWS_CORE_10910] to [SWS_CORE_10912]). The following diagram shows the hierarchy with the domains of this guide.
 
-```mermaid
-flowchart TD
-    STD["std::exception"] --> EX["ara::core::Exception<br/>Error() returns the ErrorCode"]
-    EX --> CE["ara::core::CoreException"]
-    EX --> FE["ara::core::FutureException"]
-    EX --> GEN["hpc::camera::CameraErrorsException<br/>(generated)"]
-    EX --> OWN["hpc::fusion::FusionErrorsException<br/>(written by hand)"]
-    EX --> OTH["Exceptions of the other clusters,<br/>for example ara::exec::ExecException"]
-```
+![Flowchart: The Exception Hierarchy](diagrams/CoreAndGeneral/08-the-exception-hierarchy.svg)
 
 `ara::core::Exception` has three members besides the special members: the constructor from an `ErrorCode` ([SWS_CORE_00611]), `Error()` that returns it ([SWS_CORE_00613]) and `what()` that returns the explanatory string ([SWS_CORE_00612]). Its copy constructor and copy assignment are *protected*, to prevent accidental object slicing ([SWS_CORE_00618], [SWS_CORE_00614]). Catch exceptions by reference, and read the error with `Error()`:
 
@@ -1384,17 +1265,7 @@ template <typename... Args> [[noreturn]] void Abort (const Args &... args) noexc
 
 **Formally:** calling `Abort` is *Explicitly aborting an Operation*. It never returns; the stack is not unwound and no destructors run (SWS Core, Section 7.3; [SWS_CORE_00052]). Every argument must be convertible to `ara::core::StringView`; otherwise the call is ill-formed. The sequence is:
 
-```mermaid
-flowchart TD
-    A["Abort(args...) called"] --> B{"Another Abort<br/>in progress?"}
-    B -- yes --> BL["This thread blocks for ever<br/>SWS_CORE_12407"]
-    B -- no --> C["Write the arguments, in order,<br/>to stderr<br/>SWS_CORE_12403"]
-    C --> D["Should log a fatal DLT message:<br/>the violation message, or<br/>AbortMessage for application calls<br/>SWS_CORE_12408"]
-    D --> E["Call the abort handlers<br/>in reverse order of installation<br/>SWS_CORE_12404"]
-    E --> F{"All handlers returned,<br/>or none installed?"}
-    F -- yes --> G["std::abort()<br/>SWS_CORE_12405, SWS_CORE_12406"]
-    F -- no --> H["A handler ended the process itself"]
-```
+![Flowchart: Abort](diagrams/CoreAndGeneral/09-abort.svg)
 
 `Abort` is thread-safe and works without initialization ([SWS_CORE_15002]). When it is called for a Violation or a Failed Default Allocation, it logs the message of that event; when your code calls it directly, it logs `AbortMessage` with the same text as on the standard error stream and the context ID of `ara::core` ([SWS_CORE_12408], [SWS_CORE_13019]). For Execution Management, the result is an Abnormal Termination, as defined in SWS EM (SWS Core, Section 7.3).
 
@@ -2512,31 +2383,7 @@ When the vehicle is switched off, State Management switches `ADAS` to `Off`, and
 
 The following sequence diagram shows the day in one picture.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant EM as Execution Management
-    participant FU as Fusion
-    participant CO as ara::core (in Fusion)
-    participant CD as CameraDriver (via CameraService)
-
-    EM->>FU: start fusion (ADAS.Normal)
-    FU->>CO: AddAbortHandler, then Initialize(argc, argv)
-    CO-->>FU: Result with value
-    FU->>EM: ReportExecutionState(kRunning)
-    loop every 50 ms
-        FU->>CO: SteadyClock::now(), deadline
-        FU->>FU: CollectInputs, Bind, Fuse, Publish
-    end
-    FU->>CD: SetExposureMode(Night)
-    CD-->>FU: Future ready with ExposureModeNotSupported
-    FU->>FU: keep Auto
-    FU->>FU: kInputTimeout, skip one cycle
-    EM->>FU: terminate (ADAS to Off)
-    FU->>CO: Deinitialize()
-    CO-->>FU: Result with value
-    FU-->>EM: exit with EXIT_SUCCESS
-```
+![Sequence diagram: Shutdown](diagrams/CoreAndGeneral/10-shutdown.svg)
 
 > **Key takeaways**
 >

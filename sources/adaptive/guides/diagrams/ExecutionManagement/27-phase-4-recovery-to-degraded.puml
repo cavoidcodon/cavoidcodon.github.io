@@ -1,0 +1,16 @@
+@startuml
+!include ../_style.puml
+autonumber
+participant "StateManager" as SM
+participant "Execution Management" as EM
+participant "LoggerCompanion" as LC
+participant "FusionLite" as FL
+SM -> EM : SetState(ADAS.Degraded)
+EM -> LC : SIGTERM (restart because the startup configuration differs)
+LC --> EM : exit(EXIT_SUCCESS)
+EM -> LC : start with the Degraded configuration
+LC --> EM : kRunning
+EM -> FL : start (LoggerCompanion is Running)
+FL --> EM : kRunning
+EM --> SM : Future ready, ADAS.Degraded reached
+@enduml

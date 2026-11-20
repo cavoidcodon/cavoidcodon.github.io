@@ -1,0 +1,13 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "UCM installs or updates the package" as I
+rectangle "Verification phase: Function Group in Verify; application may call UpdatePersistency" as V
+rectangle "UCM finalizes; normal operation; first open may update implicitly; CleanUpPersistency" as F
+rectangle "UCM rolls back the software; next open restores the backup" as R
+rectangle "Later: removal by UCM using the URIs" as U
+I --> V
+V --> F : verification OK
+V --> R : verification failed
+F --> U
+@enduml

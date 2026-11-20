@@ -1,0 +1,14 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "Service interface\n(model)" as SI
+rectangle "Service proxy" as PX
+rectangle "Service skeleton" as SK
+rectangle "Consumer code" as CON
+rectangle "Service implementation\n(derived from skeleton)" as IMP
+SI --> PX : generated from
+SI --> SK : generated from
+CON --> PX
+IMP --> SK
+PX <--> SK : middleware transport
+@enduml

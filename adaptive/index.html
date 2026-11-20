@@ -81,9 +81,9 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 </tbody>
 </table></div>
-<h2 id="the-adaptive-platform-in-one-page">The Adaptive Platform in One Page<a class="anchor" href="#the-adaptive-platform-in-one-page" aria-label="Link to this section">#</a></h2>
-<p><strong>Why a second platform?</strong> Classic ECUs control electrical outputs based on input signals, and their software rarely changes during the life of a vehicle. The AUTOSAR <strong>Classic Platform (CP)</strong> is designed for these deeply embedded ECUs. Functions such as automated driving are different: they need much more computing power, they connect the vehicle to backend systems, and their software must be updated during the life of the vehicle. AUTOSAR therefore specifies a second software platform, the <strong>Adaptive Platform (AP)</strong>. It provides high-performance computing and communication, and it allows flexible software configuration, for example for over-the-air updates (<em>Platform Design</em>, Section 3.1).</p>
-<p>Two technology trends drive the Adaptive Platform: <strong>Ethernet</strong>, which offers much more bandwidth than CAN, and <strong>processors</strong> with many cores, GPUs and hardware accelerators (<em>Platform Design</em>, Section 3.2). The following table summarizes the characteristics that result (<em>Platform Design</em>, Section 3.3).</p>
+<h2 id="the-adaptive-platform">The Adaptive Platform<a class="anchor" href="#the-adaptive-platform" aria-label="Link to this section">#</a></h2>
+<p><strong>Why a second platform?</strong> Classic ECUs control electrical outputs based on input signals, and their software rarely changes during the life of a vehicle. The AUTOSAR <strong>Classic Platform (CP)</strong> is designed for these deeply embedded ECUs. Functions such as automated driving are different: they need much more computing power, they connect the vehicle to backend systems, and their software must be updated during the life of the vehicle. AUTOSAR therefore specifies a second software platform, the <strong>Adaptive Platform (AP)</strong>. It provides high-performance computing and communication, and it allows flexible software configuration, for example for over-the-air updates.</p>
+<p>Two technology trends drive the Adaptive Platform: <strong>Ethernet</strong>, which offers much more bandwidth than CAN, and <strong>processors</strong> with many cores, GPUs and hardware accelerators. The following table summarizes the characteristics that result.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -122,7 +122,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 </tbody>
 </table></div>
-<p><strong>How it is built, in five sentences</strong> (<em>Platform Design</em>, Sections 4.1 and 4.2):</p>
+<p><strong>How it is built</strong>:</p>
 <ol>
 <li><strong>Adaptive Applications</strong> run on top of the <strong>AUTOSAR Runtime for Adaptive Applications (ARA)</strong>, which is the set of C++ interfaces that the <strong>functional clusters</strong> of the platform provide.</li>
 <li>Applications may use only ARA and the minimal real-time POSIX profile <strong>PSE51</strong> of the operating system. This keeps them portable and isolated from each other.</li>
@@ -131,18 +131,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <li>The platform runs on a <strong>Machine</strong>, which can be a physical ECU, a virtual machine or a container. One Machine runs exactly one instance of the platform.</li>
 </ol>
 <p>The following diagram shows these layers. The <a href="guides/PlatformOverview.html#3-the-architecture-logical-view">Platform Overview guide</a> explains them in detail.</p>
-<pre class="mermaid">block-beta
-columns 1
-    APP[&quot;Adaptive Applications&lt;br/&gt;(processes, written in C++)&quot;]
-    ARA[&quot;ARA: the C++ APIs of the functional clusters&lt;br/&gt;(ara::exec, ara::com, ara::log, ...)&quot;]
-    FC[&quot;Functional clusters&lt;br/&gt;(libraries and daemon processes)&quot;]
-    OS[&quot;Operating system&lt;br/&gt;(POSIX; applications may use PSE51 only)&quot;]
-    MACH[&quot;Machine&lt;br/&gt;(physical ECU, virtual machine or container)&quot;]
-    APP --&gt; ARA
-    ARA --&gt; FC
-    FC --&gt; OS
-    OS --&gt; MACH
-</pre>
+<p><a class="figure" href="guides/diagrams/README/01-the-adaptive-platform-in-one-page.svg" target="_blank" rel="noopener" title="Open full size"><img src="guides/diagrams/README/01-the-adaptive-platform-in-one-page.svg" alt="Block diagram: The Adaptive Platform in One Page" loading="lazy"></a></p>
 <p>The Adaptive Platform does not replace the Classic Platform. Both run side by side in the same vehicle and communicate, for example over SOME/IP, which both platforms support (<em>Platform Design</em>, Section 3.4). Signal-to-Service translation connects the signal-based Classic world to the service-oriented Adaptive world.</p>
 <h2 id="what-the-series-covers">What the Series Covers<a class="anchor" href="#what-the-series-covers" aria-label="Link to this section">#</a></h2>
 <p>The series covers the functional clusters that most AP projects use, one guide per cluster or topic. Each guide explains the concepts, the mechanisms, the configuration and the C++ API, and shows them on the running example.</p>
@@ -152,12 +141,10 @@ columns 1
 <li>describe a particular vendor's product or tools. Where implementations differ, a <strong>Note (implementation example)</strong> box shows one typical approach.</li>
 <li>cover the Classic Platform, except where an Adaptive cluster interacts with it.</li>
 </ul>
-<p>All guides use release R25-11 only. They never mix releases.</p>
+<p>All guides use release R25-11 only.</p>
 <h2 id="the-guides">The Guides<a class="anchor" href="#the-guides" aria-label="Link to this section">#</a></h2>
 <p>Start with <a href="guides/RunningExample.html"><em>The Running Example</em></a>. It defines the invented ECU <code>HPC</code> that every guide uses. Keep the <a href="guides/Glossary.html"><em>Series Glossary</em></a> at hand: it defines every term and acronym of the series. Then read the guides in the order of this list. Each guide can also be read on its own: it briefly recaps what it needs from other guides and links to them.</p>
 <ul class="cards"><li><a class="card" href="guides/RunningExample.html"><span class="card-title">The Running Example</span><span class="card-desc">What is the <code>HPC</code>, the invented ECU that all guides use?</span><span class="badge badge-available">Available (v1.0)</span></a></li><li><a class="card" href="guides/Glossary.html"><span class="card-title">Series Glossary</span><span class="card-desc">What does a term or an acronym of the series mean?</span><span class="badge badge-available">Available (v1.0)</span></a></li><li><a class="card" href="guides/PlatformOverview.html"><span class="card-title">Adaptive Platform Overview and Architecture</span><span class="card-desc">How is the platform structured, and what does the operating system provide?</span><span class="badge badge-review">In review</span></a></li><li><a class="card" href="guides/Manifests.html"><span class="card-title">Manifests and Methodology</span><span class="card-desc">Who configures what, when, and in which manifest?</span><span class="badge badge-review">In review</span></a></li><li><a class="card" href="guides/CoreAndGeneral.html"><span class="card-title"><code>ara::core</code> and General Conventions</span><span class="card-desc">How do the <code>ara::</code> APIs report errors, and how do I initialize the runtime?</span><span class="badge badge-review">In review</span></a></li><li><a class="card" href="guides/ExecutionManagement.html"><span class="card-title">Execution Management</span><span class="card-desc">Who starts and stops my process, and how do state transitions work?</span><span class="badge badge-available">Available (v1.0)</span></a></li><li><a class="card" href="guides/StateManagement.html"><span class="card-title">State Management</span><span class="card-desc">Who decides which Function Group States are active?</span><span class="badge badge-review">In review</span></a></li><li><a class="card" href="guides/PlatformHealthManagement.html"><span class="card-title">Platform Health Management</span><span class="card-desc">How is my process supervised, and what happens when it misbehaves?</span><span class="badge badge-review">In review</span></a></li><li><a class="card" href="guides/CommunicationManagement.html"><span class="card-title">Communication Management Part 1: <code>ara::com</code> Concepts and API</span><span class="card-desc">How do applications offer and use services in C++?</span><span class="badge badge-review">In review</span></a></li><li><a class="card" href="guides/NetworkBindings.html"><span class="card-title">Communication Management Part 2: Network Bindings (SOME/IP, Signal-Based, DDS)</span><span class="card-desc">How do services travel over SOME/IP and DDS, and how do CAN signals become services?</span><span class="badge badge-review">In review</span></a></li><li><a class="card" href="guides/SecureAndSafeCommunication.html"><span class="card-title">Communication Management Part 3: Secure Communication and End-to-End Protection</span><span class="card-desc">How is service communication protected against attackers and against faults?</span><span class="badge badge-review">In review</span></a></li><li><div class="card card-planned" aria-disabled="true"><span class="card-title">Network Management, Time Synchronization and Raw Data Stream</span><span class="card-desc">How are networks woken, clocks synchronized and raw sensor data streamed?</span><span class="badge badge-planned">Planned</span></div></li><li><a class="card" href="guides/LogAndTrace.html"><span class="card-title">Log and Trace</span><span class="card-desc">How do I log, and how do I read a DLT trace?</span><span class="badge badge-review">In review</span></a></li><li><a class="card" href="guides/Persistency.html"><span class="card-title">Persistency</span><span class="card-desc">How do I keep data across power cycles and updates?</span><span class="badge badge-review">In review</span></a></li><li><a class="card" href="guides/DiagnosticsPart1.html"><span class="card-title">Diagnostics Part 1</span><span class="card-desc">How does a diagnostic tester talk to the <code>HPC</code>?</span><span class="badge badge-review">In review</span></a></li><li><a class="card" href="guides/DiagnosticsPart2.html"><span class="card-title">Diagnostics Part 2</span><span class="card-desc">How are faults detected, stored as DTCs and read out, and how does SOVD work?</span><span class="badge badge-review">In review</span></a></li><li><div class="card card-planned" aria-disabled="true"><span class="card-title">Update and Configuration Management</span><span class="card-desc">How is software installed, updated and rolled back?</span><span class="badge badge-planned">Planned</span></div></li><li><div class="card card-planned" aria-disabled="true"><span class="card-title">Cryptography</span><span class="card-desc">How do I use keys, certificates and crypto primitives safely?</span><span class="badge badge-planned">Planned</span></div></li><li><div class="card card-planned" aria-disabled="true"><span class="card-title">Identity and Access Management</span><span class="card-desc">Who may use which service or platform interface?</span><span class="badge badge-planned">Planned</span></div></li><li><div class="card card-planned" aria-disabled="true"><span class="card-title">Intrusion Detection System Manager and Firewall</span><span class="card-desc">How are security events collected, and how is network traffic filtered?</span><span class="badge badge-planned">Planned</span></div></li><li><div class="card card-planned" aria-disabled="true"><span class="card-title">End-to-End Integration: A Day in the Life of the HPC</span><span class="card-desc">How do all clusters work together over a whole day?</span><span class="badge badge-planned">Planned</span></div></li></ul>
-<p>The version in brackets is the current version of the guide. It increases when a revised guide is published. Guides without a link are planned.</p>
-<p>Tables in the guides refer to other guides by short names: Running Example, Series Glossary, Platform Overview, Manifests, Core (<code>ara::core</code> and General Conventions), EM, SM, PHM, CM (Communication Management Part 1), Network Bindings (Part 2), Secure Communication (Part 3), NM/TSync/RDS, Log and Trace, Persistency, Diagnostics Part 1, Diagnostics Part 2, UCM, Cryptography, IAM, IDSM and Firewall, and Integration.</p>
 <h2 id="the-running-example">The Running Example<a class="anchor" href="#the-running-example" aria-label="Link to this section">#</a></h2>
 <p>All guides share one running example: an invented high-performance ECU called <strong>HPC</strong> that runs an ADAS feature. Every guide shows its topic on this example, so the pieces fit together as you read on. The <a href="guides/RunningExample.html">Running Example guide</a> defines the example completely, and each of its elements names the guide that explains it in detail.</p>
 <h2 id="how-the-guides-are-built">How the Guides Are Built<a class="anchor" href="#how-the-guides-are-built" aria-label="Link to this section">#</a></h2>
@@ -175,44 +162,6 @@ columns 1
 </ol>
 <p>The Running Example and the Series Glossary are references and do not follow this pattern. The Platform Overview, Manifests and Core guides cover cross-cutting topics and adapt it.</p>
 <h2 id="functional-clusters-and-their-guides">Functional Clusters and Their Guides<a class="anchor" href="#functional-clusters-and-their-guides" aria-label="Link to this section">#</a></h2>
-<p>A <strong>functional cluster</strong> is a logical group of platform functionality, such as Execution Management or Persistency. The <em>Software Architecture</em> explanation sorts the R25-11 clusters into seven categories (<em>SW Architecture</em>, Section 9.1):</p>
-<pre class="mermaid">flowchart LR
-    subgraph RT[&quot;Runtime&quot;]
-        EM[&quot;Execution Management&quot;]
-        SM[&quot;State Management&quot;]
-        LT[&quot;Log and Trace&quot;]
-        CORE[&quot;Core&quot;]
-        OSI[&quot;Operating System Interface&quot;]
-    end
-    subgraph COMM[&quot;Communication&quot;]
-        CM[&quot;Communication Management&quot;]
-        RDS[&quot;Raw Data Stream&quot;]
-        NM[&quot;Network Management&quot;]
-        TS[&quot;Time Synchronization&quot;]
-        AAG[&quot;Automotive API Gateway&quot;]
-    end
-    subgraph STO[&quot;Storage&quot;]
-        PER[&quot;Persistency&quot;]
-        RPER[&quot;Remote Persistency&quot;]
-    end
-    subgraph SEC[&quot;Security&quot;]
-        CRY[&quot;Cryptography&quot;]
-        IDSM[&quot;Intrusion Detection System Manager&quot;]
-        FW[&quot;Firewall&quot;]
-    end
-    subgraph SAF[&quot;Safety&quot;]
-        PHM[&quot;Platform Health Management&quot;]
-        SHWA[&quot;Safe Hardware Acceleration&quot;]
-    end
-    subgraph CFG[&quot;Configuration&quot;]
-        UCM[&quot;Update and Configuration Management&quot;]
-        VUCM[&quot;Vehicle Update and Configuration Management&quot;]
-        REG[&quot;Registry&quot;]
-    end
-    subgraph DIA[&quot;Diagnostics&quot;]
-        DM[&quot;Diagnostic Management&quot;]
-    end
-</pre>
 <p>The following table maps each cluster to its guide. The columns come from two explanatory documents:</p>
 <ul>
 <li><strong>Namespace</strong> and <strong>ARA group</strong> follow the logical view of the platform (<em>Platform Design</em>, Figure 4.1). <em>Foundation</em> clusters provide the fundamental functions and are library-based: the application links a library that provides the API. <em>Platform Service</em> clusters are service-based: they offer their API as <code>ara::com</code> services (<em>Platform Design</em>, Section 4.2.2). <em>Vehicle Service</em> clusters provide vehicle-level functions.</li>
@@ -453,7 +402,7 @@ columns 1
 <h2 id="conventions">Conventions<a class="anchor" href="#conventions" aria-label="Link to this section">#</a></h2>
 <p>All guides use the same conventions. Once you know them, you can tell at a glance whether a statement is mandated by AUTOSAR, explained by it, or only a typical implementation.</p>
 <h3 id="requirement-and-constraint-ids">Requirement and Constraint IDs<a class="anchor" href="#requirement-and-constraint-ids" aria-label="Link to this section">#</a></h3>
-<p>An ID in square brackets, such as <code>[SWS_EM_01050]</code>, points to a requirement or constraint in a specification. The guides cite IDs where they make a normative statement, at most a few in one place, and list the rest in the <em>Spec Traceability</em> appendix.</p>
+<p>An ID in square brackets, such as <code>[SWS_EM_01050]</code>, points to a requirement or constraint in a specification.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -518,7 +467,6 @@ columns 1
 </tr>
 </tbody>
 </table></div>
-<p>If the specification is silent or ambiguous on a point, the guide says so explicitly instead of guessing.</p>
 <h3 id="boxes-and-markers">Boxes and Markers<a class="anchor" href="#boxes-and-markers" aria-label="Link to this section">#</a></h3>
 <div class="table-wrap"><table>
 <thead>
@@ -554,7 +502,7 @@ columns 1
 <ul>
 <li><strong>Code</strong> follows the R25-11 API: names, signatures and headers as in the specification. Examples are short and illustrative. Vendor headers may differ in detail.</li>
 <li><strong>Manifests</strong> are AUTOSAR XML (ARXML) files. To keep examples readable, guides often show a <em>conceptual</em> view that starts with the comment <code># Conceptual view ... NOT real ARXML syntax.</code> Real ARXML appears only where it follows the R25-11 XML Schema and the Manifest Specification, mainly in the Manifests guide (<a href="guides/Manifests.html#1216-the-running-example-complete-configuration">complete configuration of the running example</a>).</li>
-<li><strong>Diagrams</strong> use Mermaid: sequence diagrams for interactions, state diagrams for states, flowcharts for structure and decisions, and block diagrams for layer stacks.</li>
+<li><strong>Diagrams</strong> are drawn in <a href="https://plantuml.com/" target="_blank" rel="noopener">PlantUML</a> and inserted as SVG images: sequence diagrams for interactions, state diagrams for states, flowcharts for structure and decisions, class diagrams for meta-model relations and block diagrams for layer stacks.</li>
 </ul>
 <h3 id="names-and-typography">Names and Typography<a class="anchor" href="#names-and-typography" aria-label="Link to this section">#</a></h3>
 <ul>
@@ -567,7 +515,6 @@ columns 1
 <h3 id="links-between-guides">Links Between Guides<a class="anchor" href="#links-between-guides" aria-label="Link to this section">#</a></h3>
 <p>A guide does not repeat what another guide explains. It gives a two- or three-line recap and links to the section that owns the topic, for example &quot;see the <a href="guides/ExecutionManagement.html#8-function-group-state-transitions-step-by-step">EM guide, Chapter 8</a>&quot;. Terms link to the <a href="guides/Glossary.html">series glossary</a>.</p>
 <h2 id="the-autosar-specifications">The AUTOSAR Specifications<a class="anchor" href="#the-autosar-specifications" aria-label="Link to this section">#</a></h2>
-<p>The guides cite the specifications but do not contain them. You can download them free of charge from <a href="https://www.autosar.org/standards" target="_blank" rel="noopener">https://www.autosar.org/standards</a>. Choose <strong>Adaptive Platform</strong> and <strong>Foundation</strong>, release <strong>R25-11</strong>. The files are provided for information; read the disclaimer and terms of use in each file. A few guides also cite documents of the Classic Platform R25-11, for example the Platform Overview guide and the Diagnostics the Diagnostics Part 1 and Diagnostics Part 2 guides.</p>
 <h3 id="how-autosar-documents-are-named">How AUTOSAR Documents Are Named<a class="anchor" href="#how-autosar-documents-are-named" aria-label="Link to this section">#</a></h3>
 <p>Every AUTOSAR document has a name of the form <code>AUTOSAR_&lt;standard&gt;_&lt;type&gt;_&lt;name&gt;</code>, for example <code>AUTOSAR_AP_SWS_ExecutionManagement</code>. The <em>standard</em> is <code>AP</code> (Adaptive Platform), <code>CP</code> (Classic Platform) or <code>FO</code> (Foundation, the artifacts common to both platforms). The <em>type</em> tells you what kind of document it is:</p>
 <div class="table-wrap"><table>
@@ -624,10 +571,9 @@ columns 1
 
 </article>
 <nav class="pager" aria-label="First guide"><a class="pager-next" href="guides/RunningExample.html"><span class="pager-label">Next →</span><span class="pager-title">Start with the Running Example</span></a></nav>
-<footer class="site-footer"><p>Based on the AUTOSAR Adaptive Platform and Foundation specifications, release R25-11.</p><p>Training material, not a normative reference. Where a guide and an AUTOSAR specification differ, the specification applies. Specifications: <a href="https://www.autosar.org/standards" target="_blank" rel="noopener">autosar.org/standards</a>.</p></footer>
+<footer class="site-footer"><p>Based on the AUTOSAR Adaptive Platform and Foundation specifications, release R25-11.</p><p>Training material, not a normative reference. Specifications: <a href="https://www.autosar.org/standards" target="_blank" rel="noopener">autosar.org/standards</a>.</p></footer>
 </main>
 </div>
-<script>window.MERMAID_URL="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs";</script>
 <script src="assets/search-index.js" defer></script>
 <script src="assets/app.js" defer></script>
 </body>

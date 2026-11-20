@@ -1,0 +1,19 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "Model (ARXML, the Manifests guide)" as MODEL {
+  rectangle "ApApplicationErrorDomain\nCameraErrors, value 0x1001" as AED
+  rectangle "ApApplicationError\nExposureModeNotSupported, code 1" as AE
+  rectangle "Executable fusion / Root /\nCameraRPort" as PATH
+  rectangle "StdCppImplementationDataType\ncategory VECTOR, STRING, ..." as DT
+}
+rectangle "C++ code" as CODE {
+  rectangle "CameraErrorsErrorDomain,\nCameraErrorsErrc" as DOM
+  rectangle "InstanceSpecifier\n/fusion/Root/CameraRPort" as IS
+  rectangle "ara::core::Vector,\nara::core::String, ..." as TY
+}
+AED --> DOM : generator
+AE --> DOM : generator
+PATH --> IS : developer writes the path
+DT --> TY : generator
+@enduml

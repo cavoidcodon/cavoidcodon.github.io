@@ -1,0 +1,16 @@
+@startuml
+!include ../_style.puml
+rectangle "Trust Anchor\n(for example a public key in an HSM or ROM)" as TA
+rectangle "Bootloader" as BL
+rectangle "Operating System" as OS
+rectangle "Execution Management" as EM
+rectangle "Processed Manifests\n(startup order from the dependencies)" as PM
+rectangle "Platform functional clusters\n(described by manifests like applications)" as FC
+rectangle "Application Executables\n(started after successful authentication)" as APPS
+TA --> BL : authenticates and starts
+BL --> OS : authenticates and starts
+OS --> EM : authenticates and starts
+EM --> PM : authenticates and reads
+PM --> FC
+PM --> APPS
+@enduml

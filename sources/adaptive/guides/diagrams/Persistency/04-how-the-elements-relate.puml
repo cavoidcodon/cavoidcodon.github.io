@@ -1,0 +1,37 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "Application Design (M2)" as AD {
+  rectangle "StorageSwc" as SWC
+  rectangle "R-port CalibrationKvsPort" as PORT
+  rectangle "PersistencyKeyValueStorageInterface CalibrationKvsInterface" as ITF
+  rectangle "PersistencyDataElement CameraExtrinsics" as DE
+  rectangle "PersistencyDataRequiredComSpec: accessMode, initValue" as CS
+}
+rectangle "Target configuration (APMC)" as TC {
+  rectangle "Persistency StoragePersistency" as PER
+  rectangle "PersistencyGeneral: central storage URI, process" as GEN
+  rectangle "PersistencyKeyValueStorage CalibrationKvs" as KVS
+  rectangle "PersistencyCommon: version, sizes, update strategy" as COM
+  rectangle "PersistencyKeyValuePair CameraExtrinsics" as KVP
+  rectangle "Redundancy handling" as RED
+  rectangle "PersistencyCryptoKeySlotProps" as CKS
+  rectangle "UriCollection" as URI
+}
+rectangle "Process Storage" as PROC
+rectangle "CryptoKeySlot CalibrationMacKeySlot" as SLOT
+SWC --> PORT
+PORT --> ITF : typed by
+ITF --> DE
+PORT --> CS
+PER --> GEN
+PER --> KVS
+KVS --> COM
+KVS --> KVP
+COM --> RED
+COM --> CKS
+COM --> URI
+COM --> PORT : PortPrototypeInstanceRef
+GEN --> PROC : ForeignProcessRef
+CKS --> SLOT : ForeignCryptoKeySlotRef
+@enduml

@@ -1,0 +1,14 @@
+@startuml
+!include ../_style.puml
+participant "Fusion 1.1.0" as F
+participant "Persistency" as PER
+F -> PER : RegisterApplicationDataUpdateCallback(note old contract version)
+F -> PER : OpenKeyValueStorage(/fusion/Root/FusionParamsPort)
+note over PER : version 1.1.0 higher than 1.0.0, so backup, keep TrackerTuning (still TrackerTuningV1)
+PER --> F : callback(FusionParamsPort, 1.0.0)
+PER --> F : SharedHandle
+F -> PER : GetValue of TrackerTuning as TrackerTuningV1
+F -> PER : RemoveKey, SetValue as TrackerTuningV2, SyncToStorage
+F -> PER : release handle, then CleanUpPersistency
+F -> PER : OpenKeyValueStorage again, normal operation
+@enduml

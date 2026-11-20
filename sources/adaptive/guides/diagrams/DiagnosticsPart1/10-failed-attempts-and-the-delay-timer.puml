@@ -1,0 +1,10 @@
+@startuml
+!include ../_style.puml
+[*] --> Locked
+Locked --> SeedSent: 0x27 01, GetSeed OK
+SeedSent --> Unlocked: 0x27 02, kKeyValid
+SeedSent --> Locked: 0x27 02, kKeyInvalid, below threshold (NRC 0x35)
+SeedSent --> Delay: 0x27 02, kKeyInvalid, threshold reached (NRC 0x36)
+Delay --> Locked: securityDelayTime expired
+Unlocked --> Locked: session change or S3 timeout
+@enduml

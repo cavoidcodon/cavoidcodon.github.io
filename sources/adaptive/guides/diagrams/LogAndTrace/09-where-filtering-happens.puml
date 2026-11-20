@@ -1,0 +1,19 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "LogDebug() << ...\nor Log(msg, ...)" as CALL
+rectangle "Logger threshold\n(defaultLogThreshold,\nSetThreshold, control msg)" as T1 <<decision>>
+rectangle "discarded in the process" as X1
+rectangle "Backend" as BE
+rectangle "Implementation-specific\nfilters per sink or channel" as T2 <<decision>>
+rectangle "DLT on the network" as NET
+rectangle "Viewer filters\n(app, context, level, tag)" as T3 <<decision>>
+rectangle "Shown to the user" as SCREEN
+CALL --> T1
+T1 --> X1 : below
+T1 --> BE : passes
+BE --> T2
+T2 --> NET : passes
+NET --> T3
+T3 --> SCREEN
+@enduml

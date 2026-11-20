@@ -1,0 +1,20 @@
+@startuml
+!include ../_style.puml
+participant "Fusion" as FU
+participant "Platform Health Management" as PHM
+participant "StateManager" as SM
+participant "Execution Management" as EM
+note over PHM : ComputeDeadline kEXPIRED, FusionSupervision kEXPIRED
+PHM -> PHM : log RecoveryInitiated
+PHM -> SM : RecoveryHandler(ExecutionErrorEvent ADAS 42, kDeadlineSupervision)
+SM --> PHM : Future (not yet ready)
+SM -> EM : SetState(ADAS, Degraded)
+EM -> PHM : Fusion is about to receive SIGTERM
+note over PHM : FusionSupervision kDEACTIVATED
+EM -> FU : SIGTERM
+note over FU : Fusion hangs, EM kills it after the exit timeout
+EM -> EM : start FusionLite
+EM --> SM : SetState done
+SM --> PHM : Future ready with a value (within 6 s)
+note over PHM : recovery handled, no further action
+@enduml

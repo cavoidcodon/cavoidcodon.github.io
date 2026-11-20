@@ -1,0 +1,19 @@
+@startuml
+!include ../_style.puml
+autonumber
+participant "State Management" as SM
+participant "Execution Management" as EM
+participant "Fusion" as FU
+participant "Storage" as ST
+participant "Log and Trace" as LT
+SM -> EM : SetState(ADAS.Off)
+EM -> FU : SIGTERM
+FU --> EM : exit(EXIT_SUCCESS)
+EM -> ST : SIGTERM
+note over ST : Hangs while flushing data
+note over EM : Termination timeout of Storage expires
+EM -> ST : Forced termination by the OS (SIGKILL)
+EM -> LT : DLT ProcessTerminationTimeout
+note over EM : The transition continues, Off is reached
+EM --> SM : Future ready, success
+@enduml

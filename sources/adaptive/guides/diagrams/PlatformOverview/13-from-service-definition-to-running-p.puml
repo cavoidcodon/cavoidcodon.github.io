@@ -1,0 +1,29 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "Define services" as DS
+rectangle "Service interface\ndescription" as SID
+rectangle "Develop software" as DEV
+rectangle "Adaptive Application\n(Executable)" as AA
+rectangle "Develop platform and\nconfigure Machine" as DPM
+rectangle "Machine Manifest" as MM
+rectangle "Define and configure\nservice instances" as DCS
+rectangle "Integrate software" as INT
+rectangle "Software Package:\nExecutable, Execution Manifest,\nService Instance Manifest" as PKG
+rectangle "On the Machine: UCM deploys,\nauthenticates and installs" as UCM
+rectangle "Installed Executables and\nprocessed manifests" as DB
+rectangle "Execution Management\nstarts and configures the process" as EM
+DS --> SID
+SID --> DEV
+DEV --> AA
+DPM --> MM
+SID --> DCS
+MM --> DCS
+AA --> INT
+MM --> INT
+INT --> PKG
+DCS --> PKG
+PKG --> UCM
+UCM --> DB
+DB --> EM
+@enduml

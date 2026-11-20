@@ -1,0 +1,13 @@
+@startuml
+!include ../_style.puml
+participant "Consumer A (proxy)" as C1
+participant "Communication Management" as CM
+participant "Provider (SetHandler)" as SK
+participant "Consumer B (subscribed)" as C2
+C1 -> CM : Set(80)
+CM -> SK : SetHandler(80)
+SK -> SK : validate: clamp to 64
+SK --> CM : Future with 64
+CM --> C1 : Set() result 64
+CM --> C2 : notification 64
+@enduml

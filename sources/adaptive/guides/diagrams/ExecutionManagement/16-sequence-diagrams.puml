@@ -1,0 +1,15 @@
+@startuml
+!include ../_style.puml
+autonumber
+participant "State Management" as SM
+participant "Execution Management" as EM
+SM -> EM : SetState(ADAS.Normal)
+EM --> SM : Future F1
+note over EM : Transition to Normal in progress
+SM -> EM : SetState(ADAS.Degraded)
+EM -> EM : Validate the new request
+EM --> SM : F1 ready, error kOperationCanceled
+EM --> SM : Future F2
+note over EM : Transition to Degraded starts from the current situation
+EM --> SM : F2 ready, success
+@enduml

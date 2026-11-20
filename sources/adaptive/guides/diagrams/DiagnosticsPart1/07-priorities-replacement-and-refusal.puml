@@ -1,0 +1,35 @@
+@startuml
+!include ../_style.puml
+rectangle "New request from a tester" as R
+rectangle "Tester already has a conversation?" as A <<decision>>
+rectangle "Conversation busy with a request?" as B <<decision>>
+rectangle "Ignore the request" as IGN
+rectangle "Process in this conversation" as USE
+rectangle "Another conversation in a non-default session?" as N <<decision>>
+rectangle "New tester has higher priority?" as P1 <<decision>>
+rectangle "Cancel that conversation, create a new one" as REP
+rectangle "Refuse" as REF
+rectangle "Free conversation available?" as F <<decision>>
+rectangle "Create a new conversation" as NEW
+rectangle "New tester has higher priority than the lowest existing?" as P2 <<decision>>
+rectangle "Cancel the lowest-priority conversation, create a new one" as REP2
+rectangle "responseOnSecondDeclinedRequest?" as NRC <<decision>>
+rectangle "Negative response 0x21 busyRepeatRequest" as N21
+rectangle "No response" as SIL
+R --> A
+A --> B : yes
+B --> IGN : yes
+B --> USE : no
+A --> N : no
+N --> P1 : yes
+P1 --> REP : yes
+P1 --> REF : no
+N --> F : no
+F --> NEW : yes
+F --> P2 : no
+P2 --> REP2 : yes
+P2 --> REF : no
+REF --> NRC
+NRC --> N21 : true
+NRC --> SIL : false
+@enduml

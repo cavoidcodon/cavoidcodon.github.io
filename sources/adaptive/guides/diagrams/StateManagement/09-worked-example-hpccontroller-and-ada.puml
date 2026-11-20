@@ -1,0 +1,12 @@
+@startuml
+!include ../_style.puml
+left to right direction
+[*] --> Normal: started by HpcController
+Normal --> Degraded: Degrade (10), error 42 or 1
+Degraded --> Degraded: error 42 or 1 (list executed again)
+Normal --> Off: other error (ANY)
+Degraded --> Off: other error (ANY)
+Normal --> Off: stopped by HpcController
+Degraded --> Off: stopped by HpcController
+Off --> [*]: Agent ceases to exist
+@enduml

@@ -59,7 +59,7 @@ If you only secure a SOME/IP service, read Chapters 1 to 6 and 15.3. If you are 
 | **Note (interpretation)** | The specification is silent or ambiguous. The note says how this guide reads it, and why. |
 | **Pitfall** | A common mistake seen in real projects. |
 | **Key takeaways** | A short summary at the end of each chapter. |
-| Diagrams | Written in Mermaid. They render natively on GitHub and GitLab. In VS Code, install the *Markdown Preview Mermaid Support* extension. |
+| Diagrams | Drawn in PlantUML and inserted as SVG images, so they show in any Markdown viewer. Click an image to open it at full size. |
 
 > **Note:** All IDs, keys, certificates and data IDs in this guide belong to the invented running example and are illustrative. Byte layouts are taken from the R25-11 protocol specifications; CRC and MAC values are shown as `xx`, because they depend on the algorithm implementation. Configuration excerpts in ARXML come from a model of the running example that was validated against the R25-11 XML schema.
 
@@ -373,20 +373,7 @@ The [CM guide, Sections 12.1 and 12.2](CommunicationManagement.md#121-e2e-in-pla
 
 The following diagram shows the protection layers on the sending side of `HPC`. The receiving side runs the same layers in reverse.
 
-```mermaid
-flowchart TB
-    APP["Application: Send(), method call, Update()"]
-    SER["Binding: serialization (the Network Bindings guide)"]
-    E2E["E2E protect: E2E header"]
-    SOC["SecOC: freshness value and MAC"]
-    TLS["TLS or DTLS (per socket)"]
-    TP["TCP or UDP"]
-    IPS["IPsec (per IP address pair)"]
-    IP["IP"]
-    MAC["MACsec (per Ethernet link)"]
-    ETH["Ethernet"]
-    APP --> SER --> E2E --> SOC --> TLS --> TP --> IPS --> IP --> MAC --> ETH
-```
+![Flowchart: Where Each Mechanism Sits](diagrams/SecureAndSafeCommunication/01-where-each-mechanism-sits.svg)
 
 The order of E2E and SecOC is specified: the sender performs message authentication "after the E2E protection calculations" ([SWS_CM_11274]); the receiver performs "the message authentication procedure ... before E2E checks" ([SWS_CM_11276]). So SecOC protects the E2E header too, and an E2E check never runs on a message that failed verification. TLS, IPsec and MACsec work below the binding and protect whatever the binding sends.
 
@@ -406,18 +393,7 @@ All `ara::com::secoc` services are DRAFT in R25-11. [Chapter 16](#16-api-referen
 
 ### 3.3 Interaction Map
 
-```mermaid
-flowchart LR
-    APP["Applications<br/>(Fusion, SmControl, Cockpit)"] --> CM["Communication Management<br/>(bindings, E2E, SecOC, TLS)"]
-    CM --> FVM["FVM plug-in<br/>HpcFreshnessManager"]
-    CM -.-> CRY["Keys and certificates<br/>(HSM, the Cryptography guide)"]
-    CM -.-> IAM["IAM: remote subjects<br/>(the IAM guide)"]
-    MON["Security monitor<br/>(the IDSM and Firewall guide)"] -. "VerificationStatus" .-> CM
-    CM --> NET["IP stack: IPsec<br/>Ethernet: MACsec"]
-    NET --> GW["CentralGateway<br/>(SecOC, E2E peer)"]
-    NET --> CK["Cockpit<br/>(TLS peer, E2E peer)"]
-    APP -.-> PHM["PHM: timeout supervision<br/>(the PHM guide)"]
-```
+![Flowchart: Interaction Map](diagrams/SecureAndSafeCommunication/02-interaction-map.svg)
 
 > **Key takeaways**
 >
@@ -447,24 +423,7 @@ flowchart LR
 
 The following diagram shows the main references. Dashed boxes are elements of the Classic System Description.
 
-```mermaid
-flowchart LR
-    INST["Service instance<br/>(provided or required)"] --> E2EP["End2EndEvent/MethodProtectionProps"]
-    E2EP --> CFG["E2EProfileConfiguration"]
-    CFG --> CMP["E2EProfileCompatibilityProps"]
-    INST --> SCC["ServiceInterfaceElementSecureComConfig<br/>(SecOC only)"]
-    MAP["ServiceInstanceToMachineMapping"] --> INST
-    MAP --> TLS["TlsSecureComProps"]
-    MAP --> SOC["SecOcSecureComProps"]
-    MAP --> DDSS["DdsSecureComProps"]
-    TLS --> SUITE["TlsCryptoCipherSuite"]
-    SUITE --> CERT["CryptoServiceCertificate<br/>CryptoServiceKey"]
-    MAP --> CONN["EthernetCommunicationConnector"]
-    CONN --> NEP["NetworkEndpoint<br/>IPSecConfig"]
-    SIG["ServiceInstanceToSignalMapping"] --> INST
-    SIG -.-> GRP["ISignalGroup<br/>E2E transformer"]
-    SIG -.-> SPDU["SecuredIPdu"]
-```
+![Flowchart: How the Elements Relate](diagrams/SecureAndSafeCommunication/03-how-the-elements-relate.svg)
 
 Two rules shape the model. First, E2E and SecOC settings are aggregated by the **service instance**, so each binding of a multi-binding can be protected differently (TPS 13.4, 13.5). Second, the **security protocol** of TLS, DTLS and SecOC is chosen per endpoint by the machine mapping ([TPS_MANI_03199]).
 
@@ -675,23 +634,7 @@ The two machine mappings reference the props in the role `secureComPropsForTcp`:
 
 `Cockpit` uses an equivalent `TLS_CLIENT` configuration in its own manifest. The sequence below shows how `Cockpit` gets its first image. SD itself stays unprotected ([Section 5.5](#55-protecting-service-discovery)).
 
-```mermaid
-sequenceDiagram
-    participant CK as Cockpit (TLS client)
-    participant CM as CM on HPC (TLS server)
-    participant CD as CameraDriver (skeleton)
-    CD->>CM: OfferService()
-    CM-->>CK: SD OfferService (UDP 30490, unprotected)
-    CK->>CM: TCP connect to 192.168.10.10:30501
-    CK->>CM: TLS ClientHello (suite 0xC02B, TLS 1.2)
-    CM->>CK: ServerHello, Certificate HpcDeviceCert, key exchange
-    CK->>CK: Verify HpcDeviceCert up to OemRootCa
-    CK->>CM: Key exchange, Finished
-    CM->>CK: Finished: channel established
-    CK-->>CM: SD SubscribeEventgroup CameraEvents
-    CD->>CM: Image.Send(sample)
-    CM->>CK: SOME/IP notification inside a TLS record
-```
+![Sequence diagram: Worked Example: CameraService Secured With HpcDeviceCert](diagrams/SecureAndSafeCommunication/04-worked-example-cameraservice-secured.svg)
 
 On `Cockpit`, a `SetExposureMode()` call made before the handshake is finished does not fail: its future becomes ready only after the channel is established, or with `kCommunicationFailure` if it cannot be established ([SWS_CM_00231]).
 
@@ -856,16 +799,7 @@ On the backbone, `CentralGateway` sends `VehicleModeSecured` as an event of `Pow
 
 The MAC is calculated over `01 20` (SecOC Data ID `0x0120`), `01` (the authentic PDU) and the complete freshness value that `HpcFreshnessManager` reconstructs from `0x2A` ([PRS_SecOc_00208], [PRS_SecOc_00316]).
 
-```mermaid
-flowchart LR
-    RX["VehicleModeSecured<br/>received"] --> FV["FVM::GetRxFreshness(1, 0x2A, attempts)"]
-    FV --> MAC["CMAC over DataId 0x0120,<br/>authentic PDU, complete FV"]
-    MAC --> CMP{"24 MSB equal?"}
-    CMP -- "yes" --> OK["Status kSecOcVerificationSuccess<br/>translate PowerMode"]
-    CMP -- "no" --> RET{"attempts left?"}
-    RET -- "yes" --> FV
-    RET -- "no" --> DROP["Discard, status<br/>kSecOcVerificationFailure"]
-```
+![Flowchart: Worked Example: PowerMode Authenticated by CentralGateway](diagrams/SecureAndSafeCommunication/05-worked-example-powermode-authenticat.svg)
 
 Because the translation runs inside `SmControl`, the verification runs there too. `SmControl` receives `PowerMode` only if the MAC was correct; a forged `Off` is discarded, and `SmControl` keeps the last valid value. The `SignalServiceTranslationEventProps` `PowerModeSecure` has `secureTranslation` `true` ([Section 14.1](#141-safetranslation-and-securetranslation)).
 
@@ -1121,17 +1055,7 @@ The check function returns a profile-independent status per message: OK, REPEATE
 
 The state machine counts OK and error results in a moving window. The following diagram shows the extended variant (`transitToInvalidExtended` = `true`) in simplified form (PRS E2E, Section 6.20.1):
 
-```mermaid
-stateDiagram-v2
-    [*] --> DEINIT
-    DEINIT --> NODATA: init
-    NODATA --> INIT: first data without error
-    NODATA --> INVALID: too many errors or no new data (extended)
-    INIT --> VALID: enough OK, few errors
-    INIT --> INVALID: too many errors, or counter faults (extended)
-    VALID --> INVALID: too many errors or too few OK
-    INVALID --> VALID: enough OK, few errors
-```
+![State diagram: States and Transitions](diagrams/SecureAndSafeCommunication/06-states-and-transitions.svg)
 
 | State | Meaning (PRS E2E, Figure 6.131) | `SMState` |
 | --- | --- | --- |
@@ -1521,15 +1445,7 @@ With 50 km/h (raw 5000), -2.5 degrees (raw -25), 1.00 degree/s (raw 100) and cou
 | 6 | `xx` | `ChassisDynamicsCrc`: CRC-8 (SAE J1850) over the Data ID part and the data |
 | 7 | `13` | Low nibble: `ChassisDynamicsCounter` 3; high nibble: `ChassisDynamicsDataIdNibble` 1, the high nibble of the 12-bit Data ID `0x101` |
 
-```mermaid
-flowchart LR
-    CH["ChassisECU: E2E protect P11<br/>(counter, CRC, Data ID 0x101)"] --> GW["CentralGateway:<br/>routes PDU unchanged"]
-    GW --> RX["HPC: Signal-Based SOME/IP<br/>receives ChassisDynamics"]
-    RX --> CHK{"P11 check OK?<br/>[TPS_MANI_03600]"}
-    CHK -- "OK" --> EV["Events VehicleSpeed, SteeringAngle,<br/>YawRate for Fusion, FusionLite, SmControl"]
-    CHK -- "error" --> ERR["Events reflect the E2E error<br/>[TPS_MANI_03602]"]
-    CHK -- "timeout" --> NONE["Nothing forwarded<br/>[TPS_MANI_03601]"]
-```
+![Flowchart: Worked Example: ChassisDynamics With PROFILE_11 Becomes VehicleDynamicsService](diagrams/SecureAndSafeCommunication/07-worked-example-chassisdynamics-with.svg)
 
 `CentralGateway` must route the PDU without changing it; otherwise the protection would end in the gateway. `Fusion` then reads the E2E status of `VehicleSpeed` as in the CM guide, Section 12.5, with the reading of [Section 14.3](#143-checking-and-forwarding-across-the-translation).
 
@@ -2102,27 +2018,7 @@ The SWS suggests using the verification status to "continuously monitor the numb
 
 ### 18.1 The Sequence
 
-```mermaid
-sequenceDiagram
-    participant GW as CentralGateway
-    participant CH as ChassisECU
-    participant SC as SmControl (CM inside)
-    participant FU as Fusion (CM inside)
-    participant CD as CameraDriver
-    participant CK as Cockpit
-    GW->>SC: VehicleModeSecured (PowerMode On, FV, MAC)
-    SC->>SC: FVM GetRxFreshness, MAC OK, PowerMode = On
-    CH->>FU: ChassisDynamics via gateway (P11 header)
-    FU->>FU: P11 check OK, SMState kValid
-    CK->>CD: TCP connect, TLS handshake (HpcDeviceCert)
-    CD-->>CK: Image events inside TLS records
-    FU->>CD: SetExposureMode(Night), P04m, TLS
-    CD-->>FU: Response with echoed counter
-    SC-->>CK: AdasStatus Active, P04, every 100 ms
-    Note over GW,SC: An attacker injects VehicleMode with PowerMode Off
-    GW->>SC: forged frame, wrong MAC
-    SC->>SC: verification fails, frame discarded
-```
+![Sequence diagram: The Sequence](diagrams/SecureAndSafeCommunication/08-the-sequence.svg)
 
 ### 18.2 Step by Step
 

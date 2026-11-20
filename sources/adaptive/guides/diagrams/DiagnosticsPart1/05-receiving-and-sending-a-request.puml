@@ -1,0 +1,13 @@
+@startuml
+!include ../_style.puml
+participant "DoIP Transport Protocol Handler" as TP
+participant "UdsTransportProtocolMgr (DM)" as M
+participant "Diagnostic Server instance" as DS
+TP -> M : IndicateMessage(SA 0x0E80, TA 0x1010, kPhysical, channel, size, first bytes)
+M --> TP : kIndicationOk and an empty UdsMessage buffer
+TP -> M : HandleMessage(filled message)
+M -> DS : dispatch by target address
+DS --> M : response
+M -> TP : Transmit(response, same channel)
+TP --> M : TransmitConfirmation(kTransmitOk)
+@enduml

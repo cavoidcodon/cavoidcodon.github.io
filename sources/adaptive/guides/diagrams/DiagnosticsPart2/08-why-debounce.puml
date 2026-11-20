@@ -1,0 +1,12 @@
+@startuml
+!include ../_style.puml
+[*] --> kNeutral
+kNeutral --> kTemporarilyDefective: kPrefailed
+kTemporarilyDefective --> kFinallyDefective: FDC reaches 127 or kFailed
+kTemporarilyDefective --> kTemporarilyHealed: kPrepassed (below 0)
+kNeutral --> kTemporarilyHealed: kPrepassed
+kTemporarilyHealed --> kFinallyHealed: FDC reaches -128 or kPassed
+kTemporarilyHealed --> kTemporarilyDefective: kPrefailed (above 0)
+kFinallyDefective --> kTemporarilyHealed: kPrepassed
+kFinallyHealed --> kTemporarilyDefective: kPrefailed
+@enduml

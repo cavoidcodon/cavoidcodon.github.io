@@ -1,0 +1,18 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "FusionMessages\n(ARXML)" as ARXML
+rectangle "ara::log Modeled\nMessage Generator" as GEN
+rectangle "hpc/fusion/fusionmessages/\nmessages.h" as HDR
+rectangle "mainLog.Log(FusionCycleOverrun,\n61240, 50000)" as CODE
+rectangle "DLT: MSID 0x00010001\n+ 8 bytes of values" as WIRE
+rectangle "Viewer reads the Extract" as VIEW
+rectangle "FUSN MAIN warn: cycle overrun\ncycleTime=61240 us budget=50000 us" as TXT
+ARXML --> GEN
+GEN --> HDR
+HDR --> CODE
+CODE --> WIRE
+ARXML --> VIEW
+WIRE --> VIEW
+VIEW --> TXT
+@enduml

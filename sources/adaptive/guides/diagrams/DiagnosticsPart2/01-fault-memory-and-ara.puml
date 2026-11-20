@@ -1,0 +1,16 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "CameraDriver: Monitor CameraBlocked" as CD
+rectangle "Diagnostic Management daemon" as DM
+rectangle "SmControl: OperationCycle, Condition, DTCInformation" as SC
+rectangle "Persistency" as P
+rectangle "DiagnosticTester (UDS)" as T
+rectangle "SOVD client" as S
+CD --> DM : ReportMonitorAction
+SC --> DM : RestartOperationCycle, SetCondition
+DM --> SC : Read VehicleSpeed DID for the snapshot
+DM --> P : event memory
+T --> DM : 0x19, 0x14, 0x85
+S --> DM : GET faults, DELETE faults
+@enduml

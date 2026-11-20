@@ -1,0 +1,15 @@
+@startuml
+!include ../_style.puml
+participant "State Management" as SM
+participant "Execution Management" as EM
+participant "Platform Health Management" as PHM
+SM -> EM : SetState(ADAS, Degraded)
+EM -> PHM : Fusion is about to receive SIGTERM
+note over PHM : FusionSupervision, all supervisions stop, all kDEACTIVATED, Global Supervision kDEACTIVATED
+EM -> EM : SIGTERM to Fusion, wait for its exit
+EM -> PHM : Fusion terminated
+EM -> EM : start FusionLite
+note over PHM : FusionLite has no supervision, nothing to do
+note over PHM : CameraDriver keeps running, CameraDriverSupervision continues unchanged
+EM --> SM : transition done
+@enduml

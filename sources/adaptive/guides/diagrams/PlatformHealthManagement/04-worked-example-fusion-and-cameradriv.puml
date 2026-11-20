@@ -1,0 +1,19 @@
+@startuml
+!include ../_style.puml
+participant "Fusion" as FU
+participant "Platform Health Management" as PHM
+note over FU, PHM : Reference cycle 1 (0 to 200 ms)
+FU -> PHM : CycleStart (4 times)
+note over PHM : 4 within 3..5, correct, counter 0, kOK
+note over FU, PHM : Reference cycle 2, the thread is delayed for 100 ms
+FU -> PHM : CycleStart (2 times)
+note over PHM : 2 below 3, incorrect, counter 1, kFAILED
+note over FU, PHM : Reference cycle 3
+FU -> PHM : CycleStart (4 times)
+note over PHM : correct, counter 0, kOK
+note over FU, PHM : Reference cycles 4 and 5, the thread hangs between two cycles
+note over PHM : cycle 4, 0 indications, counter 1, kFAILED
+note over PHM : cycle 5, 0 indications, counter 2 > 1, kEXPIRED
+PHM -> PHM : stop the alive supervision, Global Supervision kEXPIRED
+note over PHM : Chapter 12, notify State Management
+@enduml

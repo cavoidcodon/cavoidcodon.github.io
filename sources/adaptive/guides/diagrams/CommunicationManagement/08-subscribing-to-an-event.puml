@@ -1,0 +1,11 @@
+@startuml
+!include ../_style.puml
+left to right direction
+[*] --> kNotSubscribed
+kNotSubscribed --> kSubscriptionPending: Subscribe(), not yet confirmed
+kNotSubscribed --> kSubscribed: Subscribe(), confirmed at once
+kSubscriptionPending --> kSubscribed: subscription established
+kSubscribed --> kSubscriptionPending: server unavailable
+kSubscribed --> kNotSubscribed: Unsubscribe()
+kSubscriptionPending --> kNotSubscribed: Unsubscribe()
+@enduml

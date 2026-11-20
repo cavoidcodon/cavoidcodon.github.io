@@ -1,0 +1,23 @@
+@startuml
+!include ../_style.puml
+autonumber
+participant "State Management" as SM
+participant "Execution Management" as EM
+participant "Fusion" as FU
+participant "Log and Trace" as LT
+SM -> EM : SetState(ADAS.Normal)
+EM -> FU : start (attempt 1)
+note over FU : Hangs during initialization
+note over EM : Start-up timeout expires
+EM -> FU : Forced termination (SIGKILL, not SIGTERM)
+EM -> FU : start again (numberOfRestartAttempts = 1)
+note over FU : Fails again
+EM -> FU : Forced termination (SIGKILL)
+note over EM : No attempts left, the transition is stopped
+note over EM : ADAS = Undefined Function Group State
+EM --> SM : Future ready, error kOperationFailed
+EM -> LT : DLT ProcessStartUpFailure
+SM -> EM : GetExecutionError(ADAS.Normal)
+EM --> SM : ExecutionErrorEvent (ADAS, executionError 42)
+SM -> EM : SetState(ADAS.Degraded) as recovery
+@enduml

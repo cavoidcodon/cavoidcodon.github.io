@@ -1,0 +1,39 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "CameraDriver" as CD
+rectangle "CameraService" as CS
+rectangle "Fusion" as FU
+rectangle "Cockpit (remote)" as CK
+rectangle "ObjectListService" as OL
+rectangle "FusionLite" as FL
+rectangle "Storage" as ST
+rectangle "CalibrationDataService" as CAL
+rectangle "CalibrationCheck" as CC
+rectangle "CM: Signal-to-Service\ntranslation" as S2S
+rectangle "VehicleDynamicsService" as VD
+rectangle "PowerModeService" as PM
+rectangle "SmControl" as SMC
+rectangle "AdasStatusService" as AS
+CD --> CS
+CS --> FU
+CS --> CK
+FU --> OL
+FL --> OL
+OL --> ST
+OL --> CK
+ST --> CAL
+CAL --> CC
+CAL --> FU
+CAL --> FL
+CD --> CAL : SetCalibration
+S2S --> VD
+S2S --> PM
+VD --> FU
+VD --> FL
+PM --> SMC
+VD --> SMC
+SMC --> AS
+AS --> S2S
+AS --> CK
+@enduml

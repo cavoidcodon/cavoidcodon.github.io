@@ -1,0 +1,18 @@
+@startuml
+!include ../_style.puml
+participant "CameraDriver (HPC)" as CD
+participant "CM on HPC (SD, 192.168.10.10)" as SD
+participant "Cockpit (192.168.10.20)" as CK
+CD -> SD : OfferService()
+note over SD : Initial Wait Phase: random 10..100 ms
+SD --> CK : Offer 0x1001/0x0001 v1.0, TTL 3, IPv4 Endpoint 192.168.10.10 TCP 30501 (multicast)
+note over SD : Repetition Phase: after 50, 100, 200 ms
+CK -> SD : TCP connect to 192.168.10.10:30501
+CK -> SD : SubscribeEventgroup 0x1001/0x0001 v1, eventgroup 1, TTL 3, IPv4 Endpoint of Cockpit TCP (unicast)
+SD -> CK : SubscribeEventgroupAck eventgroup 1, TTL 3
+CD -> SD : Image.Send(image)
+SD -> CK : SOME/IP 0x1001/0x8001 NOTIFICATION over the TCP connection
+note over SD : Main Phase: Offer every 1 s
+SD --> CK : Offer (cyclic)
+CK -> SD : SubscribeEventgroup (renewal)
+@enduml

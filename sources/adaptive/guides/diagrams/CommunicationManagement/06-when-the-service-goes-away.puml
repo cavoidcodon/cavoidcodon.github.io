@@ -1,0 +1,18 @@
+@startuml
+!include ../_style.puml
+participant "Fusion (proxy)" as FU
+participant "Communication Management" as CM
+participant "CameraDriver (skeleton)" as CD
+note over FU, CD : T0 connected, Image subscribed (kSubscribed)
+CD -> CM : StopOfferService (or crash)
+CM --> FU : subscription state kSubscriptionPending
+FU -> CM : SetExposureMode(Night)
+CM --> FU : Future with kServiceNotAvailable
+note over CD : EM restarts CameraDriver
+CD -> CM : OfferService
+CM -> CM : update proxy addressing, re-subscribe Image
+CM --> FU : subscription state kSubscribed
+CM --> FU : FindServiceHandler called (after the update)
+FU -> CM : SetExposureMode(Night)
+CM --> FU : Future ready with Output
+@enduml

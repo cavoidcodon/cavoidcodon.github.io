@@ -1,0 +1,14 @@
+@startuml
+!include ../_style.puml
+participant "Fusion" as FU
+participant "Communication Management" as CM
+participant "CameraDriver" as CD
+FU -> CM : StartFindService(handler, /fusion/Root/CameraRPort)
+CM --> FU : FindServiceHandle
+CM --> FU : handler([]) initial call: nothing yet
+CD -> CM : OfferService (/camera_driver/Root/CameraPPort)
+CM --> FU : handler([handle])
+FU -> CM : CameraServiceProxy::Create(handle)
+FU -> CM : Image.Subscribe(2), CameraStatus.Subscribe(1)
+CM --> FU : subscription state kSubscribed
+@enduml

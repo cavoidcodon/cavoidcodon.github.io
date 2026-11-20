@@ -1,0 +1,13 @@
+@startuml
+!include ../_style.puml
+left to right direction
+[*] --> NotInitialized
+NotInitialized --> Initialized: Initialize succeeds
+NotInitialized --> NotInitialized: Initialize fails, cleaned up, retry allowed
+NotInitialized --> NotInitialized: Deinitialize returns kNotInitialized
+Initialized --> Initialized: Initialize returns kAlreadyInitialized
+Initialized --> NotInitialized: Deinitialize succeeds
+Initialized --> DeinitFailed: Deinitialize returns another error
+DeinitFailed --> DeinitFailed: Deinitialize returns kNotInitialized
+note right of DeinitFailed: calling Initialize or Deinitialize again is generally unsafe
+@enduml

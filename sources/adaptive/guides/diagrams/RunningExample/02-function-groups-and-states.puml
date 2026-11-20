@@ -1,0 +1,11 @@
+@startuml
+!include ../_style.puml
+left to right direction
+[*] --> Off
+Off --> Startup: EM at boot
+Startup --> Driving: vehicle switched on
+Driving --> Shutdown: vehicle switched off
+Driving --> Restart: ECU reset or update
+Verify --> Driving: update verified
+note right of Verify: entered while an update that affects MachineFG is activated (the UCM guide)
+@enduml

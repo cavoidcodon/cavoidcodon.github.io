@@ -1,0 +1,19 @@
+@startuml
+!include ../_style.puml
+rectangle "Ethernet" as NET
+rectangle "DoIP Transport Protocol Handler" as DOIP
+rectangle "Custom Transport Protocol Handler" as CTP
+rectangle "SOVD HTTP handler (the Diagnostics Part 2 guide)" as HTTP
+rectangle "Transport Protocol Manager" as TPM
+rectangle "Diagnostic Server instance of HPC: sessions, security, checks, dispatching" as DS
+rectangle "Internal processing: 0x10, 0x3E, 0x2A, 0x2C, ..." as INT
+rectangle "Applications through ara::diag" as APP
+NET --> DOIP
+NET --> CTP
+NET --> HTTP
+DOIP --> TPM
+CTP --> TPM
+TPM --> DS : target address 0x1010 or 0xE400
+DS --> INT
+DS --> APP
+@enduml

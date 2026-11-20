@@ -1,0 +1,15 @@
+@startuml
+!include ../_style.puml
+participant "CalibrationCheck (hypothetical)" as CC
+participant "Platform Health Management" as PHM
+participant "Execution Management" as EM
+CC -> EM : ReportExecutionState(kRunning)
+EM -> PHM : kRunning received
+note over PHM : alive supervision of CheckStep starts
+CC -> PHM : CheckStep (several times)
+CC -> PHM : CheckDone (terminating checkpoint)
+note over PHM : stop the alive supervision, start the 100 ms timeout
+CC -> EM : exit(0)
+EM -> PHM : CalibrationCheck terminated
+note over PHM : terminated in time, stop the timeout, no notification
+@enduml

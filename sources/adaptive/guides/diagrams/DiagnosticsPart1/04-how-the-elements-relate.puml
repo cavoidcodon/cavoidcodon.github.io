@@ -1,0 +1,33 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "Diagnostic Extract" as DEXT {
+  rectangle "DiagnosticContributionSet" as CS
+  rectangle "DiagnosticServiceTable" as ST
+  rectangle "DiagnosticReadDataByIdentifier" as SI
+  rectangle "DiagnosticAccessPermission" as AP
+  rectangle "DiagnosticSession" as SE
+  rectangle "DiagnosticSecurityLevel" as SL
+  rectangle "DiagnosticDataIdentifier 0x0101" as DID
+  rectangle "DiagnosticDataElement" as DE
+  rectangle "DiagnosticCommonProps: diagnosticAddress" as CP
+}
+rectangle "DiagnosticDataPortMapping" as MAP
+rectangle "P-port SwVersionDidPort of FusionSwc" as PORT
+rectangle "ProcessDesign of Fusion" as PD
+rectangle "DiagnosticDataIdentifierInterface FusionSwVersionDid" as IF
+rectangle "SoftwareCluster: diagnosticDeploymentProps" as SWC
+CS --> ST
+ST --> SI
+SI --> AP
+AP --> SE
+AP --> SL
+SI --> DID
+DID --> DE
+CS --> CP
+MAP --> DID
+MAP --> PORT : pPortPrototypeInExecutable
+MAP --> PD : process
+PORT --> IF : typed by
+SWC --> CS : diagnosticExtract
+@enduml

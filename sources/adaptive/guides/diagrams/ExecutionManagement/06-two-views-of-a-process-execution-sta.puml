@@ -1,0 +1,12 @@
+@startuml
+!include ../_style.puml
+[*] --> Idle
+Idle --> Starting : EM created the process and allocated resources
+Starting --> Running : kRunning reported, or implicitly for non-reporting processes
+Starting --> Terminating : EM sends SIGTERM before kRunning
+Running --> Terminating : EM sends SIGTERM
+Starting --> Terminated : crash or exit before kRunning
+Running --> Terminated : self-termination or crash
+Terminating --> Terminated : process exited, or was killed after the timeout
+Terminated --> Starting : started again
+@enduml

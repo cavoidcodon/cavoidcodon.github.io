@@ -1,0 +1,22 @@
+@startuml
+!include ../_style.puml
+autonumber
+participant "Fusion" as FU
+participant "Execution Management" as EM
+participant "Log and Trace" as LT
+participant "StateClient library (in SM)" as SC
+participant "State Management logic" as SM
+note over FU, EM : ADAS is in Normal, no transition is in progress
+FU -> FU : crash (SIGSEGV)
+FU --> EM : terminated with exit status != 0 (detected via the OS)
+EM -> EM : ADAS = Undefined Function Group State
+EM -> LT : DLT ProcessAbnormalTermination (PID, exit status)
+EM -> SC : notify the ExecutionErrorEvent
+SC -> SM : undefinedStateCallback(event for ADAS, executionError 42)
+SM -> SC : GetExecutionError(ADAS.Normal)
+SC --> SM : ExecutionErrorEvent (same content)
+SM -> SC : SetState(ADAS.Degraded)
+SC -> EM : request the transition
+EM --> SC : transition finished
+SC --> SM : Future ready, success
+@enduml

@@ -1,0 +1,18 @@
+@startuml
+!include ../_style.puml
+participant "SOVD client" as C
+participant "Diagnostic Management" as DM
+participant "SmControl (SovdAuthorization)" as A
+participant "Authorization server" as AS
+C -> DM : request to verify client credentials
+DM -> A : GetAuthorizationUrl
+A --> DM : URL of the authorization server
+DM --> C : 307 Location URL
+C -> AS : authenticate, obtain token
+C -> DM : GET faults with Authorization token
+DM -> A : ValidateAuthorization(token, metaInfo, clientAuthentication)
+A -> A : verify token, set roles
+A --> DM : identity, validUntil
+DM -> DM : check access permission of the method
+DM --> C : 200 faults
+@enduml

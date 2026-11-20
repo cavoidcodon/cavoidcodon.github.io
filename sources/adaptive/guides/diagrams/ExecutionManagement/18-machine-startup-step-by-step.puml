@@ -1,0 +1,30 @@
+@startuml
+!include ../_style.puml
+autonumber
+participant "Bootloader" as BL
+participant "Operating System" as OS
+participant "Execution Management" as EM
+participant "Platform Health Mgmt" as PHM
+participant "State Management" as SM
+participant "ADAS processes" as APP
+BL -> OS : authenticate and start the kernel
+OS -> EM : authenticate and start EM
+EM -> EM : verify and parse the Processed Manifests
+note over EM : Every Function Group is in Off
+EM -> EM : self-initiated transition of MachineFG from Off to Startup
+EM -> PHM : start (references MachineFG.Startup)
+PHM --> EM : kRunning
+EM -> SM : start (references MachineFG.Startup)
+SM --> EM : kRunning
+SM -> EM : GetInitialMachineStateTransitionResult()
+EM --> SM : Future (not ready yet)
+note over EM : All Startup processes have reported kRunning
+EM --> SM : Future ready, Startup reached
+note over SM, EM : Handover: from now on only SM requests state changes
+SM -> EM : SetState(MachineFG.Driving)
+EM --> SM : success
+SM -> EM : SetState(ADAS.Normal)
+EM -> APP : start the processes in dependency order
+APP --> EM : kRunning (each reporting process)
+EM --> SM : success
+@enduml

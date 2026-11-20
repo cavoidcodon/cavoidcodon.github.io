@@ -1,0 +1,63 @@
+@startuml
+!include ../_style.puml
+hide empty members
+hide circle
+skinparam nodesep 20
+skinparam ranksep 50
+class Executable {
+    +reportingBehavior
+}
+class Process {
+    +numberOfRestartAttempts
+    +preMapping
+    +functionClusterAffiliation
+}
+class StateDependentStartupConfig
+class StartupConfig {
+    +processArgument
+    +environmentVariable
+    +schedulingPolicy
+    +schedulingPriority
+    +terminationBehavior
+    +timeout
+    +permissionToCreateChildProcess
+    +processExecutionError
+}
+class ExecutionDependency
+class ResourceGroup {
+    +cpuUsage
+    +memUsage
+}
+class ResourceConsumption {
+    +memoryUsage
+}
+class ModeDeclaration
+class ModeDeclarationGroupPrototype
+class Machine {
+    +defaultApplicationTimeout
+    +environmentVariable
+    +trustedPlatformExecutableLaunchBehavior
+}
+class ProcessToMachineMapping {
+    +shallRunOn
+    +shallNotRunOn
+}
+class FunctionGroupPortMapping
+class SoftwareCluster
+Process --> Executable : executable
+Process *-- StateDependentStartupConfig : stateDependentStartupConfig
+StateDependentStartupConfig --> ModeDeclaration : functionGroupState
+StateDependentStartupConfig --> StartupConfig : startupConfig
+StateDependentStartupConfig *-- ExecutionDependency : executionDependency
+StateDependentStartupConfig --> ResourceGroup : resourceGroup
+StateDependentStartupConfig *-- ResourceConsumption : resourceConsumption
+ExecutionDependency --> Process : processState of another process
+ModeDeclarationGroupPrototype --> ModeDeclaration : states, via its type
+Machine *-- ResourceGroup : via OsModuleInstantiation
+ProcessToMachineMapping --> Process : process
+ProcessToMachineMapping --> Machine : machine
+FunctionGroupPortMapping --> Process : process
+FunctionGroupPortMapping --> ModeDeclarationGroupPrototype : functionGroup
+SoftwareCluster --> ModeDeclarationGroupPrototype : claimedFunctionGroup
+SoftwareCluster --> Process : containedProcess
+@enduml

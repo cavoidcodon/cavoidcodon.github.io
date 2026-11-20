@@ -1,0 +1,13 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "Provider process\nEvent.Send()" as SK
+rectangle "Middleware-controlled\nevent buffers" as BUF <<decision>>
+rectangle "Consumer 1\nlocal cache" as C1
+rectangle "Consumer 2\nlocal cache" as C2
+rectangle "Consumer 3\nlocal cache" as C3
+SK --> BUF
+BUF --> C1 : kernel space\n(sockets, pipes)
+BUF --> C2 : shared memory
+BUF --> C3 : IPC daemon\nprocess
+@enduml

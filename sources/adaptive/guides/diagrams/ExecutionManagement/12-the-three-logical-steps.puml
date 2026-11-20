@@ -1,0 +1,22 @@
+@startuml
+!include ../_style.puml
+rectangle "For each process of the Function Group" as S
+rectangle "References the\nRequestedState?" as Q1 <<decision>>
+rectangle "Alive?\n(not Idle or Terminated)" as Q2 <<decision>>
+rectangle "Terminate it\nSWS_EM_01060" as T
+rectangle "Nothing to do" as N
+rectangle "Alive?\n(not Idle or Terminated)" as Q3 <<decision>>
+rectangle "Start it, respecting dependencies\nSWS_EM_01066" as ST
+rectangle "Same StartupConfig in\nCurrentState and RequestedState?" as Q4 <<decision>>
+rectangle "Keep it running" as K
+rectangle "Restart: terminate now,\nthen start with the new configuration\nSWS_EM_02251 and SWS_EM_01066" as R
+S --> Q1
+Q1 --> Q2 : No
+Q2 --> T : Yes
+Q2 --> N : No
+Q1 --> Q3 : Yes
+Q3 --> ST : No
+Q3 --> Q4 : Yes
+Q4 --> K : Yes
+Q4 --> R : No
+@enduml

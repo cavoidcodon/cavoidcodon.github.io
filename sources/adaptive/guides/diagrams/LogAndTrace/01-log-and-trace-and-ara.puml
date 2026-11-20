@@ -1,0 +1,18 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "Process (for example Fusion)" as P {
+  rectangle "Application code" as APP
+  rectangle "ara::log library" as LIB
+}
+rectangle "Logging backend\n(for example a DLT daemon)" as BE
+rectangle "Logging client\n(viewer on a PC)" as CL
+rectangle "Manifest: IDs, sinks, messages\n(TPS Manifest, TPS Log And Trace Extract)" as CFG
+APP --> LIB : ara::log API (SWS)
+LIB --> BE : implementation-specific path
+BE --> CL : DLT messages (PRS)\nover Ethernet
+CL --> BE : control messages (PRS)
+CFG ..> LIB
+CFG ..> BE
+CFG ..> CL : Log and Trace Extract\nfor non-verbose decoding
+@enduml

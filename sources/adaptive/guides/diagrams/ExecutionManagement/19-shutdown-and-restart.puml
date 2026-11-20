@@ -1,0 +1,19 @@
+@startuml
+!include ../_style.puml
+autonumber
+participant "State Management" as SM
+participant "Execution Management" as EM
+participant "ADAS processes" as APP
+participant "PowerControl" as PC
+participant "Operating System" as OS
+SM -> EM : SetState(ADAS.Off)
+EM -> APP : SIGTERM (reverse dependency order)
+APP --> EM : exit(EXIT_SUCCESS)
+EM --> SM : success
+SM -> EM : SetState(MachineFG.Shutdown)
+note over EM : Terminate the processes that do not reference Shutdown,\nstart the processes that do
+EM -> PC : start
+PC --> EM : kRunning
+EM --> SM : success
+PC -> OS : project-specific power-off (for example sync file systems, power off)
+@enduml

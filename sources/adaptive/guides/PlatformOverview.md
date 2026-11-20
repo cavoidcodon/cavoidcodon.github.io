@@ -55,7 +55,7 @@ This guide has no configuration chapters. It is an overview: [Section 8.2](#82-m
 | **Note (implementation example)** | How a typical implementation, often on Linux, *might* realize something. This is not mandated by AUTOSAR. |
 | **Pitfall** | A common mistake seen in real projects. |
 | **Key takeaways** | A short summary at the end of each chapter. |
-| Diagrams | Written in Mermaid. They render natively on GitHub and GitLab. In VS Code, install the *Markdown Preview Mermaid Support* extension. |
+| Diagrams | Drawn in PlantUML and inserted as SVG images, so they show in any Markdown viewer. Click an image to open it at full size. |
 
 ### The Running Example
 
@@ -201,14 +201,7 @@ AUTOSAR publishes three standards (*Release Overview*, Section 1.3.3):
 
 Each release of the Classic and the Adaptive Platform relies on a dedicated release of the Foundation. AP R25-11 depends on Foundation R25-11, which defines protocols that the Adaptive Platform implements, contains the project objectives and common requirements, and holds specification parts that apply to both platforms (*Release Overview*, Sections 1.3.4 and 1.3.5). Since R19-11, AUTOSAR releases all three standards together, once a year (*Release Overview*, Section 1.5.2). The following diagram shows the dependency.
 
-```mermaid
-flowchart TB
-    AP["Adaptive Platform (AP)<br/>high-performance ECUs"]
-    CP["Classic Platform (CP)<br/>deeply embedded ECUs"]
-    FO["Foundation (FO)<br/>common protocols and requirements,<br/>for example SOME/IP, E2E and DLT"]
-    AP -->|"relies on"| FO
-    CP -->|"relies on"| FO
-```
+![Flowchart: Three AUTOSAR Standards: Adaptive, Classic and Foundation](diagrams/PlatformOverview/01-three-autosar-standards-adaptive-cla.svg)
 
 > **Pitfall: two meanings of "Foundation".** The **Foundation standard** (FO) is the common base of both platforms. The **Adaptive Platform Foundation** is a group of functional clusters *inside* the Adaptive Platform, such as Execution Management or Persistency ([Section 3.3](#33-four-groups-of-functional-clusters)). Always say which one you mean.
 
@@ -343,18 +336,7 @@ On a Classic ECU, everything that matters for timing is decided **before the ECU
 
 The following diagram summarizes this build-time approach. Nothing that affects timing is decided at run time.
 
-```mermaid
-flowchart LR
-    CFG["ECU configuration<br/>(tasks, runnable mapping, priorities,<br/>signals, PDUs, schedule tables, budgets)"]
-    GEN["Generators<br/>(RTE, BSW scheduler,<br/>OS and communication configuration)"]
-    BLD["Compile and link"]
-    FLS["Flash the ECU"]
-    RUN["Run time:<br/>execute the fixed plan"]
-    ANA["Timing analysis<br/>(WCET, schedulability)"]
-    CFG --> GEN --> BLD --> FLS --> RUN
-    CFG --> ANA
-    BLD --> ANA
-```
+![Flowchart: How the Classic Platform Achieves It](diagrams/PlatformOverview/02-how-the-classic-platform-achieves-it.svg)
 
 #### 2.3.3 What Determinism Enables
 
@@ -467,26 +449,7 @@ The Adaptive Platform does **not** replace the Classic Platform or non-AUTOSAR p
 
 The *Platform Design* shows a typical split of an automated driving function (*Platform Design*, Figure 3.2). Classic ECUs provide the inputs from the sensors and from car-to-car and car-to-infrastructure communication. The Adaptive Platform performs the perception of the environment, of the driver state and of the vehicle state, builds an environment model and plans maneuvers and trajectories. The planned trajectory goes back to a Classic ECU, which performs the trajectory control together with a safety function that also reads the inertial sensors directly. The following diagram applies this split to the running example. `HPC` stops at the object list; actuators are not part of the example (the [Running Example guide, Section 1.2](RunningExample.md#12-the-vehicle-context)).
 
-```mermaid
-flowchart LR
-    subgraph CPW["Classic Platform ECUs"]
-        CH["ChassisECU<br/>VehicleSpeed, SteeringAngle, YawRate"]
-        IC["InstrumentCluster<br/>shows AdasStatus"]
-        ACT["Control ECUs with actuators<br/>(not part of the example)"]
-    end
-    subgraph APW["Adaptive Platform: HPC"]
-        FU["Perception and fusion<br/>(Fusion)"]
-        OL["Object list<br/>(ObjectListService)"]
-        SMG["ADAS status<br/>(SmControl)"]
-    end
-    CAM["Front camera"] --> FU
-    FR["FrontRadar<br/>(not AUTOSAR)"] --> FU
-    CH -->|"CAN signals via CentralGateway,<br/>Signal-to-Service translation"| FU
-    FU --> OL
-    OL --> CK["Cockpit"]
-    SMG -->|"AdasStatus via<br/>Signal-to-Service translation"| IC
-    OL -.->|"a full ADAS would send a<br/>trajectory to control ECUs"| ACT
-```
+![Flowchart: Where Each Platform Fits in a Vehicle](diagrams/PlatformOverview/03-where-each-platform-fits-in-a-vehicl.svg)
 
 > **Key takeaways**
 >
@@ -506,23 +469,7 @@ flowchart LR
 
 The *Platform Design* shows the logical architecture of the Adaptive Platform in its Figure 4.1. The following diagram redraws it. Adaptive Applications run on top of ARA. ARA consists of the interfaces of the functional clusters, grouped into four groups, plus the Operating System Interface. Underneath is the base software, a POSIX operating system, which runs on a Machine.
 
-```mermaid
-flowchart TB
-    APP["User applications: Adaptive Applications"]
-    subgraph ARA["ARA: AUTOSAR Runtime for Adaptive Applications"]
-        direction LR
-        OSI["Operating System Interface<br/>POSIX PSE51,<br/>C++ standard library"]
-        FND["Platform Foundation clusters<br/>ara::com, ara::exec, ara::diag,<br/>ara::idsm, ara::nm, ara::per,<br/>ara::tsync, ara::crypto, ara::rds,<br/>ara::phm, ara::log, ara::shwa,<br/>ara::fw, ara::core"]
-        SVC["Platform Service clusters<br/>ara::ucm, ara::sm"]
-        STD["Standardized application<br/>and interface clusters<br/>ara::adi::sensoritf"]
-        VEH["Vehicle Service clusters<br/>ara::vucm, ara::aag, ara::rper"]
-    end
-    OS["Base software: POSIX operating system"]
-    MCH["Machine: physical ECU, virtual machine or container"]
-    APP --> ARA
-    ARA --> OS
-    OS --> MCH
-```
+![Flowchart: The Layers at a Glance](diagrams/PlatformOverview/04-the-layers-at-a-glance.svg)
 
 The *Platform Design* warns that its figure contains functional clusters that are not part of the current release, to give a better idea of the overall structure, and that new clusters may be added in future releases (*Platform Design*, Section 4.1.1). It does not say which ones. This guide therefore takes the list of R25-11 clusters from the building blocks of the *SW Architecture* ([Section 5.1](#51-how-to-read-the-cluster-map)).
 
@@ -640,16 +587,7 @@ The guideline: a cluster that is used only locally, within one platform instance
 
 The *SW Architecture* adds whether a cluster is **daemon-based**, that is, intended to be implemented with its own daemon process. Implementations may deviate (*SW Architecture*, Chapter 9). Log and Trace, Core, Operating System Interface, Raw Data Stream, Persistency, Safe Hardware Acceleration and the Registry are not daemon-based; all other clusters are ([Section 5.1](#51-how-to-read-the-cluster-map)). The following diagram contrasts the two designs.
 
-```mermaid
-flowchart LR
-    subgraph LIB["Library-based, for example Diagnostic Management"]
-        A1["Application process<br/>with the ara::diag library"] -->|"IPC, implementation-specific"| D1["Cluster daemon"]
-    end
-    subgraph SVB["Service-based, for example State Management"]
-        A2["Application process<br/>with a generated proxy"] -->|"ara::com"| CM2["Communication Management"]
-        CM2 --> D2["Cluster daemon<br/>(service provider)"]
-    end
-```
+![Flowchart: Library-based and Service-based Functional Clusters](diagrams/PlatformOverview/05-library-based-and-service-based-func.svg)
 
 > **Note:** "Library-based" does not mean "no daemon". Diagnostic Management is library-based in the logical view (Platform Foundation) but daemon-based in the *SW Architecture*: the library in the application talks to the daemon. Persistency, in contrast, is library-based and not daemon-based.
 
@@ -683,15 +621,7 @@ The platform packages contain all functional cluster daemons together with their
 
 The following diagram shows the two Software Clusters of `HPC` (the [Running Example guide, Section 1.3](RunningExample.md#13-the-hpc-machine)). `HPC` has no `PLATFORM` cluster: all platform daemons are part of the platform core.
 
-```mermaid
-flowchart TB
-    subgraph M["Machine HPC"]
-        PC["HpcPlatformCore 1.0.0<br/>category PLATFORM_CORE<br/>OS, Execution Management, StateManager,<br/>SmControl, PlatformHealth, PowerControl,<br/>platform daemons and libraries<br/>Function Group MachineFG"]
-        AC["AdasCluster 1.0.0<br/>category APPLICATION_LAYER<br/>the seven ADAS processes<br/>Function Group ADAS"]
-    end
-    AC -.->|"may depend on"| PC
-    PC -->|"UCM installs and updates"| AC
-```
+![Flowchart: Software Clusters and Software Packages](diagrams/PlatformOverview/06-software-clusters-and-software-packa.svg)
 
 ### 4.5 The Adaptive Platform in Its System Context
 
@@ -703,24 +633,7 @@ The *SW Architecture* places the platform between three kinds of partners (*SW A
 
 The platform uses the operating system through internal interfaces: the *Multi-Process System Interface* (used by Execution Management to start and control processes), the *TCP/IP stack*, the *non-volatile storage* and the *Single-Process POSIX API* (*SW Architecture*, Figure 7.1). The following diagram shows the context, with the counterparts from the running example.
 
-```mermaid
-flowchart TB
-    AA["Adaptive Applications<br/>(Fusion, CameraDriver, ...)"]
-    AP["AUTOSAR Adaptive Platform<br/>(functional clusters)"]
-    OS["Operating System<br/>Multi-Process System Interface, Single-Process POSIX API,<br/>TCP/IP stack, non-volatile storage"]
-    WD["Watchdog"]
-    CR["Crypto provider<br/>(HSM of HPC)"]
-    AA -->|"ARA"| AP
-    AP --> OS
-    AP -->|"WatchdogInterface"| WD
-    AP --> CR
-    AP <-->|"DoIP"| DT["Diagnostic tester<br/>(DiagnosticTester)"]
-    AP <-->|"ara::com over Ethernet"| OAP["Other Adaptive Platform<br/>(TelematicsUnit)"]
-    AP <-->|"ara::com over Ethernet,<br/>translated signals"| OCP["Classic Platform<br/>(CentralGateway, ChassisECU)"]
-    AP <--> TP["Third-party platform<br/>(FrontRadar)"]
-    AP -->|"logs, security events"| DR["Data repository<br/>(log client, backend)"]
-    OAP <-->|"internet"| BE["Backend"]
-```
+![Flowchart: The Adaptive Platform in Its System Context](diagrams/PlatformOverview/07-the-adaptive-platform-in-its-system.svg)
 
 | External system | What it is | In the running example |
 | --- | --- | --- |
@@ -923,18 +836,7 @@ A few interfaces are used by almost every daemon-based cluster. Once you know th
 
 The following diagram shows the same relations from the point of view of one typical daemon-based cluster.
 
-```mermaid
-flowchart LR
-    D["A daemon-based cluster,<br/>for example UCM"]
-    D -->|"ExecutionClient"| EM["Execution Management"]
-    D -->|"Logger"| LT["Log and Trace"]
-    D -->|"ManifestAccessor"| REG["Registry"]
-    D -->|"CryptoStack"| CRY["Cryptography"]
-    D -->|"KeyValueStorage, FileStorage"| PER["Persistency"]
-    D -->|"SupervisedEntity"| PHM["Platform Health Management"]
-    D -->|"SynchronizedTimeBaseConsumer"| TS["Time Synchronization"]
-    D -->|"UpdateRequest"| SM["State Management"]
-```
+![Flowchart: The Hub Interfaces](diagrams/PlatformOverview/08-the-hub-interfaces.svg)
 
 Four more interfaces connect specific pairs (*SW Architecture*, Tables 9.4, 9.12, 9.25 and 9.29): UCM uses the `UpdateRequest` service of State Management during an update; State Management uses `NetworkHandle` of Network Management to request networks; PHM uses `RecoveryAction`, which State Management implements, to trigger recovery; and V-UCM uses the `PackageManagement` service of UCM.
 
@@ -948,18 +850,7 @@ Three clusters form the core of the platform's lifecycle. The *Platform Design* 
 
 The following diagram shows these relations.
 
-```mermaid
-flowchart LR
-    SM["State Management"] -->|"StateClient: SetState"| EM["Execution Management"]
-    EM -->|"transition results,<br/>unexpected terminations"| SM
-    EM -->|"start, configure, terminate"| P["Supervised processes"]
-    P -->|"ReportCheckpoint"| PHM["Platform Health Management"]
-    EM -->|"process started or terminating"| PHM
-    PHM -->|"RecoveryAction"| SM
-    EM -->|"own checkpoints"| PHM
-    SM -->|"own checkpoints"| PHM
-    PHM -->|"serves it, and resets the Machine<br/>through it if EM or SM fail"| WD["Hardware watchdog"]
-```
+![Flowchart: The Lifecycle Core: EM, SM and PHM](diagrams/PlatformOverview/09-the-lifecycle-core-em-sm-and-phm.svg)
 
 When EM changes a Function Group State, it notifies PHM just before it terminates a supervised process, so that PHM stops supervising it and State Management receives no false supervision failures. When a newly started process reports `kRunning`, EM notifies PHM to start its alive supervision; deadline and logical supervision start with the first reported checkpoint (*SW Architecture*, Section 11.1.1.3). The EM, SM and PHM guides explain each side in detail.
 
@@ -974,31 +865,7 @@ The *SW Architecture* describes how the platform starts (*SW Architecture*, Sect
 5. PHM starts to serve the watchdog. **The time between enabling the watchdog and the start of PHM must be shorter than the watchdog timeout.** The integrator must ensure this.
 6. When `Startup` has been reached, State Management takes over and determines the next Function Group States. On `HPC`, the project-specific application `SmControl` asks State Management for the transition `Drive` when `PowerMode` reports that the vehicle is switched on; `StateManager` then requests `MachineFG.Driving` and `ADAS.Normal` (the [SM guide, Section 5.5](StateManagement.md#55-worked-example-smcontrol-brings-hpc-from-startup-to-driving)).
 
-```mermaid
-sequenceDiagram
-    participant OS as Bootloader and OS
-    participant WD as Watchdog
-    participant EM as Execution Management
-    participant SMG as StateManager
-    participant PH as PlatformHealth
-    participant D as Other platform daemons
-    participant A as ADAS processes
-    OS->>WD: enable
-    OS->>EM: start as the first platform process
-    EM->>EM: read processed manifests, enter MachineFG.Startup
-    EM->>SMG: start
-    EM->>PH: start
-    EM->>D: start (CM, DM, UCM, ...)
-    SMG->>EM: ReportExecutionState(kRunning)
-    PH->>EM: ReportExecutionState(kRunning)
-    PH->>WD: serve, before the timeout expires
-    D->>EM: ReportExecutionState(kRunning)
-    SMG->>EM: GetInitialMachineStateTransitionResult()
-    Note over SMG: State Management takes over.<br/>SmControl requests the transition Drive
-    SMG->>EM: SetState(MachineFG.Driving), then SetState(ADAS.Normal)
-    EM->>A: start in dependency order
-    A->>EM: ReportExecutionState(kRunning)
-```
+![Sequence diagram: Walkthrough: The Platform Starts and Stops](diagrams/PlatformOverview/10-walkthrough-the-platform-starts-and.svg)
 
 **Shutdown** works the other way around (*SW Architecture*, Section 11.1.1.2). State Management requests the Machine State `Shutdown`. The *SW Architecture* assumes that only EM, State Management and an application that asks the operating system to shut down run in this state. That application is specific to the operating system or the project, and is usually not an Adaptive Application; keeping it outside EM keeps project-specific functionality out of EM. EM terminates the other processes in an orderly way, including PHM, and starts the shutdown application. The operating system then terminates the remaining processes and shuts the Machine down in an implementation-specific way. On `HPC`, the shutdown application is `PowerControl`. Unlike the scenario in the *SW Architecture*, `HPC` also keeps `PlatformHealth` configured for `Shutdown`, so that the watchdog is served until the machine powers off (the [Running Example guide, Section 1.5](RunningExample.md#15-processes)); the scenario is an example, not a rule.
 
@@ -1075,21 +942,7 @@ The OSI has two kinds of content:
 
 The following diagram shows who uses which part of the operating system.
 
-```mermaid
-flowchart TB
-    AA["Adaptive Application<br/>(for example Fusion)"]
-    FC["Functional cluster daemons<br/>(for example the CM daemon)"]
-    EM["Execution Management"]
-    subgraph OS["Operating system"]
-        PSE["PSE51 API and<br/>C++ standard library"]
-        FULL["Further POSIX and<br/>OS-specific APIs"]
-        MPS["Multi-Process System Interface<br/>(create, configure, terminate processes)"]
-    end
-    AA -->|"may use only"| PSE
-    FC -->|"may use"| PSE
-    FC -->|"may use"| FULL
-    EM -->|"uses"| MPS
-```
+![Flowchart: What the Adaptive Platform Requires from the Operating System](diagrams/PlatformOverview/11-what-the-adaptive-platform-requires.svg)
 
 | Party | Responsibility | Source |
 | --- | --- | --- |
@@ -1261,16 +1114,7 @@ The operating system provides its trace information in different ways, for examp
 
 The trace events of a task follow the minimal state machine below (*OSI*, Section 7.3.2.2, Figure 7.3). An operating system that does not distinguish *Ready* from *Waiting* must at least trace the switches between *Ready* and *Running*.
 
-```mermaid
-stateDiagram-v2
-    [*] --> Ready: Create (OsTaskCreate)
-    Ready --> Running: Schedule (OsTaskSchedule)
-    Running --> Running: Schedule (OsTaskSchedule)
-    Running --> Ready: Preempt (OsTaskPreempt)
-    Running --> Waiting: Wait (OsTaskWait)
-    Waiting --> Ready: Release (OsTaskRelease)
-    Running --> [*]: Terminate (OsTaskTerminate)
-```
+![State diagram: OS Tracing with ARTI](diagrams/PlatformOverview/12-os-tracing-with-arti.svg)
 
 If tracing is desired, the OSI shall log a modeled message for each of the following events ([SWS_OSI_10102] to [SWS_OSI_10108] for tasks, [SWS_OSI_10110] to [SWS_OSI_10113] for processes). All messages have the status DRAFT, the message type *Info* / `DLT_TRACE_STATE`, and a time stamp in the natural format of the operating system where applicable.
 
@@ -1324,22 +1168,7 @@ The OSI is a short specification. Knowing what it leaves out prevents you from s
 
 The Adaptive Platform standardizes the work products and tasks of development, so that applications can be developed independently, by different teams, and still fit together (*Platform Design*, Section 4.3). The following diagram follows the workflow of the *Platform Design* (Figure 4.6), from the definition of a service to a running process.
 
-```mermaid
-flowchart LR
-    DS["Define services"] --> SID["Service interface<br/>description"]
-    SID --> DEV["Develop software"]
-    DEV --> AA["Adaptive Application<br/>(Executable)"]
-    DPM["Develop platform and<br/>configure Machine"] --> MM["Machine Manifest"]
-    SID --> DCS["Define and configure<br/>service instances"]
-    MM --> DCS
-    AA --> INT["Integrate software"]
-    MM --> INT
-    INT --> PKG["Software Package:<br/>Executable, Execution Manifest,<br/>Service Instance Manifest"]
-    DCS --> PKG
-    PKG --> UCM["On the Machine: UCM deploys,<br/>authenticates and installs"]
-    UCM --> DB["Installed Executables and<br/>processed manifests"]
-    DB --> EM["Execution Management<br/>starts and configures the process"]
-```
+![Flowchart: From Service Definition to Running Process](diagrams/PlatformOverview/13-from-service-definition-to-running-p.svg)
 
 The important idea is that **configuration travels with the software**. The Executable is packaged together with its manifests, installed by UCM, and processed on the Machine into a format that EM and the other clusters read at run time ([EM guide, Section 2.2](ExecutionManagement.md#22-manifests)). The [Manifests guide](Manifests.md) explains the manifests and the methodology in detail; its [Chapter 11](Manifests.md#11-the-methodology-from-design-to-a-running-machine) covers the methodology.
 
@@ -1418,36 +1247,7 @@ The following table applies the reasoning of [Chapter 2](#2-why-two-platforms-cl
 
 The following diagram shows `HPC` on the layers of [Chapter 3](#3-the-architecture-logical-view) and [Chapter 4](#4-the-architecture-physical-view-and-deployment). EM is the first platform process; the platform daemons and the applications are processes that EM starts; library-based clusters run inside the processes that use them (the [Running Example guide, Section 1.3](RunningExample.md#13-the-hpc-machine)).
 
-```mermaid
-flowchart TB
-    subgraph APPS["Adaptive Applications, Software Cluster AdasCluster, Function Group ADAS"]
-        direction LR
-        CD["CameraDriver"]
-        FU["Fusion"]
-        FL["FusionLite"]
-        ST["Storage"]
-        CC["CalibrationCheck"]
-        LL["LegacyLogger"]
-        LC["LoggerCompanion"]
-    end
-    subgraph PLAT["Platform processes, Software Cluster HpcPlatformCore, Function Group MachineFG"]
-        direction LR
-        SMG["StateManager"]
-        SMC["SmControl"]
-        PH["PlatformHealth"]
-        PCT["PowerControl"]
-        DAE["Daemons of CM, DM, UCM, Crypto,<br/>IdsM, Firewall, NM and TSync"]
-    end
-    LIBS["ARA libraries inside the processes:<br/>ara::core, ara::log, ara::per, ara::rds,<br/>client libraries, proxies and skeletons"]
-    EM["Execution Management:<br/>first platform process"]
-    OS["POSIX operating system and drivers"]
-    HW["Machine HPC: multi-core SoC, HSM,<br/>hardware watchdog, flash memory"]
-    APPS --> LIBS
-    PLAT --> LIBS
-    LIBS --> OS
-    EM --> OS
-    OS --> HW
-```
+![Flowchart: The HPC Machine, Layer by Layer](diagrams/PlatformOverview/14-the-hpc-machine-layer-by-layer.svg)
 
 All application processes belong to the Software Cluster `AdasCluster` and run in states of the Function Group `ADAS`. The platform processes belong to `HpcPlatformCore` and run in states of `MachineFG`. `LegacyLogger` is a third-party binary that cannot be modified and does not report its execution state (the [Running Example guide, Section 1.5](RunningExample.md#15-processes)).
 
@@ -1476,30 +1276,7 @@ Read the matrix by column to see the reach of a cluster: Communication Managemen
 
 The following sequence shows one 50 ms cycle of `Fusion` in `ADAS.Normal`, with the clusters that each step uses. Checkpoint names and the ordering are illustrative (the [Running Example guide, Section 1.13](RunningExample.md#113-safety)).
 
-```mermaid
-sequenceDiagram
-    participant CD as CameraDriver
-    participant CM as Communication Management
-    participant GW as CentralGateway (Classic)
-    participant FR as FrontRadar
-    participant FU as Fusion
-    participant PH as PlatformHealth
-    participant LT as Log and Trace
-    participant CK as Cockpit
-    FU->>PH: ReportCheckpoint(CycleStart)
-    CD->>CM: event Image, time-stamped with VehicleTime
-    CM->>FU: Image (CameraService)
-    GW->>CM: PDU ChassisDynamics over Ethernet
-    CM->>FU: VehicleSpeed, SteeringAngle, YawRate (Signal-to-Service translation)
-    FR->>FU: radar detections (Raw Data Stream over TCP)
-    FU->>PH: ReportCheckpoint(InputsRead)
-    FU->>FU: fuse into an object list
-    FU->>CM: event ObjectList (ObjectListService)
-    CM->>CK: ObjectList over DDS
-    FU->>PH: ReportCheckpoint(ObjectsPublished)
-    FU->>LT: log message (application ID FUSN)
-    FU->>PH: ReportCheckpoint(CycleEnd)
-```
+![Sequence diagram: Walkthrough: One Fusion Cycle Through the Platform](diagrams/PlatformOverview/15-walkthrough-one-fusion-cycle-through.svg)
 
 | Step | What happens | Clusters involved | Guide |
 | --- | --- | --- | --- |

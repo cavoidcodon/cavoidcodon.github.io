@@ -1,0 +1,20 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "Types (reusable)" as T {
+  rectangle "FusionSwc\nAdaptiveApplicationSwComponentType" as SWC
+  rectangle "CameraRPort\nRPortPrototype" as RP
+  rectangle "CameraService\nServiceInterface" as SI
+}
+rectangle "Use in the Executable fusion" as USE {
+  rectangle "fusion\nExecutable" as EXE
+  rectangle "Root\nRootSwComponentPrototype" as ROOT
+}
+rectangle "Instance reference:\ncontext Root, target CameraRPort" as IREF
+SWC --> RP : port
+RP --> SI : typed by
+EXE --> ROOT : rootSwComponentPrototype
+ROOT --> SWC : typed by
+IREF ..> ROOT
+IREF ..> RP
+@enduml

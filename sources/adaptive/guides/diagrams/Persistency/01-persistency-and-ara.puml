@@ -1,0 +1,21 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "Process Storage" as P {
+  rectangle "Application code" as APP
+  rectangle "Persistency library (ara::per)" as PER {
+    rectangle "KeyValueStorage CalibrationKvs" as KVS
+    rectangle "FileStorage Recordings" as FS
+  }
+}
+rectangle "Target configuration (read at Initialize)" as CFG
+database "Non-volatile memory" as NVM
+rectangle "Cryptography" as CRY
+rectangle "Log and Trace" as LT
+APP --> KVS : SharedHandle
+APP --> FS : SharedHandle, UniqueHandle
+CFG --> PER
+PER --> NVM
+PER ..> CRY : MAC, encryption
+PER ..> LT : log messages
+@enduml

@@ -1,0 +1,24 @@
+@startuml
+!include ../_style.puml
+autonumber
+participant "Execution Management" as EM
+participant "Fusion" as FU
+participant "ara::core (in Fusion)" as CO
+participant "CameraDriver (via CameraService)" as CD
+EM -> FU : start fusion (ADAS.Normal)
+FU -> CO : AddAbortHandler, then Initialize(argc, argv)
+CO --> FU : Result with value
+FU -> EM : ReportExecutionState(kRunning)
+loop every 50 ms
+FU -> CO : SteadyClock::now(), deadline
+FU -> FU : CollectInputs, Bind, Fuse, Publish
+end
+FU -> CD : SetExposureMode(Night)
+CD --> FU : Future ready with ExposureModeNotSupported
+FU -> FU : keep Auto
+FU -> FU : kInputTimeout, skip one cycle
+EM -> FU : terminate (ADAS to Off)
+FU -> CO : Deinitialize()
+CO --> FU : Result with value
+FU --> EM : exit with EXIT_SUCCESS
+@enduml

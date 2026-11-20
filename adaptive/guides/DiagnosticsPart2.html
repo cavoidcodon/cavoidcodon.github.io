@@ -111,7 +111,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 <tr>
 <td>Diagrams</td>
-<td>Written in Mermaid. They render natively on GitHub and GitLab. In VS Code, install the <em>Markdown Preview Mermaid Support</em> extension.</td>
+<td>Drawn in PlantUML and inserted as SVG images, so they show in any Markdown viewer. Click an image to open it at full size.</td>
 </tr>
 </tbody>
 </table></div>
@@ -488,14 +488,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </ul>
 <h3 id="14-fault-memory-and-ara">1.4 Fault Memory and ARA<a class="anchor" href="#14-fault-memory-and-ara" aria-label="Link to this section">#</a></h3>
 <p>The fault-memory part of <code>ara::diag</code> is a set of small classes, each bound to one port of the application by an <code>InstanceSpecifier</code>, like the classes of the <a href="DiagnosticsPart1.html#14-dm-and-ara">Diagnostics Part 1 guide</a>. Most of them are <em>required</em> ports: the application uses a function of DM, for example to report a monitor result or to restart an operation cycle. DM is daemon-based and persists the event memory with Persistency (SWS, Table 5.2).</p>
-<pre class="mermaid">flowchart LR
-    CD[&quot;CameraDriver: Monitor CameraBlocked&quot;] --&gt;|&quot;ReportMonitorAction&quot;| DM[&quot;Diagnostic Management daemon&quot;]
-    SC[&quot;SmControl: OperationCycle, Condition, DTCInformation&quot;] --&gt;|&quot;RestartOperationCycle, SetCondition&quot;| DM
-    DM --&gt;|&quot;Read VehicleSpeed DID for the snapshot&quot;| SC
-    DM --&gt;|&quot;event memory&quot;| P[&quot;Persistency&quot;]
-    T[&quot;DiagnosticTester (UDS)&quot;] --&gt;|&quot;0x19, 0x14, 0x85&quot;| DM
-    S[&quot;SOVD client&quot;] --&gt;|&quot;GET faults, DELETE faults&quot;| DM
-</pre>
+<p><a class="figure" href="diagrams/DiagnosticsPart2/01-fault-memory-and-ara.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/DiagnosticsPart2/01-fault-memory-and-ara.svg" alt="Flowchart: Fault Memory and ARA" loading="lazy"></a></p>
 <blockquote>
 <p><strong>Key takeaways</strong></p>
 <ul>
@@ -519,13 +512,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <li>A <strong>Diagnostic Trouble Code (DTC)</strong> is a unique 3-byte identifier mapped to one or more events by <code>DiagnosticEventToTroubleCodeUdsMapping</code>; it identifies data in the event memory, for example for a UDS tester (SWS, Section 7.3.4.4.1). Each <code>DiagnosticTroubleCodeUds</code> is a DTC that DM supports ([SWS_DM_00060]).</li>
 </ul>
 <p>The following diagram shows the chain for the running example.</p>
-<pre class="mermaid">flowchart LR
-    M[&quot;Monitor in CameraDriver&quot;] --&gt;|&quot;kPrefailed / kPrepassed&quot;| D[&quot;Debouncing (FDC)&quot;]
-    D --&gt;|&quot;qualified failed / passed&quot;| E[&quot;Event CameraBlocked: event status bits&quot;]
-    E --&gt;|&quot;DiagnosticEventToTroubleCodeUdsMapping&quot;| DTC[&quot;DTC 0x9A1011: UDS status byte&quot;]
-    DTC --&gt;|&quot;storage trigger&quot;| EM[&quot;Event memory HpcPrimaryMemory: entry, snapshots, extended data&quot;]
-    EM --&gt;|&quot;0x19 / SOVD faults&quot;| T[&quot;Tester&quot;]
-</pre>
+<p><a class="figure" href="diagrams/DiagnosticsPart2/02-monitor-diagnostic-event-dtc.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/DiagnosticsPart2/02-monitor-diagnostic-event-dtc.svg" alt="Flowchart: Monitor, Diagnostic Event, DTC" loading="lazy"></a></p>
 <h3 id="22-event-status-and-the-uds-dtc-status-byte">2.2 Event Status and the UDS DTC Status Byte<a class="anchor" href="#22-event-status-and-the-uds-dtc-status-byte" aria-label="Link to this section">#</a></h3>
 <p>A DTC has the 8-bit <em>UDS DTC status byte</em> of ISO 14229-1. <code>ara::diag::UdsDtcStatusBitType</code> names its bits ([SWS_DM_00658]):</p>
 <div class="table-wrap"><table>
@@ -865,23 +852,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p>Two classes look like providers although the TPS uses R-ports: <code>Monitor</code> has <code>Offer()</code> and <code>StopOffer()</code> because DM calls its <code>initMonitor</code> notifier (SWS, Section 7.3.4.1.2), and the typed extended data record element has <code>Offer()</code>, <code>StopOffer()</code> and a pure virtual <code>Read</code> (SWS, Section 8.49) while its mapping references an <code>RPortPrototype</code> ([TPS_MANI_01484]). This is the same kind of difference as the R-port wording for DIDs that the <a href="DiagnosticsPart1.html#103-four-ways-to-provide-a-did">Diagnostics Part 1 guide, Section 10.3</a> discusses: follow the TPS for the port kind and the API for the code.</p>
 <h3 id="32-who-calls-whom">3.2 Who Calls Whom<a class="anchor" href="#32-who-calls-whom" aria-label="Link to this section">#</a></h3>
 <p>Diagnostic Event Management needs several applications at once. The sequence below shows the minimum for one event.</p>
-<pre class="mermaid">sequenceDiagram
-    participant SC as SmControl (cycle and conditions)
-    participant CD as CameraDriver (monitor)
-    participant DM as Diagnostic Management
-    participant T as Tester
-    SC-&gt;&gt;DM: RestartOperationCycle (IgnitionCycle)
-    SC-&gt;&gt;DM: SetCondition kConditionTrue (PowerModeOn)
-    CD-&gt;&gt;DM: Offer (Monitor)
-    DM--&gt;&gt;CD: initMonitor kRestart (on later restarts)
-    loop every 100 ms
-        CD-&gt;&gt;DM: ReportMonitorAction kPrefailed or kPrepassed
-    end
-    DM-&gt;&gt;DM: debounce, update status, store entry
-    DM-&gt;&gt;SC: Read DID 0x0102 for the snapshot
-    T-&gt;&gt;DM: 0x19 02 08
-    DM--&gt;&gt;T: 59 02 FF 9A 10 11 2F
-</pre>
+<p><a class="figure" href="diagrams/DiagnosticsPart2/03-who-calls-whom.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/DiagnosticsPart2/03-who-calls-whom.svg" alt="Sequence diagram: Who Calls Whom" loading="lazy"></a></p>
 <p>If the cycle is never restarted, status bits 1 and 6 never reset and no DTC ever ages. If the enable condition is never set, DM ignores every report ([SWS_DM_00568]). Both are application responsibilities: DM does not decide when an ignition cycle begins.</p>
 <h3 id="33-interfaces-dm-requires-for-the-fault-memory">3.3 Interfaces DM Requires for the Fault Memory<a class="anchor" href="#33-interfaces-dm-requires-for-the-fault-memory" aria-label="Link to this section">#</a></h3>
 <div class="table-wrap"><table>
@@ -912,15 +883,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </table></div>
 <h3 id="34-the-sovd-reference-architecture">3.4 The SOVD Reference Architecture<a class="anchor" href="#34-the-sovd-reference-architecture" aria-label="Link to this section">#</a></h3>
 <p>AUTOSAR describes a reference architecture for SOVD in a vehicle with several machines and microcontrollers (EXP SOVD, Chapter 2). The diagram below shows its blocks.</p>
-<pre class="mermaid">flowchart LR
-    C[&quot;SOVD client (workshop, backend)&quot;] --&gt;|&quot;HTTPS&quot;| GW[&quot;SOVD Gateway (edge node, reverse proxy)&quot;]
-    B[&quot;Backend connectivity&quot;] --&gt; GW
-    GW --&gt;|&quot;HTTPS, by entity in the URI&quot;| DM1[&quot;DM on HPC: SOVD server, component&quot;]
-    DM1 --&gt; DS[&quot;Diagnostic Server instance: sub-component&quot;]
-    GW --&gt; TR[&quot;SOVD to UDS translation (on-board test client, ODX)&quot;]
-    TR --&gt;|&quot;UDS&quot;| MC[&quot;Classic ECUs&quot;]
-    GW --&gt; OTA[&quot;OTA client (vehicle update)&quot;]
-</pre>
+<p><a class="figure" href="diagrams/DiagnosticsPart2/04-the-sovd-reference-architecture.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/DiagnosticsPart2/04-the-sovd-reference-architecture.svg" alt="Flowchart: The SOVD Reference Architecture" loading="lazy"></a></p>
 <ul>
 <li>The <strong>SOVD gateway</strong> routes each request by the entity part of its URI to an internal SOVD endpoint, configured statically or discovered by mDNS. It works as an HTTP reverse proxy. Its configuration is <code>SovdGatewayInstantiation</code> (EXP SOVD, Section 2.1; TPS, Section 12.12.3).</li>
 <li><strong>DM</strong> is an SOVD server. It is one SOVD component, and each Diagnostic Server instance is a sub-component; DM routes to the sub-components itself ([SWS_DM_01372]-[SWS_DM_01374]). Its configuration is <code>SovdServerInstantiation</code> (TPS, Section 12.12.2).</li>
@@ -977,20 +940,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p>The SWS itself defines no default values in its configuration chapter (SWS, Section 10.1); the defaults that exist are stated in individual requirements and are collected in <a href="#14-configuration-reference-what-to-configure">Chapter 14</a>.</p>
 <h3 id="42-how-the-elements-relate">4.2 How the Elements Relate<a class="anchor" href="#42-how-the-elements-relate" aria-label="Link to this section">#</a></h3>
 <p>The DEXT links events to everything else through mapping elements. The diagram shows the main relations for one event.</p>
-<pre class="mermaid">flowchart TB
-    EV[&quot;DiagnosticEvent&quot;] --&gt;|&quot;DiagnosticEventToOperationCycleMapping&quot;| OC[&quot;DiagnosticOperationCycle&quot;]
-    EV --&gt;|&quot;DiagnosticEventToDebounceAlgorithmMapping&quot;| DB[&quot;DiagnosticDebounceAlgorithmProps&quot;]
-    EV --&gt;|&quot;DiagnosticEventToEnableConditionGroupMapping&quot;| ECG[&quot;DiagnosticEnableConditionGroup&quot;]
-    EV --&gt;|&quot;DiagnosticEventToTroubleCodeUdsMapping&quot;| DTC[&quot;DiagnosticTroubleCodeUds&quot;]
-    EV --&gt;|&quot;DiagnosticMonitorPortMapping&quot;| MP[&quot;R-port of the monitor process&quot;]
-    DTC --&gt; PR[&quot;DiagnosticTroubleCodeProps&quot;]
-    DTC --&gt;|&quot;DiagnosticTroubleCodeUdsToClearConditionGroupMapping&quot;| CCG[&quot;DiagnosticClearConditionGroup&quot;]
-    PR --&gt;|&quot;diagnosticMemory&quot;| MEM[&quot;DiagnosticMemoryDestination&quot;]
-    PR --&gt;|&quot;snapshotRecordContent&quot;| SS[&quot;DiagnosticDataIdentifierSet&quot;]
-    PR --&gt;|&quot;extendedDataRecord&quot;| EDR[&quot;DiagnosticExtendedDataRecord&quot;]
-    PR --&gt;|&quot;aging&quot;| AG[&quot;DiagnosticAging&quot;]
-    AG --&gt;|&quot;agingCycle&quot;| OC
-</pre>
+<p><a class="figure" href="diagrams/DiagnosticsPart2/05-how-the-elements-relate.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/DiagnosticsPart2/05-how-the-elements-relate.svg" alt="Flowchart: How the Elements Relate" loading="lazy"></a></p>
 <h3 id="43-who-configures-what-and-when">4.3 Who Configures What, and When<a class="anchor" href="#43-who-configures-what-and-when" aria-label="Link to this section">#</a></h3>
 <div class="table-wrap"><table>
 <thead>
@@ -1113,20 +1063,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tbody>
 </table></div>
 <p>The following sequence shows the life of a monitor object.</p>
-<pre class="mermaid">sequenceDiagram
-    participant A as CameraDriver
-    participant M as Monitor object
-    participant DM as Diagnostic Management
-    A-&gt;&gt;M: construct with specifier, initMonitor, CounterBased
-    A-&gt;&gt;A: finish initializing the notifier target
-    A-&gt;&gt;M: Offer()
-    M-&gt;&gt;DM: monitor active
-    DM--&gt;&gt;A: initMonitor(kDisabled) if an enable condition is off
-    A-&gt;&gt;M: ReportMonitorAction(kPrefailed)
-    M-&gt;&gt;DM: result (cached if DM is not ready)
-    DM--&gt;&gt;A: initMonitor(kClear) after a clear of the DTC
-    A-&gt;&gt;M: StopOffer() before termination
-</pre>
+<p><a class="figure" href="diagrams/DiagnosticsPart2/06-ara-diag-monitor-a-required-port-wit.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/DiagnosticsPart2/06-ara-diag-monitor-a-required-port-wit.svg" alt="Sequence diagram: ara::diag::Monitor: A Required Port with a Notifier" loading="lazy"></a></p>
 <h3 id="53-reporting-reportmonitoraction-and-monitoraction">5.3 Reporting: <code>ReportMonitorAction</code> and <code>MonitorAction</code><a class="anchor" href="#53-reporting-reportmonitoraction-and-monitoraction" aria-label="Link to this section">#</a></h3>
 <p><code>void ReportMonitorAction(MonitorAction action) noexcept</code> ([SWS_DM_00543]) reports a result. DM then updates the event, the DTC status byte, the event memory and the captured data (SWS, Section 7.3.4.1.2). <code>MonitorAction</code> ([SWS_DM_00541]) has eight values; which ones are allowed depends on the debouncing of the event ([SWS_DM_01987]):</p>
 <div class="table-wrap"><table>
@@ -1275,15 +1212,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tbody>
 </table></div>
 <p>The state diagram shows the two most important bits of one event over a cycle.</p>
-<pre class="mermaid">stateDiagram-v2
-    [*] --&gt; NotTested: cycle restart (TF this cycle = 0, not completed = 1)
-    NotTested --&gt; Failed: qualified failed (TF = 1, TF this cycle = 1, not completed = 0)
-    NotTested --&gt; Passed: qualified passed (TF = 0, not completed = 0)
-    Failed --&gt; Passed: qualified passed (TF = 0, TF this cycle stays 1)
-    Passed --&gt; Failed: qualified failed
-    Failed --&gt; NotTested: cycle restart
-    Passed --&gt; NotTested: cycle restart
-</pre>
+<p><a class="figure" href="diagrams/DiagnosticsPart2/07-event-status-processing.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/DiagnosticsPart2/07-event-status-processing.svg" alt="State diagram: Event Status Processing" loading="lazy"></a></p>
 <p>An event is called <em>active</em> when <code>kTestFailed</code> = 1 and <em>passive</em> when it is 0 (SWS, Section 7.3.4.4.8); displacement uses this (<a href="#96-overflow-and-displacement">Section 9.6</a>).</p>
 <h3 id="56-reading-an-event-aradiagevent">5.6 Reading an Event: <code>ara::diag::Event</code><a class="anchor" href="#56-reading-an-event-aradiagevent" aria-label="Link to this section">#</a></h3>
 <p><code>ara::diag::Event</code> ([SWS_DM_00646]) lets an application read one event:</p>
@@ -1472,17 +1401,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tbody>
 </table></div>
 <p>When the FDC reaches +127 or −128, the result is qualified and has the same effect as <code>kFailed</code> or <code>kPassed</code> (<a href="#55-event-status-processing">Section 5.5</a>). Which algorithm applies is configured per event. DM does not debounce an event that has no <code>DiagnosticEventToDebounceAlgorithmMapping</code>, or whose algorithm is <code>DiagEventDebounceMonitorInternal</code> (SWS, Section 7.3.4.1.5); <code>DiagnosticDebounceAlgorithmProps.debounceAlgorithm</code> must exist ([constr_10418]).</p>
-<pre class="mermaid">stateDiagram-v2
-    [*] --&gt; kNeutral
-    kNeutral --&gt; kTemporarilyDefective: kPrefailed
-    kTemporarilyDefective --&gt; kFinallyDefective: FDC reaches 127 or kFailed
-    kTemporarilyDefective --&gt; kTemporarilyHealed: kPrepassed (below 0)
-    kNeutral --&gt; kTemporarilyHealed: kPrepassed
-    kTemporarilyHealed --&gt; kFinallyHealed: FDC reaches -128 or kPassed
-    kTemporarilyHealed --&gt; kTemporarilyDefective: kPrefailed (above 0)
-    kFinallyDefective --&gt; kTemporarilyHealed: kPrepassed
-    kFinallyHealed --&gt; kTemporarilyDefective: kPrefailed
-</pre>
+<p><a class="figure" href="diagrams/DiagnosticsPart2/08-why-debounce.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/DiagnosticsPart2/08-why-debounce.svg" alt="State diagram: Why Debounce" loading="lazy"></a></p>
 <h3 id="62-counter-based-debouncing">6.2 Counter-Based Debouncing<a class="anchor" href="#62-counter-based-debouncing" aria-label="Link to this section">#</a></h3>
 <p><strong>In plain words:</strong> Each bad report adds points, each good report removes points. At the upper limit the event fails, at the lower limit it heals.</p>
 <p><strong>Formally:</strong> An event uses counter-based debouncing when its debounce algorithm aggregates <code>DiagEventDebounceCounterBased</code> ([SWS_DM_00014]). The internal debounce counter starts at 0 at start-up ([SWS_DM_00018]); the FDC is a linear mapping of the counter to −128 … +127 ([SWS_DM_00017]).</p>
@@ -1900,17 +1819,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </table></div>
 <p><strong>Confirmation.</strong> When <code>kTestFailed</code> changes from 0 to 1, DM sets <code>kConfirmedDTC</code> if <code>DiagnosticEvent.confirmationThreshold</code> is configured and the <em>trip counter</em> equals <code>confirmationThreshold − 1</code> ([SWS_DM_00218]). The trip counter is increased by one at the end of every operation cycle in which <code>kTestFailedThisOperationCycle</code> was set (SWS, Section 7.3.4.4.2.1). Without a configured threshold, DM uses 1 ([SWS_DM_01037]): the DTC is confirmed together with the first failure, sometimes called a &quot;zero trip DTC&quot; (DEXT, Table 4.149). A threshold of 2 confirms the DTC in the cycle after the first failure.</p>
 <p>The following state diagram shows the life of a DTC with confirmation threshold 2 and aging.</p>
-<pre class="mermaid">stateDiagram-v2
-    [*] --&gt; NoFault: after clear (bits 4 and 6 set)
-    NoFault --&gt; Pending: failed (bits 0, 1, 2, 5)
-    Pending --&gt; NoFault: tested cycle without failure (bit 2 reset)
-    Pending --&gt; Confirmed: failed again in a later cycle (bit 3)
-    Confirmed --&gt; Confirmed: failed again (occurrence counter)
-    Confirmed --&gt; Aged: aging threshold reached (entry deleted, bit 3 reset)
-    Aged --&gt; Pending: failed again (new entry)
-    Confirmed --&gt; NoFault: clear
-    Pending --&gt; NoFault: clear
-</pre>
+<p><a class="figure" href="diagrams/DiagnosticsPart2/09-status-bit-processing.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/DiagnosticsPart2/09-status-bit-processing.svg" alt="State diagram: Status Bit Processing" loading="lazy"></a></p>
 <blockquote>
 <p><strong>Note:</strong> [SWS_DM_00218] ties confirmation to a 0 → 1 transition of <code>kTestFailed</code>. A fault that stays failed without a passed result in between does not produce a new transition after a cycle restart, because a restart does not reset bit 0 ([SWS_DM_01027]). The worked example in <a href="#87-worked-example-two-drives-with-a-blocked-camera">Section 8.7</a> therefore uses a fault that heals and fails again.</p>
 </blockquote>
@@ -2297,22 +2206,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tbody>
 </table></div>
 <p>The flowchart condenses the decision of Figure 7.8 of the SWS.</p>
-<pre class="mermaid">flowchart TD
-    A[&quot;Memory full and new event to store&quot;] --&gt; B{&quot;Strategy&quot;}
-    B --&gt;|&quot;none&quot;| X[&quot;Discard new event&quot;]
-    B --&gt;|&quot;prioOcc or full&quot;| C[&quot;Entries with the lowest priority&quot;]
-    C --&gt; D{&quot;New event priority higher than theirs?&quot;}
-    D --&gt;|&quot;yes, prioOcc&quot;| O[&quot;Displace the oldest of them&quot;]
-    D --&gt;|&quot;yes, full&quot;| E{&quot;Passive entries among them?&quot;}
-    E --&gt;|&quot;yes&quot;| P[&quot;Oldest passive entry&quot;] --&gt; O2[&quot;Displace it&quot;]
-    E --&gt;|&quot;no&quot;| Q[&quot;Oldest of all of them&quot;] --&gt; O2
-    D --&gt;|&quot;equal, full&quot;| F{&quot;Passive entries?&quot;}
-    F --&gt;|&quot;yes&quot;| P
-    F --&gt;|&quot;no&quot;| G{&quot;Entries not tested this cycle?&quot;}
-    G --&gt;|&quot;yes&quot;| R[&quot;Oldest not-tested entry&quot;] --&gt; O2
-    G --&gt;|&quot;no&quot;| X
-    D --&gt;|&quot;lower, or equal with prioOcc&quot;| X
-</pre>
+<p><a class="figure" href="diagrams/DiagnosticsPart2/10-overflow-and-displacement.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/DiagnosticsPart2/10-overflow-and-displacement.svg" alt="Flowchart: Overflow and Displacement" loading="lazy"></a></p>
 <p>After a displacement ([SWS_DM_00930]), the removed DTC's bit 2 is reset if <code>DiagnosticCommonProps.resetPendingBitOnOverflow</code> is true ([SWS_DM_01569]), bit 3 if <code>resetConfirmedBitOnOverflow</code> is true ([SWS_DM_00932]), and bit 5 if additionally <code>statusBitHandlingTestFailedSinceLastClear</code> is <code>statusBitAgingAndDisplacement</code> ([SWS_DM_00933]). If no entry qualifies, the new event is discarded ([SWS_DM_00934]). The TPS notes that ISO 14229-1 compliance requires <code>resetPendingBitOnOverflow</code> false (TPS, Table 5.1).</p>
 <h3 id="97-aging">9.7 Aging<a class="anchor" href="#97-aging" aria-label="Link to this section">#</a></h3>
 <p><strong>In plain words:</strong> A fault that does not come back for a while is forgotten.</p>
@@ -2650,25 +2544,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p>Rules: one ResponseOnEvent logic is active per session; the client that starts it owns it and receives the responses on its channel, even if another client set it up ([SWS_DM_01098]); after a cancelled conversation is re-established, the client receives the responses again ([SWS_DM_00493]). The limits of <code>DiagnosticResponseOnEventClass</code> map to the ISO parameters ([SWS_DM_01117]-[SWS_DM_01122]); <code>storeEventEnabled</code> decides whether the storeState bit is accepted ([SWS_DM_01262], [SWS_DM_01263]). Event queuing is not supported, and the only supported <em>eventWindowTime</em> values are infiniteTimeToResponse and powerWindowTime (SWS, Section 4.1.1). <code>HPC</code> does not configure <code>0x86</code>.</p>
 <h3 id="106-worked-example-the-workshop-reads-inspects-and-clears-0x9a1011">10.6 Worked Example: The Workshop Reads, Inspects and Clears <code>0x9A1011</code><a class="anchor" href="#106-worked-example-the-workshop-reads-inspects-and-clears-0x9a1011" aria-label="Link to this section">#</a></h3>
 <p>The <code>DiagnosticTester</code> (<code>0x0E80</code>) is connected over DoIP to <code>HPC</code> (<code>0x1010</code>) as in the <a href="DiagnosticsPart1.html#59-worked-example-diagnostictester-connects-to-hpc">Diagnostics Part 1 guide, Section 5.9</a>. <code>0x19</code> and <code>0x14</code> are allowed in both sessions without security; <code>dtcStatusAvailabilityMask</code> is <code>0xFF</code>. The vehicle stands still.</p>
-<pre class="mermaid">sequenceDiagram
-    participant T as DiagnosticTester
-    participant DM as Diagnostic Management
-    participant SC as SmControl
-    participant CD as CameraDriver
-    T-&gt;&gt;DM: 19 02 08 (confirmed DTCs)
-    DM--&gt;&gt;T: 59 02 FF 9A 10 11 2F
-    T-&gt;&gt;DM: 19 04 9A 10 11 FF (all snapshot records)
-    DM--&gt;&gt;T: 59 04 9A 10 11 2F 01 01 01 02 13 88 02 01 01 02 1F 40
-    T-&gt;&gt;DM: 19 06 9A 10 11 FF (all extended data records)
-    DM--&gt;&gt;T: 59 06 9A 10 11 2F 01 02 02 00 03 7F
-    Note over T: technician cleans the camera
-    T-&gt;&gt;DM: 14 FF FF FF (clear all DTCs)
-    DM-&gt;&gt;DM: clear condition VehicleStandstill is true, clear HpcPrimaryMemory
-    DM--&gt;&gt;CD: initMonitor kClear
-    DM--&gt;&gt;T: 54
-    T-&gt;&gt;DM: 19 02 08
-    DM--&gt;&gt;T: 59 02 FF (no confirmed DTC)
-</pre>
+<p><a class="figure" href="diagrams/DiagnosticsPart2/11-worked-example-the-workshop-reads-in.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/DiagnosticsPart2/11-worked-example-the-workshop-reads-in.svg" alt="Sequence diagram: Worked Example: The Workshop Reads, Inspects and Clears 0x9A1011" loading="lazy"></a></p>
 <p>If the technician had sent <code>14 FF FF FF</code> while the vehicle was rolling, <code>VehicleStandstill</code> would be false. <code>HPC</code> configures only this one DTC, so every DTC of the group forbids the clear and DM answers <code>7F 14 22</code>; <code>0x9A1011</code> keeps its status and records ([SWS_DM_00164], [SWS_DM_00121]). In an ECU with further DTCs without this clear condition, DM would clear those, answer positively and keep <code>0x9A1011</code> ([SWS_DM_00122]). A request <code>14 9A 10 11</code> for the single DTC gets <code>7F 14 22</code> in any case ([SWS_DM_00163]).</p>
 <blockquote>
 <p><strong>Key takeaways</strong></p>
@@ -2808,25 +2684,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p>UCM does not expose diagnostic services; a <em>UCM client</em> forwards the data stream and the control commands (SWS UCM, Section 7.2). For a workshop update over UDS, a <em>diagnostic application</em> implements <code>DownloadService</code> (or <code>FileTransferService</code>) and routines, and calls the <code>PackageManagement</code> service of UCM, or of V-UCM for a vehicle update (SWS UCM, Table 7.1). For SOVD, the same role is played by the implementer of <code>SovdSwUpdate</code> (<a href="#136-configuration-bulk-data-and-software-update">Section 13.6</a>). The UCM guide describes the update itself; <code>HPC</code> receives its updates from V-UCM (the <a href="RunningExample.html#111-software-updates">Running Example guide, Section 1.11</a>).</p>
 <h3 id="116-worked-example-reading-a-recording-from-storage">11.6 Worked Example: Reading a Recording from <code>Storage</code><a class="anchor" href="#116-worked-example-reading-a-recording-from-storage" aria-label="Link to this section">#</a></h3>
 <p><code>Storage</code> keeps object-list recordings in the File Storage <code>Recordings</code> (the <a href="Persistency.html">Persistency guide</a>). For the workshop, it provides <code>FileTransferService</code> on the P-port <code>RecordingsTransferPort</code> of <code>StorageSwc</code>, mapped by a <code>DiagnosticServiceGenericMapping</code> to the <code>DiagnosticRequestFileTransfer</code> instance. Only ReadFile and ReadDir are supported, in the extended session at <code>Level1</code>.</p>
-<pre class="mermaid">sequenceDiagram
-    participant T as DiagnosticTester
-    participant DM as Diagnostic Management
-    participant S as Storage (FileTransferService)
-    T-&gt;&gt;DM: 38 04 (ReadFile) path &quot;recordings/rec_0042.bin&quot;, dataFormatIdentifier 00
-    DM-&gt;&gt;DM: session extended, security Level1: ok
-    DM-&gt;&gt;S: RequestReadFile(&quot;recordings/rec_0042.bin&quot;, 0x00, ...)
-    S--&gt;&gt;DM: session with pull handler, FileSizes
-    DM--&gt;&gt;T: 78 04 ... (positive response with sizes)
-    loop until the file is complete
-        T-&gt;&gt;DM: 36 counter
-        DM-&gt;&gt;S: handler Read(buffer)
-        S--&gt;&gt;DM: bytes written
-        DM--&gt;&gt;T: 76 counter data
-    end
-    T-&gt;&gt;DM: 37
-    DM-&gt;&gt;S: handler ExitRead(kAcknowledge)
-    DM--&gt;&gt;T: 77
-</pre>
+<p><a class="figure" href="diagrams/DiagnosticsPart2/12-worked-example-reading-a-recording-f.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/DiagnosticsPart2/12-worked-example-reading-a-recording-f.svg" alt="Sequence diagram: Worked Example: Reading a Recording from Storage" loading="lazy"></a></p>
 <div class="code-block" data-lang="cpp"><pre class="highlight"><code><span class="c1">// Storage: read-only file transfer for recordings (illustrative).</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">"ara/diag/file_transfer.h"</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">"ara/diag/data_transfer.h"</span>
@@ -2970,23 +2828,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tbody>
 </table></div>
 <p><code>ValidateAuthorization</code> returns <code>ValidateAuthorizationOutput</code> ([SWS_DM_01927]) with an optional <code>identity</code> ([SWS_DM_01819]) and <code>validUntil</code> ([SWS_DM_01820]). The roles that the application sets on the <code>ClientAuthentication</code> object (the same class as for UDS authentication, the <a href="DiagnosticsPart1.html#92-roles-and-authentication-state-per-client">Diagnostics Part 1 guide, Section 9.2</a>) count as authenticated for all requests with the identical token until <code>validUntil</code> ([SWS_DM_01469]). DM considers requests with the same token, or with the same returned identity, as coming from the same client ([SWS_DM_01781], [SWS_DM_01782]); this matters for locks and for operations that the client started. Access to each SOVD method is then checked against the <code>DiagnosticAccessPermission</code> of the method's primitive, which can name authentication roles (TPS, Sections 5.7.2 and 5.7.3).</p>
-<pre class="mermaid">sequenceDiagram
-    participant C as SOVD client
-    participant DM as Diagnostic Management
-    participant A as SmControl (SovdAuthorization)
-    participant AS as Authorization server
-    C-&gt;&gt;DM: request to verify client credentials
-    DM-&gt;&gt;A: GetAuthorizationUrl
-    A--&gt;&gt;DM: URL of the authorization server
-    DM--&gt;&gt;C: 307 Location URL
-    C-&gt;&gt;AS: authenticate, obtain token
-    C-&gt;&gt;DM: GET faults with Authorization token
-    DM-&gt;&gt;A: ValidateAuthorization(token, metaInfo, clientAuthentication)
-    A-&gt;&gt;A: verify token, set roles
-    A--&gt;&gt;DM: identity, validUntil
-    DM-&gt;&gt;DM: check access permission of the method
-    DM--&gt;&gt;C: 200 faults
-</pre>
+<p><a class="figure" href="diagrams/DiagnosticsPart2/13-authorization.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/DiagnosticsPart2/13-authorization.svg" alt="Sequence diagram: Authorization" loading="lazy"></a></p>
 <blockquote>
 <p><strong>Note:</strong> The SWS requires the authorization port to be mapped to &quot;the SoftwareCluster with category PLATFORM&quot; ([SWS_DM_01472]). <code>HPC</code> has the categories <code>PLATFORM_CORE</code> and <code>APPLICATION_LAYER</code> (the <a href="RunningExample.html#13-the-hpc-machine">Running Example guide, Section 1.3</a>). This guide lets <code>SmControl</code> in <code>HpcPlatformCore</code> provide <code>SovdAuthorization</code>; whether <code>PLATFORM_CORE</code> satisfies the wording is not stated in R25-11.</p>
 </blockquote>
@@ -3334,30 +3176,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <h3 id="137-worked-example-an-sovd-client-in-the-workshop">13.7 Worked Example: An SOVD Client in the Workshop<a class="anchor" href="#137-worked-example-an-sovd-client-in-the-workshop" aria-label="Link to this section">#</a></h3>
 <p><strong>Configuration.</strong> <code>CameraDriver</code> provides the SOVD data <code>CameraStatus</code> (category <code>CURRENT_DATA</code>) with three primitive elements: <code>blocked</code> (boolean), <code>brightness</code> (integer32, unit percent) and <code>exposureMode</code> (string), and the asynchronous operation <code>CameraCalibration</code> with <code>start</code>, <code>terminate</code> and <code>readStatus</code> and <code>proximityProofRequired</code> = true. Its ports are <code>CameraStatusSovdPort</code> (<code>DiagnosticSovdContentInterface</code>) and <code>CalibrateCameraSovdPort</code> (<code>DiagnosticSovdOperationInterface</code>). <code>SmControl</code> provides <code>SovdAuthorization</code> and <code>SovdProximityChallenge</code>. The fault memory access allows <code>get</code> for the role of any authenticated client and <code>delete</code> only with a lock.</p>
 <p>The client has a token (<a href="#124-authorization">Section 12.4</a>). The URI structure is defined by ASAM SOVD; the sequence abbreviates the paths below the sub-component <code>hpcdiag</code>.</p>
-<pre class="mermaid">sequenceDiagram
-    participant C as SOVD client
-    participant DM as DM (HpcSovdServer, hpcdiag)
-    participant CD as CameraDriver
-    participant SC as SmControl
-    C-&gt;&gt;DM: GET .../hpcdiag/data/CameraStatus
-    DM-&gt;&gt;CD: GenericDiagnosticSovdContent Read(&quot;CameraStatus&quot;)
-    CD--&gt;&gt;DM: blocked true, brightness 3, exposureMode Night
-    DM--&gt;&gt;C: 200 id CameraStatus, data
-    C-&gt;&gt;DM: GET .../hpcdiag/faults?scope=HpcPrimaryMemory
-    DM--&gt;&gt;C: 200 items with code 9A1011, status
-    C-&gt;&gt;DM: GET .../hpcdiag/operations/CameraCalibration
-    DM-&gt;&gt;SC: SovdProximityChallenge GetChallenge
-    DM--&gt;&gt;C: 200 description, proximity_challenge
-    C-&gt;&gt;DM: POST .../operations/CameraCalibration/executions with proximity_response
-    DM-&gt;&gt;SC: ValidateResponse
-    SC--&gt;&gt;DM: kProximityChallengeValidationSuccessful
-    DM-&gt;&gt;CD: GenericDiagnosticSovdOperation StartExecution
-    CD--&gt;&gt;DM: asynchronous execution
-    DM--&gt;&gt;C: execution id, status running
-    C-&gt;&gt;DM: GET .../executions/id
-    DM-&gt;&gt;CD: SovdOperationExecution GetStatus
-    DM--&gt;&gt;C: 200 status completed
-</pre>
+<p><a class="figure" href="diagrams/DiagnosticsPart2/14-worked-example-an-sovd-client-in-the.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/DiagnosticsPart2/14-worked-example-an-sovd-client-in-the.svg" alt="Sequence diagram: Worked Example: An SOVD Client in the Workshop" loading="lazy"></a></p>
 <p>A fault detail response for <code>0x9A1011</code> contains, among others (illustrative JSON; the exact attribute formats are defined by ASAM SOVD):</p>
 <div class="code-block" data-lang="json"><pre class="highlight"><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">"item"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
@@ -5302,28 +5121,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p><strong>Day 2, morning.</strong> Power on: cycle restart. The trip counter becomes 1, the per-cycle bits restart, status <code>0x64</code>. <code>initMonitor(kRestart)</code> lets the monitor reset its frozen-image history.</p>
 <p><strong>Day 2, 07:55.</strong> The camera is covered again at 80 km/h. <code>kTestFailed</code> goes from 0 to 1 with the trip counter at <code>confirmationThreshold − 1</code>: the DTC is <strong>confirmed</strong>, status <code>0x2F</code>, occurrence counter 2, snapshot record 2 (<a href="#87-worked-example-two-drives-with-a-blocked-camera">Section 8.7</a>).</p>
 <p><strong>Day 3, workshop.</strong> The vehicle stands still in the workshop.</p>
-<pre class="mermaid">sequenceDiagram
-    participant T as DiagnosticTester (UDS)
-    participant S as SOVD client
-    participant DM as Diagnostic Management
-    participant SC as SmControl
-    participant CD as CameraDriver
-    T-&gt;&gt;DM: 19 02 08
-    DM--&gt;&gt;T: 59 02 FF 9A 10 11 2F
-    T-&gt;&gt;DM: 19 04 9A 10 11 FF and 19 06 9A 10 11 FF
-    DM--&gt;&gt;T: snapshots 50.00 and 80.00 km/h, occurrence 2
-    S-&gt;&gt;DM: GET .../hpcdiag/faults/9A1011 (token)
-    DM-&gt;&gt;SC: ValidateAuthorization
-    DM--&gt;&gt;S: fault with environment_data
-    S-&gt;&gt;DM: lock, then POST .../operations/CameraCalibration/executions
-    DM-&gt;&gt;SC: ValidateResponse (proximity)
-    DM-&gt;&gt;CD: StartExecution
-    CD--&gt;&gt;DM: completed
-    T-&gt;&gt;DM: 14 FF FF FF
-    DM-&gt;&gt;DM: clear condition VehicleStandstill true: clear
-    DM--&gt;&gt;CD: initMonitor kClear
-    DM--&gt;&gt;T: 54
-</pre>
+<p><a class="figure" href="diagrams/DiagnosticsPart2/15-end-to-end-walkthrough-a-blocked-cam.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/DiagnosticsPart2/15-end-to-end-walkthrough-a-blocked-cam.svg" alt="Sequence diagram: End-to-End Walkthrough: A Blocked Camera, from Detection to Repair" loading="lazy"></a></p>
 <p>Two details: while the SOVD client holds its lock, the UDS tester's requests to the same Diagnostic Server get NRC <code>0x21</code> ([SWS_DM_01375]), so the technician releases the lock before clearing over UDS, or deletes the fault over SOVD instead (<a href="#132-faults">Section 13.2</a>). And DM reports <code>SEV_UDS_CLEAR_DTC_SUCCESSFUL</code> to IdsM ([SWS_DM_02043]).</p>
 <p><strong>The following weeks.</strong> Suppose the camera is blocked once more in week 5 and then never again. The DTC is confirmed and stored again; from the first cycle without a failure, the aging counter counts every <code>IgnitionCycle</code> restart in which <code>kTestFailedThisOperationCycle</code> stayed 0 (aging does not require tested cycles here). After 40 such cycles, DM deletes the entry and resets bit 3 (<a href="#97-aging">Section 9.7</a>). The workshop no longer sees the DTC as confirmed.</p>
 <blockquote>
@@ -5981,12 +5779,11 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 
 </article>
 <nav class="pager" aria-label="Previous and next guide"><a class="pager-prev" href="DiagnosticsPart1.html"><span class="pager-label">← Previous</span><span class="pager-title">Diagnostics Part 1</span></a><span></span></nav>
-<footer class="site-footer"><p>Based on the AUTOSAR Adaptive Platform and Foundation specifications, release R25-11.</p><p>Training material, not a normative reference. Where a guide and an AUTOSAR specification differ, the specification applies. Specifications: <a href="https://www.autosar.org/standards" target="_blank" rel="noopener">autosar.org/standards</a>.</p></footer>
+<footer class="site-footer"><p>Based on the AUTOSAR Adaptive Platform and Foundation specifications, release R25-11.</p><p>Training material, not a normative reference. Specifications: <a href="https://www.autosar.org/standards" target="_blank" rel="noopener">autosar.org/standards</a>.</p></footer>
 </main>
 <aside class="toc" aria-label="On this page"><p class="toc-label">On this page</p><ul><li class="lvl2"><a href="#about-this-guide">About This Guide</a></li><li class="lvl3"><a href="#who-this-guide-is-for">Who This Guide Is For</a></li><li class="lvl3"><a href="#learning-objectives">Learning Objectives</a></li><li class="lvl3"><a href="#how-to-read-this-guide">How to Read This Guide</a></li><li class="lvl3"><a href="#the-running-example">The Running Example</a></li><li class="lvl2"><a href="#table-of-contents">Table of Contents</a></li><li class="lvl2"><a href="#1-introduction-to-fault-memory-and-sovd">1. Introduction to Fault Memory and SOVD</a></li><li class="lvl3"><a href="#11-what-diagnostic-event-management-does">1.1 What Diagnostic Event Management Does</a></li><li class="lvl3"><a href="#12-what-this-guide-covers">1.2 What This Guide Covers</a></li><li class="lvl3"><a href="#13-analogies">1.3 Analogies</a></li><li class="lvl3"><a href="#14-fault-memory-and-ara">1.4 Fault Memory and ARA</a></li><li class="lvl2"><a href="#2-core-concepts-and-terminology">2. Core Concepts and Terminology</a></li><li class="lvl3"><a href="#21-monitor-diagnostic-event-dtc">2.1 Monitor, Diagnostic Event, DTC</a></li><li class="lvl3"><a href="#22-event-status-and-the-uds-dtc-status-byte">2.2 Event Status and the UDS DTC Status Byte</a></li><li class="lvl3"><a href="#23-debouncing-and-the-fault-detection-counter">2.3 Debouncing and the Fault Detection Counter</a></li><li class="lvl3"><a href="#24-operation-cycles-enable-conditions-and-clear-conditions">2.4 Operation Cycles, Enable Conditions and Clear Conditions</a></li><li class="lvl3"><a href="#25-event-memory-entries-and-records">2.5 Event Memory, Entries and Records</a></li><li class="lvl3"><a href="#26-aging-healing-indicators-displacement-and-overflow">2.6 Aging, Healing, Indicators, Displacement and Overflow</a></li><li class="lvl3"><a href="#27-sovd-in-one-page">2.7 SOVD in One Page</a></li><li class="lvl3"><a href="#28-terms-at-a-glance">2.8 Terms at a Glance</a></li><li class="lvl2"><a href="#3-fault-memory-and-sovd-in-the-system-architecture">3. Fault Memory and SOVD in the System Architecture</a></li><li class="lvl3"><a href="#31-fault-memory-classes-and-their-port-interfaces">3.1 Fault-Memory Classes and Their Port Interfaces</a></li><li class="lvl3"><a href="#32-who-calls-whom">3.2 Who Calls Whom</a></li><li class="lvl3"><a href="#33-interfaces-dm-requires-for-the-fault-memory">3.3 Interfaces DM Requires for the Fault Memory</a></li><li class="lvl3"><a href="#34-the-sovd-reference-architecture">3.4 The SOVD Reference Architecture</a></li><li class="lvl3"><a href="#35-uds-and-sovd-on-one-diagnostic-server">3.5 UDS and SOVD on One Diagnostic Server</a></li><li class="lvl2"><a href="#4-configuration-overview">4. Configuration Overview</a></li><li class="lvl3"><a href="#41-where-the-configuration-lives">4.1 Where the Configuration Lives</a></li><li class="lvl3"><a href="#42-how-the-elements-relate">4.2 How the Elements Relate</a></li><li class="lvl3"><a href="#43-who-configures-what-and-when">4.3 Who Configures What, and When</a></li><li class="lvl2"><a href="#5-diagnostic-events-and-monitors">5. Diagnostic Events and Monitors</a></li><li class="lvl3"><a href="#51-one-event-one-reporter">5.1 One Event, One Reporter</a></li><li class="lvl3"><a href="#52-aradiagmonitor-a-required-port-with-a-notifier">5.2 ara::diag::Monitor: A Required Port with a Notifier</a></li><li class="lvl3"><a href="#53-reporting-reportmonitoraction-and-monitoraction">5.3 Reporting: ReportMonitorAction and MonitorAction</a></li><li class="lvl3"><a href="#54-caching-while-dm-is-unavailable">5.4 Caching While DM Is Unavailable</a></li><li class="lvl3"><a href="#55-event-status-processing">5.5 Event Status Processing</a></li><li class="lvl3"><a href="#56-reading-an-event-aradiagevent">5.6 Reading an Event: ara::diag::Event</a></li><li class="lvl3"><a href="#57-many-events-in-one-port-multiplemonitor-and-multipleevent">5.7 Many Events in One Port: MultipleMonitor and MultipleEvent</a></li><li class="lvl3"><a href="#58-the-occurrence-counter">5.8 The Occurrence Counter</a></li><li class="lvl3"><a href="#59-worked-example-the-camerablocked-monitor">5.9 Worked Example: The CameraBlocked Monitor</a></li><li class="lvl2"><a href="#6-debouncing">6. Debouncing</a></li><li class="lvl3"><a href="#61-why-debounce">6.1 Why Debounce</a></li><li class="lvl3"><a href="#62-counter-based-debouncing">6.2 Counter-Based Debouncing</a></li><li class="lvl3"><a href="#63-time-based-debouncing">6.3 Time-Based Debouncing</a></li><li class="lvl3"><a href="#64-monitor-internal-debouncing-and-monitors-without-debouncing">6.4 Monitor-Internal Debouncing and Monitors without Debouncing</a></li><li class="lvl3"><a href="#65-dext-values-and-constructor-defaults">6.5 DEXT Values and Constructor Defaults</a></li><li class="lvl3"><a href="#66-resetting-the-debouncing">6.6 Resetting the Debouncing</a></li><li class="lvl3"><a href="#67-worked-example-debouncing-camerablocked">6.7 Worked Example: Debouncing CameraBlocked</a></li><li class="lvl2"><a href="#7-operation-cycles-and-conditions">7. Operation Cycles and Conditions</a></li><li class="lvl3"><a href="#71-operation-cycles">7.1 Operation Cycles</a></li><li class="lvl3"><a href="#72-enable-conditions">7.2 Enable Conditions</a></li><li class="lvl3"><a href="#73-clear-conditions-and-cleareventallowedbehavior">7.3 Clear Conditions and clearEventAllowedBehavior</a></li><li class="lvl3"><a href="#74-worked-example-smcontrol-owns-the-cycle-and-the-conditions">7.4 Worked Example: SmControl Owns the Cycle and the Conditions</a></li><li class="lvl2"><a href="#8-dtcs-and-the-uds-dtc-status-byte">8. DTCs and the UDS DTC Status Byte</a></li><li class="lvl3"><a href="#81-dtc-format-and-groups">8.1 DTC Format and Groups</a></li><li class="lvl3"><a href="#82-status-bit-processing">8.2 Status Bit Processing</a></li><li class="lvl3"><a href="#83-severity-priority-and-significance">8.3 Severity, Priority and Significance</a></li><li class="lvl3"><a href="#84-event-combination">8.4 Event Combination</a></li><li class="lvl3"><a href="#85-indicators-and-the-warningindicatorrequested-bit">8.5 Indicators and the WarningIndicatorRequested Bit</a></li><li class="lvl3"><a href="#86-aradiagdtcinformation">8.6 ara::diag::DTCInformation</a></li><li class="lvl3"><a href="#87-worked-example-two-drives-with-a-blocked-camera">8.7 Worked Example: Two Drives with a Blocked Camera</a></li><li class="lvl2"><a href="#9-the-event-memory">9. The Event Memory</a></li><li class="lvl3"><a href="#91-primary-and-user-defined-memories">9.1 Primary and User-Defined Memories</a></li><li class="lvl3"><a href="#92-when-an-entry-is-created">9.2 When an Entry Is Created</a></li><li class="lvl3"><a href="#93-snapshot-records">9.3 Snapshot Records</a></li><li class="lvl3"><a href="#94-extended-data-records">9.4 Extended Data Records</a></li><li class="lvl3"><a href="#95-internal-data-elements">9.5 Internal Data Elements</a></li><li class="lvl3"><a href="#96-overflow-and-displacement">9.6 Overflow and Displacement</a></li><li class="lvl3"><a href="#97-aging">9.7 Aging</a></li><li class="lvl3"><a href="#98-reporting-order">9.8 Reporting Order</a></li><li class="lvl3"><a href="#99-worked-example-the-entry-of-0x9a1011">9.9 Worked Example: The Entry of 0x9A1011</a></li><li class="lvl2"><a href="#10-reading-clearing-and-controlling-the-fault-memory-over-uds">10. Reading, Clearing and Controlling the Fault Memory over UDS</a></li><li class="lvl3"><a href="#101-0x19-readdtcinformation">10.1 0x19 ReadDTCInformation</a></li><li class="lvl3"><a href="#102-0x14-cleardiagnosticinformation">10.2 0x14 ClearDiagnosticInformation</a></li><li class="lvl3"><a href="#103-clearing-from-an-application">10.3 Clearing from an Application</a></li><li class="lvl3"><a href="#104-0x85-controldtcsetting">10.4 0x85 ControlDTCSetting</a></li><li class="lvl3"><a href="#105-0x86-responseonevent">10.5 0x86 ResponseOnEvent</a></li><li class="lvl3"><a href="#106-worked-example-the-workshop-reads-inspects-and-clears-0x9a1011">10.6 Worked Example: The Workshop Reads, Inspects and Clears 0x9A1011</a></li><li class="lvl2"><a href="#11-data-transfer-and-file-transfer">11. Data Transfer and File Transfer</a></li><li class="lvl3"><a href="#111-0x34-to-0x37-download-and-upload">11.1 0x34 to 0x37: Download and Upload</a></li><li class="lvl3"><a href="#112-0x38-requestfiletransfer">11.2 0x38 RequestFileTransfer</a></li><li class="lvl3"><a href="#113-data-transfer-sessions-and-handlers">11.3 Data Transfer Sessions and Handlers</a></li><li class="lvl3"><a href="#114-access-rights-for-files">11.4 Access Rights for Files</a></li><li class="lvl3"><a href="#115-software-update-through-diagnostics">11.5 Software Update through Diagnostics</a></li><li class="lvl3"><a href="#116-worked-example-reading-a-recording-from-storage">11.6 Worked Example: Reading a Recording from Storage</a></li><li class="lvl2"><a href="#12-sovd-concepts-and-server-setup">12. SOVD: Concepts and Server Setup</a></li><li class="lvl3"><a href="#121-sovd-entities-and-dms-place">12.1 SOVD Entities and DM&#x27;s Place</a></li><li class="lvl3"><a href="#122-transport-discovery-server-and-gateway">12.2 Transport, Discovery, Server and Gateway</a></li><li class="lvl3"><a href="#123-uds-and-sovd-clients-together">12.3 UDS and SOVD Clients Together</a></li><li class="lvl3"><a href="#124-authorization">12.4 Authorization</a></li><li class="lvl3"><a href="#125-locks-environmental-conditions-and-service-validation">12.5 Locks, Environmental Conditions and Service Validation</a></li><li class="lvl3"><a href="#126-data-serialization-and-conversion">12.6 Data Serialization and Conversion</a></li><li class="lvl3"><a href="#127-standardized-resources">12.7 Standardized Resources</a></li><li class="lvl3"><a href="#128-limitations-in-r25-11">12.8 Limitations in R25-11</a></li><li class="lvl2"><a href="#13-sovd-resources-data-faults-operations-and-more">13. SOVD Resources: Data, Faults, Operations and More</a></li><li class="lvl3"><a href="#131-data">13.1 Data</a></li><li class="lvl3"><a href="#132-faults">13.2 Faults</a></li><li class="lvl3"><a href="#133-operations">13.3 Operations</a></li><li class="lvl3"><a href="#134-proximity-challenge">13.4 Proximity Challenge</a></li><li class="lvl3"><a href="#135-modes">13.5 Modes</a></li><li class="lvl3"><a href="#136-configuration-bulk-data-and-software-update">13.6 Configuration, Bulk Data and Software Update</a></li><li class="lvl3"><a href="#137-worked-example-an-sovd-client-in-the-workshop">13.7 Worked Example: An SOVD Client in the Workshop</a></li><li class="lvl2"><a href="#14-configuration-reference-what-to-configure">14. Configuration Reference: What to Configure</a></li><li class="lvl3"><a href="#141-minimal-configuration">14.1 Minimal Configuration</a></li><li class="lvl3"><a href="#142-diagnosticevent-and-diagnosticconnectedindicator">14.2 DiagnosticEvent and DiagnosticConnectedIndicator</a></li><li class="lvl3"><a href="#143-debounce-algorithms">14.3 Debounce Algorithms</a></li><li class="lvl3"><a href="#144-diagnosticoperationcycle-diagnosticaging-diagnosticindicator">14.4 DiagnosticOperationCycle, DiagnosticAging, DiagnosticIndicator</a></li><li class="lvl3"><a href="#145-enable-and-clear-conditions">14.5 Enable and Clear Conditions</a></li><li class="lvl3"><a href="#146-dtcs-dtc-groups-and-dtc-properties">14.6 DTCs, DTC Groups and DTC Properties</a></li><li class="lvl3"><a href="#147-diagnosticmemorydestination">14.7 DiagnosticMemoryDestination</a></li><li class="lvl3"><a href="#148-snapshot-and-extended-data-records">14.8 Snapshot and Extended Data Records</a></li><li class="lvl3"><a href="#149-diagnosticcommonprops-for-the-fault-memory-and-sovd">14.9 DiagnosticCommonProps for the Fault Memory and SOVD</a></li><li class="lvl3"><a href="#1410-service-instances-for-the-fault-memory-and-transfer">14.10 Service Instances for the Fault Memory and Transfer</a></li><li class="lvl3"><a href="#1411-fault-memory-port-interfaces-and-port-mappings">14.11 Fault-Memory Port Interfaces and Port Mappings</a></li><li class="lvl3"><a href="#1412-sovd-service-instances-methods-locks-and-content">14.12 SOVD Service Instances, Methods, Locks and Content</a></li><li class="lvl3"><a href="#1413-sovd-addresses-and-instantiation">14.13 SOVD Addresses and Instantiation</a></li><li class="lvl3"><a href="#1414-the-running-example-complete-configuration">14.14 The Running Example: Complete Configuration</a></li><li class="lvl2"><a href="#15-api-reference-and-usage-guide-aradiag-fault-memory-transfer-and-sovd-part">15. API Reference and Usage Guide (ara::diag, Fault Memory, Transfer and SOVD Part)</a></li><li class="lvl3"><a href="#151-headers-and-classes-overview">15.1 Headers and Classes Overview</a></li><li class="lvl3"><a href="#152-monitor-and-multiplemonitor">15.2 Monitor and MultipleMonitor</a></li><li class="lvl3"><a href="#153-event-multipleevent-and-event-types">15.3 Event, MultipleEvent and Event Types</a></li><li class="lvl3"><a href="#154-condition-and-multiplecondition">15.4 Condition and MultipleCondition</a></li><li class="lvl3"><a href="#155-operationcycle">15.5 OperationCycle</a></li><li class="lvl3"><a href="#156-indicator">15.6 Indicator</a></li><li class="lvl3"><a href="#157-dtcinformation-and-status-types">15.7 DTCInformation and Status Types</a></li><li class="lvl3"><a href="#158-typed-extended-data-record-element-interfaces">15.8 Typed Extended Data Record Element Interfaces</a></li><li class="lvl3"><a href="#159-download-upload-file-transfer-and-handlers">15.9 Download, Upload, File Transfer and Handlers</a></li><li class="lvl3"><a href="#1510-sovd-classes">15.10 SOVD Classes</a></li><li class="lvl3"><a href="#1511-error-codes">15.11 Error Codes</a></li><li class="lvl2"><a href="#16-reporting">16. Reporting</a></li><li class="lvl2"><a href="#17-end-to-end-walkthrough-a-blocked-camera-from-detection-to-repair">17. End-to-End Walkthrough: A Blocked Camera, from Detection to Repair</a></li><li class="lvl2"><a href="#18-best-practices-pitfalls-and-troubleshooting">18. Best Practices, Pitfalls and Troubleshooting</a></li><li class="lvl3"><a href="#181-best-practices">18.1 Best Practices</a></li><li class="lvl3"><a href="#182-pitfalls">18.2 Pitfalls</a></li><li class="lvl3"><a href="#183-troubleshooting">18.3 Troubleshooting</a></li><li class="lvl2"><a href="#19-summary-and-self-check-quiz">19. Summary and Self-Check Quiz</a></li><li class="lvl3"><a href="#191-summary">19.1 Summary</a></li><li class="lvl3"><a href="#192-quiz">19.2 Quiz</a></li><li class="lvl2"><a href="#appendix-a-glossary-and-acronyms">Appendix A. Glossary and Acronyms</a></li><li class="lvl2"><a href="#appendix-b-quick-reference-cheat-sheet">Appendix B. Quick Reference Cheat Sheet</a></li><li class="lvl2"><a href="#appendix-c-spec-traceability">Appendix C. Spec Traceability</a></li><li class="lvl2"><a href="#appendix-d-notable-changes-in-recent-releases">Appendix D. Notable Changes in Recent Releases</a></li><li class="lvl2"><a href="#appendix-e-references">Appendix E. References</a></li></ul></aside>
 </div>
 <button class="to-top" id="to-top" aria-label="Back to top" hidden>↑</button>
-<script>window.MERMAID_URL="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs";</script>
 <script src="../assets/search-index.js" defer></script>
 <script src="../assets/app.js" defer></script>
 </body>

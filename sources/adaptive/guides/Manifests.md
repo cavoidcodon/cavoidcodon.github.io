@@ -54,7 +54,7 @@ Chapters 1 and 2 introduce the concepts and the vocabulary. Chapter 3 teaches yo
 | **Note (implementation example)** | How a typical implementation or tool *might* do something. This is not mandated by AUTOSAR. |
 | **Pitfall** | A common mistake seen in real projects. |
 | **Key takeaways** | A short summary at the end of each chapter. |
-| Diagrams | Written in Mermaid. They render natively on GitHub and GitLab. In VS Code, install the *Markdown Preview Mermaid Support* extension. |
+| Diagrams | Drawn in PlantUML and inserted as SVG images, so they show in any Markdown viewer. Click an image to open it at full size. |
 
 All ARXML in this guide is real ARXML. Each fragment is an excerpt of the complete model of [Section 12.16](#1216-the-running-example-complete-configuration). The complete model validates against the R25-11 XML Schema `AUTOSAR_00054.xsd`, all its references resolve, and it satisfies the constraints that this guide discusses. Simplifications, such as left-out processes, are stated in the text.
 
@@ -234,23 +234,7 @@ The TPS once called the second group "deployment". The text now says "target con
 
 The following diagram shows the two kinds of model and the direction of the references between them.
 
-```mermaid
-flowchart LR
-    subgraph DES["Design model (contract, system-wide)"]
-        SI["ServiceInterface<br/>CameraService"]
-        EXE["Executable<br/>fusion"]
-        PD["ProcessDesign<br/>FusionDesign"]
-    end
-    subgraph TC["Target configuration (one Machine, integration)"]
-        P["Process<br/>Fusion"]
-        MAP["ServiceInstanceToPortPrototypeMapping"]
-        M["Machine<br/>HPC"]
-    end
-    P -->|"executable"| EXE
-    P -->|"design"| PD
-    MAP -->|"port in the Executable"| EXE
-    P -->|"mapped to"| M
-```
+![Flowchart: Design Models and Target Configuration](diagrams/Manifests/01-design-models-and-target-configurati.svg)
 
 Three rules govern this relation:
 
@@ -321,15 +305,7 @@ Several AUTOSAR documents work together. The following table tells you which one
 
 The serialization follows the same split. The M2 meta-model is serialized as the XML Schema, and an M1 model is serialized as ARXML that validates against that schema (APMC, Section 2.2). The following diagram shows the levels, and it also shows APMC, which uses *two* M1 models (APMC, Figures 2.1 to 2.3).
 
-```mermaid
-flowchart TB
-    MM["M2: AUTOSAR meta-model<br/>(ServiceInterface, Process, ...)"] -->|"serialized as"| XSD["XML Schema<br/>AUTOSAR_00054.xsd"]
-    M1["M1: your model<br/>(CameraService, Fusion, ...)"] -->|"serialized as"| ARXML["ARXML files"]
-    M1 -.->|"follows"| MM
-    ARXML -.->|"validates against"| XSD
-    DEF["APMC definition side (M1)<br/>which parameters exist"] -.->|"follows"| MM
-    VAL["APMC value side (M1)<br/>the parameter values"] -.->|"follows"| DEF
-```
+![Flowchart: Meta-Levels: Meta-Model, Model and XML Schema](diagrams/Manifests/02-meta-levels-meta-model-model-and-xml.svg)
 
 AUTOSAR itself also publishes M1 models: the *Standardized M1 Models*. Two of them are used in this guide. `/AUTOSAR/StdTypes` defines the C++ standard types such as `uint8_t`, and `/AUTOSAR/GenDef/MachineFunctionGroupStates/MachineFG_States` defines the mandatory states of `MachineFG`. Standardized model elements live in a top-level package called `AUTOSAR`; your own elements must not ([TPS_GST_00080]).
 
@@ -350,24 +326,7 @@ AUTOSAR applies this pattern everywhere. The following table shows the pairs tha
 
 The following diagram shows the type-prototype pattern on `Fusion` and the instance reference that identifies its port.
 
-```mermaid
-flowchart LR
-    subgraph T["Types (reusable)"]
-        SWC["FusionSwc<br/>AdaptiveApplicationSwComponentType"]
-        RP["CameraRPort<br/>RPortPrototype"]
-        SI["CameraService<br/>ServiceInterface"]
-    end
-    subgraph USE["Use in the Executable fusion"]
-        EXE["fusion<br/>Executable"]
-        ROOT["Root<br/>RootSwComponentPrototype"]
-    end
-    SWC -->|"port"| RP
-    RP -->|"typed by"| SI
-    EXE -->|"rootSwComponentPrototype"| ROOT
-    ROOT -->|"typed by"| SWC
-    IREF["Instance reference:<br/>context Root, target CameraRPort"] -.-> ROOT
-    IREF -.-> RP
-```
+![Flowchart: Types, Prototypes and Instance References](diagrams/Manifests/03-types-prototypes-and-instance-refere.svg)
 
 ### 2.3 The Kinds of Manifest
 
@@ -385,22 +344,7 @@ Manifest content is relevant in very different phases of a project, so the TPS d
 
 The following diagram shows which manifest travels with which software.
 
-```mermaid
-flowchart LR
-    subgraph AC["AdasCluster (application software)"]
-        BIN["fusion, camera_driver<br/>(binaries)"]
-        EM1["Execution Manifest"]
-        SIM["Service Instance Manifest"]
-    end
-    subgraph PC["HpcPlatformCore (platform software)"]
-        PBIN["EM, SM, CM, UCM, ...<br/>(binaries)"]
-        MM["Machine Manifest"]
-    end
-    DES["Application design<br/>(interfaces, types, components)"] -.->|"needed by"| EM1
-    DES -.->|"needed by"| SIM
-    SD["Software Distribution<br/>(SoftwareCluster, SoftwarePackage)"] -->|"describes"| AC
-    SD -->|"describes"| PC
-```
+![Flowchart: The Kinds of Manifest](diagrams/Manifests/04-the-kinds-of-manifest.svg)
 
 ### 2.4 Design Elements and Uploadable Elements
 
@@ -487,16 +431,7 @@ Every ARXML file has the same top-level structure: the root element `AUTOSAR` co
 
 The following diagram shows the same tree in a general form.
 
-```mermaid
-flowchart TB
-    ROOT["AUTOSAR (root element)"] --> PKGS["AR-PACKAGES"]
-    PKGS --> PKG["AR-PACKAGE<br/>SHORT-NAME: HPC"]
-    PKG --> SUBS["AR-PACKAGES"]
-    SUBS --> SUB["AR-PACKAGE<br/>SHORT-NAME: Machines"]
-    SUB --> ELS["ELEMENTS"]
-    ELS --> EL["MACHINE<br/>SHORT-NAME: HPC"]
-    EL --> ATTR["attributes, aggregated elements,<br/>references"]
-```
+![Flowchart: The Anatomy of an ARXML File](diagrams/Manifests/05-the-anatomy-of-an-arxml-file.svg)
 
 The *ARXML Serialization Rules* fix the outer frame:
 
@@ -687,47 +622,7 @@ The following table assigns the core elements to the models and manifests, to th
 
 The following class diagram shows the core elements and the references between them. An arrow points in the direction of the reference, from the element that holds it.
 
-```mermaid
-classDiagram
-    direction LR
-    class ServiceInterface
-    class PortPrototype
-    class AdaptiveApplicationSwComponentType
-    class RootSwComponentPrototype
-    class Executable
-    class ProcessDesign
-    class Process
-    class StartupConfig
-    class ModeDeclaration
-    class ProcessToMachineMapping
-    class Machine
-    class MachineDesign
-    class ServiceInterfaceDeployment
-    class AdaptivePlatformServiceInstance
-    class ServiceInstanceToPortPrototypeMapping
-    class ServiceInstanceToMachineMapping
-    class SoftwareCluster
-    AdaptiveApplicationSwComponentType *-- PortPrototype : port
-    PortPrototype --> ServiceInterface : typed by
-    Executable *-- RootSwComponentPrototype : rootSwComponentPrototype
-    RootSwComponentPrototype --> AdaptiveApplicationSwComponentType : applicationType
-    ProcessDesign --> Executable : executable
-    Process --> Executable : executable
-    Process --> ProcessDesign : design
-    Process --> StartupConfig : via StateDependentStartupConfig
-    Process --> ModeDeclaration : Function Group State
-    ProcessToMachineMapping --> Process : process
-    ProcessToMachineMapping --> Machine : machine
-    Machine --> MachineDesign : machineDesign
-    ServiceInterfaceDeployment --> ServiceInterface : serviceInterface
-    AdaptivePlatformServiceInstance --> ServiceInterfaceDeployment : serviceInterfaceDeployment
-    ServiceInstanceToPortPrototypeMapping --> PortPrototype : portPrototype (iref)
-    ServiceInstanceToPortPrototypeMapping --> Process : process
-    ServiceInstanceToPortPrototypeMapping --> AdaptivePlatformServiceInstance : serviceInstance
-    ServiceInstanceToMachineMapping --> AdaptivePlatformServiceInstance : serviceInstance
-    ServiceInstanceToMachineMapping --> MachineDesign : communicationConnector
-    SoftwareCluster --> Process : containedProcess
-```
+![Class diagram: How the Elements Relate](diagrams/Manifests/06-how-the-elements-relate.svg)
 
 Read the diagram as three chains that meet at the port:
 
@@ -1347,43 +1242,7 @@ The Machine Manifest also defines `MachineFG`. The group of states lists the man
 
 The following class diagram summarizes the elements of this chapter.
 
-```mermaid
-classDiagram
-    direction LR
-    class System {
-        +category
-    }
-    class EthernetCluster
-    class NetworkEndpoint
-    class MachineDesign
-    class EthernetCommunicationConnector
-    class ApApplicationEndpoint
-    class Machine {
-        +trustedPlatformExecutableLaunchBehavior
-        +defaultApplicationTimeout
-    }
-    class OsModuleInstantiation
-    class ResourceGroup {
-        +cpuUsage
-        +memUsage
-    }
-    class Processor
-    class FunctionGroupSet
-    class ModeDeclarationGroupPrototype
-    class ModeDeclarationGroup
-    System --> EthernetCluster : fibexElement
-    System --> MachineDesign : fibexElement
-    EthernetCluster *-- NetworkEndpoint : via physical channel
-    MachineDesign *-- EthernetCommunicationConnector : communicationConnector
-    EthernetCommunicationConnector *-- ApApplicationEndpoint
-    EthernetCommunicationConnector --> NetworkEndpoint : unicastNetworkEndpoint
-    Machine --> MachineDesign : machineDesign
-    Machine *-- OsModuleInstantiation : moduleInstantiation
-    OsModuleInstantiation *-- ResourceGroup : resourceGroup
-    Machine *-- Processor : processor
-    FunctionGroupSet *-- ModeDeclarationGroupPrototype : functionGroup
-    ModeDeclarationGroupPrototype --> ModeDeclarationGroup : type
-```
+![Class diagram: Worked Example: The HPC Machine](diagrams/Manifests/07-worked-example-the-hpc-machine.svg)
 
 > **Key takeaways**
 >
@@ -1617,17 +1476,7 @@ The `process` reference matters when an Executable runs in several processes: th
 
 The following diagram shows the complete chain for the consumer `Fusion`.
 
-```mermaid
-flowchart LR
-    CODE["Fusion code:<br/>InstanceSpecifier<br/>/fusion/Root/CameraRPort"] -.->|"names"| PORT["CameraRPort<br/>in Executable fusion"]
-    MAP["ServiceInstanceToPortPrototypeMapping<br/>Fusion_CameraRPort"] -->|"portPrototype (iref)"| PORT
-    MAP -->|"process"| PROC["Process Fusion"]
-    MAP -->|"serviceInstance"| RSI["RequiredSomeipServiceInstance<br/>CameraService_Required<br/>instance 0x0001"]
-    RSI -->|"serviceInterfaceDeployment"| DEP["SomeipServiceInterfaceDeployment<br/>CameraService_Someip<br/>service 0x1001"]
-    DEP -->|"serviceInterface"| SI["ServiceInterface<br/>CameraService"]
-    MM["SomeipServiceInstanceToMachineMapping<br/>CameraServiceClientOnHpc"] -->|"serviceInstance"| RSI
-    MM -->|"communicationConnector, tcpPort"| CONN["BackboneConnector<br/>of HpcDesign"]
-```
+![Flowchart: Connecting a Port to a Service Instance](diagrams/Manifests/08-connecting-a-port-to-a-service-insta.svg)
 
 ### 9.4 From Port to InstanceSpecifier
 
@@ -1782,24 +1631,7 @@ The mappings connect the ports of the two processes to the instances, and the in
 
 The following sequence diagram shows, conceptually, how this configuration is used when `Fusion` starts to look for the service. The exact API and the behavior of Communication Management are the topic of the [CM guide](CommunicationManagement.md#69-worked-example-fusion-finds-cameraservice) and the [Network Bindings guide](NetworkBindings.md).
 
-```mermaid
-sequenceDiagram
-    participant FC as Fusion code
-    participant CM as Communication Management
-    participant MAN as Processed manifests
-    participant NET as SOME/IP on the backbone
-    participant CD as CameraDriver
-    CD->>CM: offer service on /camera_driver/Root/CameraPPort
-    CM->>MAN: resolve port in process CameraDriver
-    MAN-->>CM: CameraService_Provided: service 0x1001, instance 0x0001, TCP 30501
-    CM->>NET: SOME/IP-SD offer
-    FC->>CM: find service for /fusion/Root/CameraRPort
-    CM->>MAN: resolve port in process Fusion
-    MAN-->>CM: CameraService_Required: service 0x1001, instance 0x0001, version 1.0
-    CM->>NET: SOME/IP-SD find
-    NET-->>CM: matching offer
-    CM-->>FC: handle of the found instance, used to create the proxy
-```
+![Sequence diagram: Worked Example: CameraService Between CameraDriver and Fusion](diagrams/Manifests/09-worked-example-cameraservice-between.svg)
 
 > **Key takeaways**
 >
@@ -1866,16 +1698,7 @@ A `VehiclePackage` describes an update campaign across several UCMs ([TPS_MANI_0
 
 The following diagram shows the nesting for the update of `AdasCluster` described in the [Running Example guide, Section 1.11](RunningExample.md#111-software-updates).
 
-```mermaid
-flowchart TB
-    VP["VehiclePackage<br/>(update campaign)"] --> SP["SoftwarePackage<br/>(logistics, packager signature)"]
-    SP --> SC["SoftwareCluster AdasCluster<br/>version 1.1.0, vendor signature"]
-    SC --> PROC["containedProcess:<br/>CameraDriver, Fusion, ..."]
-    SC --> PKG["containedPackageElement:<br/>Executables, StartupConfigs,<br/>deployments, mappings, ..."]
-    SC --> ARE["containedARElement:<br/>CameraService, data types, ..."]
-    SC --> FG["claimedFunctionGroup: ADAS"]
-    PROC --> BIN["binaries: camera_driver, fusion, ..."]
-```
+![Flowchart: Software Package and Vehicle Package](diagrams/Manifests/10-software-package-and-vehicle-package.svg)
 
 ### 10.4 Worked Example: `AdasCluster` and `HpcPlatformCore`
 
@@ -1967,33 +1790,7 @@ The following table summarizes the roles that the Methodology TR names and the m
 
 The Methodology TR groups its content into method content packages (Methodology TR, Figure 2.1). The following diagram shows them; an arrow means "depends on the results of".
 
-```mermaid
-flowchart BT
-    HLA["High Level Architecture"]
-    SD["System Design"]
-    SID["Service Interface Design"]
-    DD["Diagnostic Design"]
-    MD["Machine Design"]
-    AD["Application Design"]
-    MM["Machine Manifest"]
-    SCD["SW Cluster Design"]
-    IMP["Adaptive Software Implementation"]
-    SCI["SW Cluster Integration"]
-    PKG["SW Packaging"]
-    SD --> HLA
-    MD --> SD
-    AD --> SID
-    MM --> MD
-    SCD --> MD
-    SCD --> DD
-    SCD --> SID
-    SCD --> AD
-    IMP --> AD
-    SCI --> MM
-    SCI --> SCD
-    SCI --> IMP
-    PKG --> SCI
-```
+![Flowchart: The Methodology at a Glance](diagrams/Manifests/11-the-methodology-at-a-glance.svg)
 
 The development is structured into the domains analysis, architecture and design, system development, software development, and integration and deployment ([TR_AMETH_00200]). The two-phase approach of the Classic Platform methodology, with its interaction between OEM and suppliers, applies by analogy ([TR_AMETH_00204]).
 
@@ -3574,25 +3371,7 @@ The following table lists the steps. Each step adds model content; the last colu
 
 The following sequence diagram shows the hand-overs between the roles and the platform.
 
-```mermaid
-sequenceDiagram
-    participant OEM
-    participant SUP as Supplier
-    participant INT as Integrator
-    participant UCM
-    participant EM
-    participant CM
-    OEM->>SUP: CameraService, AdasClusterDesign, HpcMachineDesignExtract
-    SUP->>SUP: design components, generate headers, implement
-    SUP->>INT: Executables, component types, process designs, code
-    INT->>INT: Execution Manifest, Service Instance Manifest, AdasCluster
-    INT->>UCM: Software Package with AdasCluster 1.0.0
-    UCM->>UCM: verify, install binaries and processed manifests
-    Note over EM: State Management requests ADAS.Normal
-    EM->>EM: read processed manifests, start CameraDriver and Fusion
-    CM->>CM: resolve /camera_driver/Root/CameraPPort and /fusion/Root/CameraRPort
-    CM-->>CM: CameraDriver offers, Fusion finds CameraService
-```
+![Sequence diagram: End-to-End Walkthrough: The Life of CameraService's Configuration](diagrams/Manifests/12-end-to-end-walkthrough-the-life-of-c.svg)
 
 Later, the update of `AdasCluster` to 1.1.0 (the [Running Example guide, Section 1.11](RunningExample.md#111-software-updates)) repeats steps 7 to 9 with a new Software Package. During its activation, State Management switches `ADAS` to `Off`, then to `Verify` and back to `Normal`, and the manifests are reparsed, unless the Machine is reset (*Platform Design*, Section 13.9 and Figure 13.10). The UCM guide tells this story.
 

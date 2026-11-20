@@ -1,0 +1,19 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "RequestTransition(value)\nfrom SmControl" as REQ
+rectangle "TransitionRequestTable" as TRT
+rectangle "Network handle change" as NMC
+rectangle "ErrorCode from EM, PHM\nor SM itself" as ERR
+rectangle "ErrorRecoveryTable" as ERT
+rectangle "Current StateMachine State" as S
+rectangle "ActionList of the state:\nFG states, network handles,\nSYNC, Sleep" as AL
+rectangle "CurrentState field\n(StateMachineNotification)" as CS
+REQ --> TRT
+NMC --> TRT
+ERR --> ERT
+TRT --> S
+ERT --> S
+S --> AL
+S --> CS
+@enduml

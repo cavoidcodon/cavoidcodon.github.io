@@ -1,0 +1,19 @@
+@startuml
+!include ../_style.puml
+participant "OEM" as OEM
+participant "Supplier" as SUP
+participant "Integrator" as INT
+participant "UCM" as UCM
+participant "EM" as EM
+participant "CM" as CM
+OEM -> SUP : CameraService, AdasClusterDesign, HpcMachineDesignExtract
+SUP -> SUP : design components, generate headers, implement
+SUP -> INT : Executables, component types, process designs, code
+INT -> INT : Execution Manifest, Service Instance Manifest, AdasCluster
+INT -> UCM : Software Package with AdasCluster 1.0.0
+UCM -> UCM : verify, install binaries and processed manifests
+note over EM : State Management requests ADAS.Normal
+EM -> EM : read processed manifests, start CameraDriver and Fusion
+CM -> CM : resolve /camera_driver/Root/CameraPPort and /fusion/Root/CameraRPort
+CM --> CM : CameraDriver offers, Fusion finds CameraService
+@enduml

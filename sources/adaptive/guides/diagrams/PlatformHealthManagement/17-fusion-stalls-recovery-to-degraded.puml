@@ -1,0 +1,24 @@
+@startuml
+!include ../_style.puml
+participant "Execution Management" as EM
+participant "PlatformHealth" as PHM
+participant "StateManager" as SM
+participant "Fusion" as FU
+participant "Watchdog" as WD
+PHM -> WD : AliveNotification (before kRunning, then cyclically)
+EM -> PHM : kRunning, StateManager
+SM -> PHM : Offer (recovery handler)
+SM -> EM : SetState(MachineFG Driving), SetState(ADAS Normal)
+EM -> PHM : kRunning, CameraDriver, Fusion
+FU -> PHM : checkpoints every 50 ms
+note over FU, PHM : a late input, skip path, no failure
+note over PHM : ComputeDeadline expires, FusionSupervision kEXPIRED
+PHM -> SM : RecoveryHandler(ADAS 42, kDeadlineSupervision)
+SM -> EM : SetState(ADAS Degraded)
+EM -> PHM : Fusion terminating, then terminated
+SM --> PHM : Future ready
+note over SM : at the end of the drive
+SM -> EM : SetState(ADAS Off), SetState(MachineFG Shutdown)
+SM -> PHM : StopOffer
+EM -> PHM : SIGTERM, all Global Supervisions kDEACTIVATED
+@enduml

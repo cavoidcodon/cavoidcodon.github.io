@@ -1,0 +1,17 @@
+@startuml
+!include ../_style.puml
+participant "Cockpit (TLS client)" as CK
+participant "CM on HPC (TLS server)" as CM
+participant "CameraDriver (skeleton)" as CD
+CD -> CM : OfferService()
+CM --> CK : SD OfferService (UDP 30490, unprotected)
+CK -> CM : TCP connect to 192.168.10.10:30501
+CK -> CM : TLS ClientHello (suite 0xC02B, TLS 1.2)
+CM -> CK : ServerHello, Certificate HpcDeviceCert, key exchange
+CK -> CK : Verify HpcDeviceCert up to OemRootCa
+CK -> CM : Key exchange, Finished
+CM -> CK : Finished: channel established
+CK --> CM : SD SubscribeEventgroup CameraEvents
+CD -> CM : Image.Send(sample)
+CM -> CK : SOME/IP notification inside a TLS record
+@enduml

@@ -1,0 +1,14 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "Executable state_manager" as EXE {
+  rectangle "R-port AdasFgPort\ntyped by StateClientInterface AdasStateClient" as PORT
+}
+rectangle "FunctionGroupPortMapping\nStateManagerToADAS" as MAP
+rectangle "Process StateManager\nfunctionClusterAffiliation = STATE_MANAGEMENT" as PROC
+rectangle "Function Group ADAS" as FG
+MAP --> PORT : rPortPrototypeInExecutable
+MAP --> PROC : process
+MAP --> FG : functionGroup
+PORT ..> FG : functionGroupType: same ModeDeclarationGroup
+@enduml

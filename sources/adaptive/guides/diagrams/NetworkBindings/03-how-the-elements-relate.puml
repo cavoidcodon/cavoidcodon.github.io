@@ -1,0 +1,23 @@
+@startuml
+!include ../_style.puml
+rectangle "ServiceInterface" as SI
+rectangle "ServiceInterfaceDeployment\n(Someip / Dds / UserDefined)" as SID
+rectangle "event, method and field deployments\n(IDs, topics, protocol, serializer)" as ED
+rectangle "Provided / Required service instance\n(instance ID, SD config, version, category)" as INST
+rectangle "ServiceInstanceToPortPrototypeMapping\n(process and port)" as PPM
+rectangle "ServiceInstanceToMachineMapping\n(connector, UDP/TCP ports)" as M2M
+rectangle "EthernetCommunicationConnector\n(endpoints, ISignalPorts)" as CON
+rectangle "ServiceInstanceToSignalMapping\n(Signal-Based only)" as S2S
+rectangle "ISignalTriggering" as TRIG
+rectangle "ISignal in an ISignalIPdu" as SIG
+SI --> SID
+SID --> ED
+SID --> INST
+INST --> PPM
+INST --> M2M
+M2M --> CON
+INST --> S2S
+S2S --> TRIG
+TRIG --> SIG
+TRIG --> CON
+@enduml

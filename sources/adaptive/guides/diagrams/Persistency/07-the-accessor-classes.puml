@@ -1,0 +1,11 @@
+@startuml
+!include ../_style.puml
+rectangle "ReadAccessor: PeekChar, GetChar, ReadText, ReadLine, PeekByte, GetByte, ReadBinary" as RA
+rectangle "FileAccessor: GetPosition, SetPosition, MovePosition, IsEof, GetSize" as FA
+rectangle "WriteAccessor (declared final): WriteText, stream operator, WriteBinary, SetFileSize, SyncToFile" as WA
+rectangle "ReadWriteAccessor (final)" as RWA
+RA --> FA : public virtual
+WA --> FA : public virtual
+RWA --> RA : public
+RWA --> WA : public
+@enduml

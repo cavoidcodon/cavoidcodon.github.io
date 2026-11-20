@@ -1,0 +1,25 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "State Management" as SM
+rectangle "Execution Management" as EM
+rectangle "Every reporting process\n(applications and daemons)" as APPS
+rectangle "Operating System" as OS
+rectangle "Platform Health Management" as PHM
+rectangle "Log and Trace" as LT
+rectangle "Intrusion Detection System Manager" as IDSM
+rectangle "Identity and Access Management" as IAM
+rectangle "Update and Configuration Management" as UCM
+SM --> EM : SetState, GetInitialMachineStateTransitionResult,\nGetExecutionError
+EM --> SM : transition results,\nundefinedStateCallback
+APPS --> EM : ReportExecutionState(kRunning)
+EM --> APPS : SIGTERM, handled by\nthe termination handler
+EM --> OS : create, configure, terminate
+OS --> EM : exit status
+EM --> PHM : kRunning received, termination initiated,\nprocess terminated
+EM --> PHM : checkpoints for EM supervision
+EM --> LT : DLT log, trace and violation messages
+EM --> IDSM : security event
+EM ..> IAM : process identity association
+UCM ..> EM : installs executables and Processed Manifests
+@enduml

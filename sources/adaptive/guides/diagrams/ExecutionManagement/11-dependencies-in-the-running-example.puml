@@ -1,0 +1,14 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "Storage" as ST
+rectangle "CalibrationCheck\n(self-terminating)" as CC
+rectangle "Fusion" as FU
+rectangle "LegacyLogger\n(non-reporting)" as LL
+rectangle "LoggerCompanion" as LC
+rectangle "CameraDriver\n(no dependencies)" as CD
+ST --> CC : Running
+CC --> FU : Terminated
+LL --> LC : Running
+LC --> FU : Running
+@enduml

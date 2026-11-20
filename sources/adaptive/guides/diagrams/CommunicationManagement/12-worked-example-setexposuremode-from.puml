@@ -1,0 +1,18 @@
+@startuml
+!include ../_style.puml
+autonumber
+participant "Fusion (cycle thread)" as FU
+participant "SetExposureMode (proxy)" as PX
+participant "Communication Management" as CM
+participant "CameraServiceImpl (kEventSingleThread)" as SK
+FU -> PX : operator()(Night)
+PX --> FU : Future (not ready)
+PX -> CM : request
+CM -> SK : SetExposureMode(Night)
+SK -> SK : promise.SetError(ExposureModeNotSupported)
+SK --> CM : future with error
+CM --> PX : response with application error
+note over FU : next cycle: is_ready() is true
+FU -> PX : GetResult()
+PX --> FU : Result with CameraErrorsErrc::ExposureModeNotSupported
+@enduml

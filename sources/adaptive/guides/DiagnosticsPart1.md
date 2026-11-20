@@ -56,7 +56,7 @@ If you write application code, read Chapters 1, 2, 7, 10 to 13 and 15 first. If 
 | **Note (implementation example)** | How a typical implementation *might* realize something. This is not mandated by AUTOSAR. |
 | **Pitfall** | A common mistake seen in real projects. |
 | **Key takeaways** | A short summary at the end of each chapter. |
-| Diagrams | Written in Mermaid. They render natively on GitHub and GitLab. In VS Code, install the *Markdown Preview Mermaid Support* extension. |
+| Diagrams | Drawn in PlantUML and inserted as SVG images, so they show in any Markdown viewer. Click an image to open it at full size. |
 
 > **Note:** The code in this guide is illustrative C++17. It follows the R25-11 API tables of the specification, but vendor headers may differ in detail, in particular the names of generated classes and headers for typed DIDs and routines. UDS (ISO 14229-1) and DoIP (ISO 13400-2) are referred to by name only; this guide explains what the AUTOSAR specification requires on top of them. All IDs, addresses and timings of the running example are invented for teaching.
 
@@ -268,15 +268,7 @@ DM is a daemon of the platform (SWS, Table 5.2 calls it daemon-based). Applicati
 3. The object answers with an `ara::core::Future`, which carries the result or an NRC.
 4. It calls `StopOffer()` before it terminates.
 
-```mermaid
-flowchart LR
-    T["DiagnosticTester"] -->|"UDS over DoIP"| DM["Diagnostic Management daemon"]
-    DM -->|"Read"| F["Fusion: FusionSwVersionDid"]
-    DM -->|"Start, RequestResult"| C["CameraDriver: CalibrateCameraRoutine"]
-    DM -->|"RequestReset, ExecuteReset, GetSeed, CompareKey"| S["SmControl: EcuResetRequest, SecurityAccess"]
-    DM -.->|"security events"| I["IdsM"]
-    DM -.->|"persisted state"| P["Persistency"]
-```
+![Flowchart: DM and ARA](diagrams/DiagnosticsPart1/01-dm-and-ara.svg)
 
 The headers are in `ara/diag/`, for example `ara/diag/ecu_reset_request.h` or `ara/diag/generic_routine.h`; typed classes generated from the model get their own headers ([Section 15.1](#151-headers-namespaces-and-the-port-to-class-binding)). Transport protocol plug-ins use the Platform Extension Interface `apext::diag::uds_transport` (SWS, Appendix C).
 
@@ -378,17 +370,7 @@ The **Diagnostic Extract** is the AUTOSAR model of the diagnostic behavior of an
 
 DM is split into a **UDS Transport Layer** and an **Application Layer** (SWS, Chapter 7). On the transport layer, **Transport Protocol Handlers** implement the transport protocols, such as DoIP. The **Transport Protocol Manager** dispatches received requests to the responsible Diagnostic Server instance and responses back to the handler that received the request. Each Diagnostic Server instance does session handling, security checks, internal processing and dispatching to applications.
 
-```mermaid
-flowchart TB
-    NET["Ethernet"] --> DOIP["DoIP Transport Protocol Handler"]
-    NET --> CTP["Custom Transport Protocol Handler"]
-    NET --> HTTP["SOVD HTTP handler (the Diagnostics Part 2 guide)"]
-    DOIP --> TPM["Transport Protocol Manager"]
-    CTP --> TPM
-    TPM -->|"target address 0x1010 or 0xE400"| DS["Diagnostic Server instance of HPC: sessions, security, checks, dispatching"]
-    DS --> INT["Internal processing: 0x10, 0x3E, 0x2A, 0x2C, ..."]
-    DS --> APP["Applications through ara::diag"]
-```
+![Flowchart: Where DM Sits in the Platform](diagrams/DiagnosticsPart1/02-where-dm-sits-in-the-platform.svg)
 
 ### 3.2 Interfaces Provided by DM
 
@@ -417,19 +399,7 @@ DM provides no interfaces to other functional clusters (SWS, Table 5.1). To appl
 
 ### 3.4 Interaction Map
 
-```mermaid
-flowchart LR
-    DT["DiagnosticTester"] -->|"DoIP TCP 13400"| CGW["CentralGateway"]
-    CGW --> DM["Diagnostic Management"]
-    DM -->|"DID 0x0101"| FU["Fusion"]
-    DM -->|"routine 0x0201"| CD["CameraDriver"]
-    DM -->|"ECU reset, routine 0x0202, seed and key, VIN, power mode"| SC["SmControl"]
-    SC -->|"Reset, Degrade"| SM["StateManager"]
-    CD -->|"SetCalibration"| ST["Storage"]
-    DM -.-> IDS["IdsM"]
-    DM -.-> PER["Persistency"]
-    DM -.-> LT["Log and Trace"]
-```
+![Flowchart: Interaction Map](diagrams/DiagnosticsPart1/03-interaction-map.svg)
 
 ### 3.5 Access Control on `ara::diag`
 
@@ -466,24 +436,7 @@ SOVD (Service-Oriented Vehicle Diagnostics, ASAM) offers diagnostic functions as
 
 The diagram shows the path from a DID in the DEXT to the code that provides it.
 
-```mermaid
-flowchart LR
-    subgraph DEXT["Diagnostic Extract"]
-        CS["DiagnosticContributionSet"] --> ST["DiagnosticServiceTable"]
-        ST --> SI["DiagnosticReadDataByIdentifier"]
-        SI --> AP["DiagnosticAccessPermission"]
-        AP --> SE["DiagnosticSession"]
-        AP --> SL["DiagnosticSecurityLevel"]
-        SI --> DID["DiagnosticDataIdentifier 0x0101"]
-        DID --> DE["DiagnosticDataElement"]
-        CS --> CP["DiagnosticCommonProps: diagnosticAddress"]
-    end
-    MAP["DiagnosticDataPortMapping"] --> DID
-    MAP -->|"pPortPrototypeInExecutable"| PORT["P-port SwVersionDidPort of FusionSwc"]
-    MAP -->|"process"| PD["ProcessDesign of Fusion"]
-    PORT -->|"typed by"| IF["DiagnosticDataIdentifierInterface FusionSwVersionDid"]
-    SWC["SoftwareCluster: diagnosticDeploymentProps"] -->|"diagnosticExtract"| CS
-```
+![Flowchart: How the Elements Relate](diagrams/DiagnosticsPart1/04-how-the-elements-relate.svg)
 
 Three links matter most. The **service instance** (here `DiagnosticReadDataByIdentifier`) says that a service is supported for a DID and under which access permission. The **diagnostic mapping** connects the DEXT element to a port of an executable and to a process, so DM knows which running process provides it ([Section 14.11](#1411-diagnostic-mappings-ports-and-processes)). The **Software Cluster** references the contribution set through `SoftwareCluster.diagnosticDeploymentProps.diagnosticExtract`; Software Clusters that share their `SoftwareClusterDiagnosticDeploymentProps` share the contribution set and the Diagnostic Server instance (TPS Manifest, Section 16.3.2.2). In `HPC`, `HpcPlatformCore` and `AdasCluster` share them.
 
@@ -526,19 +479,7 @@ Today, only Ethernet with DoIP is described in detail; CAN and other networks ma
 
 The handler announces a request as soon as it knows the source address, the target address, the address type, the total size and, if the payload is longer than one byte, its first two bytes ([SWS_DM_00342]). The first bytes let DM accept a functional TesterPresent `0x3E 80` even while it is busy ([SWS_DM_00386]).
 
-```mermaid
-sequenceDiagram
-    participant TP as DoIP Transport Protocol Handler
-    participant M as UdsTransportProtocolMgr (DM)
-    participant DS as Diagnostic Server instance
-    TP->>M: IndicateMessage(SA 0x0E80, TA 0x1010, kPhysical, channel, size, first bytes)
-    M-->>TP: kIndicationOk and an empty UdsMessage buffer
-    TP->>M: HandleMessage(filled message)
-    M->>DS: dispatch by target address
-    DS-->>M: response
-    M->>TP: Transmit(response, same channel)
-    TP-->>M: TransmitConfirmation(kTransmitOk)
-```
+![Sequence diagram: Receiving and Sending a Request](diagrams/DiagnosticsPart1/05-receiving-and-sending-a-request.svg)
 
 `IndicateMessage` can also refuse the request:
 
@@ -610,19 +551,7 @@ A custom transport protocol implements `UdsTransportProtocolHandler` and uses th
 
 ### 5.9 Worked Example: `DiagnosticTester` Connects to `HPC`
 
-```mermaid
-sequenceDiagram
-    participant T as DiagnosticTester (0x0E80)
-    participant D as DoIP handler of DM
-    participant S as SmControl
-    T->>D: Vehicle identification request (UDP 13400)
-    D->>S: GetDoIPPowerMode, read DID 0xF190 (VIN)
-    D-->>T: Vehicle identification response: VIN, logical address 0x1010, EID from MAC
-    T->>D: TCP connect 13400, routing activation request (SA 0x0E80)
-    D-->>T: Routing activation response: success
-    T->>D: Diagnostic message SA 0x0E80, TA 0x1010: 0x22 01 01
-    D-->>T: Diagnostic message positive acknowledgement
-```
+![Sequence diagram: Worked Example: DiagnosticTester Connects to HPC](diagrams/DiagnosticsPart1/06-worked-example-diagnostictester-conn.svg)
 
 The tester's source address `0x0E80` lies in the range `0x0E00` to `0x0EFF` of the `GenericTpConnection` `WorkshopTesters`, which gives its conversations the priority 10 ([Section 6.4](#64-priorities-replacement-and-refusal)). Up to two testers can be connected at the same time (`maxTesterConnections` 2). How the request `0x22 01 01` continues is the subject of the next chapters.
 
@@ -658,25 +587,7 @@ Each conversation has a priority from the `GenericTpConnection` whose source add
 
 When a request arrives, the Diagnostic Server instance decides as follows (SWS, Figure 7.3):
 
-```mermaid
-flowchart TB
-    R["New request from a tester"] --> A{"Tester already has a conversation?"}
-    A -->|"yes"| B{"Conversation busy with a request?"}
-    B -->|"yes"| IGN["Ignore the request"]
-    B -->|"no"| USE["Process in this conversation"]
-    A -->|"no"| N{"Another conversation in a non-default session?"}
-    N -->|"yes"| P1{"New tester has higher priority?"}
-    P1 -->|"yes"| REP["Cancel that conversation, create a new one"]
-    P1 -->|"no"| REF["Refuse"]
-    N -->|"no"| F{"Free conversation available?"}
-    F -->|"yes"| NEW["Create a new conversation"]
-    F -->|"no"| P2{"New tester has higher priority than the lowest existing?"}
-    P2 -->|"yes"| REP2["Cancel the lowest-priority conversation, create a new one"]
-    P2 -->|"no"| REF
-    REF --> NRC{"responseOnSecondDeclinedRequest?"}
-    NRC -->|"true"| N21["Negative response 0x21 busyRepeatRequest"]
-    NRC -->|"false"| SIL["No response"]
-```
+![Flowchart: Priorities, Replacement and Refusal](diagrams/DiagnosticsPart1/07-priorities-replacement-and-refusal.svg)
 
 The rules behind the picture: [SWS_DM_00426], [SWS_DM_01581], [SWS_DM_00429], [SWS_DM_00430] for assignment and prioritization; [SWS_DM_00431] for replacement, which cancels the old conversation ([Section 6.7](#67-cancellation-and-the-cancellationhandler)); [SWS_DM_00433], [SWS_DM_00049] and [SWS_DM_00290] for refusal.
 
@@ -737,21 +648,7 @@ DM does not send a response for a cancelled request ([SWS_DM_00279], [SWS_DM_002
 
 The Diagnostic Server instance validates each request as defined by ISO 14229-1 ("General server response behavior") ([SWS_DM_00096]). The first failing check aborts the processing with a negative response ([SWS_DM_00097]).
 
-```mermaid
-flowchart TB
-    Q["Request"] --> M1{"Manufacturer checks (ServiceValidation) OK?"}
-    M1 -->|"no"| X1["NRC from the callout, or no response"]
-    M1 -->|"yes"| S1{"SID supported?"}
-    S1 -->|"no"| N11["0x11 serviceNotSupported"]
-    S1 -->|"yes"| S2{"SID allowed in active session?"}
-    S2 -->|"no"| N7F["0x7F serviceNotSupportedInActiveSession"]
-    S2 -->|"yes"| S3{"Security level OK?"}
-    S3 -->|"no"| N33["0x33 securityAccessDenied"]
-    S3 -->|"yes"| SUP{"Supplier checks (ServiceValidation) OK?"}
-    SUP -->|"no"| X2["NRC from the callout, or no response"]
-    SUP -->|"yes"| SPEC["Service-specific checks: length 0x13, sub-function 0x12 or 0x7E, identifiers 0x31, conditions 0x22"]
-    SPEC --> PROC["Processing (internal or application)"]
-```
+![Flowchart: The Order of Checks](diagrams/DiagnosticsPart1/08-the-order-of-checks.svg)
 
 The service-specific checks follow the figures of ISO 14229-1 for each service; the sections below and Chapters 8 to 12 name them.
 
@@ -799,20 +696,7 @@ Some services must only run in a certain vehicle state, for example with the veh
 
 Each session has two timing parameters from `DiagnosticSession`: **P2** (`p2ServerMax`), the time within which the server should start its response, and **P2\*** (`p2StarServerMax`), the extended time after a response-pending message. If processing takes longer than P2, DM itself sends NRC `0x78` (response pending) and keeps doing so ([SWS_DM_00368]). After `DiagnosticCommonProps.maxNumberOfRequestCorrectlyReceivedResponsePending` such messages, DM cancels the processing and sends `0x10` `kGeneralReject` ([SWS_DM_00369]).
 
-```mermaid
-sequenceDiagram
-    participant T as Tester
-    participant DM as DM
-    participant A as Application
-    T->>DM: request
-    DM->>A: method call (Future)
-    Note over DM: P2 (50 ms) expires
-    DM-->>T: 0x7F xx 78 (response pending)
-    Note over DM: P2* (5000 ms) expires
-    DM-->>T: 0x7F xx 78
-    A-->>DM: Future ready with result
-    DM-->>T: positive response
-```
+![Sequence diagram: Response Pending, P2 and P2, and the Pending Limit](diagrams/DiagnosticsPart1/09-response-pending-p2-and-p2-and-the-p.svg)
 
 Applications therefore never send "response pending" themselves; they only return their future when the result is ready. If an application that DM needs has not called `Offer()` yet, or has called `StopOffer()`, DM answers `0x94` `kResourceTemporarilyNotAvailable` ([SWS_DM_01257]).
 
@@ -887,16 +771,7 @@ With `DiagnosticSecurityAccessClass.sharedTimer`, one delay timer applies to all
 
 > **Note:** ISO 14229-1 starts the delay timer at power-up already after a single failed attempt in the previous power cycle. DM deliberately deviates and follows [SWS_DM_00479] instead (SWS, Section 4.1.1).
 
-```mermaid
-stateDiagram-v2
-    [*] --> Locked
-    Locked --> SeedSent: 0x27 01, GetSeed OK
-    SeedSent --> Unlocked: 0x27 02, kKeyValid
-    SeedSent --> Locked: 0x27 02, kKeyInvalid, below threshold (NRC 0x35)
-    SeedSent --> Delay: 0x27 02, kKeyInvalid, threshold reached (NRC 0x36)
-    Delay --> Locked: securityDelayTime expired
-    Unlocked --> Locked: session change or S3 timeout
-```
+![State diagram: Failed Attempts and the Delay Timer](diagrams/DiagnosticsPart1/10-failed-attempts-and-the-delay-timer.svg)
 
 ### 8.4 Worked Example: Unlocking `HPC` for Calibration
 
@@ -1042,15 +917,7 @@ The diagnostic mapping and the type of the mapped port decide how DM obtains the
 | Per data element | `DiagnosticDataElementInterface` | `DiagnosticDataPortMapping` to each data element (or `DiagnosticProvidedDataMapping` for internal data) | Generated class with `Read` per element | [SWS_DM_00401], [SWS_DM_00905] |
 | Whole service, raw | `DiagnosticGenericUdsInterface` | `DiagnosticServiceGenericMapping` | `ara::diag::GenericUDSService::HandleMessage(sid, requestData, ...)` with SID `0x22` or `0x2E` and the DID bytes | [SWS_DM_00849], [SWS_DM_00908] |
 
-```mermaid
-flowchart TB
-    Q{"Who knows the data?"} -->|"one process, whole record"| T{"Fixed layout known at design time?"}
-    T -->|"yes"| TYP["Typed DID class"]
-    T -->|"no, many DIDs in one place"| GEN["GenericDataIdentifier"]
-    Q -->|"several processes, one element each"| EL["Data-element classes"]
-    Q -->|"DM itself"| INT["Internal data element"]
-    Q -->|"legacy code that speaks UDS bytes"| RAW["GenericUDSService"]
-```
+![Flowchart: Four Ways to Provide a DID](diagrams/DiagnosticsPart1/11-four-ways-to-provide-a-did.svg)
 
 The typed way is the default choice: the generator creates a class from the port interface, the application fills C++ members, and DM handles the bytes and the byte order. `GenericDataIdentifier` suits a gateway-like process that serves many DIDs with one object. Per-element providers let several processes contribute to one DID. `GenericUDSService` leaves all serialization to the application (SWS, Section 7.3.6.2.2).
 
@@ -1160,27 +1027,7 @@ In both cases, the `CancellationHandler` tells the routine that the conversation
 
 `CalibrateCamera` (`0x0201`) measures the camera's mounting angles with a target in front of the vehicle and stores the result with `SetCalibration`. It needs the extended session and `Level1`, takes about 3 s and uses the asynchronous design: start launches the measurement, requestRoutineResults returns a status byte (`0` running, `1` done, `2` failed; illustrative).
 
-```mermaid
-sequenceDiagram
-    participant T as Tester
-    participant DM as DM
-    participant CD as CameraDriver
-    participant ST as Storage
-    T->>DM: 0x31 01 02 01 (start)
-    DM->>CD: Start(...)
-    CD-->>DM: StartOutput (accepted)
-    DM-->>T: 0x71 01 02 01
-    T->>DM: 0x31 03 02 01 (results)
-    DM->>CD: RequestResult(...)
-    CD-->>DM: status 0 (running)
-    DM-->>T: 0x71 03 02 01 00
-    CD->>ST: SetCalibration(CameraExtrinsics, record)
-    ST-->>CD: OK
-    T->>DM: 0x31 03 02 01
-    DM->>CD: RequestResult(...)
-    CD-->>DM: status 1 (done)
-    DM-->>T: 0x71 03 02 01 01
-```
+![Sequence diagram: Worked Example: CalibrateCamera](diagrams/DiagnosticsPart1/12-worked-example-calibratecamera.svg)
 
 The code is in [Section 15.10](#1510-complete-example-cameradriver-provides-calibratecamera). If the tester disconnects during the measurement, the cancellation notifier stops it, and no calibration is stored.
 
@@ -1217,23 +1064,7 @@ When the positive response is sent depends on `DiagnosticEcuResetClass.respondTo
 
 If ExecuteReset fails and no final response was sent yet, DM sends the returned NRC, or `0x10` for an unspecified error ([SWS_DM_01346], [SWS_DM_01347]). When the future of ExecuteReset completes, DM accepts requests again ([SWS_DM_01309]); this matters for resets that do not restart DM itself.
 
-```mermaid
-sequenceDiagram
-    participant T as Tester
-    participant DM as DM
-    participant A as EcuResetRequest provider
-    T->>DM: 0x11 01 (hardReset)
-    DM->>A: RequestReset(kHardReset)
-    A-->>DM: OK
-    alt respondBeforeReset
-        DM-->>T: 0x51 01
-        DM->>A: ExecuteReset
-    else respondAfterReset
-        DM->>A: ExecuteReset
-        Note over DM: restart, channel re-established
-        DM-->>T: 0x51 01
-    end
-```
+![Sequence diagram: EcuResetRequest: RequestReset, ExecuteReset, Responding Before or After the Reset](diagrams/DiagnosticsPart1/13-ecuresetrequest-requestreset-execute.svg)
 
 ### 12.3 Rapid Power Shutdown
 
@@ -1854,42 +1685,7 @@ DM defines no production errors of its own (SWS, Section 7.5.4).
 
 A vehicle comes to the workshop after a windshield replacement; the camera must be recalibrated. The technician connects the `DiagnosticTester` (`0x0E80`). `ADAS` is in `Normal`.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant T as DiagnosticTester
-    participant DM as Diagnostic Management
-    participant F as Fusion
-    participant SC as SmControl
-    participant CD as CameraDriver
-    T->>DM: DoIP: vehicle identification, routing activation
-    T->>DM: 0x22 01 01
-    DM->>F: Read
-    F-->>DM: "1.1.0"
-    DM-->>T: 0x62 01 01 31 2E 31 2E 30 20 20 20
-    T->>DM: 0x10 03
-    DM-->>T: 0x50 03 (P2, P2*)
-    T->>DM: 0x27 01
-    DM->>SC: GetSeed
-    DM-->>T: 0x67 01 seed
-    T->>DM: 0x27 02 key
-    DM->>SC: CompareKey
-    SC-->>DM: kKeyValid
-    DM-->>T: 0x67 02
-    T->>DM: 0x31 01 02 01
-    DM->>CD: Start
-    DM-->>T: 0x71 01 02 01
-    loop every second, with 0x3E 80 in between
-        T->>DM: 0x31 03 02 01
-        DM->>CD: RequestResult
-        DM-->>T: 0x71 03 02 01 status
-    end
-    T->>DM: 0x11 01
-    DM->>SC: RequestReset(kHardReset)
-    DM-->>T: 0x51 01
-    DM->>SC: ExecuteReset
-    SC->>SC: request Reset (3) from HpcController
-```
+![Sequence diagram: End-to-End Walkthrough: A Workshop Visit](diagrams/DiagnosticsPart1/14-end-to-end-walkthrough-a-workshop-vi.svg)
 
 What happens, step by step, with the sections that explain it:
 

@@ -1,0 +1,14 @@
+@startuml
+!include ../_style.puml
+participant "Fusion" as A
+participant "ara::log library" as L
+participant "Logging backend" as D
+A -> L : ara::core::Initialize(argc, argv)
+A -> L : CreateLogger("/fusion/Root/MainLogPort")
+A -> L : LogInfo() << "starting"
+note over L : backend not connected:\nqueue (queueSize), drop oldest
+L -> D : connection established
+L -> D : queued messages, then live messages
+A -> L : ara::core::Deinitialize()
+L -> D : all queued messages are passed on [SWS_LOG_00123]
+@enduml

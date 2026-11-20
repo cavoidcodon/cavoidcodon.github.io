@@ -1,0 +1,21 @@
+@startuml
+!include ../_style.puml
+rectangle "Something went wrong\ninside an ARA call" as S
+rectangle "System resource\ncorrupted?" as C1 <<decision>>
+rectangle "Corruption:\nprocess terminates" as COR
+rectangle "Default allocator\nfailed?" as C2 <<decision>>
+rectangle "Failed Default Allocation:\nhandled like a Violation" as FDA
+rectangle "Contract broken?\n(misuse, wrong manifest,\nnot initialized, no permission)" as C3 <<decision>>
+rectangle "Violation:\nAbort with message" as VIO
+rectangle "Can the caller\nreact meaningfully?" as C4 <<decision>>
+rectangle "Error:\nreturned in Result or Future" as ERR
+S --> C1
+C1 --> COR : yes
+C1 --> C2 : no
+C2 --> FDA : yes
+C2 --> C3 : no
+C3 --> VIO : yes
+C3 --> C4 : no
+C4 --> ERR : yes
+C4 --> VIO : no
+@enduml

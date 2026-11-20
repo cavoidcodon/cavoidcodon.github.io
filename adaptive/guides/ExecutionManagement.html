@@ -94,7 +94,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 <tr>
 <td>Diagrams</td>
-<td>Written in Mermaid. They render natively on GitHub and GitLab. In VS Code, install the <em>Markdown Preview Mermaid Support</em> extension.</td>
+<td>Drawn in PlantUML and inserted as SVG images, so they show in any Markdown viewer. Click an image to open it at full size.</td>
 </tr>
 </tbody>
 </table></div>
@@ -696,17 +696,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p><strong>Why this matters:</strong> EM has a precise vocabulary, and several words, such as <em>process</em>, <em>state</em> and <em>running</em>, have more than one meaning. If you read only one chapter, read this one. Every later chapter relies on these terms.</p>
 </blockquote>
 <p>The following concept map shows how the most important terms relate to each other:</p>
-<pre class="mermaid">flowchart LR
-    APP[&quot;Adaptive Application&quot;] --&gt;|&quot;consists of 1..n&quot;| EXE[&quot;Executable&lt;br/&gt;(binary with one main)&quot;]
-    EXE --&gt;|&quot;described by 1..n&quot;| MP[&quot;Modelled Process&lt;br/&gt;(Process element in the manifest)&quot;]
-    MP --&gt;|&quot;realized at run time as&quot;| OSP[&quot;OS process&lt;br/&gt;(has a PID)&quot;]
-    MAN[&quot;Execution Manifest&quot;] --&gt;|&quot;configures&quot;| MP
-    MP --&gt;|&quot;references states of exactly one&quot;| FG[&quot;Function Group&quot;]
-    FG --&gt;|&quot;has&quot;| FGS[&quot;Function Group States&lt;br/&gt;(Off is mandatory)&quot;]
-    MFG[&quot;MachineFG&quot;] --&gt;|&quot;is a special&quot;| FG
-    SM[&quot;State Management&quot;] --&gt;|&quot;requests a Function Group State&quot;| EM[&quot;Execution Management&quot;]
-    EM --&gt;|&quot;starts and stops&quot;| OSP
-</pre>
+<p><a class="figure" href="diagrams/ExecutionManagement/01-core-concepts-and-terminology.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/ExecutionManagement/01-core-concepts-and-terminology.svg" alt="Flowchart: Core Concepts and Terminology" loading="lazy"></a></p>
 <h3 id="21-software-units-from-application-to-os-process">2.1 Software Units: From Application to OS Process<a class="anchor" href="#21-software-units-from-application-to-os-process" aria-label="Link to this section">#</a></h3>
 <p><strong>Adaptive Application.</strong> <em>In plain words:</em> a piece of software that delivers a function, for example &quot;lane keeping&quot;. <em>Precisely:</em> it consists of one or more Executables. It uses only ARA and the POSIX profile PSE51, so that it can be deployed on any Adaptive Platform. Executables of the same application may even be deployed to different machines, for example one high-performance machine and one high-safety machine.</p>
 <p><strong>Executable.</strong> <em>In plain words:</em> a program file that you can run. <em>Precisely:</em> a software unit that is part of an application and has exactly one entry point, the <code>main</code> function ([SWS_OSI_01001]). <em>Example:</em> the binary <code>fusion</code>.</p>
@@ -869,30 +859,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </blockquote>
 <h3 id="31-where-em-sits-in-the-platform">3.1 Where EM Sits in the Platform<a class="anchor" href="#31-where-em-sits-in-the-platform" aria-label="Link to this section">#</a></h3>
 <p>EM is the first process of the Adaptive Platform (Section 7.3.5 of the specification). It is not necessarily the first process on the <em>machine</em>, though. An OS init process, or user-level processes of a micro-kernel OS such as drivers and file systems, may run before EM. These are managed outside the Adaptive Platform. Once EM runs, it starts the daemons of all other functional clusters and all applications.</p>
-<pre class="mermaid">flowchart TB
-    subgraph MACHINE[&quot;Machine (ECU, virtual machine or container)&quot;]
-        direction TB
-        OS[&quot;Operating System&lt;br/&gt;(kernel, init, drivers: outside the Adaptive Platform)&quot;]
-        EM[&quot;Execution Management&lt;br/&gt;(first Adaptive Platform process)&quot;]
-        subgraph FCS[&quot;Platform daemons (functional clusters)&quot;]
-            SM[&quot;State Management&quot;]
-            PHM[&quot;Platform Health Management&quot;]
-            CM[&quot;Communication Management&quot;]
-            DM[&quot;Diagnostic Management&quot;]
-            UCM[&quot;Update and Configuration Management&quot;]
-            MORE[&quot;NM, TSync, Crypto, IdsM, Firewall,&lt;br/&gt;API Gateway, Vehicle UCM&quot;]
-        end
-        subgraph APPS[&quot;Adaptive Applications&quot;]
-            A1[&quot;Fusion&quot;]
-            A2[&quot;CameraDriver&quot;]
-            A3[&quot;LegacyLogger&quot;]
-        end
-    end
-    OS --&gt;|&quot;starts&quot;| EM
-    EM --&gt;|&quot;creates and configures processes&quot;| FCS
-    EM --&gt;|&quot;creates and configures processes&quot;| APPS
-    SM --&gt;|&quot;requests state transitions&quot;| EM
-</pre>
+<p><a class="figure" href="diagrams/ExecutionManagement/02-where-em-sits-in-the-platform.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/ExecutionManagement/02-where-em-sits-in-the-platform.svg" alt="Flowchart: Where EM Sits in the Platform" loading="lazy"></a></p>
 <h3 id="32-interfaces-provided-by-em">3.2 Interfaces Provided by EM<a class="anchor" href="#32-interfaces-provided-by-em" aria-label="Link to this section">#</a></h3>
 <p>EM provides C++ library interfaces only. It defines no <code>ara::com</code> service interfaces (Chapter 9 of the specification). Behind the API, the library talks to the EM daemon through an implementation-specific IPC channel; the specification mentions a POSIX FIFO as an example.</p>
 <div class="table-wrap"><table>
@@ -954,20 +921,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tbody>
 </table></div>
 <h3 id="34-interaction-map">3.4 Interaction Map<a class="anchor" href="#34-interaction-map" aria-label="Link to this section">#</a></h3>
-<pre class="mermaid">flowchart LR
-    SM[&quot;State Management&quot;] --&gt;|&quot;SetState, GetInitialMachineStateTransitionResult,&lt;br/&gt;GetExecutionError&quot;| EM[&quot;Execution Management&quot;]
-    EM --&gt;|&quot;transition results,&lt;br/&gt;undefinedStateCallback&quot;| SM
-    APPS[&quot;Every reporting process&lt;br/&gt;(applications and daemons)&quot;] --&gt;|&quot;ReportExecutionState(kRunning)&quot;| EM
-    EM --&gt;|&quot;SIGTERM, handled by&lt;br/&gt;the termination handler&quot;| APPS
-    EM --&gt;|&quot;create, configure, terminate&quot;| OS[&quot;Operating System&quot;]
-    OS --&gt;|&quot;exit status&quot;| EM
-    EM --&gt;|&quot;kRunning received, termination initiated,&lt;br/&gt;process terminated&quot;| PHM[&quot;Platform Health Management&quot;]
-    EM --&gt;|&quot;checkpoints for EM supervision&quot;| PHM
-    EM --&gt;|&quot;DLT log, trace and violation messages&quot;| LT[&quot;Log and Trace&quot;]
-    EM --&gt;|&quot;security event&quot;| IDSM[&quot;Intrusion Detection System Manager&quot;]
-    EM -.-&gt;|&quot;process identity association&quot;| IAM[&quot;Identity and Access Management&quot;]
-    UCM[&quot;Update and Configuration Management&quot;] -.-&gt;|&quot;installs executables and Processed Manifests&quot;| EM
-</pre>
+<p><a class="figure" href="diagrams/ExecutionManagement/03-interaction-map.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/ExecutionManagement/03-interaction-map.svg" alt="Flowchart: Interaction Map" loading="lazy"></a></p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -1064,14 +1018,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </blockquote>
 <h3 id="35-where-do-state-requests-come-from">3.5 Where Do State Requests Come From?<a class="anchor" href="#35-where-do-state-requests-come-from" aria-label="Link to this section">#</a></h3>
 <p>EM never decides on its own to change a Function Group State. The only exception is the initial <code>Startup</code> transition, see <a href="#9-machine-lifecycle-startup-shutdown-and-restart">Chapter 9</a>. All other requests come from State Management, which in turn reacts to many inputs. The following picture is typical, but it lies outside the scope of the EM specification. Refer to the State Management, PHM, Diagnostic Management and UCM specifications for details.</p>
-<pre class="mermaid">flowchart LR
-    VEH[&quot;Vehicle events&lt;br/&gt;(power mode, network requests)&quot;] --&gt; SM[&quot;State Management&lt;br/&gt;(project-specific logic)&quot;]
-    PHM[&quot;Platform Health Management&lt;br/&gt;(supervision failures)&quot;] --&gt; SM
-    DM[&quot;Diagnostic Management&lt;br/&gt;(for example ECU reset)&quot;] --&gt; SM
-    UCM[&quot;Update and Configuration Management&lt;br/&gt;(update sessions)&quot;] --&gt; SM
-    EM[&quot;Execution Management&quot;] --&gt;|&quot;undefinedStateCallback&quot;| SM
-    SM --&gt;|&quot;SetState&quot;| EM
-</pre>
+<p><a class="figure" href="diagrams/ExecutionManagement/04-where-do-state-requests-come-from.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/ExecutionManagement/04-where-do-state-requests-come-from.svg" alt="Flowchart: Where Do State Requests Come From?" loading="lazy"></a></p>
 <blockquote>
 <p><strong>Key takeaways</strong></p>
 <ul>
@@ -1139,65 +1086,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p>EM does not read ARXML at run time. The manifests are converted into <strong>Processed Manifests</strong>, a platform-specific format that is quick to read at startup. The conversion happens off-board at integration or deployment time, or on the machine by Update and Configuration Management at installation time (the <a href="Manifests.html#118-how-the-platform-consumes-manifests-at-run-time">Manifests guide, Section 11.8</a>).</p>
 <h3 id="42-how-the-elements-relate">4.2 How the Elements Relate<a class="anchor" href="#42-how-the-elements-relate" aria-label="Link to this section">#</a></h3>
 <p>The following class diagram shows the elements that EM reads and the references between them. An arrow points from the element that holds the reference.</p>
-<pre class="mermaid">classDiagram
-    direction LR
-    class Executable {
-        +reportingBehavior
-    }
-    class Process {
-        +numberOfRestartAttempts
-        +preMapping
-        +functionClusterAffiliation
-    }
-    class StateDependentStartupConfig
-    class StartupConfig {
-        +processArgument
-        +environmentVariable
-        +schedulingPolicy
-        +schedulingPriority
-        +terminationBehavior
-        +timeout
-        +permissionToCreateChildProcess
-        +processExecutionError
-    }
-    class ExecutionDependency
-    class ResourceGroup {
-        +cpuUsage
-        +memUsage
-    }
-    class ResourceConsumption {
-        +memoryUsage
-    }
-    class ModeDeclaration
-    class ModeDeclarationGroupPrototype
-    class Machine {
-        +defaultApplicationTimeout
-        +environmentVariable
-        +trustedPlatformExecutableLaunchBehavior
-    }
-    class ProcessToMachineMapping {
-        +shallRunOn
-        +shallNotRunOn
-    }
-    class FunctionGroupPortMapping
-    class SoftwareCluster
-    Process --&gt; Executable : executable
-    Process *-- StateDependentStartupConfig : stateDependentStartupConfig
-    StateDependentStartupConfig --&gt; ModeDeclaration : functionGroupState
-    StateDependentStartupConfig --&gt; StartupConfig : startupConfig
-    StateDependentStartupConfig *-- ExecutionDependency : executionDependency
-    StateDependentStartupConfig --&gt; ResourceGroup : resourceGroup
-    StateDependentStartupConfig *-- ResourceConsumption : resourceConsumption
-    ExecutionDependency --&gt; Process : processState of another process
-    ModeDeclarationGroupPrototype --&gt; ModeDeclaration : states, via its type
-    Machine *-- ResourceGroup : via OsModuleInstantiation
-    ProcessToMachineMapping --&gt; Process : process
-    ProcessToMachineMapping --&gt; Machine : machine
-    FunctionGroupPortMapping --&gt; Process : process
-    FunctionGroupPortMapping --&gt; ModeDeclarationGroupPrototype : functionGroup
-    SoftwareCluster --&gt; ModeDeclarationGroupPrototype : claimedFunctionGroup
-    SoftwareCluster --&gt; Process : containedProcess
-</pre>
+<p><a class="figure" href="diagrams/ExecutionManagement/05-how-the-elements-relate.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/ExecutionManagement/05-how-the-elements-relate.svg" alt="Class diagram: How the Elements Relate" loading="lazy"></a></p>
 <p>A Function Group is modeled as a <code>ModeDeclarationGroupPrototype</code>, and each of its states as a <code>ModeDeclaration</code> (the <a href="Manifests.html#75-function-groups-and-their-states">Manifests guide, Section 7.5</a>). Read the diagram from the <code>Process</code> outwards:</p>
 <ul>
 <li>A <strong><code>Process</code></strong> (the Modelled Process) runs one <strong><code>Executable</code></strong>. The Executable says whether its processes report their Execution State.</li>
@@ -1234,17 +1123,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <li>The <strong>Process State</strong> describes the lifecycle <em>from the point of view of EM</em>. EM uses it internally to resolve Execution Dependencies, manage timeouts and so on. There is no standardized C++ type for it.</li>
 </ul>
 <p>The two are deliberately kept separate. The Process State can then evolve in future releases without affecting the code of any process.</p>
-<pre class="mermaid">stateDiagram-v2
-    [*] --&gt; Idle
-    Idle --&gt; Starting : EM created the process and allocated resources
-    Starting --&gt; Running : kRunning reported, or implicitly for non-reporting processes
-    Starting --&gt; Terminating : EM sends SIGTERM before kRunning
-    Running --&gt; Terminating : EM sends SIGTERM
-    Starting --&gt; Terminated : crash or exit before kRunning
-    Running --&gt; Terminated : self-termination or crash
-    Terminating --&gt; Terminated : process exited, or was killed after the timeout
-    Terminated --&gt; Starting : started again
-</pre>
+<p><a class="figure" href="diagrams/ExecutionManagement/06-two-views-of-a-process-execution-sta.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/ExecutionManagement/06-two-views-of-a-process-execution-sta.svg" alt="State diagram: Two Views of a Process: Execution State and Process State" loading="lazy"></a></p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -1308,31 +1187,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </ol>
 <p>Every step is driven by a setting of the <code>Process</code>, its <code>StartupConfig</code> or the <code>Machine</code>. <a href="#13-configuration-reference-what-to-configure">Chapter 13</a> lists them, from <a href="#133-process">Section 13.3</a> to <a href="#138-core-affinity-processtomachinemapping-and-processdesigntomachinedesignmapping">Section 13.8</a>.</p>
 <p>The following diagram shows the normal start of a reporting process that is supervised by PHM:</p>
-<pre class="mermaid">sequenceDiagram
-    autonumber
-    participant EM as Execution Management
-    participant OS as Operating System
-    participant P as Fusion process
-    participant PHM as Platform Health Mgmt
-    participant LT as Log and Trace
-
-    Note over EM: The state transition needs Fusion (ADAS.Normal)
-    EM-&gt;&gt;EM: Integrity check, dependencies satisfied?
-    EM-&gt;&gt;OS: Create process with configuration&lt;br/&gt;(limits, affinity, scheduling, signal mask, argv, env)
-    OS--&gt;&gt;EM: PID
-    Note over EM: Process State = Starting, start-up timer runs
-    EM-&gt;&gt;LT: DLT ProcessCreated
-    OS-&gt;&gt;P: main() starts
-    P-&gt;&gt;P: ara::core::Initialize(argc, argv)
-    P-&gt;&gt;P: ExecutionClient::Create(terminationHandler)
-    P-&gt;&gt;P: Application initialization
-    P-&gt;&gt;EM: ReportExecutionState(kRunning)
-    EM--&gt;&gt;P: Result OK
-    Note over EM: Process State = Running
-    EM-&gt;&gt;LT: DLT ProcessKRunningReceived
-    EM-&gt;&gt;PHM: kRunning received for a supervised process
-    Note over PHM: Alive supervision can start
-</pre>
+<p><a class="figure" href="diagrams/ExecutionManagement/07-starting-a-process.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/ExecutionManagement/07-starting-a-process.svg" alt="Sequence diagram: Starting a Process" loading="lazy"></a></p>
 <h3 id="53-reporting-krunning">5.3 Reporting kRunning<a class="anchor" href="#53-reporting-krunning" aria-label="Link to this section">#</a></h3>
 <p>A reporting process <strong>must</strong> report <code>kRunning</code> with <code>ara::exec::ExecutionClient::ReportExecutionState</code> ([SWS_EM_01004], [SWS_EM_02003]):</p>
 <div class="code-block" data-lang="cpp"><pre class="highlight"><code><span class="c1">// After the own initialization is complete, before waiting for other services:</span>
@@ -1395,15 +1250,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p><strong>The problem.</strong> Because a non-reporting process is <em>Running</em> right away, an Execution Dependency on it (<code>X.Running</code>) is satisfied immediately, possibly long before the process actually offers its functionality.</p>
 <p><strong>The solution: a Companion Process.</strong> A small <em>reporting</em> process acts as a representative of the non-reporting process. It waits until the non-reporting process is really usable, using a project-specific check such as connecting to its socket, and only then reports <code>kRunning</code>. Processes that need the non-reporting process depend on the <em>companion</em> instead. A <code>Terminated</code> dependency on a non-reporting process works without a companion, because the OS tells EM when the process terminates.</p>
 <p>The specification's example (Figure 7.4) illustrates this. Arrows show the start order:</p>
-<pre class="mermaid">flowchart LR
-    A[&quot;A: non-reporting and self-terminating&lt;br/&gt;(Running right after start)&quot;]
-    B[&quot;B: Companion Process&lt;br/&gt;(reports kRunning when A is usable)&quot;]
-    C[&quot;C: needs the functionality of A&quot;]
-    D[&quot;D: needs A to have finished&quot;]
-    A --&gt;|&quot;B depends on A.Running&quot;| B
-    B --&gt;|&quot;C depends on B.Running&quot;| C
-    A --&gt;|&quot;D depends on A.Terminated&quot;| D
-</pre>
+<p><a class="figure" href="diagrams/ExecutionManagement/08-non-reporting-processes-and-the-comp.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/ExecutionManagement/08-non-reporting-processes-and-the-comp.svg" alt="Flowchart: Non-reporting Processes and the Companion Pattern" loading="lazy"></a></p>
 <ol>
 <li><code>A</code> has no Execution Dependencies, so it is started first and immediately enters <code>Running</code> ([SWS_EM_01402]).</li>
 <li>Companion <code>B</code> starts as soon as <code>A</code> is <em>Running</em>. <code>B</code> checks whether <code>A</code> is fully functional and reports <code>kRunning</code> only when it is.</li>
@@ -1421,30 +1268,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <li>EM detects the exit. The Process State becomes <code>Terminated</code> ([SWS_EM_01006]). EM logs <code>ProcessTerminated</code> ([SWS_EM_02576]) and informs PHM ([SWS_EM_01212]). Because it waits for the actual exit, EM can process dependencies on the <code>Terminated</code> state and make sure that two conflicting processes never run at the same time.</li>
 <li>If the process does not terminate within the <strong>termination timeout</strong>, EM asks the OS to terminate it forcibly ([SWS_EM_02255]), which on POSIX systems means <code>SIGKILL</code>, and logs <code>ProcessTerminationTimeout</code> ([SWS_EM_02258]).</li>
 </ol>
-<pre class="mermaid">sequenceDiagram
-    autonumber
-    participant EM as Execution Management
-    participant EC as ExecutionClient thread (in Fusion)
-    participant P as Fusion main logic
-    participant PHM as Platform Health Mgmt
-    participant LT as Log and Trace
-
-    EM-&gt;&gt;PHM: Termination of a supervised process is about to be initiated
-    EM-&gt;&gt;LT: DLT ProcessTerminationRequest
-    EM-&gt;&gt;EC: SIGTERM
-    Note over EM: Process State = Terminating, termination timer runs
-    EC-&gt;&gt;P: terminationHandler() in a background thread
-    P-&gt;&gt;P: Stop work, persist data, free resources
-    alt Process exits in time
-        P--&gt;&gt;EM: exit(EXIT_SUCCESS)
-    else Termination timeout expires
-        EM-&gt;&gt;P: Forced termination by the OS (SIGKILL)
-        EM-&gt;&gt;LT: DLT ProcessTerminationTimeout
-    end
-    Note over EM: Process State = Terminated
-    EM-&gt;&gt;LT: DLT ProcessTerminated
-    EM-&gt;&gt;PHM: Supervised process terminated
-</pre>
+<p><a class="figure" href="diagrams/ExecutionManagement/09-terminating-a-process.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/ExecutionManagement/09-terminating-a-process.svg" alt="Sequence diagram: Terminating a Process" loading="lazy"></a></p>
 <blockquote>
 <p><strong>Note (implementation example):</strong> A common way to implement the termination handler is the following. The <code>ExecutionClient</code> library keeps <code>SIGTERM</code> blocked in all threads, which matches the initial signal mask described in <a href="#58-signal-mask-arguments-and-environment-variables">Section 5.8</a>. A dedicated thread waits for the signal synchronously, for example with <code>sigwait()</code>, and then calls the user's handler. This is why the handler is not restricted to async-signal-safe functions.</p>
 <p><strong>Pitfall:</strong> Do not do the actual cleanup <em>inside</em> the termination handler if it can take long or needs locks that the main thread holds. Use the handler only to <em>notify</em> the main logic, for example by setting a flag and waking a condition variable. Then clean up in the normal control flow. In any case, finish within the termination timeout.</p>
@@ -1637,29 +1461,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <li><code>StorageConsistencyChecker</code>: a self-terminating process that requires <code>Storage.Running</code>;</li>
 <li><code>ConfigReader</code>: a service process that requires <code>StorageConsistencyChecker.Terminated</code>.</li>
 </ul>
-<pre class="mermaid">sequenceDiagram
-    autonumber
-    participant EM as Execution Management
-    participant S as Storage
-    participant C as ConsistencyChecker (self-terminating)
-    participant R as ConfigReader
-
-    Note over EM: Startup order derived from the dependencies
-    EM-&gt;&gt;S: start
-    S--&gt;&gt;EM: kRunning
-    EM-&gt;&gt;C: start (Storage is Running)
-    C--&gt;&gt;EM: kRunning
-    C-&gt;&gt;C: check the storage, then exit(EXIT_SUCCESS)
-    Note over EM: ConsistencyChecker is Terminated
-    EM-&gt;&gt;R: start (ConsistencyChecker is Terminated)
-    R--&gt;&gt;EM: kRunning
-    Note over EM: Later, the state is left
-    par No direct dependency between Storage and ConfigReader
-        EM-&gt;&gt;S: SIGTERM
-    and
-        EM-&gt;&gt;R: SIGTERM
-    end
-</pre>
+<p><a class="figure" href="diagrams/ExecutionManagement/10-worked-example.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/ExecutionManagement/10-worked-example.svg" alt="Sequence diagram: Worked Example" loading="lazy"></a></p>
 <p>At termination, EM may stop <code>Storage</code> and <code>ConfigReader</code> <strong>at the same time</strong>. <code>StorageConsistencyChecker</code> has already terminated, and <code>ConfigReader</code> has no <em>direct</em> dependency on <code>Storage</code>. If <code>ConfigReader</code> must be stopped before <code>Storage</code>, add a direct dependency <code>ConfigReader</code> → <code>Storage.Running</code>.</p>
 <h3 id="64-rules-and-constraints-you-must-know">6.4 Rules and Constraints You Must Know<a class="anchor" href="#64-rules-and-constraints-you-must-know" aria-label="Link to this section">#</a></h3>
 <ol>
@@ -1673,13 +1475,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </ol>
 <h3 id="65-dependencies-in-the-running-example">6.5 Dependencies in the Running Example<a class="anchor" href="#65-dependencies-in-the-running-example" aria-label="Link to this section">#</a></h3>
 <p>In the running example, the arrows mean &quot;must reach this Process State before the next process starts&quot;:</p>
-<pre class="mermaid">flowchart LR
-    ST[&quot;Storage&quot;] --&gt;|&quot;Running&quot;| CC[&quot;CalibrationCheck&lt;br/&gt;(self-terminating)&quot;]
-    CC --&gt;|&quot;Terminated&quot;| FU[&quot;Fusion&quot;]
-    LL[&quot;LegacyLogger&lt;br/&gt;(non-reporting)&quot;] --&gt;|&quot;Running&quot;| LC[&quot;LoggerCompanion&quot;]
-    LC --&gt;|&quot;Running&quot;| FU
-    CD[&quot;CameraDriver&lt;br/&gt;(no dependencies)&quot;]
-</pre>
+<p><a class="figure" href="diagrams/ExecutionManagement/11-dependencies-in-the-running-example.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/ExecutionManagement/11-dependencies-in-the-running-example.svg" alt="Flowchart: Dependencies in the Running Example" loading="lazy"></a></p>
 <p>When SM requests <code>ADAS.Normal</code>, the dependencies lead to three &quot;waves&quot;:</p>
 <div class="table-wrap"><table>
 <thead>
@@ -2036,17 +1832,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </table></div>
 <p>Processes that reference both states through the <strong>same</strong> StartupConfig are not touched. They keep running.</p>
 <p>The per-process decision looks like this:</p>
-<pre class="mermaid">flowchart TD
-    S([&quot;For each process of the Function Group&quot;]) --&gt; Q1{&quot;References the&lt;br/&gt;RequestedState?&quot;}
-    Q1 --&gt;|&quot;No&quot;| Q2{&quot;Alive?&lt;br/&gt;(not Idle or Terminated)&quot;}
-    Q2 --&gt;|&quot;Yes&quot;| T[&quot;Terminate it&lt;br/&gt;SWS_EM_01060&quot;]
-    Q2 --&gt;|&quot;No&quot;| N[&quot;Nothing to do&quot;]
-    Q1 --&gt;|&quot;Yes&quot;| Q3{&quot;Alive?&lt;br/&gt;(not Idle or Terminated)&quot;}
-    Q3 --&gt;|&quot;No&quot;| ST[&quot;Start it, respecting dependencies&lt;br/&gt;SWS_EM_01066&quot;]
-    Q3 --&gt;|&quot;Yes&quot;| Q4{&quot;Same StartupConfig in&lt;br/&gt;CurrentState and RequestedState?&quot;}
-    Q4 --&gt;|&quot;Yes&quot;| K[&quot;Keep it running&quot;]
-    Q4 --&gt;|&quot;No&quot;| R[&quot;Restart: terminate now,&lt;br/&gt;then start with the new configuration&lt;br/&gt;SWS_EM_02251 and SWS_EM_01066&quot;]
-</pre>
+<p><a class="figure" href="diagrams/ExecutionManagement/12-the-three-logical-steps.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/ExecutionManagement/12-the-three-logical-steps.svg" alt="Flowchart: The Three Logical Steps" loading="lazy"></a></p>
 <p>Some details matter in practice:</p>
 <ul>
 <li><strong>Self-terminating processes run again.</strong> A self-terminating process that has already terminated <em>and</em> references the RequestedState is started again (step 3). This is one reason why State Management should not request a state it is already in: EM ignores such a request anyway (see <a href="#86-overlapping-and-repeated-requests">Section 8.6</a>).</li>
@@ -2221,85 +2007,13 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </ul>
 <h3 id="87-sequence-diagrams">8.7 Sequence Diagrams<a class="anchor" href="#87-sequence-diagrams" aria-label="Link to this section">#</a></h3>
 <p><strong>(a) Successful transition</strong> <code>ADAS.Normal</code> → <code>ADAS.Degraded</code> (simplified: the restart of <code>LoggerCompanion</code> is shown in <a href="#16-end-to-end-walkthrough-a-day-in-the-life-of-an-ecu">Chapter 16</a>):</p>
-<pre class="mermaid">sequenceDiagram
-    autonumber
-    participant SM as State Management
-    participant EM as Execution Management
-    participant FU as Fusion (Normal only)
-    participant CD as CameraDriver (Normal and Degraded)
-    participant FL as FusionLite (Degraded only)
-
-    SM-&gt;&gt;EM: SetState(ADAS.Degraded)
-    EM--&gt;&gt;SM: Future (not ready yet)
-    Note over EM: CurrentState = Normal, RequestedState = Degraded
-    EM-&gt;&gt;FU: SIGTERM (not needed in Degraded)
-    FU--&gt;&gt;EM: exit(EXIT_SUCCESS)
-    Note over CD: Same StartupConfig in both states, keeps running
-    EM-&gt;&gt;FL: start (needed in Degraded)
-    FL--&gt;&gt;EM: ReportExecutionState(kRunning)
-    Note over EM: CurrentState = Degraded
-    EM--&gt;&gt;SM: Future ready, success
-</pre>
+<p><a class="figure" href="diagrams/ExecutionManagement/13-sequence-diagrams.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/ExecutionManagement/13-sequence-diagrams.svg" alt="Sequence diagram: Sequence Diagrams" loading="lazy"></a></p>
 <p><strong>(b) Termination timeout:</strong> the transition continues.</p>
-<pre class="mermaid">sequenceDiagram
-    autonumber
-    participant SM as State Management
-    participant EM as Execution Management
-    participant FU as Fusion
-    participant ST as Storage
-    participant LT as Log and Trace
-
-    SM-&gt;&gt;EM: SetState(ADAS.Off)
-    EM-&gt;&gt;FU: SIGTERM
-    FU--&gt;&gt;EM: exit(EXIT_SUCCESS)
-    EM-&gt;&gt;ST: SIGTERM
-    Note over ST: Hangs while flushing data
-    Note over EM: Termination timeout of Storage expires
-    EM-&gt;&gt;ST: Forced termination by the OS (SIGKILL)
-    EM-&gt;&gt;LT: DLT ProcessTerminationTimeout
-    Note over EM: The transition continues, Off is reached
-    EM--&gt;&gt;SM: Future ready, success
-</pre>
+<p><a class="figure" href="diagrams/ExecutionManagement/14-sequence-diagrams.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/ExecutionManagement/14-sequence-diagrams.svg" alt="Sequence diagram: Sequence Diagrams" loading="lazy"></a></p>
 <p><strong>(c) Start-up failure:</strong> the transition is aborted.</p>
-<pre class="mermaid">sequenceDiagram
-    autonumber
-    participant SM as State Management
-    participant EM as Execution Management
-    participant FU as Fusion
-    participant LT as Log and Trace
-
-    SM-&gt;&gt;EM: SetState(ADAS.Normal)
-    EM-&gt;&gt;FU: start (attempt 1)
-    Note over FU: Hangs during initialization
-    Note over EM: Start-up timeout expires
-    EM-&gt;&gt;FU: Forced termination (SIGKILL, not SIGTERM)
-    EM-&gt;&gt;FU: start again (numberOfRestartAttempts = 1)
-    Note over FU: Fails again
-    EM-&gt;&gt;FU: Forced termination (SIGKILL)
-    Note over EM: No attempts left, the transition is stopped
-    Note over EM: ADAS = Undefined Function Group State
-    EM--&gt;&gt;SM: Future ready, error kOperationFailed
-    EM-&gt;&gt;LT: DLT ProcessStartUpFailure
-    SM-&gt;&gt;EM: GetExecutionError(ADAS.Normal)
-    EM--&gt;&gt;SM: ExecutionErrorEvent (ADAS, executionError 42)
-    SM-&gt;&gt;EM: SetState(ADAS.Degraded) as recovery
-</pre>
+<p><a class="figure" href="diagrams/ExecutionManagement/15-sequence-diagrams.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/ExecutionManagement/15-sequence-diagrams.svg" alt="Sequence diagram: Sequence Diagrams" loading="lazy"></a></p>
 <p><strong>(d) Cancellation by a newer request:</strong></p>
-<pre class="mermaid">sequenceDiagram
-    autonumber
-    participant SM as State Management
-    participant EM as Execution Management
-
-    SM-&gt;&gt;EM: SetState(ADAS.Normal)
-    EM--&gt;&gt;SM: Future F1
-    Note over EM: Transition to Normal in progress
-    SM-&gt;&gt;EM: SetState(ADAS.Degraded)
-    EM-&gt;&gt;EM: Validate the new request
-    EM--&gt;&gt;SM: F1 ready, error kOperationCanceled
-    EM--&gt;&gt;SM: Future F2
-    Note over EM: Transition to Degraded starts from the current situation
-    EM--&gt;&gt;SM: F2 ready, success
-</pre>
+<p><a class="figure" href="diagrams/ExecutionManagement/16-sequence-diagrams.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/ExecutionManagement/16-sequence-diagrams.svg" alt="Sequence diagram: Sequence Diagrams" loading="lazy"></a></p>
 <h3 id="88-worked-example-dependency-resolution-during-a-state-change">8.8 Worked Example: Dependency Resolution During a State Change<a class="anchor" href="#88-worked-example-dependency-resolution-during-a-state-change" aria-label="Link to this section">#</a></h3>
 <p>Figure 7.14 of the specification shows a Function Group <code>FG2</code> with the states <code>Off</code>, <code>Running</code> and <code>Fallback</code>, and four processes:</p>
 <div class="table-wrap"><table>
@@ -2353,14 +2067,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </blockquote>
 <h3 id="91-authenticated-boot-chain">9.1 Authenticated Boot Chain<a class="anchor" href="#91-authenticated-boot-chain" aria-label="Link to this section">#</a></h3>
 <p>On a Trusted Platform, every software component is authenticated by its predecessor before it runs (Figure 7.17 of the specification):</p>
-<pre class="mermaid">flowchart TD
-    TA[&quot;Trust Anchor&lt;br/&gt;(for example a public key in an HSM or ROM)&quot;] --&gt;|&quot;authenticates and starts&quot;| BL[&quot;Bootloader&quot;]
-    BL --&gt;|&quot;authenticates and starts&quot;| OS[&quot;Operating System&quot;]
-    OS --&gt;|&quot;authenticates and starts&quot;| EM[&quot;Execution Management&quot;]
-    EM --&gt;|&quot;authenticates and reads&quot;| PM[&quot;Processed Manifests&lt;br/&gt;(startup order from the dependencies)&quot;]
-    PM --&gt; FC[&quot;Platform functional clusters&lt;br/&gt;(described by manifests like applications)&quot;]
-    PM --&gt; APPS[&quot;Application Executables&lt;br/&gt;(started after successful authentication)&quot;]
-</pre>
+<p><a class="figure" href="diagrams/ExecutionManagement/17-authenticated-boot-chain.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/ExecutionManagement/17-authenticated-boot-chain.svg" alt="Flowchart: Authenticated Boot Chain" loading="lazy"></a></p>
 <p>The system designer must ensure that EM itself is started authentically, for example through a chain of trust. EM in turn ensures that all executable code on the platform is authenticated before it runs (see <a href="#12-security-trusted-platform-and-iam">Chapter 12</a>).</p>
 <h3 id="92-machine-startup-step-by-step">9.2 Machine Startup Step by Step<a class="anchor" href="#92-machine-startup-step-by-step" aria-label="Link to this section">#</a></h3>
 <ol>
@@ -2372,36 +2079,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <li><strong>If this transition fails, EM enters the Unrecoverable State</strong> ([SWS_EM_02555]). In this early phase, EM cannot know which functionality is available. State Management itself may be missing or only partly functional, so nobody else could handle the failure.</li>
 <li><strong>EM makes the result available</strong> through <code>StateClient::GetInitialMachineStateTransitionResult</code> ([SWS_EM_02241]). The result is <em>not</em> broadcast. State Management has to ask for it. Only a process with a <code>FunctionGroupPortMapping</code> to <code>MachineFG</code> may ask; any other process receives <code>kInvalidMetaModelIdentifier</code> ([SWS_EM_02583]).</li>
 </ol>
-<pre class="mermaid">sequenceDiagram
-    autonumber
-    participant BL as Bootloader
-    participant OS as Operating System
-    participant EM as Execution Management
-    participant PHM as Platform Health Mgmt
-    participant SM as State Management
-    participant APP as ADAS processes
-
-    BL-&gt;&gt;OS: authenticate and start the kernel
-    OS-&gt;&gt;EM: authenticate and start EM
-    EM-&gt;&gt;EM: verify and parse the Processed Manifests
-    Note over EM: Every Function Group is in Off
-    EM-&gt;&gt;EM: self-initiated transition of MachineFG from Off to Startup
-    EM-&gt;&gt;PHM: start (references MachineFG.Startup)
-    PHM--&gt;&gt;EM: kRunning
-    EM-&gt;&gt;SM: start (references MachineFG.Startup)
-    SM--&gt;&gt;EM: kRunning
-    SM-&gt;&gt;EM: GetInitialMachineStateTransitionResult()
-    EM--&gt;&gt;SM: Future (not ready yet)
-    Note over EM: All Startup processes have reported kRunning
-    EM--&gt;&gt;SM: Future ready, Startup reached
-    Note over SM,EM: Handover: from now on only SM requests state changes
-    SM-&gt;&gt;EM: SetState(MachineFG.Driving)
-    EM--&gt;&gt;SM: success
-    SM-&gt;&gt;EM: SetState(ADAS.Normal)
-    EM-&gt;&gt;APP: start the processes in dependency order
-    APP--&gt;&gt;EM: kRunning (each reporting process)
-    EM--&gt;&gt;SM: success
-</pre>
+<p><a class="figure" href="diagrams/ExecutionManagement/18-machine-startup-step-by-step.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/ExecutionManagement/18-machine-startup-step-by-step.svg" alt="Sequence diagram: Machine Startup Step by Step" loading="lazy"></a></p>
 <h3 id="93-handing-over-control-to-state-management">9.3 Handing Over Control to State Management<a class="anchor" href="#93-handing-over-control-to-state-management" aria-label="Link to this section">#</a></h3>
 <p>Once <code>Startup</code> has been reached, <strong>EM never initiates a Function Group State change on its own again</strong>, including Machine State changes. From then on, every change is requested by State Management and performed by EM. This has consequences for the system configuration:</p>
 <ul>
@@ -2417,25 +2095,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </ul>
 <p>This way, the project controls both <em>when</em> and <em>how</em> the machine shuts down or restarts.</p>
 <p>From EM's point of view, a request for <code>MachineFG.Shutdown</code> or <code>MachineFG.Restart</code> is <strong>an ordinary Function Group State transition</strong>. EM terminates the processes that are not configured for the target state and starts those that are.</p>
-<pre class="mermaid">sequenceDiagram
-    autonumber
-    participant SM as State Management
-    participant EM as Execution Management
-    participant APP as ADAS processes
-    participant PC as PowerControl
-    participant OS as Operating System
-
-    SM-&gt;&gt;EM: SetState(ADAS.Off)
-    EM-&gt;&gt;APP: SIGTERM (reverse dependency order)
-    APP--&gt;&gt;EM: exit(EXIT_SUCCESS)
-    EM--&gt;&gt;SM: success
-    SM-&gt;&gt;EM: SetState(MachineFG.Shutdown)
-    Note over EM: Terminate the processes that do not reference Shutdown,&lt;br/&gt;start the processes that do
-    EM-&gt;&gt;PC: start
-    PC--&gt;&gt;EM: kRunning
-    EM--&gt;&gt;SM: success
-    PC-&gt;&gt;OS: project-specific power-off (for example sync file systems, power off)
-</pre>
+<p><a class="figure" href="diagrams/ExecutionManagement/19-shutdown-and-restart.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/ExecutionManagement/19-shutdown-and-restart.svg" alt="Sequence diagram: Shutdown and Restart" loading="lazy"></a></p>
 <p>Important rules for integrators:</p>
 <ul>
 <li><strong>Wind down the other Function Groups first.</strong> When the OS shuts down, processes that are still running are <em>not</em> terminated by EM, so they cannot persist their data. State Management should therefore bring the other Function Groups to <code>Off</code> <em>before</em> it requests <code>Shutdown</code> or <code>Restart</code>, as in the diagram. When this is valid is decided by State Management, which knows the dependencies between Function Groups.</li>
@@ -2614,36 +2274,10 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </table></div>
 <p>In both cases, SM can call <code>StateClient::GetExecutionError(state)</code> to obtain the <code>ExecutionErrorEvent</code>. The event contains the affected <code>functionGroup</code> and the <code>executionError</code>, which is the configured <code>processExecutionError</code> of the failed process, or <code>1</code> by default. <code>GetExecutionError</code> returns <code>kOperationFailed</code> if the Function Group is no longer undefined, because the problem has already been resolved.</p>
 <p><strong>Recovery is State Management's job.</strong> SM typically requests another state, for example <code>ADAS.Degraded</code>. The transition to <code>Off</code> is always possible, because termination timeouts guarantee that it completes. After a failure, SM may also request the <em>same</em> state again.</p>
-<pre class="mermaid">sequenceDiagram
-    autonumber
-    participant FU as Fusion
-    participant EM as Execution Management
-    participant LT as Log and Trace
-    participant SC as StateClient library (in SM)
-    participant SM as State Management logic
-
-    Note over FU,EM: ADAS is in Normal, no transition is in progress
-    FU-&gt;&gt;FU: crash (SIGSEGV)
-    FU--&gt;&gt;EM: terminated with exit status != 0 (detected via the OS)
-    EM-&gt;&gt;EM: ADAS = Undefined Function Group State
-    EM-&gt;&gt;LT: DLT ProcessAbnormalTermination (PID, exit status)
-    EM-&gt;&gt;SC: notify the ExecutionErrorEvent
-    SC-&gt;&gt;SM: undefinedStateCallback(event for ADAS, executionError 42)
-    SM-&gt;&gt;SC: GetExecutionError(ADAS.Normal)
-    SC--&gt;&gt;SM: ExecutionErrorEvent (same content)
-    SM-&gt;&gt;SC: SetState(ADAS.Degraded)
-    SC-&gt;&gt;EM: request the transition
-    EM--&gt;&gt;SC: transition finished
-    SC--&gt;&gt;SM: Future ready, success
-</pre>
+<p><a class="figure" href="diagrams/ExecutionManagement/20-undefined-function-group-state.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/ExecutionManagement/20-undefined-function-group-state.svg" alt="Sequence diagram: Undefined Function Group State" loading="lazy"></a></p>
 <h3 id="104-unrecoverable-state">10.4 Unrecoverable State<a class="anchor" href="#104-unrecoverable-state" aria-label="Link to this section">#</a></h3>
 <p>The <strong>Unrecoverable State</strong> is an internal state of EM and the OS that only EM can trigger, and only when it has no other course of action:</p>
-<pre class="mermaid">flowchart TD
-    E[&quot;EM detects a situation it cannot resolve&quot;] --&gt; P1[&quot;Invoke the pre-cleanup action&lt;br/&gt;SWS_EM_02032&quot;]
-    P1 --&gt; P2[&quot;Shut down all processes managed by EM&lt;br/&gt;SWS_EM_02033&quot;]
-    P2 --&gt; P3[&quot;Invoke the post-cleanup action&lt;br/&gt;SWS_EM_02034&quot;]
-    P3 --&gt; X[&quot;Project-specific handling,&lt;br/&gt;for example persistent error log or ECU reset&quot;]
-</pre>
+<p><a class="figure" href="diagrams/ExecutionManagement/21-unrecoverable-state.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/ExecutionManagement/21-unrecoverable-state.svg" alt="Flowchart: Unrecoverable State" loading="lazy"></a></p>
 <p>The mechanism that invokes the pre-cleanup and post-cleanup actions is platform-specific. What the actions do is project-specific.</p>
 <p><strong>When does EM enter the Unrecoverable State?</strong> The list cannot be exhaustive. Examples:</p>
 <ul>
@@ -2966,25 +2600,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <li>the Executable itself or any shared object linked with it ([SWS_EM_02309]).</li>
 </ul>
 <p><em>Example:</em> in <code>strictMode</code>, EM has started several Executables whose checks succeeded. Now it wants to start another one whose check fails. EM does not launch that Executable, but the others continue to run. Executables started later are launched as long as their checks pass. If the failure happens during a state transition, the transition fails with <code>kIntegrityOrAuthenticityCheckFailed</code> ([SWS_EM_02552]).</p>
-<pre class="mermaid">sequenceDiagram
-    autonumber
-    participant SM as State Management
-    participant EM as Execution Management
-    participant IDS as IdsM
-    participant LT as Log and Trace
-
-    SM-&gt;&gt;EM: SetState(ADAS.Normal)
-    EM-&gt;&gt;EM: verify the Fusion executable, shared objects and manifests
-    Note over EM: Signature check FAILED in strictMode
-    EM-&gt;&gt;EM: do not launch Fusion, stop the transition
-    Note over EM: ADAS = Undefined Function Group State
-    EM--&gt;&gt;SM: Future ready, error kIntegrityOrAuthenticityCheckFailed
-    EM-&gt;&gt;LT: DLT FailedIntegrityOrAuthenticityCheck
-    EM-&gt;&gt;IDS: SEV_EXEC_SW_COMPONENT_INTEGRITY_CHECK_FAILED (mode STRICT)
-    SM-&gt;&gt;EM: GetExecutionError(ADAS.Normal)
-    EM--&gt;&gt;SM: ExecutionErrorEvent
-    SM-&gt;&gt;EM: SetState(ADAS.Degraded) as recovery
-</pre>
+<p><a class="figure" href="diagrams/ExecutionManagement/22-launch-behavior-modes.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/ExecutionManagement/22-launch-behavior-modes.svg" alt="Sequence diagram: Launch Behavior Modes" loading="lazy"></a></p>
 <h3 id="124-security-events">12.4 Security Events<a class="anchor" href="#124-security-events" aria-label="Link to this section">#</a></h3>
 <p>EM defines one security event for the Intrusion Detection System Manager ([SWS_EM_02588], [SWS_EM_02589]). Its status is DRAFT in R25-11. How IdsM qualifies and forwards security events is the topic of the IDSM and Firewall guide (<code>IDSM_Firewall.md</code>, planned).</p>
 <div class="table-wrap"><table>
@@ -3037,14 +2653,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <li><strong>One State Management process per Function Group.</strong> A Function Group may be referenced by at most one <code>FunctionGroupPortMapping</code> ([SWS_EM_CONSTR_02560]).</li>
 <li><strong>One <code>StateClient</code> per process.</strong> A second instance in the same process causes a <code>StateClientMultipleInstanceViolation</code> ([SWS_EM_02585]). This keeps the responsibility for error recovery clear.</li>
 </ol>
-<pre class="mermaid">flowchart TD
-    C[&quot;A process calls the StateClient API&quot;] --&gt; A1{&quot;functionClusterAffiliation&lt;br/&gt;is STATE_MANAGEMENT?&quot;}
-    A1 --&gt;|&quot;No&quot;| V[&quot;Violation:&lt;br/&gt;StateClientUsageRestrictionViolation&quot;]
-    A1 --&gt;|&quot;Yes&quot;| A2{&quot;FunctionGroupPortMapping from this process&lt;br/&gt;to the Function Group?&quot;}
-    A2 --&gt;|&quot;No&quot;| E[&quot;Error: kInvalidMetaModelIdentifier&quot;]
-    A2 --&gt;|&quot;Yes&quot;| A3[&quot;Further validation, for example&lt;br/&gt;MachineFG Off gives kInvalidTransition&quot;]
-    A3 --&gt; OK[&quot;Request processed&quot;]
-</pre>
+<p><a class="figure" href="diagrams/ExecutionManagement/23-function-group-access-control.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/ExecutionManagement/23-function-group-access-control.svg" alt="Flowchart: Function Group Access Control" loading="lazy"></a></p>
 <blockquote>
 <p><strong>Key takeaways</strong></p>
 <ul>
@@ -3589,18 +3198,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <h3 id="1310-state-management-access-stateclientinterface-and-functiongroupportmapping">13.10 State Management Access: StateClientInterface and FunctionGroupPortMapping<a class="anchor" href="#1310-state-management-access-stateclientinterface-and-functiongroupportmapping" aria-label="Link to this section">#</a></h3>
 <p><strong>Purpose:</strong> give exactly one State Management process the right to control a Function Group. <strong>Lives in:</strong> the application design of the State Management executable (the port) and the State Management configuration (the mapping, TPS Section 12.14.6). <strong>Configured by:</strong> integrator. <strong>Spec:</strong> Table A.4; TPS Section 12.14.6. Both meta-classes have the status <em>draft</em> in R25-11.</p>
 <p>The following diagram shows how the elements connect for the Function Group <code>ADAS</code> of the running example:</p>
-<pre class="mermaid">flowchart LR
-    subgraph EXE[&quot;Executable state_manager&quot;]
-        PORT[&quot;R-port AdasFgPort&lt;br/&gt;typed by StateClientInterface AdasStateClient&quot;]
-    end
-    MAP[&quot;FunctionGroupPortMapping&lt;br/&gt;StateManagerToADAS&quot;]
-    PROC[&quot;Process StateManager&lt;br/&gt;functionClusterAffiliation = STATE_MANAGEMENT&quot;]
-    FG[&quot;Function Group ADAS&quot;]
-    MAP --&gt;|&quot;rPortPrototypeInExecutable&quot;| PORT
-    MAP --&gt;|&quot;process&quot;| PROC
-    MAP --&gt;|&quot;functionGroup&quot;| FG
-    PORT -.-&gt;|&quot;functionGroupType: same ModeDeclarationGroup&quot;| FG
-</pre>
+<p><a class="figure" href="diagrams/ExecutionManagement/24-state-management-access-stateclienti.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/ExecutionManagement/24-state-management-access-stateclienti.svg" alt="Flowchart: State Management Access: StateClientInterface and FunctionGroupPortMapping" loading="lazy"></a></p>
 <p>The code names the port; the mapping names the Function Group. That is how <code>FunctionGroup{InstanceSpecifier{&quot;/state_manager/Root/AdasFgPort&quot;}}</code> ends up meaning <code>ADAS</code> ([SWS_EM_02586]).</p>
 <div class="table-wrap"><table>
 <thead>
@@ -3920,40 +3518,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tbody>
 </table></div>
 <p>All symbols live in the namespace <code>ara::exec</code>. EM's API initialization and deinitialization are part of <code>ara::core::Initialize(argc, argv)</code> and <code>ara::core::Deinitialize()</code> ([SWS_EM_02557]), so call <code>Initialize</code> first and <code>Deinitialize</code> last (<a href="#95-functional-cluster-lifecycle-of-the-araexec-library">Section 9.5</a>).</p>
-<pre class="mermaid">classDiagram
-    class ExecutionState {
-        &lt;&lt;enumeration&gt;&gt;
-        kRunning
-    }
-    class ExecutionClient {
-        +Create(terminationHandler) Result~ExecutionClient~$
-        +ExecutionClient(terminationHandler)
-        +ReportExecutionState(state) Result~void~
-    }
-    class StateClient {
-        +Create(undefinedStateCallback) Result~StateClient~$
-        +StateClient(undefinedStateCallback)
-        +SetState(state) Future~void~
-        +GetInitialMachineStateTransitionResult() Future~void~
-        +GetExecutionError(functionGroupState) Result~ExecutionErrorEvent~
-    }
-    class FunctionGroup {
-        +FunctionGroup(instanceSpecifier)
-    }
-    class FunctionGroupState {
-        +FunctionGroupState(functionGroup, state)
-    }
-    class ExecutionErrorEvent {
-        &lt;&lt;struct&gt;&gt;
-        +ExecutionError executionError
-        +FunctionGroup functionGroup
-    }
-    ExecutionClient ..&gt; ExecutionState : reports
-    StateClient ..&gt; FunctionGroupState : requests
-    StateClient ..&gt; ExecutionErrorEvent : delivers
-    FunctionGroupState ..&gt; FunctionGroup : belongs to
-    ExecutionErrorEvent --&gt; FunctionGroup : affected group
-</pre>
+<p><a class="figure" href="diagrams/ExecutionManagement/25-api-overview.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/ExecutionManagement/25-api-overview.svg" alt="Class diagram: API Overview" loading="lazy"></a></p>
 <h3 id="142-executionstate">14.2 ExecutionState<a class="anchor" href="#142-executionstate" aria-label="Link to this section">#</a></h3>
 <div class="code-block" data-lang="cpp"><pre class="highlight"><code><span class="c1">// #include "ara/exec/execution_client.h"</span>
 <span class="k">namespace</span><span class="w"> </span><span class="nn">ara</span><span class="o">::</span><span class="nn">exec</span><span class="w"> </span><span class="p">{</span>
@@ -4964,36 +4529,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <li>When the vehicle is switched on, <code>SmControl</code> asks State Management for the transition <code>Drive</code> (the <a href="StateManagement.html#55-worked-example-smcontrol-brings-hpc-from-startup-to-driving">SM guide, Section 5.5</a>), and <code>StateManager</code> requests <code>MachineFG.Driving</code>. <code>StateManager</code>, <code>SmControl</code> and <code>PlatformHealth</code> reference <code>Startup</code> and <code>Driving</code> through the same startup configuration, so EM leaves them running.</li>
 <li><code>StateManager</code> then requests <code>ADAS.Normal</code>. EM starts the ADAS processes in the three waves derived from the Execution Dependencies (see <a href="#65-dependencies-in-the-running-example">Section 6.5</a>).</li>
 </ul>
-<pre class="mermaid">sequenceDiagram
-    autonumber
-    participant SM as StateManager
-    participant EM as Execution Management
-    participant ST as Storage
-    participant CC as CalibrationCheck
-    participant LL as LegacyLogger
-    participant LC as LoggerCompanion
-    participant FU as Fusion
-
-    SM-&gt;&gt;EM: SetState(ADAS.Normal)
-    par Wave 1, no dependencies (CameraDriver omitted)
-        EM-&gt;&gt;ST: start
-        ST--&gt;&gt;EM: kRunning
-    and
-        EM-&gt;&gt;LL: start (non-reporting, Running at once)
-    end
-    par Wave 2
-        EM-&gt;&gt;CC: start (Storage is Running)
-        CC--&gt;&gt;EM: kRunning
-        CC-&gt;&gt;CC: verify the calibration, exit(EXIT_SUCCESS)
-    and
-        EM-&gt;&gt;LC: start (LegacyLogger is Running)
-        LC-&gt;&gt;LL: probe the logger (project-specific check)
-        LC--&gt;&gt;EM: kRunning
-    end
-    EM-&gt;&gt;FU: start (CalibrationCheck Terminated and LoggerCompanion Running)
-    FU--&gt;&gt;EM: kRunning
-    EM--&gt;&gt;SM: Future ready, ADAS.Normal reached
-</pre>
+<p><a class="figure" href="diagrams/ExecutionManagement/26-phase-2-bringing-up-the-vehicle-func.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/ExecutionManagement/26-phase-2-bringing-up-the-vehicle-func.svg" alt="Sequence diagram: Phase 2: Bringing Up the Vehicle Function" loading="lazy"></a></p>
 <h3 id="163-phase-3-a-process-crashes">16.3 Phase 3: A Process Crashes<a class="anchor" href="#163-phase-3-a-process-crashes" aria-label="Link to this section">#</a></h3>
 <p>Some time later, <code>Fusion</code> crashes with a segmentation fault. No state transition is in progress, so [SWS_EM_01309] applies:</p>
 <ol>
@@ -5041,22 +4577,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 </tbody>
 </table></div>
-<pre class="mermaid">sequenceDiagram
-    autonumber
-    participant SM as StateManager
-    participant EM as Execution Management
-    participant LC as LoggerCompanion
-    participant FL as FusionLite
-
-    SM-&gt;&gt;EM: SetState(ADAS.Degraded)
-    EM-&gt;&gt;LC: SIGTERM (restart because the startup configuration differs)
-    LC--&gt;&gt;EM: exit(EXIT_SUCCESS)
-    EM-&gt;&gt;LC: start with the Degraded configuration
-    LC--&gt;&gt;EM: kRunning
-    EM-&gt;&gt;FL: start (LoggerCompanion is Running)
-    FL--&gt;&gt;EM: kRunning
-    EM--&gt;&gt;SM: Future ready, ADAS.Degraded reached
-</pre>
+<p><a class="figure" href="diagrams/ExecutionManagement/27-phase-4-recovery-to-degraded.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/ExecutionManagement/27-phase-4-recovery-to-degraded.svg" alt="Sequence diagram: Phase 4: Recovery to Degraded" loading="lazy"></a></p>
 <h3 id="165-phase-5-shutdown">16.5 Phase 5: Shutdown<a class="anchor" href="#165-phase-5-shutdown" aria-label="Link to this section">#</a></h3>
 <ol>
 <li>The driver switches off the vehicle. <code>SmControl</code> asks State Management for the transition <code>PowerOff</code>, and <code>StateManager</code> starts the shutdown (the <a href="StateManagement.html#75-startup-shutdown-and-restart-of-the-machine">SM guide, Section 7.5</a>).</li>
@@ -6382,12 +5903,11 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 
 </article>
 <nav class="pager" aria-label="Previous and next guide"><a class="pager-prev" href="CoreAndGeneral.html"><span class="pager-label">← Previous</span><span class="pager-title"><code>ara::core</code> and General Conventions</span></a><a class="pager-next" href="StateManagement.html"><span class="pager-label">Next →</span><span class="pager-title">State Management</span></a></nav>
-<footer class="site-footer"><p>Based on the AUTOSAR Adaptive Platform and Foundation specifications, release R25-11.</p><p>Training material, not a normative reference. Where a guide and an AUTOSAR specification differ, the specification applies. Specifications: <a href="https://www.autosar.org/standards" target="_blank" rel="noopener">autosar.org/standards</a>.</p></footer>
+<footer class="site-footer"><p>Based on the AUTOSAR Adaptive Platform and Foundation specifications, release R25-11.</p><p>Training material, not a normative reference. Specifications: <a href="https://www.autosar.org/standards" target="_blank" rel="noopener">autosar.org/standards</a>.</p></footer>
 </main>
 <aside class="toc" aria-label="On this page"><p class="toc-label">On this page</p><ul><li class="lvl2"><a href="#about-this-guide">About This Guide</a></li><li class="lvl3"><a href="#who-this-guide-is-for">Who This Guide Is For</a></li><li class="lvl3"><a href="#learning-objectives">Learning Objectives</a></li><li class="lvl3"><a href="#how-to-read-this-guide">How to Read This Guide</a></li><li class="lvl3"><a href="#the-running-example">The Running Example</a></li><li class="lvl2"><a href="#table-of-contents">Table of Contents</a></li><li class="lvl2"><a href="#1-introduction-to-execution-management">1. Introduction to Execution Management</a></li><li class="lvl3"><a href="#11-what-is-execution-management">1.1 What Is Execution Management?</a></li><li class="lvl3"><a href="#12-what-em-does-not-do">1.2 What EM Does Not Do</a></li><li class="lvl3"><a href="#13-analogies-systemd-and-autosar-classic">1.3 Analogies: systemd and AUTOSAR Classic</a></li><li class="lvl3"><a href="#14-em-and-the-autosar-runtime-for-adaptive-ara">1.4 EM and the AUTOSAR Runtime for Adaptive (ARA)</a></li><li class="lvl2"><a href="#2-core-concepts-and-terminology">2. Core Concepts and Terminology</a></li><li class="lvl3"><a href="#21-software-units-from-application-to-os-process">2.1 Software Units: From Application to OS Process</a></li><li class="lvl3"><a href="#22-manifests">2.2 Manifests</a></li><li class="lvl3"><a href="#23-states">2.3 States</a></li><li class="lvl3"><a href="#24-process-flavors">2.4 Process Flavors</a></li><li class="lvl3"><a href="#25-termination-events">2.5 Termination Events</a></li><li class="lvl3"><a href="#26-other-key-terms">2.6 Other Key Terms</a></li><li class="lvl2"><a href="#3-em-in-the-system-architecture">3. EM in the System Architecture</a></li><li class="lvl3"><a href="#31-where-em-sits-in-the-platform">3.1 Where EM Sits in the Platform</a></li><li class="lvl3"><a href="#32-interfaces-provided-by-em">3.2 Interfaces Provided by EM</a></li><li class="lvl3"><a href="#33-interfaces-required-by-em">3.3 Interfaces Required by EM</a></li><li class="lvl3"><a href="#34-interaction-map">3.4 Interaction Map</a></li><li class="lvl3"><a href="#35-where-do-state-requests-come-from">3.5 Where Do State Requests Come From?</a></li><li class="lvl2"><a href="#4-configuration-overview">4. Configuration Overview</a></li><li class="lvl3"><a href="#41-where-the-configuration-lives">4.1 Where the Configuration Lives</a></li><li class="lvl3"><a href="#42-how-the-elements-relate">4.2 How the Elements Relate</a></li><li class="lvl2"><a href="#5-process-lifecycle-management">5. Process Lifecycle Management</a></li><li class="lvl3"><a href="#51-two-views-of-a-process-execution-state-and-process-state">5.1 Two Views of a Process: Execution State and Process State</a></li><li class="lvl3"><a href="#52-starting-a-process">5.2 Starting a Process</a></li><li class="lvl3"><a href="#53-reporting-krunning">5.3 Reporting kRunning</a></li><li class="lvl3"><a href="#54-non-reporting-processes-and-the-companion-pattern">5.4 Non-reporting Processes and the Companion Pattern</a></li><li class="lvl3"><a href="#55-terminating-a-process">5.5 Terminating a Process</a></li><li class="lvl3"><a href="#56-self-terminating-processes">5.6 Self-terminating Processes</a></li><li class="lvl3"><a href="#57-crashes-outside-a-state-transition">5.7 Crashes Outside a State Transition</a></li><li class="lvl3"><a href="#58-signal-mask-arguments-and-environment-variables">5.8 Signal Mask, Arguments and Environment Variables</a></li><li class="lvl3"><a href="#59-synchronization-with-platform-health-management">5.9 Synchronization with Platform Health Management</a></li><li class="lvl3"><a href="#510-child-processes">5.10 Child Processes</a></li><li class="lvl2"><a href="#6-execution-dependencies-startup-and-shutdown-ordering">6. Execution Dependencies: Startup and Shutdown Ordering</a></li><li class="lvl3"><a href="#61-what-is-an-execution-dependency">6.1 What Is an Execution Dependency?</a></li><li class="lvl3"><a href="#62-startup-and-termination-rules">6.2 Startup and Termination Rules</a></li><li class="lvl3"><a href="#63-worked-example">6.3 Worked Example</a></li><li class="lvl3"><a href="#64-rules-and-constraints-you-must-know">6.4 Rules and Constraints You Must Know</a></li><li class="lvl3"><a href="#65-dependencies-in-the-running-example">6.5 Dependencies in the Running Example</a></li><li class="lvl3"><a href="#66-prefer-service-discovery-for-applications">6.6 Prefer Service Discovery for Applications</a></li><li class="lvl3"><a href="#67-pitfall-deadlock-with-terminated-dependencies">6.7 Pitfall: Deadlock with Terminated Dependencies</a></li><li class="lvl2"><a href="#7-state-management-support-machine-state-and-function-groups">7. State Management Support: Machine State and Function Groups</a></li><li class="lvl3"><a href="#71-the-four-kinds-of-state">7.1 The Four Kinds of State</a></li><li class="lvl3"><a href="#72-function-groups-and-function-group-states">7.2 Function Groups and Function Group States</a></li><li class="lvl3"><a href="#73-machinefg-and-machine-states">7.3 MachineFG and Machine States</a></li><li class="lvl3"><a href="#74-division-of-responsibilities-sm-decides-em-executes">7.4 Division of Responsibilities: SM Decides, EM Executes</a></li><li class="lvl2"><a href="#8-function-group-state-transitions-step-by-step">8. Function Group State Transitions Step by Step</a></li><li class="lvl3"><a href="#81-vocabulary">8.1 Vocabulary</a></li><li class="lvl3"><a href="#82-the-three-logical-steps">8.2 The Three Logical Steps</a></li><li class="lvl3"><a href="#83-timeouts-and-start-up-failures">8.3 Timeouts and Start-up Failures</a></li><li class="lvl3"><a href="#84-process-crashes-during-a-transition">8.4 Process Crashes During a Transition</a></li><li class="lvl3"><a href="#85-when-is-a-transition-successful">8.5 When Is a Transition Successful?</a></li><li class="lvl3"><a href="#86-overlapping-and-repeated-requests">8.6 Overlapping and Repeated Requests</a></li><li class="lvl3"><a href="#87-sequence-diagrams">8.7 Sequence Diagrams</a></li><li class="lvl3"><a href="#88-worked-example-dependency-resolution-during-a-state-change">8.8 Worked Example: Dependency Resolution During a State Change</a></li><li class="lvl2"><a href="#9-machine-lifecycle-startup-shutdown-and-restart">9. Machine Lifecycle: Startup, Shutdown and Restart</a></li><li class="lvl3"><a href="#91-authenticated-boot-chain">9.1 Authenticated Boot Chain</a></li><li class="lvl3"><a href="#92-machine-startup-step-by-step">9.2 Machine Startup Step by Step</a></li><li class="lvl3"><a href="#93-handing-over-control-to-state-management">9.3 Handing Over Control to State Management</a></li><li class="lvl3"><a href="#94-shutdown-and-restart">9.4 Shutdown and Restart</a></li><li class="lvl3"><a href="#95-functional-cluster-lifecycle-of-the-araexec-library">9.5 Functional Cluster Lifecycle of the ara::exec Library</a></li><li class="lvl3"><a href="#96-what-if-em-itself-fails">9.6 What If EM Itself Fails?</a></li><li class="lvl2"><a href="#10-error-handling-recovery-and-fault-tolerance">10. Error Handling, Recovery and Fault Tolerance</a></li><li class="lvl3"><a href="#101-errors-and-violations">10.1 Errors and Violations</a></li><li class="lvl3"><a href="#102-error-codes-execerrc">10.2 Error Codes (ExecErrc)</a></li><li class="lvl3"><a href="#103-undefined-function-group-state">10.3 Undefined Function Group State</a></li><li class="lvl3"><a href="#104-unrecoverable-state">10.4 Unrecoverable State</a></li><li class="lvl3"><a href="#105-fault-tolerance-concepts">10.5 Fault Tolerance Concepts</a></li><li class="lvl2"><a href="#11-resource-management">11. Resource Management</a></li><li class="lvl3"><a href="#111-why-resource-management-matters">11.1 Why Resource Management Matters</a></li><li class="lvl3"><a href="#112-who-configures-what">11.2 Who Configures What</a></li><li class="lvl3"><a href="#113-resourcegroup-group-level-limits">11.3 ResourceGroup: Group-Level Limits</a></li><li class="lvl3"><a href="#114-process-level-memory-settings">11.4 Process-Level Memory Settings</a></li><li class="lvl3"><a href="#115-cpu-core-affinity-and-scheduling">11.5 CPU: Core Affinity and Scheduling</a></li><li class="lvl3"><a href="#116-monitoring-and-reaction">11.6 Monitoring and Reaction</a></li><li class="lvl3"><a href="#117-mapping-to-os-mechanisms">11.7 Mapping to OS Mechanisms</a></li><li class="lvl3"><a href="#118-working-folder">11.8 Working Folder</a></li><li class="lvl2"><a href="#12-security-trusted-platform-and-iam">12. Security: Trusted Platform and IAM</a></li><li class="lvl3"><a href="#121-trusted-platform-basics">12.1 Trusted Platform Basics</a></li><li class="lvl3"><a href="#122-what-em-verifies-and-why">12.2 What EM Verifies and Why</a></li><li class="lvl3"><a href="#123-launch-behavior-modes">12.3 Launch Behavior Modes</a></li><li class="lvl3"><a href="#124-security-events">12.4 Security Events</a></li><li class="lvl3"><a href="#125-identity-and-access-management-support">12.5 Identity and Access Management Support</a></li><li class="lvl3"><a href="#126-function-group-access-control">12.6 Function Group Access Control</a></li><li class="lvl2"><a href="#13-configuration-reference-what-to-configure">13. Configuration Reference: What to Configure</a></li><li class="lvl3"><a href="#131-minimal-configuration">13.1 Minimal Configuration</a></li><li class="lvl3"><a href="#132-executable">13.2 Executable</a></li><li class="lvl3"><a href="#133-process">13.3 Process</a></li><li class="lvl3"><a href="#134-statedependentstartupconfig-and-executiondependency">13.4 StateDependentStartupConfig and ExecutionDependency</a></li><li class="lvl3"><a href="#135-startupconfig">13.5 StartupConfig</a></li><li class="lvl3"><a href="#136-machine">13.6 Machine</a></li><li class="lvl3"><a href="#137-resourcegroup">13.7 ResourceGroup</a></li><li class="lvl3"><a href="#138-core-affinity-processtomachinemapping-and-processdesigntomachinedesignmapping">13.8 Core Affinity: ProcessToMachineMapping and ProcessDesignToMachineDesignMapping</a></li><li class="lvl3"><a href="#139-function-groups-and-software-clusters">13.9 Function Groups and Software Clusters</a></li><li class="lvl3"><a href="#1310-state-management-access-stateclientinterface-and-functiongroupportmapping">13.10 State Management Access: StateClientInterface and FunctionGroupPortMapping</a></li><li class="lvl3"><a href="#1311-the-running-example-complete-configuration">13.11 The Running Example: Complete Configuration</a></li><li class="lvl2"><a href="#14-api-reference-and-usage-guide-araexec">14. API Reference and Usage Guide (ara::exec)</a></li><li class="lvl3"><a href="#141-api-overview">14.1 API Overview</a></li><li class="lvl3"><a href="#142-executionstate">14.2 ExecutionState</a></li><li class="lvl3"><a href="#143-executionclient">14.3 ExecutionClient</a></li><li class="lvl3"><a href="#144-functiongroup-and-functiongroupstate">14.4 FunctionGroup and FunctionGroupState</a></li><li class="lvl3"><a href="#145-stateclient">14.5 StateClient</a></li><li class="lvl3"><a href="#146-executionerrorevent-and-executionerror">14.6 ExecutionErrorEvent and ExecutionError</a></li><li class="lvl3"><a href="#147-error-handling-types">14.7 Error Handling Types</a></li><li class="lvl3"><a href="#148-thread-safety-and-exception-safety-summary">14.8 Thread Safety and Exception Safety Summary</a></li><li class="lvl3"><a href="#149-common-api-pitfalls">14.9 Common API Pitfalls</a></li><li class="lvl2"><a href="#15-logging-tracing-and-reporting">15. Logging, Tracing and Reporting</a></li><li class="lvl3"><a href="#151-reporting-channels">15.1 Reporting Channels</a></li><li class="lvl3"><a href="#152-process-lifecycle-trace-messages">15.2 Process Lifecycle Trace Messages</a></li><li class="lvl3"><a href="#153-error-log-messages">15.3 Error Log Messages</a></li><li class="lvl3"><a href="#154-violation-messages">15.4 Violation Messages</a></li><li class="lvl3"><a href="#155-using-em-traces-in-practice">15.5 Using EM Traces in Practice</a></li><li class="lvl2"><a href="#16-end-to-end-walkthrough-a-day-in-the-life-of-an-ecu">16. End-to-End Walkthrough: A Day in the Life of an ECU</a></li><li class="lvl3"><a href="#161-phase-1-power-on-to-startup">16.1 Phase 1: Power On to Startup</a></li><li class="lvl3"><a href="#162-phase-2-bringing-up-the-vehicle-function">16.2 Phase 2: Bringing Up the Vehicle Function</a></li><li class="lvl3"><a href="#163-phase-3-a-process-crashes">16.3 Phase 3: A Process Crashes</a></li><li class="lvl3"><a href="#164-phase-4-recovery-to-degraded">16.4 Phase 4: Recovery to Degraded</a></li><li class="lvl3"><a href="#165-phase-5-shutdown">16.5 Phase 5: Shutdown</a></li><li class="lvl3"><a href="#166-process-state-overview">16.6 Process State Overview</a></li><li class="lvl2"><a href="#17-best-practices-pitfalls-and-troubleshooting">17. Best Practices, Pitfalls and Troubleshooting</a></li><li class="lvl3"><a href="#171-checklist-for-application-developers">17.1 Checklist for Application Developers</a></li><li class="lvl3"><a href="#172-checklist-for-integrators">17.2 Checklist for Integrators</a></li><li class="lvl3"><a href="#173-troubleshooting-guide">17.3 Troubleshooting Guide</a></li><li class="lvl2"><a href="#18-summary-and-self-check-quiz">18. Summary and Self-Check Quiz</a></li><li class="lvl3"><a href="#181-summary">18.1 Summary</a></li><li class="lvl3"><a href="#182-self-check-quiz">18.2 Self-Check Quiz</a></li><li class="lvl2"><a href="#appendix-a-glossary-and-acronyms">Appendix A. Glossary and Acronyms</a></li><li class="lvl3"><a href="#a1-acronyms">A.1 Acronyms</a></li><li class="lvl3"><a href="#a2-glossary">A.2 Glossary</a></li><li class="lvl2"><a href="#appendix-b-quick-reference-cheat-sheet">Appendix B. Quick Reference Cheat Sheet</a></li><li class="lvl3"><a href="#b1-states-at-a-glance">B.1 States at a Glance</a></li><li class="lvl3"><a href="#b2-error-codes-at-a-glance">B.2 Error Codes at a Glance</a></li><li class="lvl3"><a href="#b3-defaults-at-a-glance">B.3 Defaults at a Glance</a></li><li class="lvl3"><a href="#b4-timeouts-and-signals-at-a-glance">B.4 Timeouts and Signals at a Glance</a></li><li class="lvl3"><a href="#b5-dlt-message-ids-at-a-glance">B.5 DLT Message IDs at a Glance</a></li><li class="lvl2"><a href="#appendix-c-spec-traceability">Appendix C. Spec Traceability</a></li><li class="lvl2"><a href="#appendix-d-notable-changes-in-recent-releases">Appendix D. Notable Changes in Recent Releases</a></li><li class="lvl2"><a href="#appendix-e-references">Appendix E. References</a></li></ul></aside>
 </div>
 <button class="to-top" id="to-top" aria-label="Back to top" hidden>↑</button>
-<script>window.MERMAID_URL="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs";</script>
 <script src="../assets/search-index.js" defer></script>
 <script src="../assets/app.js" defer></script>
 </body>

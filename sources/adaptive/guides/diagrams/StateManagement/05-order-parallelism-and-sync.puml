@@ -1,0 +1,11 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "SetState\nMachineFG.Driving" as A
+hexagon "SYNC:\nwait for the result" as S1
+rectangle "Start AdasAgent\n(Initial State Normal)" as B
+hexagon "implicit SYNC:\nlist finished" as E
+A --> S1
+S1 --> B
+B --> E
+@enduml

@@ -109,7 +109,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 <tr>
 <td>Diagrams</td>
-<td>Written in Mermaid. They render natively on GitHub and GitLab. In VS Code, install the <em>Markdown Preview Mermaid Support</em> extension.</td>
+<td>Drawn in PlantUML and inserted as SVG images, so they show in any Markdown viewer. Click an image to open it at full size.</td>
 </tr>
 </tbody>
 </table></div>
@@ -978,32 +978,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </table></div>
 <h3 id="34-interaction-map">3.4 Interaction Map<a class="anchor" href="#34-interaction-map" aria-label="Link to this section">#</a></h3>
 <p>The following diagram shows SM with its partners in <code>HPC</code>. Solid arrows are calls or requests; dashed arrows are notifications.</p>
-<pre class="mermaid">flowchart LR
-    SC[&quot;SmControl&lt;br/&gt;(SMControlApplication)&quot;]
-    APP[&quot;Other applications,&lt;br/&gt;for example Cockpit via AdasStatus&quot;]
-    UCM[&quot;Update and Configuration&lt;br/&gt;Management&quot;]
-    PHM[&quot;Platform Health&lt;br/&gt;Management&quot;]
-    NM[&quot;Network Management&quot;]
-    PER[&quot;Persistency&quot;]
-    OS[&quot;Operating system&lt;br/&gt;(PowerStateInterface)&quot;]
-    subgraph SMP[&quot;StateManager (State Management)&quot;]
-        CTRL[&quot;StateMachine&lt;br/&gt;HpcController&quot;]
-        AG[&quot;StateMachine&lt;br/&gt;AdasAgent&quot;]
-    end
-    EM[&quot;Execution Management&quot;]
-    SC --&gt;|&quot;RequestTransition,&lt;br/&gt;UpdateAllowed&quot;| SMP
-    SMP -.-&gt;|&quot;CurrentState&quot;| SC
-    SMP -.-&gt;|&quot;CurrentState&quot;| APP
-    UCM --&gt;|&quot;UpdateRequest&quot;| SMP
-    PHM --&gt;|&quot;RecoveryHandler&quot;| SMP
-    SMP --&gt;|&quot;SetState&quot;| EM
-    EM -.-&gt;|&quot;result, undefinedStateCallback&quot;| SMP
-    SMP --&gt;|&quot;FullCom / NoCom&quot;| NM
-    NM -.-&gt;|&quot;handle changes&quot;| SMP
-    SMP --&gt;|&quot;session status&quot;| PER
-    SMP --&gt;|&quot;SetPowerState&quot;| OS
-    CTRL --&gt;|&quot;start / stop&quot;| AG
-</pre>
+<p><a class="figure" href="diagrams/StateManagement/01-interaction-map.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/StateManagement/01-interaction-map.svg" alt="Flowchart: Interaction Map" loading="lazy"></a></p>
 <h3 id="35-who-may-talk-to-state-management">3.5 Who May Talk to State Management<a class="anchor" href="#35-who-may-talk-to-state-management" aria-label="Link to this section">#</a></h3>
 <p>Because SM's functions are critical, access from other applications must be secured, for example by Identity and Access Management (IAM) (SWS, Section 7.1). Four mechanisms apply:</p>
 <div class="table-wrap"><table>
@@ -1093,25 +1068,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p>The SWS defines <strong>no default values</strong> for these attributes (SWS, Section 10.1). Where the SWS defines a behavior for a missing setting, for example the error code 1, this guide names it; everywhere else it writes &quot;not specified&quot;.</p>
 <h3 id="42-how-the-elements-relate">4.2 How the Elements Relate<a class="anchor" href="#42-how-the-elements-relate" aria-label="Link to this section">#</a></h3>
 <p>The entry point is <code>StateManagementModuleInstantiation</code>. The following diagram shows what it aggregates and references.</p>
-<pre class="mermaid">flowchart TD
-    M[&quot;Machine HPC&quot;] --&gt;|&quot;moduleInstantiation&quot;| SMI[&quot;StateManagementModuleInstantiation&lt;br/&gt;maxActionListDuration&quot;]
-    SMI --&gt;|&quot;notification&quot;| N[&quot;StateManagementStateNotification&quot;]
-    N --&gt;|&quot;stateMachine&quot;| SMC[&quot;ModeDeclarationGroupPrototype&lt;br/&gt;category CONTROLLER or AGENT&quot;]
-    SMC --&gt;|&quot;type&quot;| MDG[&quot;ModeDeclarationGroup&lt;br/&gt;states, initialMode&quot;]
-    N --&gt;|&quot;notificationPort&quot;| NP[&quot;P-port (StateMachineNotification)&quot;]
-    SMI --&gt;|&quot;request&quot;| RT[&quot;StateManagementRequestTrigger&quot;]
-    SMI --&gt;|&quot;request&quot;| RE[&quot;StateManagementRequestError&quot;]
-    RT --&gt;|&quot;rule&quot;| RR[&quot;StateManagementRequestRule&lt;br/&gt;formula, nextState&quot;]
-    RE --&gt;|&quot;rule&quot;| RR
-    RT --&gt;|&quot;stateRequestPort&quot;| RP[&quot;R-port&quot;]
-    SMI --&gt;|&quot;actionItemList&quot;| AL[&quot;StateManagementActionList&lt;br/&gt;affectedState, maxActionListDuration&quot;]
-    AL --&gt;|&quot;actionItem (ordered)&quot;| AI[&quot;Action items:&lt;br/&gt;FG state, start/stop, SYNC,&lt;br/&gt;sleep, NM, S2R&quot;]
-    SMI --&gt;|&quot;functionGroupErrorMapping&quot;| FEM[&quot;FunctionGroupErrorMapping&quot;]
-    AI --&gt;|&quot;rPortPrototype&quot;| SCP[&quot;R-port (StateClientInterface)&quot;]
-    FGPM[&quot;FunctionGroupPortMapping&quot;] --&gt;|&quot;rPortPrototypeInExecutable&quot;| SCP
-    MAP[&quot;SmInteractsWithNmMapping&quot;] --&gt;|&quot;actionItem&quot;| AI
-    MAP --&gt;|&quot;nmNetworkHandle&quot;| NH[&quot;NmNetworkHandle&quot;]
-</pre>
+<p><a class="figure" href="diagrams/StateManagement/02-how-the-elements-relate.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/StateManagement/02-how-the-elements-relate.svg" alt="Flowchart: How the Elements Relate" loading="lazy"></a></p>
 <p>Three points are worth knowing:</p>
 <ol>
 <li><strong>One notification owns one StateMachine.</strong> A <code>StateManagementStateNotification</code> aggregates exactly the <code>ModeDeclarationGroupPrototype</code> that <em>is</em> the StateMachine ([TPS_MANI_01392]). Several notifications may use the same <code>ModeDeclarationGroup</code>, which creates several instances of the same &quot;type&quot; of StateMachine.</li>
@@ -1166,15 +1123,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </blockquote>
 <h3 id="51-anatomy-of-a-statemachine">5.1 Anatomy of a StateMachine<a class="anchor" href="#51-anatomy-of-a-statemachine" aria-label="Link to this section">#</a></h3>
 <p>A StateMachine has four parts. The following diagram shows them for <code>AdasAgent</code>.</p>
-<pre class="mermaid">flowchart LR
-    REQ[&quot;RequestTransition(value)&lt;br/&gt;from SmControl&quot;] --&gt; TRT[&quot;TransitionRequestTable&quot;]
-    NMC[&quot;Network handle change&quot;] --&gt; TRT
-    ERR[&quot;ErrorCode from EM, PHM&lt;br/&gt;or SM itself&quot;] --&gt; ERT[&quot;ErrorRecoveryTable&quot;]
-    TRT --&gt; S[&quot;Current StateMachine State&quot;]
-    ERT --&gt; S
-    S --&gt; AL[&quot;ActionList of the state:&lt;br/&gt;FG states, network handles,&lt;br/&gt;SYNC, Sleep&quot;]
-    S --&gt; CS[&quot;CurrentState field&lt;br/&gt;(StateMachineNotification)&quot;]
-</pre>
+<p><a class="figure" href="diagrams/StateManagement/03-anatomy-of-a-statemachine.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/StateManagement/03-anatomy-of-a-statemachine.svg" alt="Flowchart: Anatomy of a StateMachine" loading="lazy"></a></p>
 <ol>
 <li><strong>StateMachine States</strong>, one of which is the Initial State.</li>
 <li><strong>One ActionList per state</strong>, executed whenever the state is entered.</li>
@@ -1342,34 +1291,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </table></div>
 <h3 id="55-worked-example-smcontrol-brings-hpc-from-startup-to-driving">5.5 Worked Example: SmControl Brings HPC from Startup to Driving<a class="anchor" href="#55-worked-example-smcontrol-brings-hpc-from-startup-to-driving" aria-label="Link to this section">#</a></h3>
 <p>The vehicle is switched on. The following sequence shows how <code>HPC</code> reaches <code>MachineFG.Driving</code> and <code>ADAS.Normal</code>. It continues the startup of the <a href="ExecutionManagement.html#93-handing-over-control-to-state-management">EM guide, Section 9.3</a>.</p>
-<pre class="mermaid">sequenceDiagram
-    autonumber
-    participant EM as Execution Management
-    participant SM as StateManager
-    participant SC as SmControl
-    participant NM as Network Management
-    EM-&gt;&gt;SM: start in MachineFG.Startup
-    EM-&gt;&gt;SC: start in MachineFG.Startup
-    SM-&gt;&gt;SM: read the update session status (Persistency)
-    SM-&gt;&gt;EM: ReportExecutionState(kRunning)
-    SM-&gt;&gt;SM: start HpcController in Init, offer its services
-    SM-&gt;&gt;EM: SetState(MachineFG.Startup)
-    Note over SM: SYNC, then stop AdasAgent: not running, skipped
-    SC-&gt;&gt;EM: ReportExecutionState(kRunning)
-    SC-&gt;&gt;SC: PowerMode = On
-    SC-&gt;&gt;SM: RequestTransition(1) on HpcController
-    SM--&gt;&gt;SC: CurrentState &quot;inTransition&quot;
-    SM-&gt;&gt;EM: SetState(MachineFG.Driving)
-    EM--&gt;&gt;SM: done
-    SM-&gt;&gt;SM: SYNC, then start AdasAgent in Normal, offer its services
-    SM--&gt;&gt;SC: RequestTransition(1): success
-    SM--&gt;&gt;SC: CurrentState &quot;Driving&quot;
-    SM-&gt;&gt;NM: AdasPnHandle: FullCom
-    SM-&gt;&gt;EM: SetState(ADAS.Normal)
-    EM--&gt;&gt;SM: done
-    SM--&gt;&gt;SC: AdasAgent CurrentState &quot;Normal&quot;
-    SC-&gt;&gt;SC: AdasStatus = Active
-</pre>
+<p><a class="figure" href="diagrams/StateManagement/04-worked-example-smcontrol-brings-hpc.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/StateManagement/04-worked-example-smcontrol-brings-hpc.svg" alt="Sequence diagram: Worked Example: SmControl Brings HPC from Startup to Driving" loading="lazy"></a></p>
 <p>Steps 9 to 15 are the transition <code>Init</code> → <code>Driving</code> of <code>HpcController</code>. The Controller regards <code>AdasAgent</code> as started as soon as it exists and offers its services; it does not wait for the Agent's initial ActionList (SWS, Section 7.7.8). That is why <code>RequestTransition(1)</code> succeeds before <code>ADAS</code> has reached <code>Normal</code>. <code>SmControl</code> learns that <code>ADAS</code> is running from the <code>CurrentState</code> of <code>AdasAgent</code>.</p>
 <blockquote>
 <p><strong>Note (implementation example):</strong> The Initial State of the Controller requests <code>MachineFG.Startup</code> while EM may still be performing its self-initiated <code>Startup</code> transition. The SWS shows this pattern (SWS, Figure 7.9) but does not discuss it, and it does not mention <code>GetInitialMachineStateTransitionResult</code> in the StateMachine approach. An implementation may, for example, wait for the result of the initial transition before it processes the Initial State. Check your vendor's documentation.</p>
@@ -1399,11 +1321,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </ul>
 <p>How parallel the processing really is depends on the implementation, the hardware and the operating system (SWS, Section 7.7.7).</p>
 <p>The following diagram shows the ActionList of <code>HpcController.Driving</code>.</p>
-<pre class="mermaid">flowchart LR
-    A[&quot;SetState&lt;br/&gt;MachineFG.Driving&quot;] --&gt; S1{{&quot;SYNC:&lt;br/&gt;wait for the result&quot;}}
-    S1 --&gt; B[&quot;Start AdasAgent&lt;br/&gt;(Initial State Normal)&quot;]
-    B --&gt; E{{&quot;implicit SYNC:&lt;br/&gt;list finished&quot;}}
-</pre>
+<p><a class="figure" href="diagrams/StateManagement/05-order-parallelism-and-sync.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/StateManagement/05-order-parallelism-and-sync.svg" alt="Flowchart: Order, Parallelism and SYNC" loading="lazy"></a></p>
 <h3 id="62-function-group-state-items">6.2 Function Group State Items<a class="anchor" href="#62-function-group-state-items" aria-label="Link to this section">#</a></h3>
 <p>When SM finds a Function Group State item, it requests the configured Function Group State from EM ([SWS_SM_00608]). The item names the state to request (<code>setFunctionGroupState</code>) and the R-port through which the request is sent (<code>rPortPrototype</code>). In <code>HPC</code>, that port is <code>MachineFgPort</code> or <code>AdasFgPort</code>, typed by a <code>StateClientInterface</code>, and the <code>FunctionGroupPortMapping</code> tells EM which Function Group it controls (<a href="ExecutionManagement.html#1310-state-management-access-stateclientinterface-and-functiongroupportmapping">EM guide, Section 13.10</a>).</p>
 <p>For EM, Function Groups are independent of each other. Dependencies between them exist only in SM (SWS, Section 7.1.2), and the ActionLists are the place to express them: give the items in the needed order and put a SYNC where one transition must be finished before the next starts (SWS, Figure 7.17). Without a SYNC, the items run in parallel.</p>
@@ -1577,15 +1495,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <h3 id="73-starting-and-stopping-agents">7.3 Starting and Stopping Agents<a class="anchor" href="#73-starting-and-stopping-agents" aria-label="Link to this section">#</a></h3>
 <p>Only the Controller may use the items Start StateMachine and Stop StateMachine ([SWS_SM_CONSTR_00019]), so there is only one level of nesting. Starting a StateMachine has two parts: its services are created and offered, and it processes the ActionList of its first state. For the Controller, an Agent counts as <em>started</em> as soon as it exists and offers its services; waiting for the first ActionList would make the Controller's own transitions slow and unpredictable (SWS, Section 7.7.8).</p>
 <p>What a Start StateMachine item does depends on whether the Agent already runs and whether the item has a parameter (<code>overrideInitialState</code>):</p>
-<pre class="mermaid">flowchart TD
-    S[&quot;Start StateMachine item&quot;] --&gt; R{&quot;Agent already&lt;br/&gt;running?&quot;}
-    R -- &quot;no&quot; --&gt; P1{&quot;Parameter&lt;br/&gt;given?&quot;}
-    P1 -- &quot;no&quot; --&gt; A[&quot;Start the Agent in its&lt;br/&gt;Initial State&lt;br/&gt;SWS_SM_00612&quot;]
-    P1 -- &quot;yes&quot; --&gt; B[&quot;Start the Agent in the&lt;br/&gt;given state&lt;br/&gt;SWS_SM_00622&quot;]
-    R -- &quot;yes&quot; --&gt; P2{&quot;Parameter&lt;br/&gt;given?&quot;}
-    P2 -- &quot;no&quot; --&gt; C[&quot;Skip the item&lt;br/&gt;SWS_SM_00613&quot;]
-    P2 -- &quot;yes&quot; --&gt; D[&quot;Transition the Agent&lt;br/&gt;to the given state&lt;br/&gt;SWS_SM_00623&quot;]
-</pre>
+<p><a class="figure" href="diagrams/StateManagement/06-starting-and-stopping-agents.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/StateManagement/06-starting-and-stopping-agents.svg" alt="Flowchart: Starting and Stopping Agents" loading="lazy"></a></p>
 <p>A Stop StateMachine item works as follows:</p>
 <ul>
 <li>If the Agent does not run, the item is skipped ([SWS_SM_00615]).</li>
@@ -1615,21 +1525,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p>Every Adaptive Application that talks to SM must have initialized ARA with <code>ara::core::Initialize(argc, argv)</code> before (SWS, Section 7.8.1).</p>
 <p><strong>Shutdown and restart.</strong> SM must still run in <code>Shutdown</code> and <code>Restart</code>, because a transition can fail and somebody must be able to report it (SWS, Sections 7.8.2 and 7.8.3). At some point the machine goes down, and SM with it; errors after that point are handled in an implementation-specific way. SM should terminate gracefully when it receives <code>SIGTERM</code>, which with a correct configuration happens rarely. Every SMControlApplication should terminate before SM receives <code>SIGTERM</code> and call <code>ara::core::Deinitialize()</code> before it exits. PHM, SOME/IP and logging should be terminated after SM.</p>
 <p>In <code>HPC</code>, <code>SmControl</code> does not run in <code>Shutdown</code> and <code>Restart</code>, so EM terminates it during the transition to these states. <code>StateManager</code>, <code>PlatformHealth</code> and <code>PowerControl</code> run in both. The following diagram shows the shutdown:</p>
-<pre class="mermaid">sequenceDiagram
-    autonumber
-    participant SC as SmControl
-    participant SM as StateManager
-    participant EM as Execution Management
-    participant PC as PowerControl
-    SC-&gt;&gt;SC: PowerMode = Off
-    SC-&gt;&gt;SM: RequestTransition(2) on HpcController
-    SM-&gt;&gt;SM: stop AdasAgent: its Off list&lt;br/&gt;(ADAS.Off, SYNC, Sleep 2 s, AdasPn NoCom)
-    SM-&gt;&gt;EM: SetState(MachineFG.Shutdown)
-    EM-&gt;&gt;SC: SIGTERM (not configured in Shutdown)
-    SC-&gt;&gt;SC: ara::core::Deinitialize(), exit
-    EM-&gt;&gt;PC: start
-    PC-&gt;&gt;PC: power off through the operating system
-</pre>
+<p><a class="figure" href="diagrams/StateManagement/07-startup-shutdown-and-restart-of-the.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/StateManagement/07-startup-shutdown-and-restart-of-the.svg" alt="Sequence diagram: Startup, Shutdown and Restart of the Machine" loading="lazy"></a></p>
 <blockquote>
 <p><strong>Pitfall:</strong> If a Machine State does not contain an SM process, the machine can never leave that state ([SWS_SM_CONSTR_00001]). Check this for every project-specific Machine State.</p>
 </blockquote>
@@ -1697,30 +1593,9 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tbody>
 </table></div>
 <p>The following diagram shows the transitions of <code>HpcController</code> that requests and errors cause. The update states are left out.</p>
-<pre class="mermaid">stateDiagram-v2
-    direction LR
-    [*] --&gt; Init: SM starts
-    Init --&gt; Driving: Drive (1)
-    Init --&gt; Shutdown: PowerOff (2)
-    Init --&gt; Restart: Reset (3)
-    Driving --&gt; Shutdown: PowerOff (2)
-    Driving --&gt; Restart: Reset (3)
-    Driving --&gt; Restart: any error (ANY)
-    Shutdown --&gt; [*]: machine off
-    Restart --&gt; [*]: machine reboots
-</pre>
+<p><a class="figure" href="diagrams/StateManagement/08-worked-example-hpccontroller-and-ada.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/StateManagement/08-worked-example-hpccontroller-and-ada.svg" alt="State diagram: Worked Example: HpcController and AdasAgent" loading="lazy"></a></p>
 <p><code>AdasAgent</code> exists only while <code>HpcController</code> is in <code>Driving</code> or <code>AfterUpdate</code>. The following diagram shows its operating states; <a href="#66-worked-example-the-actionlists-of-adasagent">Section 6.6</a> lists the ActionLists.</p>
-<pre class="mermaid">stateDiagram-v2
-    direction LR
-    [*] --&gt; Normal: started by HpcController
-    Normal --&gt; Degraded: Degrade (10), error 42 or 1
-    Degraded --&gt; Degraded: error 42 or 1 (list executed again)
-    Normal --&gt; Off: other error (ANY)
-    Degraded --&gt; Off: other error (ANY)
-    Normal --&gt; Off: stopped by HpcController
-    Degraded --&gt; Off: stopped by HpcController
-    Off --&gt; [*]: Agent ceases to exist
-</pre>
+<p><a class="figure" href="diagrams/StateManagement/09-worked-example-hpccontroller-and-ada.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/StateManagement/09-worked-example-hpccontroller-and-ada.svg" alt="State diagram: Worked Example: HpcController and AdasAgent" loading="lazy"></a></p>
 <blockquote>
 <p><strong>Key takeaways</strong></p>
 <ul>
@@ -1938,27 +1813,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p><code>kIntegrityOrAuthenticityCheckFailed</code> deserves attention: every later request for the same Function Group State will fail in the same way, because the trusted platform has found software that is not authentic. Fixing it, for example by an update, is outside SM's scope (SWS, Section 7.6). In <code>HPC</code>, the code 1 of such a failure leads <code>AdasAgent</code> to <code>Degraded</code>; if <code>Degraded</code> fails too, the next failure leads there again (<a href="#84-nested-recovery">Section 8.4</a>).</p>
 <h3 id="87-worked-example-fusion-fails-and-adas-goes-to-degraded">8.7 Worked Example: Fusion Fails and ADAS Goes to Degraded<a class="anchor" href="#87-worked-example-fusion-fails-and-adas-goes-to-degraded" aria-label="Link to this section">#</a></h3>
 <p>This is the State Management side of the failure that the <a href="PlatformHealthManagement.html#126-worked-example-fusion-stalls-and-adas-goes-to-degraded">PHM guide, Section 12.6</a> shows from PHM's side. <code>Fusion</code> misses its compute deadline, and <code>FusionSupervision</code> expires.</p>
-<pre class="mermaid">sequenceDiagram
-    autonumber
-    participant PHM as Platform Health Management
-    participant SM as StateManager (AdasAgent)
-    participant EM as Execution Management
-    participant SC as SmControl
-    PHM-&gt;&gt;SM: RecoveryHandler(ADAS, ExecutionError 42, kDeadlineSupervision)
-    SM--&gt;&gt;PHM: Future (not yet ready)
-    SM-&gt;&gt;SM: AdasAgent: set ErrorRecoveryOngoing,&lt;br/&gt;42 → Degraded
-    SM--&gt;&gt;SC: AdasAgent CurrentState &quot;inTransition&quot;
-    SM-&gt;&gt;SM: AdasPnHandle: FullCom (unchanged)
-    SM-&gt;&gt;EM: SetState(ADAS.Degraded)
-    SC-&gt;&gt;SM: RequestTransition(10) on AdasAgent
-    SM--&gt;&gt;SC: kRecoveryTransitionOngoing
-    EM-&gt;&gt;EM: terminate Fusion, start FusionLite
-    EM--&gt;&gt;SM: SetState done
-    SM-&gt;&gt;SM: list finished, reset ErrorRecoveryOngoing
-    SM--&gt;&gt;PHM: Future ready with a value
-    SM--&gt;&gt;SC: AdasAgent CurrentState &quot;Degraded&quot;
-    SC-&gt;&gt;SC: AdasStatus = Degraded
-</pre>
+<p><a class="figure" href="diagrams/StateManagement/10-worked-example-fusion-fails-and-adas.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/StateManagement/10-worked-example-fusion-fails-and-adas.svg" alt="Sequence diagram: Worked Example: Fusion Fails and ADAS Goes to Degraded" loading="lazy"></a></p>
 <p>If <code>Fusion</code> had crashed instead, EM would have reported it through the <code>undefinedStateCallback</code> with the same <code>ExecutionError</code> 42, and <code>AdasAgent</code> would have reacted in the same way, only without a <code>Future</code> for PHM. Steps 7 and 8 show a request of <code>SmControl</code> that arrives during the recovery: it is refused, not queued.</p>
 <h3 id="88-worked-example-a-stuck-cameradriver">8.8 Worked Example: A Stuck CameraDriver<a class="anchor" href="#88-worked-example-a-stuck-cameradriver" aria-label="Link to this section">#</a></h3>
 <p>Now the alive supervision of <code>CameraDriver</code> expires because its image loop hangs, but the process does not crash (the <a href="PlatformHealthManagement.html#127-known-limitation-successive-failures">PHM guide, Section 12.7</a>).</p>
@@ -2172,23 +2027,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <li><strong><code>ContinueUpdate</code>.</strong> When SM starts and finds an active session in its persistent data, the Controller enters <code>ContinueUpdate</code> instead of its Initial State ([SWS_SM_00657]). SM does not know how far UCM got, so this state should start only what is essential to continue the update, at least UCM. When the transition succeeds, SM sets <code>ResetMachineNotifier</code> to <code>kSuccessful</code>, otherwise to <code>kFailed</code> ([SWS_SM_00662], [SWS_SM_00663]). UCM follows the field to resynchronize.</li>
 </ul>
 <p>The SWS sketches two strategies (SWS, Section 7.7.14): if UCM runs in a Machine State, <code>ContinueUpdate</code> requests that state and stops the Agents; if UCM runs in a Function Group of an Agent, <code>ContinueUpdate</code> starts only that Agent. In <code>HPC</code>, the UCM daemon runs in <code>MachineFG.Startup</code>, so <code>ContinueUpdate</code> requests <code>MachineFG.Startup</code> and stops <code>AdasAgent</code>.</p>
-<pre class="mermaid">sequenceDiagram
-    autonumber
-    participant UCM as UCM
-    participant SM as StateManager
-    participant EM as Execution Management
-    UCM-&gt;&gt;SM: ResetMachine()
-    SM-&gt;&gt;SM: HpcController → Restart:&lt;br/&gt;stop AdasAgent, SYNC, MachineFG.Restart
-    SM-&gt;&gt;EM: SetState(MachineFG.Restart)
-    Note over EM: machine reboots
-    EM-&gt;&gt;SM: start in MachineFG.Startup
-    SM-&gt;&gt;SM: read the session status: active
-    SM-&gt;&gt;SM: start HpcController in ContinueUpdate
-    SM-&gt;&gt;EM: SetState(MachineFG.Startup)
-    EM--&gt;&gt;SM: done
-    SM--&gt;&gt;UCM: ResetMachineNotifier = kSuccessful
-    UCM-&gt;&gt;SM: continue, for example VerifyUpdate(list)
-</pre>
+<p><a class="figure" href="diagrams/StateManagement/11-machine-reset-during-a-session.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/StateManagement/11-machine-reset-during-a-session.svg" alt="Sequence diagram: Machine Reset During a Session" loading="lazy"></a></p>
 <h3 id="96-ending-the-session-afterupdate">9.6 Ending the Session: AfterUpdate<a class="anchor" href="#96-ending-the-session-afterupdate" aria-label="Link to this section">#</a></h3>
 <p>When UCM calls <code>StopUpdateSession</code>, the machine is in an undefined state: StateMachines may have been installed, updated or removed, and so may their ActionLists. The Controller therefore retakes full control and moves the machine to a well-defined state:</p>
 <ul>
@@ -2200,33 +2039,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p>In <code>HPC</code>, the list of <code>HpcController.AfterUpdate</code> is <code>MachineFG.Driving</code>, SYNC, start <code>AdasAgent</code> with the parameter <code>Normal</code>. The parameter matters: after a successful update, <code>AdasAgent</code> still runs in <code>VerifyUpdate</code>, and a start without parameter would be skipped (<a href="#73-starting-and-stopping-agents">Section 7.3</a>). After the session, <code>SmControl</code> requests <code>Drive</code> to bring the Controller from <code>AfterUpdate</code> back to <code>Driving</code>.</p>
 <h3 id="97-worked-example-updating-adascluster-to-110">9.7 Worked Example: Updating AdasCluster to 1.1.0<a class="anchor" href="#97-worked-example-updating-adascluster-to-110" aria-label="Link to this section">#</a></h3>
 <p>The vehicle is parked, and V-UCM starts the update of <code>AdasCluster</code> from 1.0.0 to 1.1.0 (the <a href="RunningExample.html#111-software-updates">Running Example guide, Section 1.11</a>). The following sequence shows SM's part; which processes run in <code>ADAS.Verify</code> and how UCM decides about the rollback is the subject of the UCM guide.</p>
-<pre class="mermaid">sequenceDiagram
-    autonumber
-    participant SC as SmControl
-    participant UCM as UCM
-    participant SM as StateManager
-    participant EM as Execution Management
-    SC-&gt;&gt;SM: UpdateAllowed = kUpdateAllowed (standstill)
-    UCM-&gt;&gt;SM: RequestUpdateSession()
-    SM--&gt;&gt;UCM: ok (active session, notifier kIdle)
-    UCM-&gt;&gt;SM: PrepareUpdate([ADAS])
-    SM-&gt;&gt;SM: mark AdasAgent, and HpcController indirectly
-    SM-&gt;&gt;SM: AdasAgent → PrepareUpdate: ADAS.Off, SYNC, AdasPn NoCom
-    SM-&gt;&gt;EM: SetState(ADAS.Off)
-    SM-&gt;&gt;SM: stop AdasAgent (Off list)
-    SM--&gt;&gt;UCM: ok
-    UCM-&gt;&gt;UCM: install AdasCluster 1.1.0
-    UCM-&gt;&gt;SM: VerifyUpdate([ADAS])
-    SM-&gt;&gt;SM: reload configuration, start AdasAgent in VerifyUpdate
-    SM-&gt;&gt;EM: SetState(ADAS.Verify)
-    EM--&gt;&gt;SM: done (new fusion 1.1.0 checked)
-    SM--&gt;&gt;UCM: ok
-    UCM-&gt;&gt;SM: StopUpdateSession()
-    SM-&gt;&gt;SM: unmark, then HpcController → AfterUpdate:&lt;br/&gt;MachineFG.Driving, SYNC, start AdasAgent in Normal
-    SM-&gt;&gt;EM: SetState(ADAS.Normal)
-    SM--&gt;&gt;UCM: ok
-    SC-&gt;&gt;SM: RequestTransition(1): AfterUpdate → Driving
-</pre>
+<p><a class="figure" href="diagrams/StateManagement/12-worked-example-updating-adascluster.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/StateManagement/12-worked-example-updating-adascluster.svg" alt="Sequence diagram: Worked Example: Updating AdasCluster to 1.1.0" loading="lazy"></a></p>
 <p>If the verification fails, SM answers <code>VerifyUpdate</code> with <code>kOperationFailed</code> (step 15). UCM then calls <code>PrepareRollback([ADAS])</code>: <code>AdasAgent</code> enters <code>PrepareRollback</code> (<code>ADAS.Off</code>, SYNC, <code>AdasPn</code> <code>NoCom</code>) and is stopped. UCM restores 1.0.0 and finishes with <code>StopUpdateSession</code>, after which <code>AfterUpdate</code> starts <code>AdasAgent</code> in <code>Normal</code> with the old software.</p>
 <blockquote>
 <p><strong>Key takeaways</strong></p>
@@ -2335,22 +2148,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p>A satellite that deregisters counts as a positive answer, because its process is assumed to terminate.</p>
 <p><strong>Access control.</strong> The hub and the satellites are protected by IAM. The <code>S2RHub</code> constructor checks that the calling process is the one mapped by a <code>SuspendToRamHubMapping</code>; the <code>S2RSatellite</code> constructor checks the <code>SuspendToRamSatelliteMapping</code>. On a mismatch, the Violation <code>InsufficientPermissionsViolation</code> and the security event <code>SEV_ACCESS_CONTROL_SM_IAM_ACCESS_DENIED</code> are raised ([SWS_SM_00706], [SWS_SM_00712]). Only the processes that a <code>SuspendToRamHubMapping</code> names may use the hub ([SWS_SM_00714]), and the hub accepts only authenticated satellites ([SWS_SM_00715]). Projects without IAM requirements can create a satellite with the named constructor <code>Create()</code>, which fails with <code>kAuthenticationRequired</code> if a &quot;Force IAM switch&quot; is set ([SWS_SM_00716]); the SWS does not define how that switch is configured.</p>
 <p>The following diagram shows the entry into S2R when an SMControlApplication uses the hub API directly, without StateMachines (SWS, Figure 7.3).</p>
-<pre class="mermaid">sequenceDiagram
-    autonumber
-    participant SC as SMControlApplication
-    participant HUB as S2RHub (in SM)
-    participant SAT as S2R Satellites
-    participant PSI as PowerStateInterface
-    SAT-&gt;&gt;HUB: Offer() (at startup)
-    SC-&gt;&gt;SC: decide to suspend, terminate the&lt;br/&gt;not-supported processes through SM
-    SC-&gt;&gt;HUB: RequestToEnterSuspendMode(timeout)
-    HUB-&gt;&gt;SAT: EnterSuspendMode()
-    SAT--&gt;&gt;HUB: ok (Suspend Mode entered)
-    HUB--&gt;&gt;SC: Future ready: ok
-    SC-&gt;&gt;HUB: EnterSuspendToRamOs()
-    HUB-&gt;&gt;PSI: SetPowerState(kPmSuspendToRam)
-    Note over PSI: the machine sleeps, RAM is kept
-</pre>
+<p><a class="figure" href="diagrams/StateManagement/13-s2r-hub-and-s2r-satellites.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/StateManagement/13-s2r-hub-and-s2r-satellites.svg" alt="Sequence diagram: S2R Hub and S2R Satellites" loading="lazy"></a></p>
 <h3 id="104-talking-to-the-operating-system-powerstateinterface">10.4 Talking to the Operating System: PowerStateInterface<a class="anchor" href="#104-talking-to-the-operating-system-powerstateinterface" aria-label="Link to this section">#</a></h3>
 <p>How a machine suspends depends on the operating system. SM therefore uses a <strong>platform extension interface</strong>, <code>apext::sm::PowerStateInterface</code>, which the platform vendor or integrator implements for the operating system ([SWS_SM_71000]). When an <code>S2RHub</code> exists, SM also creates a <code>PowerStateInterface</code> ([SWS_SM_00717]).</p>
 <div class="table-wrap"><table>
@@ -2411,13 +2209,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 </tbody>
 </table></div>
-<pre class="mermaid">stateDiagram-v2
-    direction LR
-    Driving --&gt; Suspend: request Park (variant)
-    Suspend --&gt; LeaveSuspend: OS wake-up or RequestUpdateSession
-    LeaveSuspend --&gt; Driving: request Drive
-    note right of Suspend: stop Agents, Standby,&lt;br/&gt;notify satellites, suspend the OS
-</pre>
+<p><a class="figure" href="diagrams/StateManagement/14-suspend-to-ram-in-the-statemachine-a.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/StateManagement/14-suspend-to-ram-in-the-statemachine-a.svg" alt="State diagram: Suspend-to-RAM in the StateMachine Approach" loading="lazy"></a></p>
 <p>Stopping <code>AdasAgent</code> terminates the ADAS processes, which would be the right choice for <code>suspendToRamNotSupported</code> executables. S2R-aware processes would keep running in <code>Standby</code> and receive <code>EnterSuspendMode</code>.</p>
 <h3 id="106-autonomous-wake-up">10.6 Autonomous Wake-Up<a class="anchor" href="#106-autonomous-wake-up" aria-label="Link to this section">#</a></h3>
 <p>SM can leave the suspend without a request of the SMControlApplication (SWS, Section 7.7.15.1). For this, the Controller must have a state <code>LeaveSuspend</code> ([SWS_SM_CONSTR_00036]), and its list must contain LeaveSuspendToRam ([SWS_SM_CONSTR_00037]).</p>
@@ -2487,22 +2279,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p><strong>What the specification says.</strong> The SWS of R25-11 lists the interaction with Diagnostic Management as a known limitation that is &quot;to be clarified&quot; in an upcoming release (SWS, Section 4.1). The earlier requirements on a diagnostic reset through SM were removed in R24-11 (<a href="#appendix-d-notable-changes-in-recent-releases">Appendix D</a>). The <em>Manifest Specification</em> still defines a port interface <code>StateManagementDiagTriggerInterface</code> for diagnostic triggers to SM, but the SWS SM does not use it.</p>
 <p><strong>What Diagnostic Management does.</strong> The <em>Specification of Diagnostics</em> of R25-11 does not mention SM. For the UDS service ECUReset (<code>0x11</code>), Diagnostic Management calls <code>ara::diag::EcuResetRequest::RequestReset</code> of an application that implements this class ([SWS_DM_00235], [SWS_DM_01009]). It sends the positive response before or after the reset, depending on its configuration ([SWS_DM_00268], [SWS_DM_00360]), and calls <code>ExecuteReset</code> of the same class to perform the reset ([SWS_DM_01023], [SWS_DM_01090]). The sub-functions for rapid power shutdown call <code>EnableRapidShutdown</code> ([SWS_DM_01020], [SWS_DM_01021]). Similarly, the UDS service CommunicationControl (<code>0x28</code>) is delivered to an application through <code>ara::diag::CommunicationControl</code> ([SWS_DM_00140], [SWS_DM_00804]). Who implements these classes is a project decision.</p>
 <p><strong>What <code>HPC</code> does.</strong> <code>SmControl</code> implements <code>ara::diag::EcuResetRequest</code>. When the tester requests an ECU reset, <code>SmControl</code> requests <code>Reset</code> (3) from <code>HpcController</code>, whose <code>Restart</code> state stops <code>AdasAgent</code> and requests <code>MachineFG.Restart</code>. The <a href="DiagnosticsPart1.html#126-worked-example-ecu-reset-through-smcontrol">Diagnostics Part 1 guide</a> shows the Diagnostic Management side, including the response timing. The diagnostic request that switches <code>ADAS</code> to <code>Degraded</code> (the <a href="RunningExample.html#14-function-groups-and-states">Running Example guide, Section 1.4</a>) also ends in <code>SmControl</code>, which sends <code>Degrade</code> (10) to <code>AdasAgent</code>; its trigger is the routine <code>DegradeAdas</code> (the <a href="DiagnosticsPart1.html#127-worked-example-degradeadas">Diagnostics Part 1 guide, Section 12.7</a>). <code>HPC</code> does not use CommunicationControl through SM.</p>
-<pre class="mermaid">sequenceDiagram
-    autonumber
-    participant DT as DiagnosticTester
-    participant DM as Diagnostic Management
-    participant SC as SmControl
-    participant SM as StateManager
-    participant EM as Execution Management
-    DT-&gt;&gt;DM: UDS ECUReset (0x11)
-    DM-&gt;&gt;SC: EcuResetRequest: RequestReset
-    SC--&gt;&gt;DM: accepted
-    DM--&gt;&gt;DT: positive response (before the reset)
-    DM-&gt;&gt;SC: EcuResetRequest: ExecuteReset
-    SC-&gt;&gt;SM: RequestTransition(3) on HpcController
-    SM-&gt;&gt;SM: Restart: stop AdasAgent, SYNC
-    SM-&gt;&gt;EM: SetState(MachineFG.Restart)
-</pre>
+<p><a class="figure" href="diagrams/StateManagement/15-diagnostics-ecu-reset-and-communicat.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/StateManagement/15-diagnostics-ecu-reset-and-communicat.svg" alt="Sequence diagram: Diagnostics: ECU Reset and Communication Control" loading="lazy"></a></p>
 <blockquote>
 <p><strong>Note:</strong> Because the path is project-specific, check how your SMControlApplication behaves during an update session: the Controller then answers <code>kUpdateInProgress</code> (<a href="#93-impactedbyupdate">Section 9.3</a>), and the ECU reset would have to be refused or delayed.</p>
 </blockquote>
@@ -5222,12 +4999,11 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 
 </article>
 <nav class="pager" aria-label="Previous and next guide"><a class="pager-prev" href="ExecutionManagement.html"><span class="pager-label">← Previous</span><span class="pager-title">Execution Management</span></a><a class="pager-next" href="PlatformHealthManagement.html"><span class="pager-label">Next →</span><span class="pager-title">Platform Health Management</span></a></nav>
-<footer class="site-footer"><p>Based on the AUTOSAR Adaptive Platform and Foundation specifications, release R25-11.</p><p>Training material, not a normative reference. Where a guide and an AUTOSAR specification differ, the specification applies. Specifications: <a href="https://www.autosar.org/standards" target="_blank" rel="noopener">autosar.org/standards</a>.</p></footer>
+<footer class="site-footer"><p>Based on the AUTOSAR Adaptive Platform and Foundation specifications, release R25-11.</p><p>Training material, not a normative reference. Specifications: <a href="https://www.autosar.org/standards" target="_blank" rel="noopener">autosar.org/standards</a>.</p></footer>
 </main>
 <aside class="toc" aria-label="On this page"><p class="toc-label">On this page</p><ul><li class="lvl2"><a href="#about-this-guide">About This Guide</a></li><li class="lvl3"><a href="#who-this-guide-is-for">Who This Guide Is For</a></li><li class="lvl3"><a href="#learning-objectives">Learning Objectives</a></li><li class="lvl3"><a href="#how-to-read-this-guide">How to Read This Guide</a></li><li class="lvl3"><a href="#the-running-example">The Running Example</a></li><li class="lvl2"><a href="#table-of-contents">Table of Contents</a></li><li class="lvl2"><a href="#1-introduction-to-state-management">1. Introduction to State Management</a></li><li class="lvl3"><a href="#11-what-is-state-management">1.1 What Is State Management?</a></li><li class="lvl3"><a href="#12-what-state-management-does-not-do">1.2 What State Management Does Not Do</a></li><li class="lvl3"><a href="#13-analogies">1.3 Analogies</a></li><li class="lvl3"><a href="#14-two-ways-to-build-state-management">1.4 Two Ways to Build State Management</a></li><li class="lvl3"><a href="#15-state-management-and-ara">1.5 State Management and ARA</a></li><li class="lvl2"><a href="#2-core-concepts-and-terminology">2. Core Concepts and Terminology</a></li><li class="lvl3"><a href="#21-the-states-state-management-handles">2.1 The States State Management Handles</a></li><li class="lvl3"><a href="#22-statemachine-statemachine-state-and-initial-state">2.2 StateMachine, StateMachine State and Initial State</a></li><li class="lvl3"><a href="#23-actionlist-and-actionlistitem">2.3 ActionList and ActionListItem</a></li><li class="lvl3"><a href="#24-transitionrequesttable-and-errorrecoverytable">2.4 TransitionRequestTable and ErrorRecoveryTable</a></li><li class="lvl3"><a href="#25-controller-and-agent">2.5 Controller and Agent</a></li><li class="lvl3"><a href="#26-smcontrolapplication">2.6 SMControlApplication</a></li><li class="lvl3"><a href="#27-update-session-terms">2.7 Update Session Terms</a></li><li class="lvl3"><a href="#28-suspend-to-ram-terms">2.8 Suspend-to-RAM Terms</a></li><li class="lvl3"><a href="#29-standardized-or-project-specific">2.9 Standardized or Project-Specific?</a></li><li class="lvl2"><a href="#3-state-management-in-the-system-architecture">3. State Management in the System Architecture</a></li><li class="lvl3"><a href="#31-where-state-management-sits-in-the-platform">3.1 Where State Management Sits in the Platform</a></li><li class="lvl3"><a href="#32-interfaces-provided-by-state-management">3.2 Interfaces Provided by State Management</a></li><li class="lvl3"><a href="#33-interfaces-required-by-state-management">3.3 Interfaces Required by State Management</a></li><li class="lvl3"><a href="#34-interaction-map">3.4 Interaction Map</a></li><li class="lvl3"><a href="#35-who-may-talk-to-state-management">3.5 Who May Talk to State Management</a></li><li class="lvl2"><a href="#4-configuration-overview">4. Configuration Overview</a></li><li class="lvl3"><a href="#41-where-the-configuration-lives">4.1 Where the Configuration Lives</a></li><li class="lvl3"><a href="#42-how-the-elements-relate">4.2 How the Elements Relate</a></li><li class="lvl3"><a href="#43-from-tables-to-model-elements">4.3 From Tables to Model Elements</a></li><li class="lvl2"><a href="#5-statemachines-and-transitions">5. StateMachines and Transitions</a></li><li class="lvl3"><a href="#51-anatomy-of-a-statemachine">5.1 Anatomy of a StateMachine</a></li><li class="lvl3"><a href="#52-requesting-a-transition">5.2 Requesting a Transition</a></li><li class="lvl3"><a href="#53-triggers-from-network-management">5.3 Triggers from Network Management</a></li><li class="lvl3"><a href="#54-publishing-the-state-currentstate">5.4 Publishing the State: CurrentState</a></li><li class="lvl3"><a href="#55-worked-example-smcontrol-brings-hpc-from-startup-to-driving">5.5 Worked Example: SmControl Brings HPC from Startup to Driving</a></li><li class="lvl2"><a href="#6-actionlists-what-happens-when-a-state-is-entered">6. ActionLists: What Happens When a State Is Entered</a></li><li class="lvl3"><a href="#61-order-parallelism-and-sync">6.1 Order, Parallelism and SYNC</a></li><li class="lvl3"><a href="#62-function-group-state-items">6.2 Function Group State Items</a></li><li class="lvl3"><a href="#63-network-handle-items-and-afterrun">6.3 Network Handle Items and Afterrun</a></li><li class="lvl3"><a href="#64-completeness-rules">6.4 Completeness Rules</a></li><li class="lvl3"><a href="#65-actionlisttimeout">6.5 ActionListTimeout</a></li><li class="lvl3"><a href="#66-worked-example-the-actionlists-of-adasagent">6.6 Worked Example: The ActionLists of AdasAgent</a></li><li class="lvl2"><a href="#7-controller-and-agents">7. Controller and Agents</a></li><li class="lvl3"><a href="#71-why-several-statemachines">7.1 Why Several StateMachines</a></li><li class="lvl3"><a href="#72-the-controller-owns-the-machine-lifecycle">7.2 The Controller Owns the Machine Lifecycle</a></li><li class="lvl3"><a href="#73-starting-and-stopping-agents">7.3 Starting and Stopping Agents</a></li><li class="lvl3"><a href="#74-the-agents-off-state">7.4 The Agent&#x27;s Off State</a></li><li class="lvl3"><a href="#75-startup-shutdown-and-restart-of-the-machine">7.5 Startup, Shutdown and Restart of the Machine</a></li><li class="lvl3"><a href="#76-worked-example-hpccontroller-and-adasagent">7.6 Worked Example: HpcController and AdasAgent</a></li><li class="lvl2"><a href="#8-error-handling-and-recovery">8. Error Handling and Recovery</a></li><li class="lvl3"><a href="#81-where-errors-come-from">8.1 Where Errors Come From</a></li><li class="lvl3"><a href="#82-the-errorrecoverytable-and-the-any-entry">8.2 The ErrorRecoveryTable and the ANY Entry</a></li><li class="lvl3"><a href="#83-the-recovery-reaction">8.3 The Recovery Reaction</a></li><li class="lvl3"><a href="#84-nested-recovery">8.4 Nested Recovery</a></li><li class="lvl3"><a href="#85-state-managements-side-of-recoveryhandler">8.5 State Management&#x27;s Side of RecoveryHandler</a></li><li class="lvl3"><a href="#86-failures-reported-by-execution-management">8.6 Failures Reported by Execution Management</a></li><li class="lvl3"><a href="#87-worked-example-fusion-fails-and-adas-goes-to-degraded">8.7 Worked Example: Fusion Fails and ADAS Goes to Degraded</a></li><li class="lvl3"><a href="#88-worked-example-a-stuck-cameradriver">8.8 Worked Example: A Stuck CameraDriver</a></li><li class="lvl3"><a href="#89-error-handling-without-statemachines">8.9 Error Handling Without StateMachines</a></li><li class="lvl2"><a href="#9-software-updates-state-managements-side">9. Software Updates: State Management&#x27;s Side</a></li><li class="lvl3"><a href="#91-the-updaterequest-interface">9.1 The UpdateRequest Interface</a></li><li class="lvl3"><a href="#92-granting-a-session-updateallowed">9.2 Granting a Session: UpdateAllowed</a></li><li class="lvl3"><a href="#93-impactedbyupdate">9.3 ImpactedByUpdate</a></li><li class="lvl3"><a href="#94-prepare-verify-and-roll-back">9.4 Prepare, Verify and Roll Back</a></li><li class="lvl3"><a href="#95-machine-reset-during-a-session">9.5 Machine Reset During a Session</a></li><li class="lvl3"><a href="#96-ending-the-session-afterupdate">9.6 Ending the Session: AfterUpdate</a></li><li class="lvl3"><a href="#97-worked-example-updating-adascluster-to-110">9.7 Worked Example: Updating AdasCluster to 1.1.0</a></li><li class="lvl2"><a href="#10-power-management-and-suspend-to-ram">10. Power Management and Suspend-to-RAM</a></li><li class="lvl3"><a href="#101-why-suspend-to-ram">10.1 Why Suspend-to-RAM</a></li><li class="lvl3"><a href="#102-tolerant-aware-and-not-supported-applications">10.2 Tolerant, Aware and Not Supported Applications</a></li><li class="lvl3"><a href="#103-s2r-hub-and-s2r-satellites">10.3 S2R Hub and S2R Satellites</a></li><li class="lvl3"><a href="#104-talking-to-the-operating-system-powerstateinterface">10.4 Talking to the Operating System: PowerStateInterface</a></li><li class="lvl3"><a href="#105-suspend-to-ram-in-the-statemachine-approach">10.5 Suspend-to-RAM in the StateMachine Approach</a></li><li class="lvl3"><a href="#106-autonomous-wake-up">10.6 Autonomous Wake-Up</a></li><li class="lvl3"><a href="#107-security-and-virtual-machines">10.7 Security and Virtual Machines</a></li><li class="lvl3"><a href="#108-what-hpc-does">10.8 What HPC Does</a></li><li class="lvl2"><a href="#11-other-interactions">11. Other Interactions</a></li><li class="lvl3"><a href="#111-network-management-and-network-handles">11.1 Network Management and Network Handles</a></li><li class="lvl3"><a href="#112-diagnostics-ecu-reset-and-communication-control">11.2 Diagnostics: ECU Reset and Communication Control</a></li><li class="lvl3"><a href="#113-persistency-logging-and-supervision-of-state-management">11.3 Persistency, Logging and Supervision of State Management</a></li><li class="lvl2"><a href="#12-configuration-reference-what-to-configure">12. Configuration Reference: What to Configure</a></li><li class="lvl3"><a href="#121-minimal-configuration">12.1 Minimal Configuration</a></li><li class="lvl3"><a href="#122-statemanagementmoduleinstantiation">12.2 StateManagementModuleInstantiation</a></li><li class="lvl3"><a href="#123-statemanagementstatenotification-and-the-statemachine-type">12.3 StateManagementStateNotification and the StateMachine Type</a></li><li class="lvl3"><a href="#124-requests-and-rules">12.4 Requests and Rules</a></li><li class="lvl3"><a href="#125-statemanagementactionlist">12.5 StateManagementActionList</a></li><li class="lvl3"><a href="#126-action-items">12.6 Action Items</a></li><li class="lvl3"><a href="#127-error-codes-functiongrouperrormapping-and-related-references">12.7 Error Codes: FunctionGroupErrorMapping and Related References</a></li><li class="lvl3"><a href="#128-network-management-mappings">12.8 Network Management Mappings</a></li><li class="lvl3"><a href="#129-port-interfaces-and-ports">12.9 Port Interfaces and Ports</a></li><li class="lvl3"><a href="#1210-suspend-to-ram-configuration">12.10 Suspend-to-RAM Configuration</a></li><li class="lvl3"><a href="#1211-related-settings-outside-state-management">12.11 Related Settings Outside State Management</a></li><li class="lvl3"><a href="#1212-the-running-example-complete-configuration">12.12 The Running Example: Complete Configuration</a></li><li class="lvl2"><a href="#13-api-reference-and-usage-guide-arasm">13. API Reference and Usage Guide (ara::sm)</a></li><li class="lvl3"><a href="#131-api-overview">13.1 API Overview</a></li><li class="lvl3"><a href="#132-the-service-interfaces-and-their-data-types">13.2 The Service Interfaces and Their Data Types</a></li><li class="lvl3"><a href="#133-errors-application-errors-and-smerrordomain">13.3 Errors: Application Errors and SmErrorDomain</a></li><li class="lvl3"><a href="#134-s2rsatellite">13.4 S2RSatellite</a></li><li class="lvl3"><a href="#135-s2rhub">13.5 S2RHub</a></li><li class="lvl3"><a href="#136-apextsmpowerstateinterface">13.6 apext::sm::PowerStateInterface</a></li><li class="lvl3"><a href="#137-example-the-main-loop-of-smcontrol">13.7 Example: The Main Loop of SmControl</a></li><li class="lvl2"><a href="#14-logging-security-events-and-violations">14. Logging, Security Events and Violations</a></li><li class="lvl2"><a href="#15-end-to-end-walkthrough-a-drive-cycle-of-the-hpc">15. End-to-End Walkthrough: A Drive Cycle of the HPC</a></li><li class="lvl3"><a href="#151-power-on">15.1 Power On</a></li><li class="lvl3"><a href="#152-drive">15.2 Drive</a></li><li class="lvl3"><a href="#153-a-failure">15.3 A Failure</a></li><li class="lvl3"><a href="#154-an-update-request-while-driving">15.4 An Update Request While Driving</a></li><li class="lvl3"><a href="#155-power-off">15.5 Power Off</a></li><li class="lvl3"><a href="#156-state-timeline">15.6 State Timeline</a></li><li class="lvl2"><a href="#16-best-practices-pitfalls-and-troubleshooting">16. Best Practices, Pitfalls and Troubleshooting</a></li><li class="lvl3"><a href="#161-best-practices">16.1 Best Practices</a></li><li class="lvl3"><a href="#162-common-pitfalls">16.2 Common Pitfalls</a></li><li class="lvl3"><a href="#163-troubleshooting-guide">16.3 Troubleshooting Guide</a></li><li class="lvl2"><a href="#17-summary-and-self-check-quiz">17. Summary and Self-Check Quiz</a></li><li class="lvl3"><a href="#171-summary">17.1 Summary</a></li><li class="lvl3"><a href="#172-self-check-quiz">17.2 Self-Check Quiz</a></li><li class="lvl2"><a href="#appendix-a-glossary-and-acronyms">Appendix A. Glossary and Acronyms</a></li><li class="lvl2"><a href="#appendix-b-quick-reference-cheat-sheet">Appendix B. Quick Reference Cheat Sheet</a></li><li class="lvl2"><a href="#appendix-c-spec-traceability">Appendix C. Spec Traceability</a></li><li class="lvl2"><a href="#appendix-d-notable-changes-in-recent-releases">Appendix D. Notable Changes in Recent Releases</a></li><li class="lvl2"><a href="#appendix-e-references">Appendix E. References</a></li></ul></aside>
 </div>
 <button class="to-top" id="to-top" aria-label="Back to top" hidden>↑</button>
-<script>window.MERMAID_URL="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs";</script>
 <script src="../assets/search-index.js" defer></script>
 <script src="../assets/app.js" defer></script>
 </body>

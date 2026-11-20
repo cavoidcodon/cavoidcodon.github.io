@@ -224,7 +224,7 @@ a.card:hover { border-color: var(--accent); box-shadow: var(--shadow); text-deco
 .markdown h1:hover .anchor, .markdown h2:hover .anchor, .markdown h3:hover .anchor,
 .markdown h4:hover .anchor, .markdown .anchor:focus { opacity: 1; text-decoration: none; }
 .markdown p, .markdown ul, .markdown ol, .markdown .table-wrap, .markdown blockquote,
-.markdown details, .markdown .code-block, .markdown pre.mermaid { margin: 0 0 1.1em; }
+.markdown details, .markdown .code-block { margin: 0 0 1.1em; }
 .markdown ul, .markdown ol { padding-left: 1.6em; }
 .markdown li { margin: .25em 0; }
 .markdown li > p { margin: .4em 0; }
@@ -259,14 +259,12 @@ a.card:hover { border-color: var(--accent); box-shadow: var(--shadow); text-deco
 .code-block:hover .copy-btn, .copy-btn:focus { opacity: 1; }
 .code-block:hover::before { opacity: 0; }
 
-pre.mermaid {
-  display: flex; justify-content: center;
-  padding: 16px; overflow-x: auto;
-  background: var(--bg-elev); border: 1px solid var(--border-soft); border-radius: 8px;
-  font-family: var(--font); font-size: 14px; color: var(--fg-muted);
-}
-pre.mermaid:not([data-processed]) { white-space: pre; justify-content: flex-start; font: 13px/1.5 var(--mono); }
-pre.mermaid svg { max-width: 100%; height: auto; }
+/* Diagrams: SVG images rendered from PlantUML. They have a white background of their own,
+   so they stay readable in dark mode. */
+.markdown p:has(> a.figure) { margin: 0 0 1.1em; }
+a.figure { display: block; width: fit-content; max-width: 100%; margin: 0 auto; padding: 12px;
+  background: #fff; border: 1px solid var(--border-soft); border-radius: 8px; overflow-x: auto; cursor: zoom-in; }
+a.figure img { display: block; max-width: 100%; height: auto; margin: 0 auto; }
 
 .table-wrap { overflow-x: auto; border: 1px solid var(--border-soft); border-radius: 8px; }
 .markdown table { border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.5; }

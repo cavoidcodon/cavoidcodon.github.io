@@ -1,0 +1,22 @@
+@startuml
+!include ../_style.puml
+rectangle "Adaptive Application\n(proxy and skeleton code)" as APP
+rectangle "ara::com API and language binding" as API
+rectangle "CM: dispatching and discovery" as DISP
+rectangle "Local binding\n(implementation-specific IPC)" as LOC
+rectangle "SOME/IP binding\nand Signal-Based SOME/IP" as SOMEIP
+rectangle "Signal-Based Static\nand IEEE1722 ACF" as STAT
+rectangle "DDS binding" as DDS
+rectangle "OS network stack: UDP, TCP, IP" as NET
+rectangle "Ethernet (EthernetCommunicationConnector)" as ETH
+APP --> API
+API --> DISP
+DISP --> LOC
+DISP --> SOMEIP
+DISP --> STAT
+DISP --> DDS
+SOMEIP --> NET
+STAT --> NET
+DDS --> NET
+NET --> ETH
+@enduml

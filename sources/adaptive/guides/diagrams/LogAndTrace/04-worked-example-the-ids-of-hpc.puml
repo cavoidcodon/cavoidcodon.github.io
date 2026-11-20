@@ -1,0 +1,28 @@
+@startuml
+!include ../_style.puml
+rectangle "ECU ID HPC1\n(DltEcu HpcDltEcu)" as ECU
+rectangle "FUSN\nFusion" as FUSN
+rectangle "FUSL\nFusionLite" as FUSL
+rectangle "CAMD\nCameraDriver" as CAMD
+rectangle "SMCT\nSmControl" as SMCT
+rectangle "vendor-specific IDs\nEM, SM, PHM daemons" as PLAT
+rectangle "MAIN: cycle control" as F1
+rectangle "TRCK: object tracking" as F2
+rectangle "MAIN" as L1
+rectangle "MAIN: camera control" as C1
+rectangle "IMGS: image acquisition" as C2
+rectangle "MAIN" as S1
+rectangle "#EXE, #SMX, #PHM" as P1
+ECU --> FUSN
+ECU --> FUSL
+ECU --> CAMD
+ECU --> SMCT
+ECU --> PLAT
+FUSN --> F1
+FUSN --> F2
+FUSL --> L1
+CAMD --> C1
+CAMD --> C2
+SMCT --> S1
+PLAT --> P1
+@enduml

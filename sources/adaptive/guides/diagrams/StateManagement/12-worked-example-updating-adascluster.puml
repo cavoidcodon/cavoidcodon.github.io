@@ -1,0 +1,28 @@
+@startuml
+!include ../_style.puml
+autonumber
+participant "SmControl" as SC
+participant "UCM" as UCM
+participant "StateManager" as SM
+participant "Execution Management" as EM
+SC -> SM : UpdateAllowed = kUpdateAllowed (standstill)
+UCM -> SM : RequestUpdateSession()
+SM --> UCM : ok (active session, notifier kIdle)
+UCM -> SM : PrepareUpdate([ADAS])
+SM -> SM : mark AdasAgent, and HpcController indirectly
+SM -> SM : AdasAgent → PrepareUpdate: ADAS.Off, SYNC, AdasPn NoCom
+SM -> EM : SetState(ADAS.Off)
+SM -> SM : stop AdasAgent (Off list)
+SM --> UCM : ok
+UCM -> UCM : install AdasCluster 1.1.0
+UCM -> SM : VerifyUpdate([ADAS])
+SM -> SM : reload configuration, start AdasAgent in VerifyUpdate
+SM -> EM : SetState(ADAS.Verify)
+EM --> SM : done (new fusion 1.1.0 checked)
+SM --> UCM : ok
+UCM -> SM : StopUpdateSession()
+SM -> SM : unmark, then HpcController → AfterUpdate:\nMachineFG.Driving, SYNC, start AdasAgent in Normal
+SM -> EM : SetState(ADAS.Normal)
+SM --> UCM : ok
+SC -> SM : RequestTransition(1): AfterUpdate → Driving
+@enduml

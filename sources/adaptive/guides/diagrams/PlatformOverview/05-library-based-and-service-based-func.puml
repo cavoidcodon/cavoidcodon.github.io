@@ -1,0 +1,16 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "Library-based, for example Diagnostic Management" as LIB {
+  rectangle "Application process\nwith the ara::diag library" as A1
+  rectangle "Cluster daemon" as D1
+}
+rectangle "Service-based, for example State Management" as SVB {
+  rectangle "Application process\nwith a generated proxy" as A2
+  rectangle "Communication Management" as CM2
+  rectangle "Cluster daemon\n(service provider)" as D2
+}
+A1 --> D1 : IPC, implementation-specific
+A2 --> CM2 : ara::com
+CM2 --> D2
+@enduml

@@ -1,0 +1,12 @@
+@startuml
+!include ../_style.puml
+[*] --> NoFault: after clear (bits 4 and 6 set)
+NoFault --> Pending: failed (bits 0, 1, 2, 5)
+Pending --> NoFault: tested cycle without failure (bit 2 reset)
+Pending --> Confirmed: failed again in a later cycle (bit 3)
+Confirmed --> Confirmed: failed again (occurrence counter)
+Confirmed --> Aged: aging threshold reached (entry deleted, bit 3 reset)
+Aged --> Pending: failed again (new entry)
+Confirmed --> NoFault: clear
+Pending --> NoFault: clear
+@enduml

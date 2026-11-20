@@ -1,0 +1,20 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "CalibrationDataService\n(hpc::storage)" as SI
+rectangle "CalibrationDataService_Ipc\n(category SERVICE_INTERFACE_DEPLOYMENT_IPC)" as DEP
+rectangle "CalibrationDataProvided" as PI
+rectangle "CalibrationDataRequired" as RI
+rectangle "Storage_CalibrationPPort" as PM1
+rectangle "Fusion_CalibrationRPort,\nFusionLite_..., CameraDriver_...,\nCalibrationCheck_..." as PM2
+rectangle "CalibrationDataOnHpc" as MM
+rectangle "HpcDesign/HpcIpcConnector" as CON
+DEP --> SI
+PI --> DEP
+RI --> DEP
+PM1 --> PI
+PM2 --> RI
+MM --> PI
+MM --> RI
+MM --> CON
+@enduml

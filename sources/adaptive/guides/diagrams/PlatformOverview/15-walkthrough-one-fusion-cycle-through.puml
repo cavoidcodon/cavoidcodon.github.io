@@ -1,0 +1,24 @@
+@startuml
+!include ../_style.puml
+participant "CameraDriver" as CD
+participant "Communication Management" as CM
+participant "CentralGateway (Classic)" as GW
+participant "FrontRadar" as FR
+participant "Fusion" as FU
+participant "PlatformHealth" as PH
+participant "Log and Trace" as LT
+participant "Cockpit" as CK
+FU -> PH : ReportCheckpoint(CycleStart)
+CD -> CM : event Image, time-stamped with VehicleTime
+CM -> FU : Image (CameraService)
+GW -> CM : PDU ChassisDynamics over Ethernet
+CM -> FU : VehicleSpeed, SteeringAngle, YawRate (Signal-to-Service translation)
+FR -> FU : radar detections (Raw Data Stream over TCP)
+FU -> PH : ReportCheckpoint(InputsRead)
+FU -> FU : fuse into an object list
+FU -> CM : event ObjectList (ObjectListService)
+CM -> CK : ObjectList over DDS
+FU -> PH : ReportCheckpoint(ObjectsPublished)
+FU -> LT : log message (application ID FUSN)
+FU -> PH : ReportCheckpoint(CycleEnd)
+@enduml

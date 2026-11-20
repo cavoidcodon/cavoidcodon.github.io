@@ -1,0 +1,28 @@
+@startuml
+!include ../_style.puml
+rectangle "Adaptive Applications, Software Cluster AdasCluster, Function Group ADAS" as APPS {
+  rectangle "CameraDriver" as CD
+  rectangle "Fusion" as FU
+  rectangle "FusionLite" as FL
+  rectangle "Storage" as ST
+  rectangle "CalibrationCheck" as CC
+  rectangle "LegacyLogger" as LL
+  rectangle "LoggerCompanion" as LC
+}
+rectangle "Platform processes, Software Cluster HpcPlatformCore, Function Group MachineFG" as PLAT {
+  rectangle "StateManager" as SMG
+  rectangle "SmControl" as SMC
+  rectangle "PlatformHealth" as PH
+  rectangle "PowerControl" as PCT
+  rectangle "Daemons of CM, DM, UCM, Crypto,\nIdsM, Firewall, NM and TSync" as DAE
+}
+rectangle "ARA libraries inside the processes:\nara::core, ara::log, ara::per, ara::rds,\nclient libraries, proxies and skeletons" as LIBS
+rectangle "Execution Management:\nfirst platform process" as EM
+rectangle "POSIX operating system and drivers" as OS
+rectangle "Machine HPC: multi-core SoC, HSM,\nhardware watchdog, flash memory" as HW
+APPS --> LIBS
+PLAT --> LIBS
+LIBS --> OS
+EM --> OS
+OS --> HW
+@enduml

@@ -1,0 +1,15 @@
+@startuml
+!include ../_style.puml
+participant "CameraDriver" as A
+participant "Monitor object" as M
+participant "Diagnostic Management" as DM
+A -> M : construct with specifier, initMonitor, CounterBased
+A -> A : finish initializing the notifier target
+A -> M : Offer()
+M -> DM : monitor active
+DM --> A : initMonitor(kDisabled) if an enable condition is off
+A -> M : ReportMonitorAction(kPrefailed)
+M -> DM : result (cached if DM is not ready)
+DM --> A : initMonitor(kClear) after a clear of the DTC
+A -> M : StopOffer() before termination
+@enduml

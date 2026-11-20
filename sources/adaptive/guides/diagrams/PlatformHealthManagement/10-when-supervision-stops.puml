@@ -1,0 +1,20 @@
+@startuml
+!include ../_style.puml
+participant "Execution Management" as EM
+participant "Fusion" as FU
+participant "Platform Health Management" as PHM
+note over EM : ADAS switches to Normal
+EM -> FU : create process
+FU -> PHM : CycleStart (before kRunning)
+note over PHM : alive, ignored. Logical and deadline, start
+FU -> EM : ReportExecutionState(kRunning)
+EM -> PHM : kRunning received for Fusion
+note over PHM : alive, first reference cycle starts, kOK
+FU -> PHM : checkpoints of the 50 ms cycles
+note over EM : later, ADAS switches to Degraded
+EM -> PHM : Fusion is about to receive SIGTERM
+note over PHM : stop all supervisions of Fusion, kDEACTIVATED
+EM -> FU : SIGTERM
+FU -> EM : exit
+EM -> PHM : Fusion terminated
+@enduml

@@ -18,11 +18,11 @@ Assumed background: modern C++, plus basic Linux/POSIX knowledge (processes, sig
 | CAN (optional) | Frames, signals, cyclic transmission | [Network Bindings](guides/NetworkBindings.md) (Signal-to-Service translation) |
 | Diagnostics (optional) | The idea of UDS services, DIDs and DTCs | Diagnostics Part 1, Diagnostics Part 2 |
 
-## The Adaptive Platform in One Page
+## The Adaptive Platform
 
-**Why a second platform?** Classic ECUs control electrical outputs based on input signals, and their software rarely changes during the life of a vehicle. The AUTOSAR **Classic Platform (CP)** is designed for these deeply embedded ECUs. Functions such as automated driving are different: they need much more computing power, they connect the vehicle to backend systems, and their software must be updated during the life of the vehicle. AUTOSAR therefore specifies a second software platform, the **Adaptive Platform (AP)**. It provides high-performance computing and communication, and it allows flexible software configuration, for example for over-the-air updates (*Platform Design*, Section 3.1).
+**Why a second platform?** Classic ECUs control electrical outputs based on input signals, and their software rarely changes during the life of a vehicle. The AUTOSAR **Classic Platform (CP)** is designed for these deeply embedded ECUs. Functions such as automated driving are different: they need much more computing power, they connect the vehicle to backend systems, and their software must be updated during the life of the vehicle. AUTOSAR therefore specifies a second software platform, the **Adaptive Platform (AP)**. It provides high-performance computing and communication, and it allows flexible software configuration, for example for over-the-air updates.
 
-Two technology trends drive the Adaptive Platform: **Ethernet**, which offers much more bandwidth than CAN, and **processors** with many cores, GPUs and hardware accelerators (*Platform Design*, Section 3.2). The following table summarizes the characteristics that result (*Platform Design*, Section 3.3).
+Two technology trends drive the Adaptive Platform: **Ethernet**, which offers much more bandwidth than CAN, and **processors** with many cores, GPUs and hardware accelerators. The following table summarizes the characteristics that result.
 
 | Characteristic | What it means for you |
 | --- | --- |
@@ -34,7 +34,7 @@ Two technology trends drive the Adaptive Platform: **Ethernet**, which offers mu
 | Planned dynamics | Software can be deployed incrementally during development. For production, the integrator can restrict the dynamic behavior, for example to a pre-determined service discovery or to authenticated code only. |
 | Agile | The platform can be updated after deployment, which supports incremental development. |
 
-**How it is built, in five sentences** (*Platform Design*, Sections 4.1 and 4.2):
+**How it is built**:
 
 1. **Adaptive Applications** run on top of the **AUTOSAR Runtime for Adaptive Applications (ARA)**, which is the set of C++ interfaces that the **functional clusters** of the platform provide.
 2. Applications may use only ARA and the minimal real-time POSIX profile **PSE51** of the operating system. This keeps them portable and isolated from each other.
@@ -44,19 +44,7 @@ Two technology trends drive the Adaptive Platform: **Ethernet**, which offers mu
 
 The following diagram shows these layers. The [Platform Overview guide](guides/PlatformOverview.md#3-the-architecture-logical-view) explains them in detail.
 
-```mermaid
-block-beta
-columns 1
-    APP["Adaptive Applications<br/>(processes, written in C++)"]
-    ARA["ARA: the C++ APIs of the functional clusters<br/>(ara::exec, ara::com, ara::log, ...)"]
-    FC["Functional clusters<br/>(libraries and daemon processes)"]
-    OS["Operating system<br/>(POSIX; applications may use PSE51 only)"]
-    MACH["Machine<br/>(physical ECU, virtual machine or container)"]
-    APP --> ARA
-    ARA --> FC
-    FC --> OS
-    OS --> MACH
-```
+![Block diagram: The Adaptive Platform in One Page](guides/diagrams/README/01-the-adaptive-platform-in-one-page.svg)
 
 The Adaptive Platform does not replace the Classic Platform. Both run side by side in the same vehicle and communicate, for example over SOME/IP, which both platforms support (*Platform Design*, Section 3.4). Signal-to-Service translation connects the signal-based Classic world to the service-oriented Adaptive world.
 
@@ -70,7 +58,7 @@ The series does **not**:
 - describe a particular vendor's product or tools. Where implementations differ, a **Note (implementation example)** box shows one typical approach.
 - cover the Classic Platform, except where an Adaptive cluster interacts with it.
 
-All guides use release R25-11 only. They never mix releases.
+All guides use release R25-11 only.
 
 ## The Guides
 
@@ -100,10 +88,6 @@ Start with [*The Running Example*](guides/RunningExample.md). It defines the inv
 | Intrusion Detection System Manager and Firewall | How are security events collected, and how is network traffic filtered? | Planned |
 | End-to-End Integration: A Day in the Life of the HPC | How do all clusters work together over a whole day? | Planned |
 
-The version in brackets is the current version of the guide. It increases when a revised guide is published. Guides without a link are planned.
-
-Tables in the guides refer to other guides by short names: Running Example, Series Glossary, Platform Overview, Manifests, Core (`ara::core` and General Conventions), EM, SM, PHM, CM (Communication Management Part 1), Network Bindings (Part 2), Secure Communication (Part 3), NM/TSync/RDS, Log and Trace, Persistency, Diagnostics Part 1, Diagnostics Part 2, UCM, Cryptography, IAM, IDSM and Firewall, and Integration.
-
 ## The Running Example
 
 All guides share one running example: an invented high-performance ECU called **HPC** that runs an ADAS feature. Every guide shows its topic on this example, so the pieces fit together as you read on. The [Running Example guide](guides/RunningExample.md) defines the example completely, and each of its elements names the guide that explains it in detail.
@@ -125,47 +109,6 @@ Every guide about a functional cluster follows the same pattern, so that you alw
 The Running Example and the Series Glossary are references and do not follow this pattern. The Platform Overview, Manifests and Core guides cover cross-cutting topics and adapt it.
 
 ## Functional Clusters and Their Guides
-
-A **functional cluster** is a logical group of platform functionality, such as Execution Management or Persistency. The *Software Architecture* explanation sorts the R25-11 clusters into seven categories (*SW Architecture*, Section 9.1):
-
-```mermaid
-flowchart LR
-    subgraph RT["Runtime"]
-        EM["Execution Management"]
-        SM["State Management"]
-        LT["Log and Trace"]
-        CORE["Core"]
-        OSI["Operating System Interface"]
-    end
-    subgraph COMM["Communication"]
-        CM["Communication Management"]
-        RDS["Raw Data Stream"]
-        NM["Network Management"]
-        TS["Time Synchronization"]
-        AAG["Automotive API Gateway"]
-    end
-    subgraph STO["Storage"]
-        PER["Persistency"]
-        RPER["Remote Persistency"]
-    end
-    subgraph SEC["Security"]
-        CRY["Cryptography"]
-        IDSM["Intrusion Detection System Manager"]
-        FW["Firewall"]
-    end
-    subgraph SAF["Safety"]
-        PHM["Platform Health Management"]
-        SHWA["Safe Hardware Acceleration"]
-    end
-    subgraph CFG["Configuration"]
-        UCM["Update and Configuration Management"]
-        VUCM["Vehicle Update and Configuration Management"]
-        REG["Registry"]
-    end
-    subgraph DIA["Diagnostics"]
-        DM["Diagnostic Management"]
-    end
-```
 
 The following table maps each cluster to its guide. The columns come from two explanatory documents:
 
@@ -220,7 +163,7 @@ All guides use the same conventions. Once you know them, you can tell at a glanc
 
 ### Requirement and Constraint IDs
 
-An ID in square brackets, such as `[SWS_EM_01050]`, points to a requirement or constraint in a specification. The guides cite IDs where they make a normative statement, at most a few in one place, and list the rest in the *Spec Traceability* appendix.
+An ID in square brackets, such as `[SWS_EM_01050]`, points to a requirement or constraint in a specification.
 
 | Form | Example | Source |
 | --- | --- | --- |
@@ -240,8 +183,6 @@ Every guide keeps three kinds of statements apart:
 | **Explanatory**: the specification explains it | A reference to an EXP or TR document or section | "AUTOSAR recommends a library-based design for clusters used only locally." |
 | **Implementation example**: what implementations typically do | A **Note (implementation example)** box | "On Linux, EM can implement ResourceGroups with cgroups." |
 
-If the specification is silent or ambiguous on a point, the guide says so explicitly instead of guessing.
-
 ### Boxes and Markers
 
 | Marker | Meaning |
@@ -256,7 +197,7 @@ If the specification is silent or ambiguous on a point, the guide says so explic
 
 - **Code** follows the R25-11 API: names, signatures and headers as in the specification. Examples are short and illustrative. Vendor headers may differ in detail.
 - **Manifests** are AUTOSAR XML (ARXML) files. To keep examples readable, guides often show a *conceptual* view that starts with the comment `# Conceptual view ... NOT real ARXML syntax.` Real ARXML appears only where it follows the R25-11 XML Schema and the Manifest Specification, mainly in the Manifests guide ([complete configuration of the running example](guides/Manifests.md#1216-the-running-example-complete-configuration)).
-- **Diagrams** use Mermaid: sequence diagrams for interactions, state diagrams for states, flowcharts for structure and decisions, and block diagrams for layer stacks.
+- **Diagrams** are drawn in [PlantUML](https://plantuml.com/) and inserted as SVG images: sequence diagrams for interactions, state diagrams for states, flowcharts for structure and decisions, class diagrams for meta-model relations and block diagrams for layer stacks.
 
 ### Names and Typography
 
@@ -271,8 +212,6 @@ If the specification is silent or ambiguous on a point, the guide says so explic
 A guide does not repeat what another guide explains. It gives a two- or three-line recap and links to the section that owns the topic, for example "see the [EM guide, Chapter 8](guides/ExecutionManagement.md#8-function-group-state-transitions-step-by-step)". Terms link to the [series glossary](guides/Glossary.md).
 
 ## The AUTOSAR Specifications
-
-The guides cite the specifications but do not contain them. You can download them free of charge from <https://www.autosar.org/standards>. Choose **Adaptive Platform** and **Foundation**, release **R25-11**. The files are provided for information; read the disclaimer and terms of use in each file. A few guides also cite documents of the Classic Platform R25-11, for example the Platform Overview guide and the Diagnostics the Diagnostics Part 1 and Diagnostics Part 2 guides.
 
 ### How AUTOSAR Documents Are Named
 
@@ -291,7 +230,7 @@ The guides rely on SWS, TPS and PRS for every normative statement, and on EXP an
 
 ## Viewing the Guides
 
-The guides are plain Markdown with [Mermaid](https://mermaid.js.org/) diagrams. They render natively on GitHub and GitLab. In VS Code, install the *Markdown Preview Mermaid Support* extension.
+The guides are plain Markdown. The diagrams are SVG images, so every Markdown viewer shows them, for example GitHub, GitLab or the preview of VS Code. Click an image to open it at full size.
 
 ## Disclaimer
 

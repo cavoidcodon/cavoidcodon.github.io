@@ -1,0 +1,15 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "Monitor in CameraDriver" as M
+rectangle "Debouncing (FDC)" as D
+rectangle "Event CameraBlocked: event status bits" as E
+rectangle "DTC 0x9A1011: UDS status byte" as DTC
+rectangle "Event memory HpcPrimaryMemory: entry, snapshots, extended data" as EM
+rectangle "Tester" as T
+M --> D : kPrefailed / kPrepassed
+D --> E : qualified failed / passed
+E --> DTC : DiagnosticEventToTroubleCodeUdsMapping
+DTC --> EM : storage trigger
+EM --> T : 0x19 / SOVD faults
+@enduml

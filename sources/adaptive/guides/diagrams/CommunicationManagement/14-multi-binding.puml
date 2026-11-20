@@ -1,0 +1,13 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "HPC" as HPC {
+  rectangle "CameraDriver\nskeleton (one object)" as CD
+  rectangle "Fusion\nproxy" as FU
+  rectangle "SOME/IP daemon\n(Communication Management)" as D
+}
+rectangle "Cockpit\n(remote consumer)" as CK
+CD --> FU : instance 1: local IPC binding
+CD --> D : instance 2: SOME/IP binding
+D --> CK : Ethernet
+@enduml

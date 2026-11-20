@@ -1,0 +1,18 @@
+@startuml
+!include ../_style.puml
+rectangle "Start StateMachine item" as S
+rectangle "Agent already\nrunning?" as R <<decision>>
+rectangle "Parameter\ngiven?" as P1 <<decision>>
+rectangle "Start the Agent in its\nInitial State\nSWS_SM_00612" as A
+rectangle "Start the Agent in the\ngiven state\nSWS_SM_00622" as B
+rectangle "Parameter\ngiven?" as P2 <<decision>>
+rectangle "Skip the item\nSWS_SM_00613" as C
+rectangle "Transition the Agent\nto the given state\nSWS_SM_00623" as D
+S --> R
+R --> P1 : no
+P1 --> A : no
+P1 --> B : yes
+R --> P2 : yes
+P2 --> C : no
+P2 --> D : yes
+@enduml

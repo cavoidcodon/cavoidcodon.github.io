@@ -1,0 +1,23 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "Adaptive Application" as APP
+rectangle "Executable\n(binary with one main)" as EXE
+rectangle "Modelled Process\n(Process element in the manifest)" as MP
+rectangle "OS process\n(has a PID)" as OSP
+rectangle "Execution Manifest" as MAN
+rectangle "Function Group" as FG
+rectangle "Function Group States\n(Off is mandatory)" as FGS
+rectangle "MachineFG" as MFG
+rectangle "State Management" as SM
+rectangle "Execution Management" as EM
+APP --> EXE : consists of 1..n
+EXE --> MP : described by 1..n
+MP --> OSP : realized at run time as
+MAN --> MP : configures
+MP --> FG : references states of exactly one
+FG --> FGS : has
+MFG --> FG : is a special
+SM --> EM : requests a Function Group State
+EM --> OSP : starts and stops
+@enduml

@@ -1,0 +1,11 @@
+@startuml
+!include ../_style.puml
+[*] --> DEINIT
+DEINIT --> NODATA: init
+NODATA --> INIT: first data without error
+NODATA --> INVALID: too many errors or no new data (extended)
+INIT --> VALID: enough OK, few errors
+INIT --> INVALID: too many errors, or counter faults (extended)
+VALID --> INVALID: too many errors or too few OK
+INVALID --> VALID: enough OK, few errors
+@enduml

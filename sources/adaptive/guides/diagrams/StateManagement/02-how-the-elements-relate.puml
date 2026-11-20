@@ -1,0 +1,37 @@
+@startuml
+!include ../_style.puml
+rectangle "Machine HPC" as M
+rectangle "StateManagementModuleInstantiation\nmaxActionListDuration" as SMI
+rectangle "StateManagementStateNotification" as N
+rectangle "ModeDeclarationGroupPrototype\ncategory CONTROLLER or AGENT" as SMC
+rectangle "ModeDeclarationGroup\nstates, initialMode" as MDG
+rectangle "P-port (StateMachineNotification)" as NP
+rectangle "StateManagementRequestTrigger" as RT
+rectangle "StateManagementRequestError" as RE
+rectangle "StateManagementRequestRule\nformula, nextState" as RR
+rectangle "R-port" as RP
+rectangle "StateManagementActionList\naffectedState, maxActionListDuration" as AL
+rectangle "Action items:\nFG state, start/stop, SYNC,\nsleep, NM, S2R" as AI
+rectangle "FunctionGroupErrorMapping" as FEM
+rectangle "R-port (StateClientInterface)" as SCP
+rectangle "FunctionGroupPortMapping" as FGPM
+rectangle "SmInteractsWithNmMapping" as MAP
+rectangle "NmNetworkHandle" as NH
+M --> SMI : moduleInstantiation
+SMI --> N : notification
+N --> SMC : stateMachine
+SMC --> MDG : type
+N --> NP : notificationPort
+SMI --> RT : request
+SMI --> RE : request
+RT --> RR : rule
+RE --> RR : rule
+RT --> RP : stateRequestPort
+SMI --> AL : actionItemList
+AL --> AI : actionItem (ordered)
+SMI --> FEM : functionGroupErrorMapping
+AI --> SCP : rPortPrototype
+FGPM --> SCP : rPortPrototypeInExecutable
+MAP --> AI : actionItem
+MAP --> NH : nmNetworkHandle
+@enduml

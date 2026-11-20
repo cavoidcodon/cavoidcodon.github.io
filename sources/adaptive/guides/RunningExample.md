@@ -48,7 +48,7 @@ Read [Section 1.1](#11-purpose-and-rules) to [Section 1.6](#16-services-and-thei
 | **Note** | Background or a simplification of the example. |
 | **Pitfall** | A common mistake seen in real projects. |
 | **Key takeaways** | A short summary at the end of the chapter. |
-| Diagrams | Written in Mermaid. They render natively on GitHub and GitLab. |
+| Diagrams | Drawn in PlantUML and inserted as SVG images, so they show in any Markdown viewer. Click an image to open it at full size. |
 
 ## Table of Contents
 
@@ -103,32 +103,7 @@ The ADAS feature on `HPC` works like this. A front camera, attached to `HPC`, an
 
 The following diagram shows the network topology.
 
-```mermaid
-flowchart LR
-    subgraph OFF["Off-board"]
-        BE["Backend"]
-        DT["DiagnosticTester"]
-    end
-    subgraph ETH["Ethernet backbone"]
-        HPC["HPC<br/>(Adaptive Platform)"]
-        CP["Cockpit"]
-        FR["FrontRadar"]
-        TU["TelematicsUnit<br/>(OTA Client, V-UCM)"]
-        GW["CentralGateway<br/>(switch, CAN gateway,<br/>time master)"]
-    end
-    subgraph CAN["CAN bus"]
-        CH["ChassisECU<br/>(Classic Platform)"]
-        IC["InstrumentCluster<br/>(Classic Platform)"]
-    end
-    BE ---|"cellular"| TU
-    DT ---|"DoIP"| GW
-    HPC --- GW
-    CP --- GW
-    FR --- GW
-    TU --- GW
-    GW --- CH
-    GW --- IC
-```
+![Flowchart: The Vehicle Context](diagrams/RunningExample/01-the-vehicle-context.svg)
 
 | Node | Platform | Role in the example | IPv4 (illustrative) | Owner guides |
 | --- | --- | --- | --- | --- |
@@ -178,29 +153,9 @@ Each Software Cluster carries the ID of its vendor and is signed by that vendor:
 
 The following diagrams show the main transitions. EM performs every transition; it initiates only `Off` → `Startup` of `MachineFG` itself. All other transitions are requested by State Management.
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> Off
-    Off --> Startup: EM at boot
-    Startup --> Driving: vehicle switched on
-    Driving --> Shutdown: vehicle switched off
-    Driving --> Restart: ECU reset or update
-    Verify --> Driving: update verified
-    note right of Verify: entered while an update that affects MachineFG is activated (the UCM guide)
-```
+![State diagram: Function Groups and States](diagrams/RunningExample/02-function-groups-and-states.svg)
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> Off
-    Off --> Normal: machine in Driving
-    Normal --> Degraded: supervision failure, Fusion crash or diagnostic request
-    Normal --> Off: shutdown or update
-    Degraded --> Off: shutdown or update
-    Off --> Verify: update of AdasCluster activated
-    Verify --> Normal: update verified
-```
+![State diagram: Function Groups and States](diagrams/RunningExample/03-function-groups-and-states.svg)
 
 | Transition | Requested by State Management when ... | Owner guides |
 | --- | --- | --- |
@@ -285,30 +240,7 @@ Standardized platform services, such as the `PackageManagement` service of UCM o
 
 The following diagram shows who provides and who uses which service.
 
-```mermaid
-flowchart LR
-    CD["CameraDriver"] --> CS(["CameraService"])
-    CS --> FU["Fusion"]
-    CS --> CK["Cockpit (remote)"]
-    FU --> OL(["ObjectListService"])
-    FL["FusionLite"] --> OL
-    OL --> ST["Storage"]
-    OL --> CK
-    ST --> CAL(["CalibrationDataService"])
-    CAL --> CC["CalibrationCheck"]
-    CAL --> FU
-    CAL --> FL
-    CD -->|"SetCalibration"| CAL
-    S2S["CM: Signal-to-Service<br/>translation"] --> VD(["VehicleDynamicsService"])
-    S2S --> PM(["PowerModeService"])
-    VD --> FU
-    VD --> FL
-    PM --> SMC["SmControl"]
-    VD --> SMC
-    SMC --> AS(["AdasStatusService"])
-    AS --> S2S
-    AS --> CK
-```
+![Flowchart: Services and Their Consumers](diagrams/RunningExample/04-services-and-their-consumers.svg)
 
 ### 1.7 Network Deployment
 
@@ -333,15 +265,7 @@ All values in this section are illustrative. The owner guides check them against
 
 The Classic ECUs on the CAN bus exchange *signals*, not services. Signal-to-Service translation in Communication Management maps these signals to service elements on `HPC`, and back. The following diagram shows the path of the vehicle dynamics signals and of the ADAS status.
 
-```mermaid
-flowchart LR
-    CH["ChassisECU"] -->|"CAN: ChassisDynamics"| GW["CentralGateway"]
-    GW -->|"PDUs over Ethernet"| CM["HPC: Communication Management<br/>(Signal-to-Service translation)"]
-    CM -->|"VehicleDynamicsService"| FU["Fusion, FusionLite"]
-    SMC["SmControl"] -->|"AdasStatusService"| CM
-    CM -->|"PDUs over Ethernet"| GW
-    GW -->|"CAN: AdasHmi"| IC["InstrumentCluster"]
-```
+![Flowchart: Classic ECUs and Signal-to-Service Translation](diagrams/RunningExample/05-classic-ecus-and-signal-to-service-t.svg)
 
 | Signals | Sender → receiver | PDU (CAN ID, cycle; illustrative) | Service on `HPC` |
 | --- | --- | --- | --- |

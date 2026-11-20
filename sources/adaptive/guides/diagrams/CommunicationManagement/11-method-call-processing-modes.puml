@@ -1,0 +1,12 @@
+@startuml
+!include ../_style.puml
+rectangle "Must the provider control\nevery activation (real time)?" as A <<decision>>
+rectangle "kPoll\n+ ProcessNextMethodCall()" as P
+rectangle "E2E-protected methods,\nor most methods need\nthe same lock?" as B <<decision>>
+rectangle "kEventSingleThread" as S
+rectangle "kEvent (default)" as E
+A --> P : yes
+A --> B : no
+B --> S : yes
+B --> E : no
+@enduml

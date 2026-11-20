@@ -1,0 +1,17 @@
+@startuml
+!include ../_style.puml
+autonumber
+participant "Caller (consumer)" as C
+participant "Asynchronous API (provider)" as A
+participant "Worker thread" as W
+participant "Shared state" as S
+C -> A : start the operation
+A -> S : Promise created, state not ready
+A --> C : Future (refers to the shared state)
+A -> W : hand over the Promise
+C -> C : continue with other work
+W -> S : set_value(v) or SetError(e): state ready
+C -> S : GetResult()
+S --> C : Result with the value or the error
+note over C, S : the Future is now invalid (valid() == false)
+@enduml

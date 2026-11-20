@@ -1,0 +1,18 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "Adaptive Applications\n(Fusion, CameraDriver, SmControl, ...)" as APP
+rectangle "Log and Trace\n(ara::log + backend)" as LT
+rectangle "Platform clusters\n(EM, SM, PHM, CM, DM, UCM, ...)" as FC
+rectangle "Time Synchronization" as TS
+rectangle "OS adapter (ARTI)" as OS
+rectangle "Logging client" as CL
+rectangle "Trace tool (ARTI)" as ARTI
+APP --> LT : Logger
+FC --> LT : Logger: standardized messages
+TS --> LT : SynchronizedTimeBaseConsumer
+OS --> LT : OS trace events
+LT --> CL : DLT messages
+CL --> LT : control messages
+LT --> ARTI : modeled messages
+@enduml

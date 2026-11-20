@@ -1,0 +1,33 @@
+@startuml
+!include ../_style.puml
+rectangle "Memory full and new event to store" as A
+rectangle "Strategy" as B <<decision>>
+rectangle "Discard new event" as X
+rectangle "Entries with the lowest priority" as C
+rectangle "New event priority higher than theirs?" as D <<decision>>
+rectangle "Displace the oldest of them" as O
+rectangle "Passive entries among them?" as E <<decision>>
+rectangle "Oldest passive entry" as P
+rectangle "Displace it" as O2
+rectangle "Oldest of all of them" as Q
+rectangle "Passive entries?" as F <<decision>>
+rectangle "Entries not tested this cycle?" as G <<decision>>
+rectangle "Oldest not-tested entry" as R
+A --> B
+B --> X : none
+B --> C : prioOcc or full
+C --> D
+D --> O : yes, prioOcc
+D --> E : yes, full
+E --> P : yes
+P --> O2
+E --> Q : no
+Q --> O2
+D --> F : equal, full
+F --> P : yes
+F --> G : no
+G --> R : yes
+R --> O2
+G --> X : no
+D --> X : lower, or equal with prioOcc
+@enduml

@@ -1,0 +1,25 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "DiagnosticTester" as DT
+rectangle "CentralGateway" as CGW
+rectangle "Diagnostic Management" as DM
+rectangle "Fusion" as FU
+rectangle "CameraDriver" as CD
+rectangle "SmControl" as SC
+rectangle "StateManager" as SM
+rectangle "Storage" as ST
+rectangle "IdsM" as IDS
+rectangle "Persistency" as PER
+rectangle "Log and Trace" as LT
+DT --> CGW : DoIP TCP 13400
+CGW --> DM
+DM --> FU : DID 0x0101
+DM --> CD : routine 0x0201
+DM --> SC : ECU reset, routine 0x0202, seed and key, VIN, power mode
+SC --> SM : Reset, Degrade
+CD --> ST : SetCalibration
+DM ..> IDS
+DM ..> PER
+DM ..> LT
+@enduml

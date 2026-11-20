@@ -1,0 +1,19 @@
+@startuml
+!include ../_style.puml
+rectangle "Adaptive Application process" as APP {
+  rectangle "Application code" as CODE
+  rectangle "C++ language binding\n(proxies, skeletons, types)" as LB
+  rectangle "Communication binding\n(serialization, E2E)" as CB
+}
+rectangle "Communication Management software (optional)" as CMSW {
+  rectangle "Dispatching and discovery" as DD
+}
+rectangle "Network" as NET
+rectangle "Execution Management" as EM
+CODE --> LB : ara::com API
+LB --> CB
+CB --> DD : IPC
+CB --> NET : SOME/IP, DDS over TCP/IP
+DD --> NET
+EM ..> CMSW
+@enduml

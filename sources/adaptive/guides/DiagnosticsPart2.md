@@ -57,7 +57,7 @@ If you write monitors, read Chapters 1, 2, 5 to 8 and 15 first. If you configure
 | **Note (implementation example)** | How a typical implementation *might* realize something. This is not mandated by AUTOSAR. |
 | **Pitfall** | A common mistake seen in real projects. |
 | **Key takeaways** | A short summary at the end of each chapter. |
-| Diagrams | Written in Mermaid. They render natively on GitHub and GitLab. In VS Code, install the *Markdown Preview Mermaid Support* extension. |
+| Diagrams | Drawn in PlantUML and inserted as SVG images, so they show in any Markdown viewer. Click an image to open it at full size. |
 
 > **Note:** The code in this guide is illustrative C++17. It follows the R25-11 API tables of the specification, but vendor headers may differ in detail, in particular for the generated typed classes and for the parts that R25-11 leaves open (Sections [11.3](#113-data-transfer-sessions-and-handlers) and [13.3](#133-operations)). UDS (ISO 14229-1), DoIP (ISO 13400-2) and SOVD (ASAM SOVD, ISO 17978-3) are referred to by name only; this guide explains what the AUTOSAR specification requires on top of them. All IDs, addresses and timings of the running example are invented for teaching.
 
@@ -270,15 +270,7 @@ What DM does **not** do in this area (SWS, Section 4.1): no OBD or WWH-OBD DTCs,
 
 The fault-memory part of `ara::diag` is a set of small classes, each bound to one port of the application by an `InstanceSpecifier`, like the classes of the [Diagnostics Part 1 guide](DiagnosticsPart1.md#14-dm-and-ara). Most of them are *required* ports: the application uses a function of DM, for example to report a monitor result or to restart an operation cycle. DM is daemon-based and persists the event memory with Persistency (SWS, Table 5.2).
 
-```mermaid
-flowchart LR
-    CD["CameraDriver: Monitor CameraBlocked"] -->|"ReportMonitorAction"| DM["Diagnostic Management daemon"]
-    SC["SmControl: OperationCycle, Condition, DTCInformation"] -->|"RestartOperationCycle, SetCondition"| DM
-    DM -->|"Read VehicleSpeed DID for the snapshot"| SC
-    DM -->|"event memory"| P["Persistency"]
-    T["DiagnosticTester (UDS)"] -->|"0x19, 0x14, 0x85"| DM
-    S["SOVD client"] -->|"GET faults, DELETE faults"| DM
-```
+![Flowchart: Fault Memory and ARA](diagrams/DiagnosticsPart2/01-fault-memory-and-ara.svg)
 
 > **Key takeaways**
 >
@@ -305,14 +297,7 @@ flowchart LR
 
 The following diagram shows the chain for the running example.
 
-```mermaid
-flowchart LR
-    M["Monitor in CameraDriver"] -->|"kPrefailed / kPrepassed"| D["Debouncing (FDC)"]
-    D -->|"qualified failed / passed"| E["Event CameraBlocked: event status bits"]
-    E -->|"DiagnosticEventToTroubleCodeUdsMapping"| DTC["DTC 0x9A1011: UDS status byte"]
-    DTC -->|"storage trigger"| EM["Event memory HpcPrimaryMemory: entry, snapshots, extended data"]
-    EM -->|"0x19 / SOVD faults"| T["Tester"]
-```
+![Flowchart: Monitor, Diagnostic Event, DTC](diagrams/DiagnosticsPart2/02-monitor-diagnostic-event-dtc.svg)
 
 ### 2.2 Event Status and the UDS DTC Status Byte
 
@@ -429,24 +414,7 @@ Two classes look like providers although the TPS uses R-ports: `Monitor` has `Of
 
 Diagnostic Event Management needs several applications at once. The sequence below shows the minimum for one event.
 
-```mermaid
-sequenceDiagram
-    participant SC as SmControl (cycle and conditions)
-    participant CD as CameraDriver (monitor)
-    participant DM as Diagnostic Management
-    participant T as Tester
-    SC->>DM: RestartOperationCycle (IgnitionCycle)
-    SC->>DM: SetCondition kConditionTrue (PowerModeOn)
-    CD->>DM: Offer (Monitor)
-    DM-->>CD: initMonitor kRestart (on later restarts)
-    loop every 100 ms
-        CD->>DM: ReportMonitorAction kPrefailed or kPrepassed
-    end
-    DM->>DM: debounce, update status, store entry
-    DM->>SC: Read DID 0x0102 for the snapshot
-    T->>DM: 0x19 02 08
-    DM-->>T: 59 02 FF 9A 10 11 2F
-```
+![Sequence diagram: Who Calls Whom](diagrams/DiagnosticsPart2/03-who-calls-whom.svg)
 
 If the cycle is never restarted, status bits 1 and 6 never reset and no DTC ever ages. If the enable condition is never set, DM ignores every report ([SWS_DM_00568]). Both are application responsibilities: DM does not decide when an ignition cycle begins.
 
@@ -462,16 +430,7 @@ If the cycle is never restarted, status bits 1 and 6 never reset and no DTC ever
 
 AUTOSAR describes a reference architecture for SOVD in a vehicle with several machines and microcontrollers (EXP SOVD, Chapter 2). The diagram below shows its blocks.
 
-```mermaid
-flowchart LR
-    C["SOVD client (workshop, backend)"] -->|"HTTPS"| GW["SOVD Gateway (edge node, reverse proxy)"]
-    B["Backend connectivity"] --> GW
-    GW -->|"HTTPS, by entity in the URI"| DM1["DM on HPC: SOVD server, component"]
-    DM1 --> DS["Diagnostic Server instance: sub-component"]
-    GW --> TR["SOVD to UDS translation (on-board test client, ODX)"]
-    TR -->|"UDS"| MC["Classic ECUs"]
-    GW --> OTA["OTA client (vehicle update)"]
-```
+![Flowchart: The SOVD Reference Architecture](diagrams/DiagnosticsPart2/04-the-sovd-reference-architecture.svg)
 
 - The **SOVD gateway** routes each request by the entity part of its URI to an internal SOVD endpoint, configured statically or discovered by mDNS. It works as an HTTP reverse proxy. Its configuration is `SovdGatewayInstantiation` (EXP SOVD, Section 2.1; TPS, Section 12.12.3).
 - **DM** is an SOVD server. It is one SOVD component, and each Diagnostic Server instance is a sub-component; DM routes to the sub-components itself ([SWS_DM_01372]-[SWS_DM_01374]). Its configuration is `SovdServerInstantiation` (TPS, Section 12.12.2).
@@ -514,21 +473,7 @@ The SWS itself defines no default values in its configuration chapter (SWS, Sect
 
 The DEXT links events to everything else through mapping elements. The diagram shows the main relations for one event.
 
-```mermaid
-flowchart TB
-    EV["DiagnosticEvent"] -->|"DiagnosticEventToOperationCycleMapping"| OC["DiagnosticOperationCycle"]
-    EV -->|"DiagnosticEventToDebounceAlgorithmMapping"| DB["DiagnosticDebounceAlgorithmProps"]
-    EV -->|"DiagnosticEventToEnableConditionGroupMapping"| ECG["DiagnosticEnableConditionGroup"]
-    EV -->|"DiagnosticEventToTroubleCodeUdsMapping"| DTC["DiagnosticTroubleCodeUds"]
-    EV -->|"DiagnosticMonitorPortMapping"| MP["R-port of the monitor process"]
-    DTC --> PR["DiagnosticTroubleCodeProps"]
-    DTC -->|"DiagnosticTroubleCodeUdsToClearConditionGroupMapping"| CCG["DiagnosticClearConditionGroup"]
-    PR -->|"diagnosticMemory"| MEM["DiagnosticMemoryDestination"]
-    PR -->|"snapshotRecordContent"| SS["DiagnosticDataIdentifierSet"]
-    PR -->|"extendedDataRecord"| EDR["DiagnosticExtendedDataRecord"]
-    PR -->|"aging"| AG["DiagnosticAging"]
-    AG -->|"agingCycle"| OC
-```
+![Flowchart: How the Elements Relate](diagrams/DiagnosticsPart2/05-how-the-elements-relate.svg)
 
 ### 4.3 Who Configures What, and When
 
@@ -583,21 +528,7 @@ The constructors of `Monitor` (all DRAFT in R25-11) select the debouncing ([Chap
 
 The following sequence shows the life of a monitor object.
 
-```mermaid
-sequenceDiagram
-    participant A as CameraDriver
-    participant M as Monitor object
-    participant DM as Diagnostic Management
-    A->>M: construct with specifier, initMonitor, CounterBased
-    A->>A: finish initializing the notifier target
-    A->>M: Offer()
-    M->>DM: monitor active
-    DM-->>A: initMonitor(kDisabled) if an enable condition is off
-    A->>M: ReportMonitorAction(kPrefailed)
-    M->>DM: result (cached if DM is not ready)
-    DM-->>A: initMonitor(kClear) after a clear of the DTC
-    A->>M: StopOffer() before termination
-```
+![Sequence diagram: ara::diag::Monitor: A Required Port with a Notifier](diagrams/DiagnosticsPart2/06-ara-diag-monitor-a-required-port-wit.svg)
 
 ### 5.3 Reporting: `ReportMonitorAction` and `MonitorAction`
 
@@ -645,16 +576,7 @@ DM processes the event status bits like the corresponding UDS DTC status bits of
 
 The state diagram shows the two most important bits of one event over a cycle.
 
-```mermaid
-stateDiagram-v2
-    [*] --> NotTested: cycle restart (TF this cycle = 0, not completed = 1)
-    NotTested --> Failed: qualified failed (TF = 1, TF this cycle = 1, not completed = 0)
-    NotTested --> Passed: qualified passed (TF = 0, not completed = 0)
-    Failed --> Passed: qualified passed (TF = 0, TF this cycle stays 1)
-    Passed --> Failed: qualified failed
-    Failed --> NotTested: cycle restart
-    Passed --> NotTested: cycle restart
-```
+![State diagram: Event Status Processing](diagrams/DiagnosticsPart2/07-event-status-processing.svg)
 
 An event is called *active* when `kTestFailed` = 1 and *passive* when it is 0 (SWS, Section 7.3.4.4.8); displacement uses this ([Section 9.6](#96-overflow-and-displacement)).
 
@@ -781,18 +703,7 @@ A debounced event moves through the `DebouncingState` values ([SWS_DM_00645]):
 
 When the FDC reaches +127 or −128, the result is qualified and has the same effect as `kFailed` or `kPassed` ([Section 5.5](#55-event-status-processing)). Which algorithm applies is configured per event. DM does not debounce an event that has no `DiagnosticEventToDebounceAlgorithmMapping`, or whose algorithm is `DiagEventDebounceMonitorInternal` (SWS, Section 7.3.4.1.5); `DiagnosticDebounceAlgorithmProps.debounceAlgorithm` must exist ([constr_10418]).
 
-```mermaid
-stateDiagram-v2
-    [*] --> kNeutral
-    kNeutral --> kTemporarilyDefective: kPrefailed
-    kTemporarilyDefective --> kFinallyDefective: FDC reaches 127 or kFailed
-    kTemporarilyDefective --> kTemporarilyHealed: kPrepassed (below 0)
-    kNeutral --> kTemporarilyHealed: kPrepassed
-    kTemporarilyHealed --> kFinallyHealed: FDC reaches -128 or kPassed
-    kTemporarilyHealed --> kTemporarilyDefective: kPrefailed (above 0)
-    kFinallyDefective --> kTemporarilyHealed: kPrepassed
-    kFinallyHealed --> kTemporarilyDefective: kPrefailed
-```
+![State diagram: Why Debounce](diagrams/DiagnosticsPart2/08-why-debounce.svg)
 
 ### 6.2 Counter-Based Debouncing
 
@@ -1023,18 +934,7 @@ DM processes the UDS DTC status byte as ISO 14229-1 specifies ([SWS_DM_00213]), 
 
 The following state diagram shows the life of a DTC with confirmation threshold 2 and aging.
 
-```mermaid
-stateDiagram-v2
-    [*] --> NoFault: after clear (bits 4 and 6 set)
-    NoFault --> Pending: failed (bits 0, 1, 2, 5)
-    Pending --> NoFault: tested cycle without failure (bit 2 reset)
-    Pending --> Confirmed: failed again in a later cycle (bit 3)
-    Confirmed --> Confirmed: failed again (occurrence counter)
-    Confirmed --> Aged: aging threshold reached (entry deleted, bit 3 reset)
-    Aged --> Pending: failed again (new entry)
-    Confirmed --> NoFault: clear
-    Pending --> NoFault: clear
-```
+![State diagram: Status Bit Processing](diagrams/DiagnosticsPart2/09-status-bit-processing.svg)
 
 > **Note:** [SWS_DM_00218] ties confirmation to a 0 → 1 transition of `kTestFailed`. A fault that stays failed without a passed result in between does not produce a new transition after a cycle restart, because a restart does not reset bit 0 ([SWS_DM_01027]). The worked example in [Section 8.7](#87-worked-example-two-drives-with-a-blocked-camera) therefore uses a fault that heals and fails again.
 
@@ -1211,23 +1111,7 @@ The memory is full when `maxNumberOfEventEntries` entries are stored. A further 
 
 The flowchart condenses the decision of Figure 7.8 of the SWS.
 
-```mermaid
-flowchart TD
-    A["Memory full and new event to store"] --> B{"Strategy"}
-    B -->|"none"| X["Discard new event"]
-    B -->|"prioOcc or full"| C["Entries with the lowest priority"]
-    C --> D{"New event priority higher than theirs?"}
-    D -->|"yes, prioOcc"| O["Displace the oldest of them"]
-    D -->|"yes, full"| E{"Passive entries among them?"}
-    E -->|"yes"| P["Oldest passive entry"] --> O2["Displace it"]
-    E -->|"no"| Q["Oldest of all of them"] --> O2
-    D -->|"equal, full"| F{"Passive entries?"}
-    F -->|"yes"| P
-    F -->|"no"| G{"Entries not tested this cycle?"}
-    G -->|"yes"| R["Oldest not-tested entry"] --> O2
-    G -->|"no"| X
-    D -->|"lower, or equal with prioOcc"| X
-```
+![Flowchart: Overflow and Displacement](diagrams/DiagnosticsPart2/10-overflow-and-displacement.svg)
 
 After a displacement ([SWS_DM_00930]), the removed DTC's bit 2 is reset if `DiagnosticCommonProps.resetPendingBitOnOverflow` is true ([SWS_DM_01569]), bit 3 if `resetConfirmedBitOnOverflow` is true ([SWS_DM_00932]), and bit 5 if additionally `statusBitHandlingTestFailedSinceLastClear` is `statusBitAgingAndDisplacement` ([SWS_DM_00933]). If no entry qualifies, the new event is discarded ([SWS_DM_00934]). The TPS notes that ISO 14229-1 compliance requires `resetPendingBitOnOverflow` false (TPS, Table 5.1).
 
@@ -1363,26 +1247,7 @@ Rules: one ResponseOnEvent logic is active per session; the client that starts i
 
 The `DiagnosticTester` (`0x0E80`) is connected over DoIP to `HPC` (`0x1010`) as in the [Diagnostics Part 1 guide, Section 5.9](DiagnosticsPart1.md#59-worked-example-diagnostictester-connects-to-hpc). `0x19` and `0x14` are allowed in both sessions without security; `dtcStatusAvailabilityMask` is `0xFF`. The vehicle stands still.
 
-```mermaid
-sequenceDiagram
-    participant T as DiagnosticTester
-    participant DM as Diagnostic Management
-    participant SC as SmControl
-    participant CD as CameraDriver
-    T->>DM: 19 02 08 (confirmed DTCs)
-    DM-->>T: 59 02 FF 9A 10 11 2F
-    T->>DM: 19 04 9A 10 11 FF (all snapshot records)
-    DM-->>T: 59 04 9A 10 11 2F 01 01 01 02 13 88 02 01 01 02 1F 40
-    T->>DM: 19 06 9A 10 11 FF (all extended data records)
-    DM-->>T: 59 06 9A 10 11 2F 01 02 02 00 03 7F
-    Note over T: technician cleans the camera
-    T->>DM: 14 FF FF FF (clear all DTCs)
-    DM->>DM: clear condition VehicleStandstill is true, clear HpcPrimaryMemory
-    DM-->>CD: initMonitor kClear
-    DM-->>T: 54
-    T->>DM: 19 02 08
-    DM-->>T: 59 02 FF (no confirmed DTC)
-```
+![Sequence diagram: Worked Example: The Workshop Reads, Inspects and Clears 0x9A1011](diagrams/DiagnosticsPart2/11-worked-example-the-workshop-reads-in.svg)
 
 If the technician had sent `14 FF FF FF` while the vehicle was rolling, `VehicleStandstill` would be false. `HPC` configures only this one DTC, so every DTC of the group forbids the clear and DM answers `7F 14 22`; `0x9A1011` keeps its status and records ([SWS_DM_00164], [SWS_DM_00121]). In an ECU with further DTCs without this clear condition, DM would clear those, answer positively and keep `0x9A1011` ([SWS_DM_00122]). A request `14 9A 10 11` for the single DTC gets `7F 14 22` in any case ([SWS_DM_00163]).
 
@@ -1455,26 +1320,7 @@ UCM does not expose diagnostic services; a *UCM client* forwards the data stream
 
 `Storage` keeps object-list recordings in the File Storage `Recordings` (the [Persistency guide](Persistency.md)). For the workshop, it provides `FileTransferService` on the P-port `RecordingsTransferPort` of `StorageSwc`, mapped by a `DiagnosticServiceGenericMapping` to the `DiagnosticRequestFileTransfer` instance. Only ReadFile and ReadDir are supported, in the extended session at `Level1`.
 
-```mermaid
-sequenceDiagram
-    participant T as DiagnosticTester
-    participant DM as Diagnostic Management
-    participant S as Storage (FileTransferService)
-    T->>DM: 38 04 (ReadFile) path "recordings/rec_0042.bin", dataFormatIdentifier 00
-    DM->>DM: session extended, security Level1: ok
-    DM->>S: RequestReadFile("recordings/rec_0042.bin", 0x00, ...)
-    S-->>DM: session with pull handler, FileSizes
-    DM-->>T: 78 04 ... (positive response with sizes)
-    loop until the file is complete
-        T->>DM: 36 counter
-        DM->>S: handler Read(buffer)
-        S-->>DM: bytes written
-        DM-->>T: 76 counter data
-    end
-    T->>DM: 37
-    DM->>S: handler ExitRead(kAcknowledge)
-    DM-->>T: 77
-```
+![Sequence diagram: Worked Example: Reading a Recording from Storage](diagrams/DiagnosticsPart2/12-worked-example-reading-a-recording-f.svg)
 
 ```cpp
 // Storage: read-only file transfer for recordings (illustrative).
@@ -1587,24 +1433,7 @@ UDS uses the extended session for exclusive access, SOVD uses *locks*. Only one 
 
 `ValidateAuthorization` returns `ValidateAuthorizationOutput` ([SWS_DM_01927]) with an optional `identity` ([SWS_DM_01819]) and `validUntil` ([SWS_DM_01820]). The roles that the application sets on the `ClientAuthentication` object (the same class as for UDS authentication, the [Diagnostics Part 1 guide, Section 9.2](DiagnosticsPart1.md#92-roles-and-authentication-state-per-client)) count as authenticated for all requests with the identical token until `validUntil` ([SWS_DM_01469]). DM considers requests with the same token, or with the same returned identity, as coming from the same client ([SWS_DM_01781], [SWS_DM_01782]); this matters for locks and for operations that the client started. Access to each SOVD method is then checked against the `DiagnosticAccessPermission` of the method's primitive, which can name authentication roles (TPS, Sections 5.7.2 and 5.7.3).
 
-```mermaid
-sequenceDiagram
-    participant C as SOVD client
-    participant DM as Diagnostic Management
-    participant A as SmControl (SovdAuthorization)
-    participant AS as Authorization server
-    C->>DM: request to verify client credentials
-    DM->>A: GetAuthorizationUrl
-    A-->>DM: URL of the authorization server
-    DM-->>C: 307 Location URL
-    C->>AS: authenticate, obtain token
-    C->>DM: GET faults with Authorization token
-    DM->>A: ValidateAuthorization(token, metaInfo, clientAuthentication)
-    A->>A: verify token, set roles
-    A-->>DM: identity, validUntil
-    DM->>DM: check access permission of the method
-    DM-->>C: 200 faults
-```
+![Sequence diagram: Authorization](diagrams/DiagnosticsPart2/13-authorization.svg)
 
 > **Note:** The SWS requires the authorization port to be mapped to "the SoftwareCluster with category PLATFORM" ([SWS_DM_01472]). `HPC` has the categories `PLATFORM_CORE` and `APPLICATION_LAYER` (the [Running Example guide, Section 1.3](RunningExample.md#13-the-hpc-machine)). This guide lets `SmControl` in `HpcPlatformCore` provide `SovdAuthorization`; whether `PLATFORM_CORE` satisfies the wording is not stated in R25-11.
 
@@ -1763,31 +1592,7 @@ Bulk data, configuration and update use the same transfer sessions and handlers 
 
 The client has a token ([Section 12.4](#124-authorization)). The URI structure is defined by ASAM SOVD; the sequence abbreviates the paths below the sub-component `hpcdiag`.
 
-```mermaid
-sequenceDiagram
-    participant C as SOVD client
-    participant DM as DM (HpcSovdServer, hpcdiag)
-    participant CD as CameraDriver
-    participant SC as SmControl
-    C->>DM: GET .../hpcdiag/data/CameraStatus
-    DM->>CD: GenericDiagnosticSovdContent Read("CameraStatus")
-    CD-->>DM: blocked true, brightness 3, exposureMode Night
-    DM-->>C: 200 id CameraStatus, data
-    C->>DM: GET .../hpcdiag/faults?scope=HpcPrimaryMemory
-    DM-->>C: 200 items with code 9A1011, status
-    C->>DM: GET .../hpcdiag/operations/CameraCalibration
-    DM->>SC: SovdProximityChallenge GetChallenge
-    DM-->>C: 200 description, proximity_challenge
-    C->>DM: POST .../operations/CameraCalibration/executions with proximity_response
-    DM->>SC: ValidateResponse
-    SC-->>DM: kProximityChallengeValidationSuccessful
-    DM->>CD: GenericDiagnosticSovdOperation StartExecution
-    CD-->>DM: asynchronous execution
-    DM-->>C: execution id, status running
-    C->>DM: GET .../executions/id
-    DM->>CD: SovdOperationExecution GetStatus
-    DM-->>C: 200 status completed
-```
+![Sequence diagram: Worked Example: An SOVD Client in the Workshop](diagrams/DiagnosticsPart2/14-worked-example-an-sovd-client-in-the.svg)
 
 A fault detail response for `0x9A1011` contains, among others (illustrative JSON; the exact attribute formats are defined by ASAM SOVD):
 
@@ -2400,29 +2205,7 @@ The IDSM and Firewall guide describes how IdsM qualifies and forwards security e
 
 **Day 3, workshop.** The vehicle stands still in the workshop.
 
-```mermaid
-sequenceDiagram
-    participant T as DiagnosticTester (UDS)
-    participant S as SOVD client
-    participant DM as Diagnostic Management
-    participant SC as SmControl
-    participant CD as CameraDriver
-    T->>DM: 19 02 08
-    DM-->>T: 59 02 FF 9A 10 11 2F
-    T->>DM: 19 04 9A 10 11 FF and 19 06 9A 10 11 FF
-    DM-->>T: snapshots 50.00 and 80.00 km/h, occurrence 2
-    S->>DM: GET .../hpcdiag/faults/9A1011 (token)
-    DM->>SC: ValidateAuthorization
-    DM-->>S: fault with environment_data
-    S->>DM: lock, then POST .../operations/CameraCalibration/executions
-    DM->>SC: ValidateResponse (proximity)
-    DM->>CD: StartExecution
-    CD-->>DM: completed
-    T->>DM: 14 FF FF FF
-    DM->>DM: clear condition VehicleStandstill true: clear
-    DM-->>CD: initMonitor kClear
-    DM-->>T: 54
-```
+![Sequence diagram: End-to-End Walkthrough: A Blocked Camera, from Detection to Repair](diagrams/DiagnosticsPart2/15-end-to-end-walkthrough-a-blocked-cam.svg)
 
 Two details: while the SOVD client holds its lock, the UDS tester's requests to the same Diagnostic Server get NRC `0x21` ([SWS_DM_01375]), so the technician releases the lock before clearing over UDS, or deletes the fault over SOVD instead ([Section 13.2](#132-faults)). And DM reports `SEV_UDS_CLEAR_DTC_SUCCESSFUL` to IdsM ([SWS_DM_02043]).
 

@@ -1,0 +1,10 @@
+@startuml
+!include ../_style.puml
+[*] --> NotTested: cycle restart (TF this cycle = 0, not completed = 1)
+NotTested --> Failed: qualified failed (TF = 1, TF this cycle = 1, not completed = 0)
+NotTested --> Passed: qualified passed (TF = 0, not completed = 0)
+Failed --> Passed: qualified passed (TF = 0, TF this cycle stays 1)
+Passed --> Failed: qualified failed
+Failed --> NotTested: cycle restart
+Passed --> NotTested: cycle restart
+@enduml

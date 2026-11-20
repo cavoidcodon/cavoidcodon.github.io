@@ -1,0 +1,24 @@
+@startuml
+!include ../_style.puml
+rectangle "Adaptive Applications\n(Fusion, CameraDriver, ...)" as AA
+rectangle "AUTOSAR Adaptive Platform\n(functional clusters)" as AP
+rectangle "Operating System\nMulti-Process System Interface, Single-Process POSIX API,\nTCP/IP stack, non-volatile storage" as OS
+rectangle "Watchdog" as WD
+rectangle "Crypto provider\n(HSM of HPC)" as CR
+rectangle "Diagnostic tester\n(DiagnosticTester)" as DT
+rectangle "Other Adaptive Platform\n(TelematicsUnit)" as OAP
+rectangle "Classic Platform\n(CentralGateway, ChassisECU)" as OCP
+rectangle "Third-party platform\n(FrontRadar)" as TP
+rectangle "Data repository\n(log client, backend)" as DR
+rectangle "Backend" as BE
+AA --> AP : ARA
+AP --> OS
+AP --> WD : WatchdogInterface
+AP --> CR
+AP <--> DT : DoIP
+AP <--> OAP : ara::com over Ethernet
+AP <--> OCP : ara::com over Ethernet,\ntranslated signals
+AP <--> TP
+AP --> DR : logs, security events
+OAP <--> BE : internet
+@enduml

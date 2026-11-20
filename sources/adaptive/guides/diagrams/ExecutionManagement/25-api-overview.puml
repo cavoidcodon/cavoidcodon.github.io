@@ -1,0 +1,35 @@
+@startuml
+!include ../_style.puml
+hide empty members
+hide circle
+enum ExecutionState {
+    kRunning
+}
+class ExecutionClient {
+    {static} +Create(terminationHandler) Result<ExecutionClient>
+    +ExecutionClient(terminationHandler)
+    +ReportExecutionState(state) Result<void>
+}
+class StateClient {
+    {static} +Create(undefinedStateCallback) Result<StateClient>
+    +StateClient(undefinedStateCallback)
+    +SetState(state) Future<void>
+    +GetInitialMachineStateTransitionResult() Future<void>
+    +GetExecutionError(functionGroupState) Result<ExecutionErrorEvent>
+}
+class FunctionGroup {
+    +FunctionGroup(instanceSpecifier)
+}
+class FunctionGroupState {
+    +FunctionGroupState(functionGroup, state)
+}
+class ExecutionErrorEvent <<struct>> {
+    +ExecutionError executionError
+    +FunctionGroup functionGroup
+}
+ExecutionClient ..> ExecutionState : reports
+StateClient ..> FunctionGroupState : requests
+StateClient ..> ExecutionErrorEvent : delivers
+FunctionGroupState ..> FunctionGroup : belongs to
+ExecutionErrorEvent --> FunctionGroup : affected group
+@enduml

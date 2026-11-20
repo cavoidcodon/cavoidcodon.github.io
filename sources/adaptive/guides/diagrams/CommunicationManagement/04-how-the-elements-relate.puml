@@ -1,0 +1,23 @@
+@startuml
+!include ../_style.puml
+rectangle "ServiceInterface\n(CameraService)" as SI
+rectangle "Proxy and skeleton classes" as GEN
+rectangle "PPortPrototype / RPortPrototype\n(CameraPPort, CameraRPort)" as PORT
+rectangle "Executable\n(camera_driver, fusion)" as EXE
+rectangle "/fusion/Root/CameraRPort" as SPEC
+rectangle "ServiceInstanceToPortPrototypeMapping\n(port + process)" as MAP
+rectangle "Provided / Required\nservice instance" as INST
+rectangle "ServiceInterfaceDeployment\n(SOME/IP, DDS, user-defined)" as DEP
+rectangle "ServiceInstanceToMachineMapping" as MM
+rectangle "Communication connector\nof the machine" as CONN
+SI --> GEN : generator
+SI --> PORT : types
+PORT --> EXE : in root component of
+EXE --> SPEC : path = InstanceSpecifier
+MAP --> PORT : portPrototype
+MAP --> INST : serviceInstance
+INST --> DEP : serviceInterfaceDeployment
+DEP --> SI : serviceInterface
+MM --> INST : serviceInstance
+MM --> CONN : communicationConnector
+@enduml

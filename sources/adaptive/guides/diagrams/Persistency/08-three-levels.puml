@@ -1,0 +1,9 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "1 In the process: temporary storage (KVS) or file buffer" as L1
+rectangle "2 Handed to the OS or the flash driver: page cache, file system journal" as L2
+rectangle "3 Physically on the medium" as L3
+L1 --> L2 : SyncToStorage, SyncToFile, close
+L2 --> L3 : fsync, file system commit, device cache flush
+@enduml

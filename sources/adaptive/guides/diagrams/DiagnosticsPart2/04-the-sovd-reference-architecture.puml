@@ -1,0 +1,19 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "SOVD client (workshop, backend)" as C
+rectangle "SOVD Gateway (edge node, reverse proxy)" as GW
+rectangle "Backend connectivity" as B
+rectangle "DM on HPC: SOVD server, component" as DM1
+rectangle "Diagnostic Server instance: sub-component" as DS
+rectangle "SOVD to UDS translation (on-board test client, ODX)" as TR
+rectangle "Classic ECUs" as MC
+rectangle "OTA client (vehicle update)" as OTA
+C --> GW : HTTPS
+B --> GW
+GW --> DM1 : HTTPS, by entity in the URI
+DM1 --> DS
+GW --> TR
+TR --> MC : UDS
+GW --> OTA
+@enduml

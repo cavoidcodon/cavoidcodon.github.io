@@ -1,0 +1,14 @@
+@startuml
+!include ../_style.puml
+participant "Tester" as T
+participant "DM" as DM
+participant "Application" as A
+T -> DM : request
+DM -> A : method call (Future)
+note over DM : P2 (50 ms) expires
+DM --> T : 0x7F xx 78 (response pending)
+note over DM : P2* (5000 ms) expires
+DM --> T : 0x7F xx 78
+A --> DM : Future ready with result
+DM --> T : positive response
+@enduml

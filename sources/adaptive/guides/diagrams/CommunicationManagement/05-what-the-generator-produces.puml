@@ -1,0 +1,16 @@
+@startuml
+!include ../_style.puml
+rectangle "hpc/camera/cameraservice_proxy.h" as P
+rectangle "hpc/camera/cameraservice_common.h" as C
+rectangle "hpc/camera/cameraservice_skeleton.h" as S
+rectangle "ara/com/types.h" as T
+rectangle "hpc/camera/impl_type_cameraimage.h\nimpl_type_camerastate.h, ..." as D
+rectangle "ara/com/com_error_domain.h" as E
+rectangle "hpc/camera/cameraerrors_error_domain.h" as A
+P --> C
+S --> C
+C --> T
+C --> D
+C --> E
+C --> A
+@enduml

@@ -1,0 +1,23 @@
+@startuml
+!include ../_style.puml
+rectangle "kValidationFailed or kIntegrityCorrupted" as E
+rectangle "Element or whole storage?" as Q1 <<decision>>
+rectangle "RecoverKey / RecoverFile" as RK
+rectangle "Close all handles" as CL
+rectangle "RecoverKeyValueStorage / RecoverAllFiles" as RS
+rectangle "Data valid for the application?" as V <<decision>>
+rectangle "Continue; report the event" as OK
+rectangle "Initial value acceptable?" as Q2 <<decision>>
+rectangle "ResetKey / ResetFile / Reset storage" as RST
+rectangle "Degrade the function; request new data" as DEG
+E --> Q1
+Q1 --> RK : element
+Q1 --> CL : storage
+CL --> RS
+RK --> V
+RS --> V
+V --> OK : yes
+V --> Q2 : no, or recover failed
+Q2 --> RST : yes
+Q2 --> DEG : no
+@enduml

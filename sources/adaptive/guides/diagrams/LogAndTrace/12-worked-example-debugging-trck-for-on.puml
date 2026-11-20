@@ -1,0 +1,13 @@
+@startuml
+!include ../_style.puml
+participant "Logging client" as V
+participant "Logging backend (HPC1)" as B
+participant "Fusion (FUSN)" as F
+V -> B : Control request 0x01 SetLogLevel(FUSN, TRCK, 5 = DEBUG)
+B -> F : new threshold for TRCK (implementation-specific)
+B --> V : Control response status 0 (OK)
+F -> B : Log(TrackListSummary, 17) passes the threshold
+B --> V : non-verbose MSID 0x00010002
+V -> B : Control request 0x01 SetLogLevel(FUSN, TRCK, -1 = default)
+B --> V : status 0 (OK)
+@enduml

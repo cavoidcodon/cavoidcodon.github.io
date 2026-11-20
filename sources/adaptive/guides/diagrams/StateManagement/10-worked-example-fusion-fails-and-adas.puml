@@ -1,0 +1,22 @@
+@startuml
+!include ../_style.puml
+autonumber
+participant "Platform Health Management" as PHM
+participant "StateManager (AdasAgent)" as SM
+participant "Execution Management" as EM
+participant "SmControl" as SC
+PHM -> SM : RecoveryHandler(ADAS, ExecutionError 42, kDeadlineSupervision)
+SM --> PHM : Future (not yet ready)
+SM -> SM : AdasAgent: set ErrorRecoveryOngoing,\n42 → Degraded
+SM --> SC : AdasAgent CurrentState "inTransition"
+SM -> SM : AdasPnHandle: FullCom (unchanged)
+SM -> EM : SetState(ADAS.Degraded)
+SC -> SM : RequestTransition(10) on AdasAgent
+SM --> SC : kRecoveryTransitionOngoing
+EM -> EM : terminate Fusion, start FusionLite
+EM --> SM : SetState done
+SM -> SM : list finished, reset ErrorRecoveryOngoing
+SM --> PHM : Future ready with a value
+SM --> SC : AdasAgent CurrentState "Degraded"
+SC -> SC : AdasStatus = Degraded
+@enduml

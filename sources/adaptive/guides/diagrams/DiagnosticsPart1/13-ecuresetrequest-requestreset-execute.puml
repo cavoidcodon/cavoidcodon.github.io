@@ -1,0 +1,17 @@
+@startuml
+!include ../_style.puml
+participant "Tester" as T
+participant "DM" as DM
+participant "EcuResetRequest provider" as A
+T -> DM : 0x11 01 (hardReset)
+DM -> A : RequestReset(kHardReset)
+A --> DM : OK
+alt respondBeforeReset
+DM --> T : 0x51 01
+DM -> A : ExecuteReset
+else respondAfterReset
+DM -> A : ExecuteReset
+note over DM : restart, channel re-established
+DM --> T : 0x51 01
+end
+@enduml

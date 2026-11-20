@@ -107,7 +107,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 <tr>
 <td>Diagrams</td>
-<td>Written in Mermaid. They render natively on GitHub and GitLab. In VS Code, install the <em>Markdown Preview Mermaid Support</em> extension.</td>
+<td>Drawn in PlantUML and inserted as SVG images, so they show in any Markdown viewer. Click an image to open it at full size.</td>
 </tr>
 </tbody>
 </table></div>
@@ -454,14 +454,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <li>The object answers with an <code>ara::core::Future</code>, which carries the result or an NRC.</li>
 <li>It calls <code>StopOffer()</code> before it terminates.</li>
 </ol>
-<pre class="mermaid">flowchart LR
-    T[&quot;DiagnosticTester&quot;] --&gt;|&quot;UDS over DoIP&quot;| DM[&quot;Diagnostic Management daemon&quot;]
-    DM --&gt;|&quot;Read&quot;| F[&quot;Fusion: FusionSwVersionDid&quot;]
-    DM --&gt;|&quot;Start, RequestResult&quot;| C[&quot;CameraDriver: CalibrateCameraRoutine&quot;]
-    DM --&gt;|&quot;RequestReset, ExecuteReset, GetSeed, CompareKey&quot;| S[&quot;SmControl: EcuResetRequest, SecurityAccess&quot;]
-    DM -.-&gt;|&quot;security events&quot;| I[&quot;IdsM&quot;]
-    DM -.-&gt;|&quot;persisted state&quot;| P[&quot;Persistency&quot;]
-</pre>
+<p><a class="figure" href="diagrams/DiagnosticsPart1/01-dm-and-ara.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/DiagnosticsPart1/01-dm-and-ara.svg" alt="Flowchart: DM and ARA" loading="lazy"></a></p>
 <p>The headers are in <code>ara/diag/</code>, for example <code>ara/diag/ecu_reset_request.h</code> or <code>ara/diag/generic_routine.h</code>; typed classes generated from the model get their own headers (<a href="#151-headers-namespaces-and-the-port-to-class-binding">Section 15.1</a>). Transport protocol plug-ins use the Platform Extension Interface <code>apext::diag::uds_transport</code> (SWS, Appendix C).</p>
 <blockquote>
 <p><strong>Key takeaways</strong></p>
@@ -624,16 +617,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </blockquote>
 <h3 id="31-where-dm-sits-in-the-platform">3.1 Where DM Sits in the Platform<a class="anchor" href="#31-where-dm-sits-in-the-platform" aria-label="Link to this section">#</a></h3>
 <p>DM is split into a <strong>UDS Transport Layer</strong> and an <strong>Application Layer</strong> (SWS, Chapter 7). On the transport layer, <strong>Transport Protocol Handlers</strong> implement the transport protocols, such as DoIP. The <strong>Transport Protocol Manager</strong> dispatches received requests to the responsible Diagnostic Server instance and responses back to the handler that received the request. Each Diagnostic Server instance does session handling, security checks, internal processing and dispatching to applications.</p>
-<pre class="mermaid">flowchart TB
-    NET[&quot;Ethernet&quot;] --&gt; DOIP[&quot;DoIP Transport Protocol Handler&quot;]
-    NET --&gt; CTP[&quot;Custom Transport Protocol Handler&quot;]
-    NET --&gt; HTTP[&quot;SOVD HTTP handler (the Diagnostics Part 2 guide)&quot;]
-    DOIP --&gt; TPM[&quot;Transport Protocol Manager&quot;]
-    CTP --&gt; TPM
-    TPM --&gt;|&quot;target address 0x1010 or 0xE400&quot;| DS[&quot;Diagnostic Server instance of HPC: sessions, security, checks, dispatching&quot;]
-    DS --&gt; INT[&quot;Internal processing: 0x10, 0x3E, 0x2A, 0x2C, ...&quot;]
-    DS --&gt; APP[&quot;Applications through ara::diag&quot;]
-</pre>
+<p><a class="figure" href="diagrams/DiagnosticsPart1/02-where-dm-sits-in-the-platform.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/DiagnosticsPart1/02-where-dm-sits-in-the-platform.svg" alt="Flowchart: Where DM Sits in the Platform" loading="lazy"></a></p>
 <h3 id="32-interfaces-provided-by-dm">3.2 Interfaces Provided by DM<a class="anchor" href="#32-interfaces-provided-by-dm" aria-label="Link to this section">#</a></h3>
 <p>DM provides no interfaces to other functional clusters (SWS, Table 5.1). To applications, it provides the <code>ara::diag</code> classes. By use case:</p>
 <div class="table-wrap"><table>
@@ -717,18 +701,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tbody>
 </table></div>
 <h3 id="34-interaction-map">3.4 Interaction Map<a class="anchor" href="#34-interaction-map" aria-label="Link to this section">#</a></h3>
-<pre class="mermaid">flowchart LR
-    DT[&quot;DiagnosticTester&quot;] --&gt;|&quot;DoIP TCP 13400&quot;| CGW[&quot;CentralGateway&quot;]
-    CGW --&gt; DM[&quot;Diagnostic Management&quot;]
-    DM --&gt;|&quot;DID 0x0101&quot;| FU[&quot;Fusion&quot;]
-    DM --&gt;|&quot;routine 0x0201&quot;| CD[&quot;CameraDriver&quot;]
-    DM --&gt;|&quot;ECU reset, routine 0x0202, seed and key, VIN, power mode&quot;| SC[&quot;SmControl&quot;]
-    SC --&gt;|&quot;Reset, Degrade&quot;| SM[&quot;StateManager&quot;]
-    CD --&gt;|&quot;SetCalibration&quot;| ST[&quot;Storage&quot;]
-    DM -.-&gt; IDS[&quot;IdsM&quot;]
-    DM -.-&gt; PER[&quot;Persistency&quot;]
-    DM -.-&gt; LT[&quot;Log and Trace&quot;]
-</pre>
+<p><a class="figure" href="diagrams/DiagnosticsPart1/03-interaction-map.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/DiagnosticsPart1/03-interaction-map.svg" alt="Flowchart: Interaction Map" loading="lazy"></a></p>
 <h3 id="35-access-control-on-aradiag">3.5 Access Control on <code>ara::diag</code><a class="anchor" href="#35-access-control-on-aradiag" aria-label="Link to this section">#</a></h3>
 <p>DM accepts <code>ara::diag</code> interactions only from the processes that the corresponding diagnostic mapping names in its role <code>process</code>. Other processes are ignored and, if configured, DM raises the security event <code>SEV_ACCESS_CONTROL_DM_IAM_ACCESS_DENIED</code> ([SWS_DM_02130], [SWS_DM_02131]). A second process that tries to provide the DID of <code>Fusion</code> is therefore not served, even if it uses the same port name.</p>
 <h3 id="36-uds-and-sovd-side-by-side">3.6 UDS and SOVD Side by Side<a class="anchor" href="#36-uds-and-sovd-side-by-side" aria-label="Link to this section">#</a></h3>
@@ -792,23 +765,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </table></div>
 <h3 id="42-how-the-elements-relate">4.2 How the Elements Relate<a class="anchor" href="#42-how-the-elements-relate" aria-label="Link to this section">#</a></h3>
 <p>The diagram shows the path from a DID in the DEXT to the code that provides it.</p>
-<pre class="mermaid">flowchart LR
-    subgraph DEXT[&quot;Diagnostic Extract&quot;]
-        CS[&quot;DiagnosticContributionSet&quot;] --&gt; ST[&quot;DiagnosticServiceTable&quot;]
-        ST --&gt; SI[&quot;DiagnosticReadDataByIdentifier&quot;]
-        SI --&gt; AP[&quot;DiagnosticAccessPermission&quot;]
-        AP --&gt; SE[&quot;DiagnosticSession&quot;]
-        AP --&gt; SL[&quot;DiagnosticSecurityLevel&quot;]
-        SI --&gt; DID[&quot;DiagnosticDataIdentifier 0x0101&quot;]
-        DID --&gt; DE[&quot;DiagnosticDataElement&quot;]
-        CS --&gt; CP[&quot;DiagnosticCommonProps: diagnosticAddress&quot;]
-    end
-    MAP[&quot;DiagnosticDataPortMapping&quot;] --&gt; DID
-    MAP --&gt;|&quot;pPortPrototypeInExecutable&quot;| PORT[&quot;P-port SwVersionDidPort of FusionSwc&quot;]
-    MAP --&gt;|&quot;process&quot;| PD[&quot;ProcessDesign of Fusion&quot;]
-    PORT --&gt;|&quot;typed by&quot;| IF[&quot;DiagnosticDataIdentifierInterface FusionSwVersionDid&quot;]
-    SWC[&quot;SoftwareCluster: diagnosticDeploymentProps&quot;] --&gt;|&quot;diagnosticExtract&quot;| CS
-</pre>
+<p><a class="figure" href="diagrams/DiagnosticsPart1/04-how-the-elements-relate.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/DiagnosticsPart1/04-how-the-elements-relate.svg" alt="Flowchart: How the Elements Relate" loading="lazy"></a></p>
 <p>Three links matter most. The <strong>service instance</strong> (here <code>DiagnosticReadDataByIdentifier</code>) says that a service is supported for a DID and under which access permission. The <strong>diagnostic mapping</strong> connects the DEXT element to a port of an executable and to a process, so DM knows which running process provides it (<a href="#1411-diagnostic-mappings-ports-and-processes">Section 14.11</a>). The <strong>Software Cluster</strong> references the contribution set through <code>SoftwareCluster.diagnosticDeploymentProps.diagnosticExtract</code>; Software Clusters that share their <code>SoftwareClusterDiagnosticDeploymentProps</code> share the contribution set and the Diagnostic Server instance (TPS Manifest, Section 16.3.2.2). In <code>HPC</code>, <code>HpcPlatformCore</code> and <code>AdasCluster</code> share them.</p>
 <h3 id="43-who-configures-what-and-when">4.3 Who Configures What, and When<a class="anchor" href="#43-who-configures-what-and-when" aria-label="Link to this section">#</a></h3>
 <div class="table-wrap"><table>
@@ -877,18 +834,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p>Today, only Ethernet with DoIP is described in detail; CAN and other networks may follow in later releases (SWS, Section 7.1).</p>
 <h3 id="52-receiving-and-sending-a-request">5.2 Receiving and Sending a Request<a class="anchor" href="#52-receiving-and-sending-a-request" aria-label="Link to this section">#</a></h3>
 <p>The handler announces a request as soon as it knows the source address, the target address, the address type, the total size and, if the payload is longer than one byte, its first two bytes ([SWS_DM_00342]). The first bytes let DM accept a functional TesterPresent <code>0x3E 80</code> even while it is busy ([SWS_DM_00386]).</p>
-<pre class="mermaid">sequenceDiagram
-    participant TP as DoIP Transport Protocol Handler
-    participant M as UdsTransportProtocolMgr (DM)
-    participant DS as Diagnostic Server instance
-    TP-&gt;&gt;M: IndicateMessage(SA 0x0E80, TA 0x1010, kPhysical, channel, size, first bytes)
-    M--&gt;&gt;TP: kIndicationOk and an empty UdsMessage buffer
-    TP-&gt;&gt;M: HandleMessage(filled message)
-    M-&gt;&gt;DS: dispatch by target address
-    DS--&gt;&gt;M: response
-    M-&gt;&gt;TP: Transmit(response, same channel)
-    TP--&gt;&gt;M: TransmitConfirmation(kTransmitOk)
-</pre>
+<p><a class="figure" href="diagrams/DiagnosticsPart1/05-receiving-and-sending-a-request.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/DiagnosticsPart1/05-receiving-and-sending-a-request.svg" alt="Sequence diagram: Receiving and Sending a Request" loading="lazy"></a></p>
 <p><code>IndicateMessage</code> can also refuse the request:</p>
 <div class="table-wrap"><table>
 <thead>
@@ -1037,18 +983,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <h3 id="58-custom-transport-protocols-and-channel-re-establishment">5.8 Custom Transport Protocols and Channel Re-establishment<a class="anchor" href="#58-custom-transport-protocols-and-channel-re-establishment" aria-label="Link to this section">#</a></h3>
 <p>A custom transport protocol implements <code>UdsTransportProtocolHandler</code> and uses the same manager calls. One detail matters for the ECU reset: if DM must answer a request <em>after</em> a restart, it asks the handler with <code>NotifyReestablishment(channelId)</code> to report when that channel is available again. The handler stores the request persistently and calls <code>ChannelReestablished</code> once the channel is back ([SWS_DM_00356], [SWS_DM_00358], [SWS_DM_00359]). The request is valid only from the next <code>Start</code> to the following <code>Stop</code> ([SWS_DM_00357]). <a href="#122-ecuresetrequest-requestreset-executereset-responding-before-or-after-the-reset">Section 12.2</a> uses this.</p>
 <h3 id="59-worked-example-diagnostictester-connects-to-hpc">5.9 Worked Example: <code>DiagnosticTester</code> Connects to <code>HPC</code><a class="anchor" href="#59-worked-example-diagnostictester-connects-to-hpc" aria-label="Link to this section">#</a></h3>
-<pre class="mermaid">sequenceDiagram
-    participant T as DiagnosticTester (0x0E80)
-    participant D as DoIP handler of DM
-    participant S as SmControl
-    T-&gt;&gt;D: Vehicle identification request (UDP 13400)
-    D-&gt;&gt;S: GetDoIPPowerMode, read DID 0xF190 (VIN)
-    D--&gt;&gt;T: Vehicle identification response: VIN, logical address 0x1010, EID from MAC
-    T-&gt;&gt;D: TCP connect 13400, routing activation request (SA 0x0E80)
-    D--&gt;&gt;T: Routing activation response: success
-    T-&gt;&gt;D: Diagnostic message SA 0x0E80, TA 0x1010: 0x22 01 01
-    D--&gt;&gt;T: Diagnostic message positive acknowledgement
-</pre>
+<p><a class="figure" href="diagrams/DiagnosticsPart1/06-worked-example-diagnostictester-conn.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/DiagnosticsPart1/06-worked-example-diagnostictester-conn.svg" alt="Sequence diagram: Worked Example: DiagnosticTester Connects to HPC" loading="lazy"></a></p>
 <p>The tester's source address <code>0x0E80</code> lies in the range <code>0x0E00</code> to <code>0x0EFF</code> of the <code>GenericTpConnection</code> <code>WorkshopTesters</code>, which gives its conversations the priority 10 (<a href="#64-priorities-replacement-and-refusal">Section 6.4</a>). Up to two testers can be connected at the same time (<code>maxTesterConnections</code> 2). How the request <code>0x22 01 01</code> continues is the subject of the next chapters.</p>
 <blockquote>
 <p><strong>Key takeaways</strong></p>
@@ -1074,24 +1009,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <h3 id="64-priorities-replacement-and-refusal">6.4 Priorities, Replacement and Refusal<a class="anchor" href="#64-priorities-replacement-and-refusal" aria-label="Link to this section">#</a></h3>
 <p>Each conversation has a priority from the <code>GenericTpConnection</code> whose source address range contains the tester's address ([SWS_DM_02004], DRAFT). A lower value means a higher priority, and 0 is the highest ([SWS_DM_00428]). Without configuration, the range is 0 to 65535 and the priority 255 ([SWS_DM_02108] to [SWS_DM_02110]).</p>
 <p>When a request arrives, the Diagnostic Server instance decides as follows (SWS, Figure 7.3):</p>
-<pre class="mermaid">flowchart TB
-    R[&quot;New request from a tester&quot;] --&gt; A{&quot;Tester already has a conversation?&quot;}
-    A --&gt;|&quot;yes&quot;| B{&quot;Conversation busy with a request?&quot;}
-    B --&gt;|&quot;yes&quot;| IGN[&quot;Ignore the request&quot;]
-    B --&gt;|&quot;no&quot;| USE[&quot;Process in this conversation&quot;]
-    A --&gt;|&quot;no&quot;| N{&quot;Another conversation in a non-default session?&quot;}
-    N --&gt;|&quot;yes&quot;| P1{&quot;New tester has higher priority?&quot;}
-    P1 --&gt;|&quot;yes&quot;| REP[&quot;Cancel that conversation, create a new one&quot;]
-    P1 --&gt;|&quot;no&quot;| REF[&quot;Refuse&quot;]
-    N --&gt;|&quot;no&quot;| F{&quot;Free conversation available?&quot;}
-    F --&gt;|&quot;yes&quot;| NEW[&quot;Create a new conversation&quot;]
-    F --&gt;|&quot;no&quot;| P2{&quot;New tester has higher priority than the lowest existing?&quot;}
-    P2 --&gt;|&quot;yes&quot;| REP2[&quot;Cancel the lowest-priority conversation, create a new one&quot;]
-    P2 --&gt;|&quot;no&quot;| REF
-    REF --&gt; NRC{&quot;responseOnSecondDeclinedRequest?&quot;}
-    NRC --&gt;|&quot;true&quot;| N21[&quot;Negative response 0x21 busyRepeatRequest&quot;]
-    NRC --&gt;|&quot;false&quot;| SIL[&quot;No response&quot;]
-</pre>
+<p><a class="figure" href="diagrams/DiagnosticsPart1/07-priorities-replacement-and-refusal.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/DiagnosticsPart1/07-priorities-replacement-and-refusal.svg" alt="Flowchart: Priorities, Replacement and Refusal" loading="lazy"></a></p>
 <p>The rules behind the picture: [SWS_DM_00426], [SWS_DM_01581], [SWS_DM_00429], [SWS_DM_00430] for assignment and prioritization; [SWS_DM_00431] for replacement, which cancels the old conversation (<a href="#67-cancellation-and-the-cancellationhandler">Section 6.7</a>); [SWS_DM_00433], [SWS_DM_00049] and [SWS_DM_00290] for refusal.</p>
 <blockquote>
 <p><strong>Pitfall:</strong> A tester in the extended session blocks every other tester, because DM serves only that conversation while a non-default session is active, unless the newcomer has a higher priority (SWS, Section 7.3.2.1.1). Give production and workshop tools sensible priorities, or they will cancel each other's sessions.</p>
@@ -1167,20 +1085,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </blockquote>
 <h3 id="71-the-order-of-checks">7.1 The Order of Checks<a class="anchor" href="#71-the-order-of-checks" aria-label="Link to this section">#</a></h3>
 <p>The Diagnostic Server instance validates each request as defined by ISO 14229-1 (&quot;General server response behavior&quot;) ([SWS_DM_00096]). The first failing check aborts the processing with a negative response ([SWS_DM_00097]).</p>
-<pre class="mermaid">flowchart TB
-    Q[&quot;Request&quot;] --&gt; M1{&quot;Manufacturer checks (ServiceValidation) OK?&quot;}
-    M1 --&gt;|&quot;no&quot;| X1[&quot;NRC from the callout, or no response&quot;]
-    M1 --&gt;|&quot;yes&quot;| S1{&quot;SID supported?&quot;}
-    S1 --&gt;|&quot;no&quot;| N11[&quot;0x11 serviceNotSupported&quot;]
-    S1 --&gt;|&quot;yes&quot;| S2{&quot;SID allowed in active session?&quot;}
-    S2 --&gt;|&quot;no&quot;| N7F[&quot;0x7F serviceNotSupportedInActiveSession&quot;]
-    S2 --&gt;|&quot;yes&quot;| S3{&quot;Security level OK?&quot;}
-    S3 --&gt;|&quot;no&quot;| N33[&quot;0x33 securityAccessDenied&quot;]
-    S3 --&gt;|&quot;yes&quot;| SUP{&quot;Supplier checks (ServiceValidation) OK?&quot;}
-    SUP --&gt;|&quot;no&quot;| X2[&quot;NRC from the callout, or no response&quot;]
-    SUP --&gt;|&quot;yes&quot;| SPEC[&quot;Service-specific checks: length 0x13, sub-function 0x12 or 0x7E, identifiers 0x31, conditions 0x22&quot;]
-    SPEC --&gt; PROC[&quot;Processing (internal or application)&quot;]
-</pre>
+<p><a class="figure" href="diagrams/DiagnosticsPart1/08-the-order-of-checks.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/DiagnosticsPart1/08-the-order-of-checks.svg" alt="Flowchart: The Order of Checks" loading="lazy"></a></p>
 <p>The service-specific checks follow the figures of ISO 14229-1 for each service; the sections below and Chapters 8 to 12 name them.</p>
 <h3 id="72-format-service-and-sub-function-checks">7.2 Format, Service and Sub-function Checks<a class="anchor" href="#72-format-service-and-sub-function-checks" aria-label="Link to this section">#</a></h3>
 <div class="table-wrap"><table>
@@ -1275,19 +1180,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p>Some services must only run in a certain vehicle state, for example with the vehicle standing still. A <code>DiagnosticEnvironmentalCondition</code> referenced by the access permission of a service makes DM evaluate a formula before the service runs ([SWS_DM_00111], [SWS_DM_00112], [SWS_DM_00286], [SWS_DM_00287]). The formula compares data, read from a <code>DiagnosticDataElement</code> or from a port typed by a <code>DiagnosticDataElementInterface</code>, with constants. If it is false, DM sends the NRC configured in <code>nrcValue</code>, or <code>0x22</code> <code>kConditionsNotCorrect</code> ([SWS_DM_00289]). If reading the data fails with an NRC, the condition counts as not fulfilled ([SWS_DM_00970]).</p>
 <h3 id="76-response-pending-p2-and-p2-and-the-pending-limit">7.6 Response Pending, P2 and P2*, and the Pending Limit<a class="anchor" href="#76-response-pending-p2-and-p2-and-the-pending-limit" aria-label="Link to this section">#</a></h3>
 <p>Each session has two timing parameters from <code>DiagnosticSession</code>: <strong>P2</strong> (<code>p2ServerMax</code>), the time within which the server should start its response, and <strong>P2*</strong> (<code>p2StarServerMax</code>), the extended time after a response-pending message. If processing takes longer than P2, DM itself sends NRC <code>0x78</code> (response pending) and keeps doing so ([SWS_DM_00368]). After <code>DiagnosticCommonProps.maxNumberOfRequestCorrectlyReceivedResponsePending</code> such messages, DM cancels the processing and sends <code>0x10</code> <code>kGeneralReject</code> ([SWS_DM_00369]).</p>
-<pre class="mermaid">sequenceDiagram
-    participant T as Tester
-    participant DM as DM
-    participant A as Application
-    T-&gt;&gt;DM: request
-    DM-&gt;&gt;A: method call (Future)
-    Note over DM: P2 (50 ms) expires
-    DM--&gt;&gt;T: 0x7F xx 78 (response pending)
-    Note over DM: P2* (5000 ms) expires
-    DM--&gt;&gt;T: 0x7F xx 78
-    A--&gt;&gt;DM: Future ready with result
-    DM--&gt;&gt;T: positive response
-</pre>
+<p><a class="figure" href="diagrams/DiagnosticsPart1/09-response-pending-p2-and-p2-and-the-p.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/DiagnosticsPart1/09-response-pending-p2-and-p2-and-the-p.svg" alt="Sequence diagram: Response Pending, P2 and P2, and the Pending Limit" loading="lazy"></a></p>
 <p>Applications therefore never send &quot;response pending&quot; themselves; they only return their future when the result is ready. If an application that DM needs has not called <code>Offer()</code> yet, or has called <code>StopOffer()</code>, DM answers <code>0x94</code> <code>kResourceTemporarilyNotAvailable</code> ([SWS_DM_01257]).</p>
 <h3 id="77-nrcs-from-applications-diagudsnrcerrc">7.7 NRCs from Applications: <code>DiagUdsNrcErrc</code><a class="anchor" href="#77-nrcs-from-applications-diagudsnrcerrc" aria-label="Link to this section">#</a></h3>
 <p>An application rejects a request by setting the error of its future to an <code>ara::diag::DiagUdsNrcErrc</code> value. DM sends the corresponding NRC ([SWS_DM_02059], [SWS_DM_02060]). The enumeration defines the standardized NRCs of ISO 14229-1; any value from <code>0x01</code> to <code>0xFE</code> is accepted, so a manufacturer-specific NRC can be created with a cast (SWS, Section 7.3.2.6.1):</p>
@@ -1367,15 +1260,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <blockquote>
 <p><strong>Note:</strong> ISO 14229-1 starts the delay timer at power-up already after a single failed attempt in the previous power cycle. DM deliberately deviates and follows [SWS_DM_00479] instead (SWS, Section 4.1.1).</p>
 </blockquote>
-<pre class="mermaid">stateDiagram-v2
-    [*] --&gt; Locked
-    Locked --&gt; SeedSent: 0x27 01, GetSeed OK
-    SeedSent --&gt; Unlocked: 0x27 02, kKeyValid
-    SeedSent --&gt; Locked: 0x27 02, kKeyInvalid, below threshold (NRC 0x35)
-    SeedSent --&gt; Delay: 0x27 02, kKeyInvalid, threshold reached (NRC 0x36)
-    Delay --&gt; Locked: securityDelayTime expired
-    Unlocked --&gt; Locked: session change or S3 timeout
-</pre>
+<p><a class="figure" href="diagrams/DiagnosticsPart1/10-failed-attempts-and-the-delay-timer.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/DiagnosticsPart1/10-failed-attempts-and-the-delay-timer.svg" alt="State diagram: Failed Attempts and the Delay Timer" loading="lazy"></a></p>
 <h3 id="84-worked-example-unlocking-hpc-for-calibration">8.4 Worked Example: Unlocking <code>HPC</code> for Calibration<a class="anchor" href="#84-worked-example-unlocking-hpc-for-calibration" aria-label="Link to this section">#</a></h3>
 <p><code>HPC</code> has one security level, <code>Level1</code>, with RequestSeed <code>0x01</code> and SendKey <code>0x02</code>, 4-byte seed and key, 3 allowed failures and a 10 s delay (illustrative). <code>SmControl</code> provides it through the P-port <code>SecurityLevelPort</code>. The seed is random; the key is derived from the seed with a secret that Cryptography keeps (the Cryptography guide). The derivation below is a placeholder.</p>
 <div class="code-block" data-lang="cpp"><pre class="highlight"><code><span class="c1">// SmControl: provider of security level Level1 (illustrative).</span>
@@ -1587,14 +1472,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 </tbody>
 </table></div>
-<pre class="mermaid">flowchart TB
-    Q{&quot;Who knows the data?&quot;} --&gt;|&quot;one process, whole record&quot;| T{&quot;Fixed layout known at design time?&quot;}
-    T --&gt;|&quot;yes&quot;| TYP[&quot;Typed DID class&quot;]
-    T --&gt;|&quot;no, many DIDs in one place&quot;| GEN[&quot;GenericDataIdentifier&quot;]
-    Q --&gt;|&quot;several processes, one element each&quot;| EL[&quot;Data-element classes&quot;]
-    Q --&gt;|&quot;DM itself&quot;| INT[&quot;Internal data element&quot;]
-    Q --&gt;|&quot;legacy code that speaks UDS bytes&quot;| RAW[&quot;GenericUDSService&quot;]
-</pre>
+<p><a class="figure" href="diagrams/DiagnosticsPart1/11-four-ways-to-provide-a-did.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/DiagnosticsPart1/11-four-ways-to-provide-a-did.svg" alt="Flowchart: Four Ways to Provide a DID" loading="lazy"></a></p>
 <p>The typed way is the default choice: the generator creates a class from the port interface, the application fills C++ members, and DM handles the bytes and the byte order. <code>GenericDataIdentifier</code> suits a gateway-like process that serves many DIDs with one object. Per-element providers let several processes contribute to one DID. <code>GenericUDSService</code> leaves all serialization to the application (SWS, Section 7.3.6.2.2).</p>
 <h3 id="104-internal-data-dcm_session-and-dcm_security_level">10.4 Internal Data: <code>DCM_SESSION</code> and <code>DCM_SECURITY_LEVEL</code><a class="anchor" href="#104-internal-data-dcm_session-and-dcm_security_level" aria-label="Link to this section">#</a></h3>
 <p>Some data elements are provided by DM itself. They are mapped with a <code>DiagnosticProvidedDataMapping</code> whose <code>dataProvider</code> names the source. For UDS communication, R25-11 defines <code>DCM_SESSION</code> (current session of the conversation, 1 byte) and <code>DCM_SECURITY_LEVEL</code> (current security level, 1 byte) ([SWS_DM_01565], [SWS_DM_00393]). Internal elements are read-only ([SWS_DM_CONSTR_00394]) and must stay in their context: DCM elements not in DTC snapshot or extended data, DEM elements not in DIDs read by <code>0x22</code> ([SWS_DM_CONSTR_00395], [SWS_DM_CONSTR_00396]).</p>
@@ -1727,26 +1605,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p>In both cases, the <code>CancellationHandler</code> tells the routine that the conversation was cancelled (<a href="#67-cancellation-and-the-cancellationhandler">Section 6.7</a>). A routine that moves actuators or writes data should stop and leave a consistent state.</p>
 <h3 id="114-worked-example-calibratecamera">11.4 Worked Example: <code>CalibrateCamera</code><a class="anchor" href="#114-worked-example-calibratecamera" aria-label="Link to this section">#</a></h3>
 <p><code>CalibrateCamera</code> (<code>0x0201</code>) measures the camera's mounting angles with a target in front of the vehicle and stores the result with <code>SetCalibration</code>. It needs the extended session and <code>Level1</code>, takes about 3 s and uses the asynchronous design: start launches the measurement, requestRoutineResults returns a status byte (<code>0</code> running, <code>1</code> done, <code>2</code> failed; illustrative).</p>
-<pre class="mermaid">sequenceDiagram
-    participant T as Tester
-    participant DM as DM
-    participant CD as CameraDriver
-    participant ST as Storage
-    T-&gt;&gt;DM: 0x31 01 02 01 (start)
-    DM-&gt;&gt;CD: Start(...)
-    CD--&gt;&gt;DM: StartOutput (accepted)
-    DM--&gt;&gt;T: 0x71 01 02 01
-    T-&gt;&gt;DM: 0x31 03 02 01 (results)
-    DM-&gt;&gt;CD: RequestResult(...)
-    CD--&gt;&gt;DM: status 0 (running)
-    DM--&gt;&gt;T: 0x71 03 02 01 00
-    CD-&gt;&gt;ST: SetCalibration(CameraExtrinsics, record)
-    ST--&gt;&gt;CD: OK
-    T-&gt;&gt;DM: 0x31 03 02 01
-    DM-&gt;&gt;CD: RequestResult(...)
-    CD--&gt;&gt;DM: status 1 (done)
-    DM--&gt;&gt;T: 0x71 03 02 01 01
-</pre>
+<p><a class="figure" href="diagrams/DiagnosticsPart1/12-worked-example-calibratecamera.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/DiagnosticsPart1/12-worked-example-calibratecamera.svg" alt="Sequence diagram: Worked Example: CalibrateCamera" loading="lazy"></a></p>
 <p>The code is in <a href="#1510-complete-example-cameradriver-provides-calibratecamera">Section 15.10</a>. If the tester disconnects during the measurement, the cancellation notifier stops it, and no calibration is stored.</p>
 <blockquote>
 <p><strong>Key takeaways</strong></p>
@@ -1793,22 +1652,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tbody>
 </table></div>
 <p>If ExecuteReset fails and no final response was sent yet, DM sends the returned NRC, or <code>0x10</code> for an unspecified error ([SWS_DM_01346], [SWS_DM_01347]). When the future of ExecuteReset completes, DM accepts requests again ([SWS_DM_01309]); this matters for resets that do not restart DM itself.</p>
-<pre class="mermaid">sequenceDiagram
-    participant T as Tester
-    participant DM as DM
-    participant A as EcuResetRequest provider
-    T-&gt;&gt;DM: 0x11 01 (hardReset)
-    DM-&gt;&gt;A: RequestReset(kHardReset)
-    A--&gt;&gt;DM: OK
-    alt respondBeforeReset
-        DM--&gt;&gt;T: 0x51 01
-        DM-&gt;&gt;A: ExecuteReset
-    else respondAfterReset
-        DM-&gt;&gt;A: ExecuteReset
-        Note over DM: restart, channel re-established
-        DM--&gt;&gt;T: 0x51 01
-    end
-</pre>
+<p><a class="figure" href="diagrams/DiagnosticsPart1/13-ecuresetrequest-requestreset-execute.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/DiagnosticsPart1/13-ecuresetrequest-requestreset-execute.svg" alt="Sequence diagram: EcuResetRequest: RequestReset, ExecuteReset, Responding Before or After the Reset" loading="lazy"></a></p>
 <h3 id="123-rapid-power-shutdown">12.3 Rapid Power Shutdown<a class="anchor" href="#123-rapid-power-shutdown" aria-label="Link to this section">#</a></h3>
 <p>The sub-functions enableRapidPowerShutdown and disableRapidPowerShutdown are forwarded to <code>EnableRapidShutdown(true or false, ...)</code> ([SWS_DM_01020], [SWS_DM_01021]). The positive response of enable contains <code>SoftwareClusterDiagnosticDeploymentProps.powerDownTime</code> ([SWS_DM_01092]).</p>
 <h3 id="124-communicationcontrol-0x28">12.4 CommunicationControl (0x28)<a class="anchor" href="#124-communicationcontrol-0x28" aria-label="Link to this section">#</a></h3>
@@ -3379,41 +3223,7 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 <p><strong>Why this matters:</strong> The previous chapters looked at one mechanism at a time. A real workshop session combines them: transport, conversation, sessions, security, DIDs, routines and a reset. Following one session end to end shows how they fit together.</p>
 </blockquote>
 <p>A vehicle comes to the workshop after a windshield replacement; the camera must be recalibrated. The technician connects the <code>DiagnosticTester</code> (<code>0x0E80</code>). <code>ADAS</code> is in <code>Normal</code>.</p>
-<pre class="mermaid">sequenceDiagram
-    autonumber
-    participant T as DiagnosticTester
-    participant DM as Diagnostic Management
-    participant F as Fusion
-    participant SC as SmControl
-    participant CD as CameraDriver
-    T-&gt;&gt;DM: DoIP: vehicle identification, routing activation
-    T-&gt;&gt;DM: 0x22 01 01
-    DM-&gt;&gt;F: Read
-    F--&gt;&gt;DM: &quot;1.1.0&quot;
-    DM--&gt;&gt;T: 0x62 01 01 31 2E 31 2E 30 20 20 20
-    T-&gt;&gt;DM: 0x10 03
-    DM--&gt;&gt;T: 0x50 03 (P2, P2*)
-    T-&gt;&gt;DM: 0x27 01
-    DM-&gt;&gt;SC: GetSeed
-    DM--&gt;&gt;T: 0x67 01 seed
-    T-&gt;&gt;DM: 0x27 02 key
-    DM-&gt;&gt;SC: CompareKey
-    SC--&gt;&gt;DM: kKeyValid
-    DM--&gt;&gt;T: 0x67 02
-    T-&gt;&gt;DM: 0x31 01 02 01
-    DM-&gt;&gt;CD: Start
-    DM--&gt;&gt;T: 0x71 01 02 01
-    loop every second, with 0x3E 80 in between
-        T-&gt;&gt;DM: 0x31 03 02 01
-        DM-&gt;&gt;CD: RequestResult
-        DM--&gt;&gt;T: 0x71 03 02 01 status
-    end
-    T-&gt;&gt;DM: 0x11 01
-    DM-&gt;&gt;SC: RequestReset(kHardReset)
-    DM--&gt;&gt;T: 0x51 01
-    DM-&gt;&gt;SC: ExecuteReset
-    SC-&gt;&gt;SC: request Reset (3) from HpcController
-</pre>
+<p><a class="figure" href="diagrams/DiagnosticsPart1/14-end-to-end-walkthrough-a-workshop-vi.svg" target="_blank" rel="noopener" title="Open full size"><img src="diagrams/DiagnosticsPart1/14-end-to-end-walkthrough-a-workshop-vi.svg" alt="Sequence diagram: End-to-End Walkthrough: A Workshop Visit" loading="lazy"></a></p>
 <p>What happens, step by step, with the sections that explain it:</p>
 <ol>
 <li><strong>Connect (1).</strong> DM answers vehicle identification with the VIN from <code>SmControl</code> and accepts the routing activation; the tester's address gives priority 10 (<a href="#59-worked-example-diagnostictester-connects-to-hpc">Section 5.9</a>).</li>
@@ -4103,12 +3913,11 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 
 </article>
 <nav class="pager" aria-label="Previous and next guide"><a class="pager-prev" href="Persistency.html"><span class="pager-label">← Previous</span><span class="pager-title">Persistency</span></a><a class="pager-next" href="DiagnosticsPart2.html"><span class="pager-label">Next →</span><span class="pager-title">Diagnostics Part 2</span></a></nav>
-<footer class="site-footer"><p>Based on the AUTOSAR Adaptive Platform and Foundation specifications, release R25-11.</p><p>Training material, not a normative reference. Where a guide and an AUTOSAR specification differ, the specification applies. Specifications: <a href="https://www.autosar.org/standards" target="_blank" rel="noopener">autosar.org/standards</a>.</p></footer>
+<footer class="site-footer"><p>Based on the AUTOSAR Adaptive Platform and Foundation specifications, release R25-11.</p><p>Training material, not a normative reference. Specifications: <a href="https://www.autosar.org/standards" target="_blank" rel="noopener">autosar.org/standards</a>.</p></footer>
 </main>
 <aside class="toc" aria-label="On this page"><p class="toc-label">On this page</p><ul><li class="lvl2"><a href="#about-this-guide">About This Guide</a></li><li class="lvl3"><a href="#who-this-guide-is-for">Who This Guide Is For</a></li><li class="lvl3"><a href="#learning-objectives">Learning Objectives</a></li><li class="lvl3"><a href="#how-to-read-this-guide">How to Read This Guide</a></li><li class="lvl3"><a href="#the-running-example">The Running Example</a></li><li class="lvl2"><a href="#table-of-contents">Table of Contents</a></li><li class="lvl2"><a href="#1-introduction-to-diagnostics-on-the-adaptive-platform">1. Introduction to Diagnostics on the Adaptive Platform</a></li><li class="lvl3"><a href="#11-what-is-diagnostic-management">1.1 What Is Diagnostic Management?</a></li><li class="lvl3"><a href="#12-what-dm-does-not-do">1.2 What DM Does Not Do</a></li><li class="lvl3"><a href="#13-analogies">1.3 Analogies</a></li><li class="lvl3"><a href="#14-dm-and-ara">1.4 DM and ARA</a></li><li class="lvl2"><a href="#2-core-concepts-and-terminology">2. Core Concepts and Terminology</a></li><li class="lvl3"><a href="#21-uds-in-one-page">2.1 UDS in One Page</a></li><li class="lvl3"><a href="#22-diagnostic-client-diagnostic-server-and-addresses">2.2 Diagnostic Client, Diagnostic Server and Addresses</a></li><li class="lvl3"><a href="#23-diagnostic-server-instances-and-software-clusters">2.3 Diagnostic Server Instances and Software Clusters</a></li><li class="lvl3"><a href="#24-diagnostic-conversation">2.4 Diagnostic Conversation</a></li><li class="lvl3"><a href="#25-sessions-security-levels-and-access-permissions">2.5 Sessions, Security Levels and Access Permissions</a></li><li class="lvl3"><a href="#26-data-identifiers-and-routines">2.6 Data Identifiers and Routines</a></li><li class="lvl3"><a href="#27-internally-and-externally-processed-services">2.7 Internally and Externally Processed Services</a></li><li class="lvl3"><a href="#28-the-diagnostic-extract-dext-and-the-manifest">2.8 The Diagnostic Extract (DEXT) and the Manifest</a></li><li class="lvl3"><a href="#29-terms-at-a-glance">2.9 Terms at a Glance</a></li><li class="lvl2"><a href="#3-diagnostic-management-in-the-system-architecture">3. Diagnostic Management in the System Architecture</a></li><li class="lvl3"><a href="#31-where-dm-sits-in-the-platform">3.1 Where DM Sits in the Platform</a></li><li class="lvl3"><a href="#32-interfaces-provided-by-dm">3.2 Interfaces Provided by DM</a></li><li class="lvl3"><a href="#33-interfaces-required-by-dm">3.3 Interfaces Required by DM</a></li><li class="lvl3"><a href="#34-interaction-map">3.4 Interaction Map</a></li><li class="lvl3"><a href="#35-access-control-on-aradiag">3.5 Access Control on ara::diag</a></li><li class="lvl3"><a href="#36-uds-and-sovd-side-by-side">3.6 UDS and SOVD Side by Side</a></li><li class="lvl2"><a href="#4-configuration-overview">4. Configuration Overview</a></li><li class="lvl3"><a href="#41-where-the-configuration-lives">4.1 Where the Configuration Lives</a></li><li class="lvl3"><a href="#42-how-the-elements-relate">4.2 How the Elements Relate</a></li><li class="lvl3"><a href="#43-who-configures-what-and-when">4.3 Who Configures What, and When</a></li><li class="lvl2"><a href="#5-transport-uds-transport-layer-and-doip">5. Transport: UDS Transport Layer and DoIP</a></li><li class="lvl3"><a href="#51-transport-protocol-handlers-and-the-transport-protocol-manager">5.1 Transport Protocol Handlers and the Transport Protocol Manager</a></li><li class="lvl3"><a href="#52-receiving-and-sending-a-request">5.2 Receiving and Sending a Request</a></li><li class="lvl3"><a href="#53-doip-on-the-adaptive-platform">5.3 DoIP on the Adaptive Platform</a></li><li class="lvl3"><a href="#54-vin-eid-gid-and-power-mode">5.4 VIN, EID, GID and Power Mode</a></li><li class="lvl3"><a href="#55-doip-timing-and-limits">5.5 DoIP Timing and Limits</a></li><li class="lvl3"><a href="#56-securing-doip-with-tls">5.6 Securing DoIP with TLS</a></li><li class="lvl3"><a href="#57-dispatching-to-diagnostic-servers">5.7 Dispatching to Diagnostic Servers</a></li><li class="lvl3"><a href="#58-custom-transport-protocols-and-channel-re-establishment">5.8 Custom Transport Protocols and Channel Re-establishment</a></li><li class="lvl3"><a href="#59-worked-example-diagnostictester-connects-to-hpc">5.9 Worked Example: DiagnosticTester Connects to HPC</a></li><li class="lvl2"><a href="#6-diagnostic-conversations">6. Diagnostic Conversations</a></li><li class="lvl3"><a href="#61-identifying-a-client">6.1 Identifying a Client</a></li><li class="lvl3"><a href="#62-life-cycle-of-a-conversation">6.2 Life Cycle of a Conversation</a></li><li class="lvl3"><a href="#63-how-many-testers-at-once">6.3 How Many Testers at Once</a></li><li class="lvl3"><a href="#64-priorities-replacement-and-refusal">6.4 Priorities, Replacement and Refusal</a></li><li class="lvl3"><a href="#65-pseudo-parallel-processing-and-re-entrant-applications">6.5 Pseudo-Parallel Processing and Re-entrant Applications</a></li><li class="lvl3"><a href="#66-the-conversation-class">6.6 The Conversation Class</a></li><li class="lvl3"><a href="#67-cancellation-and-the-cancellationhandler">6.7 Cancellation and the CancellationHandler</a></li><li class="lvl2"><a href="#7-request-validation-and-response-handling">7. Request Validation and Response Handling</a></li><li class="lvl3"><a href="#71-the-order-of-checks">7.1 The Order of Checks</a></li><li class="lvl3"><a href="#72-format-service-and-sub-function-checks">7.2 Format, Service and Sub-function Checks</a></li><li class="lvl3"><a href="#73-session-and-security-checks">7.3 Session and Security Checks</a></li><li class="lvl3"><a href="#74-manufacturer-and-supplier-checks-servicevalidation">7.4 Manufacturer and Supplier Checks: ServiceValidation</a></li><li class="lvl3"><a href="#75-environmental-conditions">7.5 Environmental Conditions</a></li><li class="lvl3"><a href="#76-response-pending-p2-and-p2-and-the-pending-limit">7.6 Response Pending, P2 and P2, and the Pending Limit</a></li><li class="lvl3"><a href="#77-nrcs-from-applications-diagudsnrcerrc">7.7 NRCs from Applications: DiagUdsNrcErrc</a></li><li class="lvl3"><a href="#78-worked-example-why-the-tester-gets-0x7f">7.8 Worked Example: Why the Tester Gets 0x7F</a></li><li class="lvl2"><a href="#8-sessions-and-security-access">8. Sessions and Security Access</a></li><li class="lvl3"><a href="#81-diagnosticsessioncontrol-and-the-s3-timer">8.1 DiagnosticSessionControl and the S3 Timer</a></li><li class="lvl3"><a href="#82-securityaccess-seed-and-key-aradiagsecurityaccess">8.2 SecurityAccess: Seed and Key, ara::diag::SecurityAccess</a></li><li class="lvl3"><a href="#83-failed-attempts-and-the-delay-timer">8.3 Failed Attempts and the Delay Timer</a></li><li class="lvl3"><a href="#84-worked-example-unlocking-hpc-for-calibration">8.4 Worked Example: Unlocking HPC for Calibration</a></li><li class="lvl2"><a href="#9-authentication-and-dynamic-access-rights">9. Authentication and Dynamic Access Rights</a></li><li class="lvl3"><a href="#91-authentication-0x29-on-ap-pki-certificate-exchange-only">9.1 Authentication (0x29) on AP: PKI Certificate Exchange Only</a></li><li class="lvl3"><a href="#92-roles-and-authentication-state-per-client">9.2 Roles and Authentication State per Client</a></li><li class="lvl3"><a href="#93-dynamic-access-lists">9.3 Dynamic Access Lists</a></li><li class="lvl3"><a href="#94-external-authentication">9.4 External Authentication</a></li><li class="lvl3"><a href="#95-how-authentication-checks-fit-into-validation">9.5 How Authentication Checks Fit into Validation</a></li><li class="lvl2"><a href="#10-data-identifiers">10. Data Identifiers</a></li><li class="lvl3"><a href="#101-reading-and-writing-dids-0x22-0x2e">10.1 Reading and Writing DIDs (0x22, 0x2E)</a></li><li class="lvl3"><a href="#102-anatomy-of-a-did">10.2 Anatomy of a DID</a></li><li class="lvl3"><a href="#103-four-ways-to-provide-a-did">10.3 Four Ways to Provide a DID</a></li><li class="lvl3"><a href="#104-internal-data-dcm_session-and-dcm_security_level">10.4 Internal Data: DCM_SESSION and DCM_SECURITY_LEVEL</a></li><li class="lvl3"><a href="#105-the-vin-did">10.5 The VIN DID</a></li><li class="lvl3"><a href="#106-periodic-dids-0x2a-and-dynamically-defined-dids-0x2c">10.6 Periodic DIDs (0x2A) and Dynamically Defined DIDs (0x2C)</a></li><li class="lvl3"><a href="#107-worked-example-fusionsoftwareversion">10.7 Worked Example: FusionSoftwareVersion</a></li><li class="lvl2"><a href="#11-routines">11. Routines</a></li><li class="lvl3"><a href="#111-start-stop-and-request-results">11.1 Start, Stop and Request Results</a></li><li class="lvl3"><a href="#112-typed-and-generic-routine-interfaces">11.2 Typed and Generic Routine Interfaces</a></li><li class="lvl3"><a href="#113-long-running-routines-futures-response-pending-and-cancellation">11.3 Long-Running Routines: Futures, Response Pending and Cancellation</a></li><li class="lvl3"><a href="#114-worked-example-calibratecamera">11.4 Worked Example: CalibrateCamera</a></li><li class="lvl2"><a href="#12-ecu-reset-communication-control-and-custom-services">12. ECU Reset, Communication Control and Custom Services</a></li><li class="lvl3"><a href="#121-ecureset-on-ap-reset-of-a-diagnostic-address-entity">12.1 ECUReset on AP: Reset of a Diagnostic Address Entity</a></li><li class="lvl3"><a href="#122-ecuresetrequest-requestreset-executereset-responding-before-or-after-the-reset">12.2 EcuResetRequest: RequestReset, ExecuteReset, Responding Before or After the Reset</a></li><li class="lvl3"><a href="#123-rapid-power-shutdown">12.3 Rapid Power Shutdown</a></li><li class="lvl3"><a href="#124-communicationcontrol-0x28">12.4 CommunicationControl (0x28)</a></li><li class="lvl3"><a href="#125-custom-services-with-genericudsservice">12.5 Custom Services with GenericUDSService</a></li><li class="lvl3"><a href="#126-worked-example-ecu-reset-through-smcontrol">12.6 Worked Example: ECU Reset Through SmControl</a></li><li class="lvl3"><a href="#127-worked-example-degradeadas">12.7 Worked Example: DegradeAdas</a></li><li class="lvl2"><a href="#13-life-cycle-offering-and-concurrency-of-aradiag-objects">13. Life Cycle, Offering and Concurrency of ara::diag Objects</a></li><li class="lvl3"><a href="#131-offer-stopoffer-and-nrc-0x94">13.1 Offer, StopOffer and NRC 0x94</a></li><li class="lvl3"><a href="#132-metainfo-who-is-asking">13.2 MetaInfo: Who Is Asking</a></li><li class="lvl3"><a href="#133-concurrency-types-and-re-entrancy">13.3 Concurrency Types and Re-entrancy</a></li><li class="lvl3"><a href="#134-caching-of-calls-while-dm-is-unavailable">13.4 Caching of Calls While DM Is Unavailable</a></li><li class="lvl3"><a href="#135-dm-startup-shutdown-and-crash">13.5 DM Startup, Shutdown and Crash</a></li><li class="lvl2"><a href="#14-configuration-reference-what-to-configure">14. Configuration Reference: What to Configure</a></li><li class="lvl3"><a href="#141-minimal-configuration">14.1 Minimal Configuration</a></li><li class="lvl3"><a href="#142-diagnosticcontributionset-diagnosticcommonprops-and-the-diagnostic-address">14.2 DiagnosticContributionSet, DiagnosticCommonProps and the Diagnostic Address</a></li><li class="lvl3"><a href="#143-service-tables-and-service-instances">14.3 Service Tables and Service Instances</a></li><li class="lvl3"><a href="#144-diagnosticsession-and-diagnosticsessioncontrolclass">14.4 DiagnosticSession and DiagnosticSessionControlClass</a></li><li class="lvl3"><a href="#145-diagnosticsecuritylevel-and-diagnosticsecurityaccess">14.5 DiagnosticSecurityLevel and DiagnosticSecurityAccess</a></li><li class="lvl3"><a href="#146-diagnosticaccesspermission-and-environmental-conditions">14.6 DiagnosticAccessPermission and Environmental Conditions</a></li><li class="lvl3"><a href="#147-diagnosticdataidentifier-diagnosticparameter-diagnosticdataelement-and-the-did-services">14.7 DiagnosticDataIdentifier, DiagnosticParameter, DiagnosticDataElement and the DID Services</a></li><li class="lvl3"><a href="#148-diagnosticroutine-and-diagnosticroutinecontrol">14.8 DiagnosticRoutine and DiagnosticRoutineControl</a></li><li class="lvl3"><a href="#149-ecu-reset-and-communication-control-classes">14.9 ECU Reset and Communication Control Classes</a></li><li class="lvl3"><a href="#1410-diagnostic-port-interfaces">14.10 Diagnostic Port Interfaces</a></li><li class="lvl3"><a href="#1411-diagnostic-mappings-ports-and-processes">14.11 Diagnostic Mappings: Ports and Processes</a></li><li class="lvl3"><a href="#1412-doip-configuration">14.12 DoIP Configuration</a></li><li class="lvl3"><a href="#1413-software-cluster-diagnostic-properties">14.13 Software Cluster Diagnostic Properties</a></li><li class="lvl3"><a href="#1414-the-running-example-complete-configuration">14.14 The Running Example: Complete Configuration</a></li><li class="lvl2"><a href="#15-api-reference-and-usage-guide-aradiag-communication-part">15. API Reference and Usage Guide (ara::diag, Communication Part)</a></li><li class="lvl3"><a href="#151-headers-namespaces-and-the-port-to-class-binding">15.1 Headers, Namespaces and the Port-to-Class Binding</a></li><li class="lvl3"><a href="#152-common-patterns">15.2 Common Patterns</a></li><li class="lvl3"><a href="#153-data-identifier-classes">15.3 Data Identifier Classes</a></li><li class="lvl3"><a href="#154-routine-classes">15.4 Routine Classes</a></li><li class="lvl3"><a href="#155-securityaccess-servicevalidation-and-authentication-classes">15.5 SecurityAccess, ServiceValidation and Authentication Classes</a></li><li class="lvl3"><a href="#156-ecuresetrequest-communicationcontrol-genericudsservice-and-conversation">15.6 EcuResetRequest, CommunicationControl, GenericUDSService and Conversation</a></li><li class="lvl3"><a href="#157-doip-provider-classes">15.7 DoIP Provider Classes</a></li><li class="lvl3"><a href="#158-error-domains">15.8 Error Domains</a></li><li class="lvl3"><a href="#159-the-uds-transport-layer-interface-for-platform-developers">15.9 The UDS Transport Layer Interface for Platform Developers</a></li><li class="lvl3"><a href="#1510-complete-example-cameradriver-provides-calibratecamera">15.10 Complete Example: CameraDriver Provides CalibrateCamera</a></li><li class="lvl2"><a href="#16-reporting">16. Reporting</a></li><li class="lvl3"><a href="#161-security-events">16.1 Security Events</a></li><li class="lvl3"><a href="#162-log-messages-and-violations">16.2 Log Messages and Violations</a></li><li class="lvl3"><a href="#163-production-errors">16.3 Production Errors</a></li><li class="lvl2"><a href="#17-end-to-end-walkthrough-a-workshop-visit">17. End-to-End Walkthrough: A Workshop Visit</a></li><li class="lvl2"><a href="#18-best-practices-pitfalls-and-troubleshooting">18. Best Practices, Pitfalls and Troubleshooting</a></li><li class="lvl3"><a href="#181-best-practices">18.1 Best Practices</a></li><li class="lvl3"><a href="#182-common-pitfalls">18.2 Common Pitfalls</a></li><li class="lvl3"><a href="#183-troubleshooting-guide">18.3 Troubleshooting Guide</a></li><li class="lvl2"><a href="#19-summary-and-self-check-quiz">19. Summary and Self-Check Quiz</a></li><li class="lvl3"><a href="#191-summary">19.1 Summary</a></li><li class="lvl3"><a href="#192-self-check-quiz">19.2 Self-Check Quiz</a></li><li class="lvl2"><a href="#appendix-a-glossary-and-acronyms">Appendix A. Glossary and Acronyms</a></li><li class="lvl2"><a href="#appendix-b-quick-reference-cheat-sheet">Appendix B. Quick Reference Cheat Sheet</a></li><li class="lvl2"><a href="#appendix-c-spec-traceability">Appendix C. Spec Traceability</a></li><li class="lvl2"><a href="#appendix-d-notable-changes-in-recent-releases">Appendix D. Notable Changes in Recent Releases</a></li><li class="lvl2"><a href="#appendix-e-references">Appendix E. References</a></li></ul></aside>
 </div>
 <button class="to-top" id="to-top" aria-label="Back to top" hidden>↑</button>
-<script>window.MERMAID_URL="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs";</script>
 <script src="../assets/search-index.js" defer></script>
 <script src="../assets/app.js" defer></script>
 </body>

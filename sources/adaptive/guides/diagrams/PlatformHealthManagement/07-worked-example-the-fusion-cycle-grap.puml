@@ -1,0 +1,11 @@
+@startuml
+!include ../_style.puml
+participant "Fusion" as FU
+participant "Platform Health Management" as PHM
+FU -> PHM : CycleStart
+note over PHM : initial checkpoint, correct, graph active
+FU -> PHM : ObjectsPublished
+note over PHM : no transition CycleStart to ObjectsPublished, incorrect
+PHM -> PHM : CycleOrder kEXPIRED, FusionSupervision kEXPIRED
+note over PHM : Notify State Management with kLogicalSupervision (Chapter 12)
+@enduml

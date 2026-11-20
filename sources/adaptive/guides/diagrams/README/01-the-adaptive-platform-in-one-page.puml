@@ -1,0 +1,12 @@
+@startuml
+!include ../_style.puml
+rectangle "Adaptive Applications\n(processes, written in C++)" as APP
+rectangle "ARA: the C++ APIs of the functional clusters\n(ara::exec, ara::com, ara::log, ...)" as ARA
+rectangle "Functional clusters\n(libraries and daemon processes)" as FC
+rectangle "Operating system\n(POSIX; applications may use PSE51 only)" as OS
+rectangle "Machine\n(physical ECU, virtual machine or container)" as MACH
+APP --> ARA
+ARA --> FC
+FC --> OS
+OS --> MACH
+@enduml

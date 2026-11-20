@@ -1,0 +1,14 @@
+@startuml
+!include ../_style.puml
+rectangle "CreateLogger called" as START
+rectangle "Overload with\nctxDefLogLevel?" as Q1 <<decision>>
+rectangle "Threshold = given level\n[SWS_LOG_00006]" as L1
+rectangle "DltLogSink.defaultLogThreshold\nconfigured for this context?" as Q2 <<decision>>
+rectangle "Threshold = defaultLogThreshold\n[SWS_LOG_00253]" as L2
+rectangle "Threshold = kWarn\n[SWS_LOG_00253]" as L3
+START --> Q1
+Q1 --> L1 : yes
+Q1 --> Q2 : no
+Q2 --> L2 : yes
+Q2 --> L3 : no
+@enduml

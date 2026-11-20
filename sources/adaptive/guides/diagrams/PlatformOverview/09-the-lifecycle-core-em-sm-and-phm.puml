@@ -1,0 +1,18 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "State Management" as SM
+rectangle "Execution Management" as EM
+rectangle "Supervised processes" as P
+rectangle "Platform Health Management" as PHM
+rectangle "Hardware watchdog" as WD
+SM --> EM : StateClient: SetState
+EM --> SM : transition results,\nunexpected terminations
+EM --> P : start, configure, terminate
+P --> PHM : ReportCheckpoint
+EM --> PHM : process started or terminating
+PHM --> SM : RecoveryAction
+EM --> PHM : own checkpoints
+SM --> PHM : own checkpoints
+PHM --> WD : serves it, and resets the Machine\nthrough it if EM or SM fail
+@enduml

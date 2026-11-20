@@ -1,0 +1,19 @@
+@startuml
+!include ../_style.puml
+left to right direction
+rectangle "Service Instance Manifest\n(deployments, instances, mappings)" as SIM
+rectangle "Network bindings" as B
+rectangle "Machine Manifest and Machine Design\n(connectors, endpoints, ports, SD config)" as MM
+rectangle "Classic communication matrix\n(ISignals, ISignalIPdus, triggerings)" as CM
+rectangle "ara::com API (the CM guide)" as API
+rectangle "Identity and Access Management (the IAM guide)" as IAM
+rectangle "Secure channels and E2E (the Secure Communication guide)" as SEC
+rectangle "Network Management (the NM/TSync/RDS guide)" as NM
+SIM --> B
+MM --> B
+CM --> B
+B --> API
+IAM ..> B
+SEC ..> B
+NM ..> B
+@enduml

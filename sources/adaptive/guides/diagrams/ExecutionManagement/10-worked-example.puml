@@ -1,0 +1,23 @@
+@startuml
+!include ../_style.puml
+autonumber
+participant "Execution Management" as EM
+participant "Storage" as S
+participant "ConsistencyChecker (self-terminating)" as C
+participant "ConfigReader" as R
+note over EM : Startup order derived from the dependencies
+EM -> S : start
+S --> EM : kRunning
+EM -> C : start (Storage is Running)
+C --> EM : kRunning
+C -> C : check the storage, then exit(EXIT_SUCCESS)
+note over EM : ConsistencyChecker is Terminated
+EM -> R : start (ConsistencyChecker is Terminated)
+R --> EM : kRunning
+note over EM : Later, the state is left
+par No direct dependency between Storage and ConfigReader
+EM -> S : SIGTERM
+else
+EM -> R : SIGTERM
+end
+@enduml
