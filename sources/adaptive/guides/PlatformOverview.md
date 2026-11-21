@@ -222,7 +222,7 @@ The Adaptive Platform is a standard, not a product. In a project you use an impl
 | The operating system interface for applications: PSE51 and the C++ standard library | The operating system interfaces that Execution Management uses to create processes (*OSI*, Chapter 1) |
 | The service interfaces through which UCM installs and activates Software Packages | The format of the Software Package itself (*Platform Design*, Section 13.3.1) |
 
-The kinds of AUTOSAR documents (RS, SWS, TPS, PRS, EXP, TR) and their weight are explained on the [main page](../README.md#how-autosar-documents-are-named) of the series, together with the [three kinds of statements](../README.md#three-kinds-of-statements) that the guides keep apart. This guide relies mostly on explanatory documents, so most of its statements explain the standard; the requirement IDs come from the *Operating System Interface* and, in Chapter 2, from the Classic Platform *Specification of Operating System*.
+The kinds of AUTOSAR documents (RS, SWS, TPS, PRS, EXP, TR) and their weight are explained on the [main page](../README.md#the-autosar-specifications) of the series. This guide relies mostly on explanatory documents, so most of its statements explain the standard; the requirement IDs come from the *Operating System Interface* and, in Chapter 2, from the Classic Platform *Specification of Operating System*.
 
 ### 1.4 Releases and Maturity
 

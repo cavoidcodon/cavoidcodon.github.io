@@ -116,6 +116,8 @@ AUTOSAR specifies functional clusters instead of a fixed software architecture. 
 
 The *Software Architecture* explanation sorts the R25-11 clusters into seven categories: Runtime, Communication, Storage, Security, Safety, Configuration and Diagnostics (*SW Architecture*, Section 9.1). The [Platform Overview guide, Section 3.3](guides/PlatformOverview.md#33-four-groups-of-functional-clusters) shows how the clusters are grouped in the logical view of the platform.
 
+![The functional clusters in the logical view of the Adaptive Platform: Platform Foundation, Platform Services, Standardized Application Interfaces and Vehicle Services, between the applications and the POSIX operating system](guides/diagrams/README/functional-clusters.png)
+
 The following table maps each cluster to its guide. The columns come from two explanatory documents:
 
 - **Namespace** and **ARA group** follow the logical view of the platform (*Platform Design*, Figure 4.1). *Foundation* clusters provide the fundamental functions and are library-based: the application links a library that provides the API. *Platform Service* clusters are service-based: they offer their API as `ara::com` services (*Platform Design*, Section 4.2.2). *Vehicle Service* clusters provide vehicle-level functions.
