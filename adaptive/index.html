@@ -162,6 +162,9 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </ol>
 <p>The Running Example and the Series Glossary are references and do not follow this pattern. The Platform Overview, Manifests and Core guides cover cross-cutting topics and adapt it.</p>
 <h2 id="functional-clusters-and-their-guides">Functional Clusters and Their Guides<a class="anchor" href="#functional-clusters-and-their-guides" aria-label="Link to this section">#</a></h2>
+<p>A <strong>functional cluster</strong> is a logical group of platform functionality, such as Execution Management or Persistency. Each cluster has its own specification and its own API in the <code>ara::</code> namespace, and it is configured through its own part of the manifests. When you use the platform, you use its functional clusters: Execution Management starts your process, Communication Management connects it to other applications, Persistency stores its data, and so on.</p>
+<p>AUTOSAR specifies functional clusters instead of a fixed software architecture. This is a deliberate choice: the standard says <em>what</em> a cluster does and which interfaces it offers to applications and to other parts of the platform, but not how it is built inside. Vendors may implement a cluster as a library, as one or more daemon processes, or as a mix of both. The internal interfaces between clusters are not standardized, so clusters from different vendors may not combine.</p>
+<p>The <em>Software Architecture</em> explanation sorts the R25-11 clusters into seven categories: Runtime, Communication, Storage, Security, Safety, Configuration and Diagnostics (<em>SW Architecture</em>, Section 9.1). The <a href="guides/PlatformOverview.html#33-four-groups-of-functional-clusters">Platform Overview guide, Section 3.3</a> shows how the clusters are grouped in the logical view of the platform.</p>
 <p>The following table maps each cluster to its guide. The columns come from two explanatory documents:</p>
 <ul>
 <li><strong>Namespace</strong> and <strong>ARA group</strong> follow the logical view of the platform (<em>Platform Design</em>, Figure 4.1). <em>Foundation</em> clusters provide the fundamental functions and are library-based: the application links a library that provides the API. <em>Platform Service</em> clusters are service-based: they offer their API as <code>ara::com</code> services (<em>Platform Design</em>, Section 4.2.2). <em>Vehicle Service</em> clusters provide vehicle-level functions.</li>
@@ -399,124 +402,8 @@ document.documentElement.setAttribute('data-theme',t);})();</script>
 </tr>
 </tbody>
 </table></div>
-<h2 id="conventions">Conventions<a class="anchor" href="#conventions" aria-label="Link to this section">#</a></h2>
-<p>All guides use the same conventions. Once you know them, you can tell at a glance whether a statement is mandated by AUTOSAR, explained by it, or only a typical implementation.</p>
-<h3 id="requirement-and-constraint-ids">Requirement and Constraint IDs<a class="anchor" href="#requirement-and-constraint-ids" aria-label="Link to this section">#</a></h3>
-<p>An ID in square brackets, such as <code>[SWS_EM_01050]</code>, points to a requirement or constraint in a specification.</p>
-<div class="table-wrap"><table>
-<thead>
-<tr>
-<th>Form</th>
-<th>Example</th>
-<th>Source</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>[SWS_&lt;cluster&gt;_&lt;number&gt;]</code></td>
-<td><code>[SWS_EM_01050]</code></td>
-<td>Software Specification of a cluster</td>
-</tr>
-<tr>
-<td><code>[TPS_&lt;template&gt;_&lt;number&gt;]</code></td>
-<td><code>[TPS_MANI_01041]</code></td>
-<td>Template Specification, for example the Manifest Specification</td>
-</tr>
-<tr>
-<td><code>[constr_&lt;number&gt;]</code></td>
-<td><code>[constr_1688]</code></td>
-<td>Constraint on the meta-model</td>
-</tr>
-<tr>
-<td><code>[PRS_&lt;protocol&gt;_&lt;number&gt;]</code></td>
-<td>(in the Network Bindings, Secure Communication and Log and Trace guides)</td>
-<td>Protocol Requirements Specification</td>
-</tr>
-<tr>
-<td><code>[RS_&lt;cluster&gt;_&lt;number&gt;]</code></td>
-<td>(rare)</td>
-<td>Requirements Specification</td>
-</tr>
-</tbody>
-</table></div>
-<h3 id="three-kinds-of-statements">Three Kinds of Statements<a class="anchor" href="#three-kinds-of-statements" aria-label="Link to this section">#</a></h3>
-<p>Every guide keeps three kinds of statements apart:</p>
-<div class="table-wrap"><table>
-<thead>
-<tr>
-<th>Kind</th>
-<th>How you recognize it</th>
-<th>Example</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Normative</strong>: the specification requires it</td>
-<td>A requirement ID, or &quot;the specification requires&quot;</td>
-<td>&quot;EM uses <code>Off</code> as the initial state of every Function Group [SWS_EM_01110].&quot;</td>
-</tr>
-<tr>
-<td><strong>Explanatory</strong>: the specification explains it</td>
-<td>A reference to an EXP or TR document or section</td>
-<td>&quot;AUTOSAR recommends a library-based design for clusters used only locally.&quot;</td>
-</tr>
-<tr>
-<td><strong>Implementation example</strong>: what implementations typically do</td>
-<td>A <strong>Note (implementation example)</strong> box</td>
-<td>&quot;On Linux, EM can implement ResourceGroups with cgroups.&quot;</td>
-</tr>
-</tbody>
-</table></div>
-<h3 id="boxes-and-markers">Boxes and Markers<a class="anchor" href="#boxes-and-markers" aria-label="Link to this section">#</a></h3>
-<div class="table-wrap"><table>
-<thead>
-<tr>
-<th>Marker</th>
-<th>Meaning</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>&gt; **Why this matters:**</code></td>
-<td>The first lines of every chapter: why you should read it.</td>
-</tr>
-<tr>
-<td><code>&gt; **Key takeaways**</code></td>
-<td>The last lines of every chapter: three to six points to remember.</td>
-</tr>
-<tr>
-<td><strong>Pitfall</strong></td>
-<td>A common mistake, with its cause.</td>
-</tr>
-<tr>
-<td><strong>Note (implementation example)</strong></td>
-<td>Not mandated by AUTOSAR; one typical way to do it.</td>
-</tr>
-<tr>
-<td><em>illustrative</em></td>
-<td>A value of the running example that was invented for teaching, such as an IP address or a service ID.</td>
-</tr>
-</tbody>
-</table></div>
-<h3 id="code-manifests-and-diagrams">Code, Manifests and Diagrams<a class="anchor" href="#code-manifests-and-diagrams" aria-label="Link to this section">#</a></h3>
-<ul>
-<li><strong>Code</strong> follows the R25-11 API: names, signatures and headers as in the specification. Examples are short and illustrative. Vendor headers may differ in detail.</li>
-<li><strong>Manifests</strong> are AUTOSAR XML (ARXML) files. To keep examples readable, guides often show a <em>conceptual</em> view that starts with the comment <code># Conceptual view ... NOT real ARXML syntax.</code> Real ARXML appears only where it follows the R25-11 XML Schema and the Manifest Specification, mainly in the Manifests guide (<a href="guides/Manifests.html#1216-the-running-example-complete-configuration">complete configuration of the running example</a>).</li>
-<li><strong>Diagrams</strong> are drawn in <a href="https://plantuml.com/" target="_blank" rel="noopener">PlantUML</a> and inserted as SVG images: sequence diagrams for interactions, state diagrams for states, flowcharts for structure and decisions, class diagrams for meta-model relations and block diagrams for layer stacks.</li>
-</ul>
-<h3 id="names-and-typography">Names and Typography<a class="anchor" href="#names-and-typography" aria-label="Link to this section">#</a></h3>
-<ul>
-<li><strong>Terms of the specification</strong> keep their exact spelling and capitalization, for example <em>Function Group State</em>, <em>Modelled Process</em> or <em>Service Instance Manifest</em>. The guides do not introduce synonyms.</li>
-<li><strong>Code font</strong> marks meta-model names (<code>StateDependentStartupConfig</code>), API names (<code>ara::exec::ExecutionClient</code>), file names and the names of the running example (<code>Fusion</code>, <code>ADAS.Normal</code>).</li>
-<li><strong>Process.</strong> &quot;Process&quot; alone means the running OS process; &quot;Modelled Process&quot; means its description in the manifest (see the <a href="guides/ExecutionManagement.html#21-software-units-from-application-to-os-process">EM guide, Section 2.1</a>).</li>
-<li><strong>Running</strong> has three meanings: the Execution State <code>kRunning</code>, the Process State <em>Running</em>, and possibly the name of a Function Group State. The running example therefore never uses &quot;Running&quot; as a state name (see the <a href="guides/ExecutionManagement.html#23-states">EM guide, Section 2.3</a>).</li>
-<li><strong>Illustrative values</strong>, such as IP addresses, service IDs or diagnostic IDs of the running example, are invented for teaching and marked as such.</li>
-</ul>
-<h3 id="links-between-guides">Links Between Guides<a class="anchor" href="#links-between-guides" aria-label="Link to this section">#</a></h3>
-<p>A guide does not repeat what another guide explains. It gives a two- or three-line recap and links to the section that owns the topic, for example &quot;see the <a href="guides/ExecutionManagement.html#8-function-group-state-transitions-step-by-step">EM guide, Chapter 8</a>&quot;. Terms link to the <a href="guides/Glossary.html">series glossary</a>.</p>
 <h2 id="the-autosar-specifications">The AUTOSAR Specifications<a class="anchor" href="#the-autosar-specifications" aria-label="Link to this section">#</a></h2>
-<h3 id="how-autosar-documents-are-named">How AUTOSAR Documents Are Named<a class="anchor" href="#how-autosar-documents-are-named" aria-label="Link to this section">#</a></h3>
-<p>Every AUTOSAR document has a name of the form <code>AUTOSAR_&lt;standard&gt;_&lt;type&gt;_&lt;name&gt;</code>, for example <code>AUTOSAR_AP_SWS_ExecutionManagement</code>. The <em>standard</em> is <code>AP</code> (Adaptive Platform), <code>CP</code> (Classic Platform) or <code>FO</code> (Foundation, the artifacts common to both platforms). The <em>type</em> tells you what kind of document it is:</p>
+<p>You can download the AUTOSAR specifications free of charge from <a href="https://www.autosar.org/standards" target="_blank" rel="noopener">https://www.autosar.org/standards</a>. The guides are based on release <strong>R25-11</strong> of the Adaptive Platform and Foundation standards. Every AUTOSAR document has a name of the form <code>AUTOSAR_&lt;standard&gt;_&lt;type&gt;_&lt;name&gt;</code>, for example <code>AUTOSAR_AP_SWS_ExecutionManagement</code>. The <em>standard</em> is <code>AP</code> (Adaptive Platform), <code>CP</code> (Classic Platform) or <code>FO</code> (Foundation, the artifacts common to both platforms). The <em>type</em> tells you what kind of document it is:</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>

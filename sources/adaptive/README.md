@@ -110,6 +110,12 @@ The Running Example and the Series Glossary are references and do not follow thi
 
 ## Functional Clusters and Their Guides
 
+A **functional cluster** is a logical group of platform functionality, such as Execution Management or Persistency. Each cluster has its own specification and its own API in the `ara::` namespace, and it is configured through its own part of the manifests. When you use the platform, you use its functional clusters: Execution Management starts your process, Communication Management connects it to other applications, Persistency stores its data, and so on.
+
+AUTOSAR specifies functional clusters instead of a fixed software architecture. This is a deliberate choice: the standard says *what* a cluster does and which interfaces it offers to applications and to other parts of the platform, but not how it is built inside. Vendors may implement a cluster as a library, as one or more daemon processes, or as a mix of both. The internal interfaces between clusters are not standardized, so clusters from different vendors may not combine.
+
+The *Software Architecture* explanation sorts the R25-11 clusters into seven categories: Runtime, Communication, Storage, Security, Safety, Configuration and Diagnostics (*SW Architecture*, Section 9.1). The [Platform Overview guide, Section 3.3](guides/PlatformOverview.md#33-four-groups-of-functional-clusters) shows how the clusters are grouped in the logical view of the platform.
+
 The following table maps each cluster to its guide. The columns come from two explanatory documents:
 
 - **Namespace** and **ARA group** follow the logical view of the platform (*Platform Design*, Figure 4.1). *Foundation* clusters provide the fundamental functions and are library-based: the application links a library that provides the API. *Platform Service* clusters are service-based: they offer their API as `ara::com` services (*Platform Design*, Section 4.2.2). *Vehicle Service* clusters provide vehicle-level functions.
@@ -157,65 +163,9 @@ The following topics are part of R25-11 but have no guide of their own. The [Pla
 | Vehicle Update and Configuration Management | Coordinates software updates across all ECUs of a vehicle. The UCM guide explains only how it uses UCM. | *Platform Design*, Section 13.5 |
 | Classic Platform | The AUTOSAR platform for deeply embedded ECUs. | The CP standard at <https://www.autosar.org/standards> |
 
-## Conventions
-
-All guides use the same conventions. Once you know them, you can tell at a glance whether a statement is mandated by AUTOSAR, explained by it, or only a typical implementation.
-
-### Requirement and Constraint IDs
-
-An ID in square brackets, such as `[SWS_EM_01050]`, points to a requirement or constraint in a specification.
-
-| Form | Example | Source |
-| --- | --- | --- |
-| `[SWS_<cluster>_<number>]` | `[SWS_EM_01050]` | Software Specification of a cluster |
-| `[TPS_<template>_<number>]` | `[TPS_MANI_01041]` | Template Specification, for example the Manifest Specification |
-| `[constr_<number>]` | `[constr_1688]` | Constraint on the meta-model |
-| `[PRS_<protocol>_<number>]` | (in the Network Bindings, Secure Communication and Log and Trace guides) | Protocol Requirements Specification |
-| `[RS_<cluster>_<number>]` | (rare) | Requirements Specification |
-
-### Three Kinds of Statements
-
-Every guide keeps three kinds of statements apart:
-
-| Kind | How you recognize it | Example |
-| --- | --- | --- |
-| **Normative**: the specification requires it | A requirement ID, or "the specification requires" | "EM uses `Off` as the initial state of every Function Group [SWS_EM_01110]." |
-| **Explanatory**: the specification explains it | A reference to an EXP or TR document or section | "AUTOSAR recommends a library-based design for clusters used only locally." |
-| **Implementation example**: what implementations typically do | A **Note (implementation example)** box | "On Linux, EM can implement ResourceGroups with cgroups." |
-
-### Boxes and Markers
-
-| Marker | Meaning |
-| --- | --- |
-| `> **Why this matters:**` | The first lines of every chapter: why you should read it. |
-| `> **Key takeaways**` | The last lines of every chapter: three to six points to remember. |
-| **Pitfall** | A common mistake, with its cause. |
-| **Note (implementation example)** | Not mandated by AUTOSAR; one typical way to do it. |
-| *illustrative* | A value of the running example that was invented for teaching, such as an IP address or a service ID. |
-
-### Code, Manifests and Diagrams
-
-- **Code** follows the R25-11 API: names, signatures and headers as in the specification. Examples are short and illustrative. Vendor headers may differ in detail.
-- **Manifests** are AUTOSAR XML (ARXML) files. To keep examples readable, guides often show a *conceptual* view that starts with the comment `# Conceptual view ... NOT real ARXML syntax.` Real ARXML appears only where it follows the R25-11 XML Schema and the Manifest Specification, mainly in the Manifests guide ([complete configuration of the running example](guides/Manifests.md#1216-the-running-example-complete-configuration)).
-- **Diagrams** are drawn in [PlantUML](https://plantuml.com/) and inserted as SVG images: sequence diagrams for interactions, state diagrams for states, flowcharts for structure and decisions, class diagrams for meta-model relations and block diagrams for layer stacks.
-
-### Names and Typography
-
-- **Terms of the specification** keep their exact spelling and capitalization, for example *Function Group State*, *Modelled Process* or *Service Instance Manifest*. The guides do not introduce synonyms.
-- **Code font** marks meta-model names (`StateDependentStartupConfig`), API names (`ara::exec::ExecutionClient`), file names and the names of the running example (`Fusion`, `ADAS.Normal`).
-- **Process.** "Process" alone means the running OS process; "Modelled Process" means its description in the manifest (see the [EM guide, Section 2.1](guides/ExecutionManagement.md#21-software-units-from-application-to-os-process)).
-- **Running** has three meanings: the Execution State `kRunning`, the Process State *Running*, and possibly the name of a Function Group State. The running example therefore never uses "Running" as a state name (see the [EM guide, Section 2.3](guides/ExecutionManagement.md#23-states)).
-- **Illustrative values**, such as IP addresses, service IDs or diagnostic IDs of the running example, are invented for teaching and marked as such.
-
-### Links Between Guides
-
-A guide does not repeat what another guide explains. It gives a two- or three-line recap and links to the section that owns the topic, for example "see the [EM guide, Chapter 8](guides/ExecutionManagement.md#8-function-group-state-transitions-step-by-step)". Terms link to the [series glossary](guides/Glossary.md).
-
 ## The AUTOSAR Specifications
 
-### How AUTOSAR Documents Are Named
-
-Every AUTOSAR document has a name of the form `AUTOSAR_<standard>_<type>_<name>`, for example `AUTOSAR_AP_SWS_ExecutionManagement`. The *standard* is `AP` (Adaptive Platform), `CP` (Classic Platform) or `FO` (Foundation, the artifacts common to both platforms). The *type* tells you what kind of document it is:
+You can download the AUTOSAR specifications free of charge from <https://www.autosar.org/standards>. The guides are based on release **R25-11** of the Adaptive Platform and Foundation standards. Every AUTOSAR document has a name of the form `AUTOSAR_<standard>_<type>_<name>`, for example `AUTOSAR_AP_SWS_ExecutionManagement`. The *standard* is `AP` (Adaptive Platform), `CP` (Classic Platform) or `FO` (Foundation, the artifacts common to both platforms). The *type* tells you what kind of document it is:
 
 | Type | Name | What it contains | Normative? |
 | --- | --- | --- | --- |
@@ -227,10 +177,6 @@ Every AUTOSAR document has a name of the form `AUTOSAR_<standard>_<type>_<name>`
 | TR | Technical Report | Reports such as the *Glossary* or a release overview. | No |
 
 The guides rely on SWS, TPS and PRS for every normative statement, and on EXP and TR for explanations.
-
-## Viewing the Guides
-
-The guides are plain Markdown. The diagrams are SVG images, so every Markdown viewer shows them, for example GitHub, GitLab or the preview of VS Code. Click an image to open it at full size.
 
 ## Disclaimer
 
